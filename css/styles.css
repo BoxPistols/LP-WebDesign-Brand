@@ -24,7 +24,10 @@ body {
     justify-content: space-around;
 
 @text design
-  text-shadow: var(--text-shadow);
+    text-shadow: var(--text-shadow);
+
+@break-point
+    @media only screen and (max-width: 768px){ }
 
 ***/
 
@@ -188,6 +191,13 @@ body {
 .section > .container .grid-contents {
   margin: 2rem 0 4rem;
 }
+
+@media only screen and (max-width: 768px) {
+  .section > .container .grid-contents > .flex {
+    flex-direction: column;
+  }
+}
+
 .section > .container .grid-contents > h3 {
   display: flex;
   align-items: center;
@@ -197,6 +207,7 @@ body {
 }
 
 /* Step Accent */
+
 .section > .container .step-num {
   font-size: 1.5rem;
   border: 1px solid #000;
@@ -217,7 +228,7 @@ body {
 
 #info-top > .container > .info-group {
   position: relative;
-  max-width: var(--inner-width);
+  max-width: var(--max-width);
   padding: 0 32px;
   margin: auto;
   z-index: 2;
@@ -227,8 +238,8 @@ body {
 
 #point > .container > .info-group {
   position: relative;
-  max-width: var(--inner-width);
-  padding: 0 32px;
+  max-width: var(--max-width);
+  padding: 32px 32px 0;
   margin: auto;
   z-index: 2;
 }
