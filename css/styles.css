@@ -128,7 +128,7 @@ body {
 }
 @media only screen and (max-width: 768px) {
   #hero.section > .over {
-    max-width: 100vw;
+    background-size: auto 100%;
   }
 }
 
@@ -140,7 +140,7 @@ body {
 
 #hero > .container > .catch-group {
   text-align: center;
-  min-height: 50vh;
+  /* min-height: 50vh; */
   padding-top: 90px;
   color: var(--color-ghost);
   text-shadow: var(--text-shadow);
@@ -154,6 +154,12 @@ body {
   word-break: break-word;
   font-size: 5rem;
 }
+@media only screen and (max-width: 768px) {
+  #hero > .container > .catch-group > h2 {
+    font-size: 3rem;
+  }
+}
+
 #hero > .container .text-catch {
   opacity: 0;
 
@@ -170,10 +176,24 @@ body {
   font-size: 1.5rem;
 }
 
+#hero > .container .button-links {
+  margin: 2rem 0.85em;
+}
 #hero > .container .button-links button {
-  margin: 4rem 0.85em;
+  margin: 0.5em;
 }
 
+@media only screen and (max-width: 768px) {
+  #hero > .container .button-links {
+    margin: 32px auto 0;
+  }
+  #hero > .container .button-links button {
+    min-width: 60vw;
+    display: block;
+    margin: 24px auto 20px;
+    padding: 12px 20px;
+  }
+}
 /* === Section Common === */
 
 .section > .container {
