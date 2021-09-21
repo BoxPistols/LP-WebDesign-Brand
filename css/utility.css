@@ -1,0 +1,67 @@
+/* Utility for HTML MarkUp */
+
+/* Font Styles */
+.title-mincho {
+  font-family: var(--font-mincho);
+  font-weight: 400;
+}
+
+.title-design {
+  font-family: var(--font-design);
+  font-weight: 700;
+}
+.text-design {
+  font-family: var(--font-design);
+  font-weight: 300;
+}
+
+/* To Center */
+.m-auto {
+  margin: auto;
+}
+/* text-align */
+.tex-center {
+  text-align: center;
+}
+.tex-left {
+  text-align: left;
+}
+
+/* Spacing */
+/* .mx-24 {
+  margin: 0 24px;
+}
+.my-24 {
+  margin: 24px 0;
+} */
+
+/* flex-box */
+.flex {
+  display: flex;
+}
+.flex-row {
+  flex-direction: row;
+}
+.flex-column {
+  flex-direction: column;
+}
+/* 子要素の左右反転 */
+.flex-row-reverse {
+  flex-direction: row-reverse;
+}
+.flex-center {
+  align-items: center;
+  justify-content: center;
+}
+.flex-ai-center {
+  align-items: center;
+}
+.flex-jc-center {
+  justify-content: center;
+}
+
+/* UI Components */
+
+/* TODO: Responsive
+ * @break-point 768px
+ */
