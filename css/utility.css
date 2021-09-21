@@ -38,6 +38,7 @@
 /* flex-box */
 .flex {
   display: flex;
+  flex-direction: column;
 }
 .flex-row {
   flex-direction: row;
