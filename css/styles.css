@@ -126,12 +126,6 @@ body {
   /* filter: blur(2px); */
   z-index: -1;
 }
-@media only screen and (max-width: 768px) {
-  #hero.section > .over {
-    background-image: none;
-    background-color: #000;
-  }
-}
 
 #hero.section > .container {
   z-index: 1;
@@ -184,7 +178,12 @@ body {
   margin: 0.5em;
 }
 
+/* SP */
 @media only screen and (max-width: 768px) {
+  #hero.section > .over {
+    background-image: none;
+    background-color: #cde;
+  }
   #hero > .container .button-links {
     margin: 32px auto 0;
   }
@@ -193,6 +192,11 @@ body {
     display: block;
     margin: 24px auto 20px;
     padding: 12px 20px;
+  }
+  #hero > .container > .catch-group,
+  #hero > .container .button-links button {
+    color: #000;
+    border-color: #000;
   }
 }
 /* === Section Common === */
