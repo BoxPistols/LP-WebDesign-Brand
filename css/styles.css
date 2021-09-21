@@ -284,3 +284,30 @@ body {
 
 /* === Gallery ==== */
 
+.gallery-container {
+  margin: 2rem;
+}
+.gallery-container ul > li {
+  margin: 8px;
+}
+.gallery-container ul > li a {
+  margin: 8px;
+  width: 100%;
+}
+@media only screen and (max-width: 768px) {
+  .gallery-container {
+    margin: 0 auto;
+  }
+
+  .gallery-container ul {
+    margin: auto;
+    /* display: flex; */
+    /* justify-content: center; */
+  }
+  .gallery-container ul > li {
+    width: calc(50% - 20px);
+  }
+  .gallery-container ul > li a img {
+    width: 100%;
+  }
+}

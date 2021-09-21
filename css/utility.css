@@ -38,10 +38,13 @@
 /* flex-box */
 .flex {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
 }
 .flex-row {
   flex-direction: row;
+}
+.flex-wrap {
+  flex-wrap: wrap;
 }
 .flex-column {
   flex-direction: column;
