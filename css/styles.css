@@ -122,9 +122,14 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
-  background-position: center center;
+  background-position: center;
   /* filter: blur(2px); */
   z-index: -1;
+}
+@media only screen and (max-width: 768px) {
+  #hero.section > .over {
+    max-width: 100vw;
+  }
 }
 
 #hero.section > .container {
@@ -145,7 +150,8 @@ body {
   animation-name: fadeIn_Top;
   animation-duration: 4s;
   animation-fill-mode: forwards;
-
+  white-space: break-spaces;
+  word-break: break-word;
   font-size: 5rem;
 }
 #hero > .container .text-catch {
@@ -205,6 +211,10 @@ body {
 }
 .section > .container .grid-contents .grid-image {
   margin: 0 32px;
+}
+.section > .container .grid-contents .grid-image > img {
+  max-width: 90vw;
+  margin: auto;
 }
 
 /* Step Accent */
