@@ -35,13 +35,6 @@
   --text-shadow: 0px 0px 2px #000;
 }
 
-/* ios */
-@supports (-webkit-touch-callout: none) and (font: -apple-system-body) {
-  :root {
-    font: -apple-system-body;
-  }
-}
-
 /* style reset */
 
 * {
@@ -51,9 +44,17 @@
 
 html {
   -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
   overflow-x: hidden;
   font-size: 16px;
+  /* ios */
+  -webkit-tap-highlight-color: #0000;
+  -webkit-text-size-adjust: 100%;
+}
+/* ios */
+@supports (-webkit-touch-callout: none) and (font: -apple-system-body) {
+  :root {
+    font: -apple-system-body;
+  }
 }
 
 body {
