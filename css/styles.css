@@ -195,6 +195,7 @@ body {
   }
   #hero > .container > .catch-group,
   #hero > .container .button-links button {
+    text-shadow: none;
     color: #000;
     border-color: #000;
   }
