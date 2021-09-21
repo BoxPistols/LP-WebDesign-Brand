@@ -28,7 +28,7 @@
   /* Font */
   --font-sans: Helvetica Neue, Arial, Hiragino Sans, Hiragino Kaku Gothic ProN,
     BIZ UDPGothic, Meiryo, sans-serif;
-  --font-design: 'Comfortaa', cursive;
+  --font-design: 'Comfortaa', sans-serif;
   --font-mincho: serif;
 
   /* Text Design */

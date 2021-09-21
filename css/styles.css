@@ -37,6 +37,7 @@ body {
   right: 2vw;
   bottom: 2vh;
   opacity: 0.8;
+  z-index: 10;
 }
 .to-top a {
   display: flex;
@@ -60,12 +61,12 @@ body {
   width: 100vw;
   top: 0;
   left: 0;
-  z-index: 2;
   border: solid 4px rgba(#000, 0.5);
   /* color: var(--color-ghost); */
   text-shadow: var(--text-shadow);
   font-family: var(--font-design);
   backdrop-filter: blur(2px);
+  z-index: 10;
 }
 
 .header:before {
@@ -178,7 +179,7 @@ body {
   font-size: 12em;
   transform: translate(-50%, -20%);
   position: absolute;
-  top: 0%;
+  top: 5%;
   left: 50%;
   white-space: nowrap;
   color: var(--color-ghost);
@@ -210,7 +211,7 @@ body {
 
 .section > .container .step-num {
   font-size: 1.5rem;
-  border: 1px solid #000;
+  border: 2px solid #000;
   border-radius: 48px;
   min-width: 48px;
   max-width: 48px;
