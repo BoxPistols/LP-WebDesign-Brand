@@ -8,6 +8,7 @@ body {
   animation-duration: 3s;
   animation-fill-mode: forwards;
 }
+
 /*** @snippet ***
 @color
   var(--color-ghost);
@@ -39,6 +40,7 @@ body {
   opacity: 0.8;
   z-index: 10;
 }
+
 .to-top a {
   display: flex;
   justify-content: center;
@@ -79,14 +81,16 @@ body {
   opacity: 0.2;
 }
 
-.header > nav {
+.header>nav {
   justify-content: space-between;
   padding: 12px 30px;
 }
-.header > nav ul {
+
+.header>nav ul {
   display: flex;
 }
-.header > nav ul > li a {
+
+.header>nav ul>li a {
   margin: 0 0 0 0.8rem;
   /* color: var(--color-ghost); */
 }
@@ -95,7 +99,8 @@ body {
 .section {
   width: 100%;
 }
-.section > .container {
+
+.section>.container {
   margin: 0 auto;
   display: block;
   padding: 32px;
@@ -109,7 +114,7 @@ body {
 }
 
 /* 背景画像 */
-#hero.section > .over {
+#hero.section>.over {
   /* content: ''; */
   display: block;
   position: absolute;
@@ -127,20 +132,21 @@ body {
   z-index: -1;
 }
 
-#hero.section > .container {
+#hero.section>.container {
   z-index: 1;
   background-color: transparent;
   backdrop-filter: blur(0.5px) grayscale(0.4);
 }
 
-#hero > .container > .catch-group {
+#hero>.container>.catch-group {
   text-align: center;
   /* min-height: 50vh; */
   padding-top: 90px;
   color: var(--color-ghost);
   text-shadow: var(--text-shadow);
 }
-#hero > .container > .catch-group > h2 {
+
+#hero>.container>.catch-group>h2 {
   /* Animation */
   animation-name: fadeIn_Top;
   animation-duration: 4s;
@@ -150,7 +156,7 @@ body {
   font-size: 5rem;
 }
 
-#hero > .container .text-catch {
+#hero>.container .text-catch {
   opacity: 0;
 
   /* Animation */
@@ -166,38 +172,41 @@ body {
   font-size: 1.5rem;
 }
 
-#hero > .container .button-links {
+#hero>.container .button-links {
   margin: 2rem 0.85em;
 }
-#hero > .container .button-links button {
+
+#hero>.container .button-links button {
   margin: 0.5em;
 }
 
 /* SP */
 @media only screen and (max-width: 768px) {
-  #hero > .container > .catch-group > h2 {
+  #hero>.container>.catch-group>h2 {
     font-size: 3rem;
     padding: 0 1em;
   }
 
-  #hero > .container .button-links {
+  #hero>.container .button-links {
     margin: 32px auto 0;
   }
-  #hero > .container .button-links button {
+
+  #hero>.container .button-links button {
     min-width: 60vw;
     display: block;
     margin: 24px auto 20px;
     padding: 12px 20px;
   }
 }
+
 /* === Section Common === */
 
-.section > .container {
+.section>.container {
   padding: 32px 0;
   z-index: 1;
 }
 
-.section > .container .deco {
+.section>.container .deco {
   font-size: 12em;
   transform: translate(-50%, -20%);
   position: absolute;
@@ -211,31 +220,33 @@ body {
 }
 
 /* === Grid Items === */
-.section > .container .grid-contents {
+.section>.container .grid-contents {
   margin: 2rem 0 4rem;
 }
 
 @media only screen and (max-width: 768px) {
-  .section > .container .grid-contents > .flex {
+  .section>.container .grid-contents>.flex {
     flex-direction: column;
   }
 }
 
-.section > .container .grid-contents > h3 {
+.section>.container .grid-contents>h3 {
   display: flex;
   align-items: center;
 }
-.section > .container .grid-contents .grid-image {
+
+.section>.container .grid-contents .grid-image {
   margin: 0 32px;
 }
-.section > .container .grid-contents .grid-image > img {
+
+.section>.container .grid-contents .grid-image>img {
   max-width: 100%;
   margin: auto;
 }
 
 /* Step Accent */
 
-.section > .container .step-num {
+.section>.container .step-num {
   font-size: 1.5rem;
   border: 2px solid #000;
   border-radius: 48px;
@@ -250,11 +261,11 @@ body {
 
 /* === Section Info === */
 
-#info-top > .container {
+#info-top>.container {
   background-color: #cde;
 }
 
-#info-top > .container > .info-group {
+#info-top>.container>.info-group {
   position: relative;
   max-width: var(--max-width);
   padding: 0 32px 48px;
@@ -264,7 +275,7 @@ body {
 
 /* === Section Point === */
 
-#point > .container > .info-group {
+#point>.container>.info-group {
   position: relative;
   max-width: var(--max-width);
   padding: 32px 32px 0;
@@ -277,22 +288,26 @@ body {
 .gallery-container {
   margin: 2rem;
 }
+
 .gallery-container ul {
   /* max-width: var(--inner-width); */
   padding: 8px;
   /* margin: 8px; */
 }
-.gallery-container ul > li {
+
+.gallery-container ul>li {
   width: 45%;
   /* margin: auto; */
   display: flex;
   justify-content: center;
   margin: 8px;
 }
-.gallery-container ul > li a {
+
+.gallery-container ul>li a {
   margin: 4px;
   /* width: 100%; */
 }
+
 @media only screen and (max-width: 768px) {
   .gallery-container {
     margin: 0 auto;
@@ -301,13 +316,15 @@ body {
   .gallery-container ul {
     margin: auto;
   }
-  .gallery-container ul > li {
+
+  .gallery-container ul>li {
     width: 50%;
     margin: auto;
     display: flex;
     justify-content: center;
   }
-  .gallery-container ul > li a img {
+
+  .gallery-container ul>li a img {
     width: 100%;
   }
 }

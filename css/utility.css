@@ -10,6 +10,7 @@
   font-family: var(--font-design);
   font-weight: 700;
 }
+
 .text-design {
   font-family: var(--font-design);
   font-weight: 300;
@@ -19,10 +20,12 @@
 .m-auto {
   margin: auto;
 }
+
 /* text-align */
 .tex-center {
   text-align: center;
 }
+
 .tex-left {
   text-align: left;
 }
@@ -40,32 +43,41 @@
   display: flex;
   flex-wrap: wrap;
 }
+
 .flex-row {
   flex-direction: row;
 }
+
 .flex-wrap {
   flex-wrap: wrap;
 }
+
 .flex-column {
   flex-direction: column;
 }
+
 /* 子要素の左右反転 */
 .flex-row-reverse {
   flex-direction: row-reverse;
 }
+
 .flex-center {
   align-items: center;
   justify-content: center;
 }
+
 .flex-ai-center {
   align-items: center;
 }
+
 .flex-jc-center {
   justify-content: center;
 }
+
 .flex-jc-between {
   justify-content: space-between;
 }
+
 .flex-jc-around {
   justify-content: space-around;
 }

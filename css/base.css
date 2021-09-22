@@ -50,6 +50,7 @@ html {
   -webkit-tap-highlight-color: #0000;
   -webkit-text-size-adjust: 100%;
 }
+
 /* ios */
 @supports (-webkit-touch-callout: none) and (font: -apple-system-body) {
   :root {
@@ -129,6 +130,7 @@ h6 {
 h1 {
   font-size: 4em;
 }
+
 h2 {
   font-size: 3.2em;
 }
@@ -144,11 +146,13 @@ h4 {
 h5 {
   font-size: 1.5em;
 }
+
 /* Mobile */
 @media only screen and (max-width: 768px) {
   h1 {
     font-size: 3em;
   }
+
   h2 {
     font-size: 2em;
   }
@@ -166,12 +170,12 @@ h5 {
   }
 }
 
-h1 + *,
-h2 + *,
-h3 + *,
-h4 + *,
-h5 + *,
-h6 + * {
+h1+*,
+h2+*,
+h3+*,
+h4+*,
+h5+*,
+h6+* {
   margin-top: 0.8em;
 }
 
@@ -190,6 +194,7 @@ button {
   outline: none;
   background: none;
 }
+
 button.white {
   border: 1px solid var(--color-ghost);
   color: var(--color-ghost);
@@ -201,6 +206,7 @@ button.white {
     /* transform: translateY(-8%); */
     opacity: 0;
   }
+
   100% {
     /* transform: translateY(0%); */
     opacity: 1;
@@ -211,15 +217,18 @@ button.white {
   0% {
     transform: translateY(-50%);
   }
+
   100% {
     transform: translateY(0%);
   }
 }
+
 @keyframes fadeIn_Left {
   0% {
     opacity: 0;
     transform: translateX(-20%);
   }
+
   100% {
     opacity: 1;
     transform: translateX(0%);
