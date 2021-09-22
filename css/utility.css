@@ -41,7 +41,6 @@
 /* flex-box */
 .flex {
   display: flex;
-  flex-wrap: wrap;
 }
 
 .flex-row {
