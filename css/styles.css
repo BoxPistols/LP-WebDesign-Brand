@@ -295,7 +295,10 @@ body {
     /* justify-content: center; */
   }
   .gallery-container ul > li {
-    width: calc(50% - 20px);
+    width: 50%;
+    margin: auto;
+    display: flex;
+    justify-content: center;
   }
   .gallery-container ul > li a img {
     width: 100%;
