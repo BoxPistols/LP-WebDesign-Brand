@@ -257,7 +257,7 @@ body {
 #info-top > .container > .info-group {
   position: relative;
   max-width: var(--max-width);
-  padding: 0 32px;
+  padding: 0 32px 48px;
   margin: auto;
   z-index: 2;
 }
@@ -277,11 +277,19 @@ body {
 .gallery-container {
   margin: 2rem;
 }
+.gallery-container ul {
+  max-width: var(--inner-width);
+  padding: 8px;
+}
 .gallery-container ul > li {
-  margin: 8px;
+  width: 25%;
+  /* margin: auto; */
+  display: flex;
+  justify-content: center;
+  margin: 0 8px;
 }
 .gallery-container ul > li a {
-  margin: 8px;
+  margin: 4px;
   width: 100%;
 }
 @media only screen and (max-width: 768px) {
@@ -291,8 +299,6 @@ body {
 
   .gallery-container ul {
     margin: auto;
-    /* display: flex; */
-    /* justify-content: center; */
   }
   .gallery-container ul > li {
     width: 50%;
