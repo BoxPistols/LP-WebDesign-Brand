@@ -180,9 +180,7 @@ body {
   }
 
   #hero.section > .over {
-    /* background-image: none; */
     background-attachment: none;
-    /* background-color: #cde; */
   }
 
   #hero > .container .button-links {
