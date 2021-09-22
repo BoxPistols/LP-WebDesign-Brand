@@ -293,17 +293,18 @@ body {
 }
 
 .gallery-container ul {
-  /* max-width: var(--inner-width); */
   padding: 8px;
-  /* margin: 8px; */
+  overflow-x: scroll;
+  /* ios */
+  -webkit-overflow-scrolling: touch;
 }
 
 .gallery-container ul>li {
   width: 45%;
-  /* margin: auto; */
   display: flex;
   justify-content: center;
   margin: 8px;
+  min-width: 240px;
 }
 
 .gallery-container ul>li a {
@@ -318,10 +319,11 @@ body {
 
   .gallery-container ul {
     margin: auto;
+    flex-direction: column;
   }
 
   .gallery-container ul>li {
-    width: 50%;
+    width: 90%;
     margin: auto;
     display: flex;
     justify-content: center;
