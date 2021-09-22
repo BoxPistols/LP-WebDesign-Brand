@@ -240,7 +240,6 @@ body {
 }
 
 .section>.container .grid-contents .grid-image>img {
-  max-width: 100%;
   margin: auto;
 }
 
