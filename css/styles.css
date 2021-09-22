@@ -121,9 +121,9 @@ body {
   background-image: url(https://shrtm.nu/pFQj);
   background-repeat: no-repeat;
   background-size: cover;
-  background-attachment: fixed;
   background-position: center;
   /* filter: blur(2px); */
+  /* background-attachment: fixed; */
   z-index: -1;
 }
 
@@ -178,10 +178,6 @@ body {
   #hero > .container > .catch-group > h2 {
     font-size: 3rem;
     padding: 0 1em;
-  }
-
-  #hero.section > .over {
-    background-attachment: none;
   }
 
   #hero > .container .button-links {
