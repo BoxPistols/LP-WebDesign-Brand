@@ -1,6 +1,6 @@
 /* FIXME! rm */
 body {
-  min-height: 200vh;
+  /* min-height: 200vh; */
   /* position: relative; */
 
   /* Animation */
@@ -149,11 +149,6 @@ body {
   word-break: break-word;
   font-size: 5rem;
 }
-@media only screen and (max-width: 768px) {
-  #hero > .container > .catch-group > h2 {
-    font-size: 3rem;
-  }
-}
 
 #hero > .container .text-catch {
   opacity: 0;
@@ -180,10 +175,14 @@ body {
 
 /* SP */
 @media only screen and (max-width: 768px) {
-  #hero.section > .over {
-    background-image: none;
-    background-color: #cde;
+  #hero > .container > .catch-group > h2 {
+    font-size: 3rem;
   }
+
+  #hero.section > .over {
+    background-attachment: none;
+  }
+
   #hero > .container .button-links {
     margin: 32px auto 0;
   }
@@ -192,12 +191,6 @@ body {
     display: block;
     margin: 24px auto 20px;
     padding: 12px 20px;
-  }
-  #hero > .container > .catch-group,
-  #hero > .container .button-links button {
-    text-shadow: none;
-    color: #000;
-    border-color: #000;
   }
 }
 /* === Section Common === */
