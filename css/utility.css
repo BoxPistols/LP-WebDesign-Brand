@@ -63,6 +63,12 @@
 .flex-jc-center {
   justify-content: center;
 }
+.flex-jc-between {
+  justify-content: space-between;
+}
+.flex-jc-around {
+  justify-content: space-around;
+}
 
 /* UI Components */
 

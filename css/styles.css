@@ -278,19 +278,20 @@ body {
   margin: 2rem;
 }
 .gallery-container ul {
-  max-width: var(--inner-width);
+  /* max-width: var(--inner-width); */
   padding: 8px;
+  /* margin: 8px; */
 }
 .gallery-container ul > li {
-  width: 25%;
+  width: 45%;
   /* margin: auto; */
   display: flex;
   justify-content: center;
-  margin: 0 8px;
+  margin: 8px;
 }
 .gallery-container ul > li a {
   margin: 4px;
-  width: 100%;
+  /* width: 100%; */
 }
 @media only screen and (max-width: 768px) {
   .gallery-container {
