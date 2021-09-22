@@ -239,6 +239,10 @@ body {
   margin: 0 32px;
 }
 
+.section>.container .grid-contents .grid-text {
+  flex-shrink: 3;
+}
+
 .section>.container .grid-contents .grid-image>img {
   margin: auto;
 }
