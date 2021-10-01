@@ -28,7 +28,7 @@
   /* Font */
   --font-sans: Helvetica Neue, Arial, Hiragino Sans, Hiragino Kaku Gothic ProN,
     BIZ UDPGothic, Meiryo, sans-serif;
-  --font-design: 'Comfortaa', sans-serif;
+  --font-design: "Comfortaa", sans-serif;
   --font-mincho: serif;
 
   /* Text Design */
@@ -79,10 +79,13 @@ textarea {
   -moz-osx-font-smoothing: grayscale;
 }
 
+
 img {
   vertical-align: bottom;
   width: auto;
+  transition: 0.3s;
 }
+
 
 a {
   text-decoration: none;
@@ -148,9 +151,11 @@ h5 {
 @media only screen and (max-width: 768px) {
   h1 {
     font-size: 3em;
+    font-size: 2em;
   }
   h2 {
     font-size: 2em;
+    font-size: 1.8em;
   }
 
   h3 {
@@ -189,6 +194,7 @@ button {
   border-radius: 4em;
   outline: none;
   background: none;
+  color: var(--color-ghost);
 }
 button.white {
   border: 1px solid var(--color-ghost);
@@ -200,6 +206,7 @@ button.white {
   0% {
     /* transform: translateY(-8%); */
     opacity: 0;
+    opacity: 1;
   }
   100% {
     /* transform: translateY(0%); */
@@ -221,7 +228,3 @@ button.white {
     transform: translateX(-20%);
   }
   100% {
-    opacity: 1;
-    transform: translateX(0%);
-  }
-}
