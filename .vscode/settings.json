@@ -432,5 +432,10 @@
   "editor.fontSize": 14,
   "editor.lineHeight": 20,
   "editor.cursorWidth": 4,
-  "editor.fontFamily": "メイリオ"
+  "editor.fontFamily": "メイリオ",
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#431B59",
+    "titleBar.activeBackground": "#5D267C",
+    "titleBar.activeForeground": "#FDFCFE"
+  }
 }
