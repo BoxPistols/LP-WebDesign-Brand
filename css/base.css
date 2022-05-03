@@ -4,7 +4,30 @@
   --inner-width: 960px;
 
   /* Color  global */
+  /* TODO: remove */
   --primary: #0073df;
+  --color-ghost: ghostwhite;
+
+  /* Color brand / bg or text */
+  --color-default: #02375f;
+  --color-primary: #119cda;
+  --color-secondary: #f3c92d;
+  --color-accent: #e1323c;
+  --color-btn-cv: #ea6e75;
+  --color-btn-download: #e1323c;
+
+  /* Add Origin */
+
+  --color-elegant: #48626f;
+
+  /* Color Dark */
+  --color-black: #000;
+  --color-text: #191919;
+
+  /* Color Light */
+  --color-white: white;
+  --color-light-gray: #eceff2;
+  --color-gray: #c5d0db;
   --color-ghost: ghostwhite;
 
   /* Color  text */
@@ -26,13 +49,15 @@
   --color-border: rgba(0, 0, 0, 0.1);
 
   /* Font */
+  /* --font-sans: "Yu Gothic Medium", "游ゴシック Medium", YuGothic, "游ゴシック体", "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", "メイリオ", Meiryo, sans-serif; */
   --font-sans: Helvetica Neue, Arial, Hiragino Sans, Hiragino Kaku Gothic ProN,
     BIZ UDPGothic, Meiryo, sans-serif;
-  --font-design: 'Comfortaa', sans-serif;
+  --font-design: "Comfortaa", sans-serif;
   --font-mincho: serif;
 
   /* Text Design */
   --text-shadow: 0px 0px 2px #000;
+  --box-shadow: 2px 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 /* style reset */
@@ -170,12 +195,12 @@ h5 {
   }
 }
 
-h1+*,
-h2+*,
-h3+*,
-h4+*,
-h5+*,
-h6+* {
+h1 + *,
+h2 + *,
+h3 + *,
+h4 + *,
+h5 + *,
+h6 + * {
   margin-top: 0.8em;
 }
 
