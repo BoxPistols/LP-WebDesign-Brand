@@ -7,6 +7,9 @@ body {
   animation-name: fadeIn_opacity;
   animation-duration: 3s;
   animation-fill-mode: forwards;
+
+  color: var(--color-default);
+  font-size: 1.25rem;
 }
 
 /*** @snippet ***
@@ -202,12 +205,14 @@ body {
 /* === Section Common === */
 
 .section > .container {
+  display: flex;
+  flex-direction: column;
   padding: 32px 0;
   z-index: 1;
 }
 
 .section > .container .deco {
-  font-size: 12em;
+  font-size: 16vw;
   transform: translate(-50%, -20%);
   position: absolute;
   top: 5%;
@@ -241,10 +246,27 @@ body {
 
 .section > .container .grid-contents .grid-text {
   flex-shrink: 3;
+  max-width: 500px;
+  text-align: justify;
+}
+
+@media only screen and (max-width: 768px) {
+  .section > .container .grid-contents .grid-text {
+    text-align: left;
+  }
 }
 
 .section > .container .grid-contents .grid-image > img {
   margin: auto;
+}
+
+/* reverse */
+
+.grid-contents:nth-child(odd) {
+  flex-direction: column-reverse;
+}
+.grid-contents:nth-child(odd) h3 {
+  justify-content: flex-end;
 }
 
 /* Step Accent */
@@ -272,7 +294,7 @@ body {
 #info-top > .container > .info-group {
   position: relative;
   max-width: var(--max-width);
-  padding: 0 32px 48px;
+  padding: 4vh 32px 48px;
   margin: auto;
   z-index: 2;
 }
@@ -288,6 +310,12 @@ body {
 }
 
 /* ===== Gallery ====== */
+
+.gallery-container {
+  /* max-width: fit-content; */
+  max-width: var(--max-width);
+  margin: auto;
+}
 
 .gallery-container .spotlight-group {
   margin: 2rem;
