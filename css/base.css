@@ -13,14 +13,15 @@
   --color-accent: #e1323c;
   --color-btn-cv: #ea6e75;
   --color-btn-download: #e1323c;
-
+  
   /* Add Origin */
-
+  
   --color-elegant: #48626f;
-
+  
   /* Color Dark */
   --color-black: #000;
   --color-text: #191919;
+  --color-default-dark: #1f2a33;
 
   /* Color Light */
   --color-white: white;
