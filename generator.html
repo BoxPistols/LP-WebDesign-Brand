@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Landing Page Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/generator.css">
+</head>
+<body>
+    <div class="generator-container">
+        <!-- Left Sidebar - Controls -->
+        <aside class="controls-panel">
+            <div class="panel-header">
+                <h1 class="panel-title">LP Generator</h1>
+                <p class="panel-subtitle">モダンなランディングページを作成</p>
+            </div>
+
+            <!-- Theme Selection -->
+            <section class="control-section">
+                <h3 class="section-title">カラーテーマ</h3>
+                <div class="theme-grid">
+                    <button class="theme-btn active" data-theme="modern-blue">
+                        <span class="theme-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></span>
+                        <span class="theme-name">Modern Blue</span>
+                    </button>
+                    <button class="theme-btn" data-theme="sunset">
+                        <span class="theme-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"></span>
+                        <span class="theme-name">Sunset</span>
+                    </button>
+                    <button class="theme-btn" data-theme="ocean">
+                        <span class="theme-preview" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"></span>
+                        <span class="theme-name">Ocean</span>
+                    </button>
+                    <button class="theme-btn" data-theme="forest">
+                        <span class="theme-preview" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"></span>
+                        <span class="theme-name">Forest</span>
+                    </button>
+                    <button class="theme-btn" data-theme="dark-mode">
+                        <span class="theme-preview" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)"></span>
+                        <span class="theme-name">Dark Mode</span>
+                    </button>
+                    <button class="theme-btn" data-theme="vibrant">
+                        <span class="theme-preview" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)"></span>
+                        <span class="theme-name">Vibrant</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Section Components -->
+            <section class="control-section">
+                <h3 class="section-title">セクションを追加</h3>
+                <div class="component-grid">
+                    <button class="component-btn" data-component="hero-1">
+                        <span class="component-icon">🎯</span>
+                        <span class="component-name">Hero Banner</span>
+                    </button>
+                    <button class="component-btn" data-component="features-grid">
+                        <span class="component-icon">⚡</span>
+                        <span class="component-name">Features</span>
+                    </button>
+                    <button class="component-btn" data-component="pricing">
+                        <span class="component-icon">💰</span>
+                        <span class="component-name">Pricing</span>
+                    </button>
+                    <button class="component-btn" data-component="testimonials">
+                        <span class="component-icon">💬</span>
+                        <span class="component-name">Testimonials</span>
+                    </button>
+                    <button class="component-btn" data-component="cta">
+                        <span class="component-icon">🚀</span>
+                        <span class="component-name">CTA</span>
+                    </button>
+                    <button class="component-btn" data-component="gallery">
+                        <span class="component-icon">🖼️</span>
+                        <span class="component-name">Gallery</span>
+                    </button>
+                    <button class="component-btn" data-component="stats">
+                        <span class="component-icon">📊</span>
+                        <span class="component-name">Statistics</span>
+                    </button>
+                    <button class="component-btn" data-component="team">
+                        <span class="component-icon">👥</span>
+                        <span class="component-name">Team</span>
+                    </button>
+                    <button class="component-btn" data-component="faq">
+                        <span class="component-icon">❓</span>
+                        <span class="component-name">FAQ</span>
+                    </button>
+                    <button class="component-btn" data-component="contact">
+                        <span class="component-icon">📧</span>
+                        <span class="component-name">Contact</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Layout Options -->
+            <section class="control-section">
+                <h3 class="section-title">レイアウト設定</h3>
+                <div class="layout-options">
+                    <label class="option-item">
+                        <input type="checkbox" id="fullWidthToggle" checked>
+                        <span>フルワイドレイアウト</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="animationsToggle" checked>
+                        <span>アニメーション</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="glassmorphismToggle">
+                        <span>ガラスモーフィズム</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Export Actions -->
+            <section class="control-section">
+                <h3 class="section-title">エクスポート</h3>
+                <div class="action-buttons">
+                    <button class="action-btn primary" id="exportHTML">
+                        <span>📄</span> HTMLをダウンロード
+                    </button>
+                    <button class="action-btn secondary" id="clearAll">
+                        <span>🗑️</span> すべてクリア
+                    </button>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Right Side - Preview Area -->
+        <main class="preview-area">
+            <div class="preview-toolbar">
+                <div class="device-toggles">
+                    <button class="device-btn active" data-device="desktop">
+                        <span>🖥️</span> Desktop
+                    </button>
+                    <button class="device-btn" data-device="tablet">
+                        <span>📱</span> Tablet
+                    </button>
+                    <button class="device-btn" data-device="mobile">
+                        <span>📱</span> Mobile
+                    </button>
+                </div>
+            </div>
+
+            <div class="preview-frame" id="previewFrame">
+                <!-- Preview content will be dynamically generated here -->
+                <div class="empty-state">
+                    <div class="empty-state-content">
+                        <h2>ランディングページを作成しましょう</h2>
+                        <p>左側からカラーテーマを選択し、セクションを追加してください</p>
+                        <div class="empty-state-icon">✨</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/templates.js"></script>
+    <script src="js/generator.js"></script>
+</body>
+</html>
