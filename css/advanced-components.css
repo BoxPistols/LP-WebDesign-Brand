@@ -308,6 +308,7 @@
     font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: var(--font-extrabold);
     margin-bottom: var(--space-4);
+    color: var(--theme-primary); /* Fallback color */
     background: var(--theme-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
