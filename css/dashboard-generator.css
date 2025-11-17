@@ -563,6 +563,41 @@ body {
     }
 }
 
+/* ===== Design Customization Styles ===== */
+.customize-group {
+    margin-bottom: 1rem;
+}
+
+.customize-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--db-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.customize-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    border: 1px solid var(--db-border);
+    border-radius: 6px;
+    background: var(--db-bg-primary);
+    color: var(--db-text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.customize-select:hover {
+    border-color: var(--db-primary);
+}
+
+.customize-select:focus {
+    outline: none;
+    border-color: var(--db-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
 @media (max-width: 768px) {
     .dashboard-builder {
         grid-template-columns: 1fr;

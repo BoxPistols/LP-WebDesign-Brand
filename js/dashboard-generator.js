@@ -9,12 +9,18 @@ class DashboardGenerator {
         this.draggedComponent = null;
         this.history = [];
         this.historyIndex = -1;
+        this.designSettings = {
+            fontSize: 14,
+            spacing: 1.0,
+            borderRadius: 8
+        };
 
         this.init();
     }
 
     init() {
         this.setupEventListeners();
+        this.setupDesignCustomization();
         console.log('Dashboard Generator initialized');
     }
 
@@ -389,6 +395,70 @@ class DashboardGenerator {
         const canvas = document.getElementById('dashboardCanvas');
         canvas.style.transform = `scale(${currentZoom / 100})`;
         canvas.style.transformOrigin = 'top left';
+    }
+
+    // Design Customization
+    setupDesignCustomization() {
+        // Font Size
+        const fontSizeSelect = document.getElementById('dashFontSize');
+        if (fontSizeSelect) {
+            fontSizeSelect.addEventListener('change', (e) => {
+                this.designSettings.fontSize = parseInt(e.target.value);
+                this.applyFontSize(parseInt(e.target.value));
+            });
+        }
+
+        // Spacing
+        const spacingSelect = document.getElementById('dashSpacing');
+        if (spacingSelect) {
+            spacingSelect.addEventListener('change', (e) => {
+                this.designSettings.spacing = parseFloat(e.target.value);
+                this.applySpacing(parseFloat(e.target.value));
+            });
+        }
+
+        // Border Radius
+        const borderRadiusSelect = document.getElementById('dashBorderRadius');
+        if (borderRadiusSelect) {
+            borderRadiusSelect.addEventListener('change', (e) => {
+                this.designSettings.borderRadius = parseInt(e.target.value);
+                this.applyBorderRadius(parseInt(e.target.value));
+            });
+        }
+    }
+
+    applyFontSize(size) {
+        const canvas = document.getElementById('dashboardCanvas');
+        if (canvas) {
+            canvas.style.fontSize = `${size}px`;
+            this.showNotification(`フォントサイズを ${size}px に変更しました`);
+        }
+    }
+
+    applySpacing(scale) {
+        const canvas = document.getElementById('dashboardCanvas');
+        if (canvas) {
+            // Apply spacing scale to grid gaps and padding
+            const cards = canvas.querySelectorAll('.dashboard-card, .stat-card, .data-table, .chart-card');
+            cards.forEach(card => {
+                const baseGap = 24;
+                card.style.gap = `${baseGap * scale}px`;
+                const basePadding = 24;
+                card.style.padding = `${basePadding * scale}px`;
+            });
+            this.showNotification(`余白を ${scale * 100}% に変更しました`);
+        }
+    }
+
+    applyBorderRadius(radius) {
+        const canvas = document.getElementById('dashboardCanvas');
+        if (canvas) {
+            const elements = canvas.querySelectorAll('.dashboard-card, .stat-card, .data-table, .chart-card, .btn');
+            elements.forEach(el => {
+                el.style.borderRadius = `${radius}px`;
+            });
+            this.showNotification(`角丸を ${radius}px に変更しました`);
+        }
     }
 
     // Utilities
