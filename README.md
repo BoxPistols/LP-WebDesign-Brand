@@ -1,13 +1,31 @@
-# 🎨 Universal Landing Page Generator v2.0
+# 🎨 Universal Web Design Generator v2.0
 
-**最高のデザインとUI/UXを実現する、次世代のランディングページジェネレーター**
+**最高のデザインとUI/UXを実現する、次世代のWebデザインジェネレーター**
 
-モダンで美しいランディングページを簡単に作成できる、汎用的なジェネレーターツールです。コードの知識がなくても、プロフェッショナルなランディングページを数分で作成できます。
+モダンで美しいランディングページとダッシュボードを簡単に作成できる、汎用的なジェネレーターツールです。コードの知識がなくても、プロフェッショナルなWebデザインを数分で作成できます。
 
 ![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-## ✨ v2.0の新機能
+## 🚀 2つの強力なジェネレーター
+
+### 📄 Landing Page Generator
+マーケティングサイト・プロダクトページ向け
+- 19種類のセクションコンポーネント
+- 10種類のプレミアムテーマ
+- React/Vue/JSON エクスポート
+- [generator.html で起動](./generator.html)
+
+### 📊 Dashboard Generator 🆕
+管理画面・SaaS ダッシュボード向け（Dribbbleインスパイア）
+- 14種類のダッシュボードコンポーネント
+- 3種類のレイアウトオプション
+- アナリティクス/CRM/Eコマース テンプレート
+- [dashboard-generator.html で起動](./dashboard-generator.html)
+
+---
+
+## ✨ Landing Page Generator v2.0の機能
 
 ### 🎯 大幅な機能拡張
 - ✅ **10種類のプレミアムテーマ**（4テーマ追加）
