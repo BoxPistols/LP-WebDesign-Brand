@@ -327,7 +327,7 @@
     --theme-secondary: #8338ec;
     --theme-accent: #3a86ff;
     --theme-gradient: linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%);
-    --theme-text: var(--color-neutral-900);
+    --theme-text: var(--color-neutral-100);
     --theme-bg: #0a0a0a;
 }
 
