@@ -231,7 +231,7 @@ class EnhancedGenerator {
         const lpGen = window.lpGenerator;
         const sectionsJSX = lpGen.sections.map(section => {
             const html = section.template.html
-                .replace(/class=/g, 'className=')
+                .replace(/\bclass=/g, 'className=')
                 .replace(/for=/g, 'htmlFor=');
             return html;
         }).join('\n');
