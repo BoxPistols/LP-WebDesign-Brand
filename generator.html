@@ -6,7 +6,7 @@
     <title>Universal Landing Page Generator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/generator.css">
     <link rel="stylesheet" href="css/advanced-components.css">
@@ -167,6 +167,129 @@
                         <span>ガラスモーフィズム</span>
                     </label>
                 </div>
+            </section>
+
+            <!-- Design Customization -->
+            <section class="control-section">
+                <h3 class="section-title">デザインカスタマイズ</h3>
+
+                <!-- Typography -->
+                <div class="customize-group">
+                    <label class="customize-label">フォント</label>
+                    <select id="fontFamilySelect" class="customize-select">
+                        <option value="Inter">Inter (デフォルト)</option>
+                        <option value="Poppins">Poppins</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Noto Sans JP">Noto Sans JP</option>
+                        <option value="system-ui">System UI</option>
+                    </select>
+                </div>
+
+                <div class="customize-group">
+                    <label class="customize-label">フォントサイズ</label>
+                    <select id="fontSizeScale" class="customize-select">
+                        <option value="0.9">小 (90%)</option>
+                        <option value="1.0" selected>標準 (100%)</option>
+                        <option value="1.1">大 (110%)</option>
+                        <option value="1.2">特大 (120%)</option>
+                    </select>
+                </div>
+
+                <!-- Spacing -->
+                <div class="customize-group">
+                    <label class="customize-label">余白スケール</label>
+                    <select id="spacingScale" class="customize-select">
+                        <option value="0.75">コンパクト (75%)</option>
+                        <option value="1.0" selected>標準 (100%)</option>
+                        <option value="1.25">ゆったり (125%)</option>
+                        <option value="1.5">ワイド (150%)</option>
+                    </select>
+                </div>
+
+                <!-- Border Radius -->
+                <div class="customize-group">
+                    <label class="customize-label">角丸</label>
+                    <select id="borderRadiusStyle" class="customize-select">
+                        <option value="0">なし (0px)</option>
+                        <option value="4">小 (4px)</option>
+                        <option value="8" selected>標準 (8px)</option>
+                        <option value="12">中 (12px)</option>
+                        <option value="16">大 (16px)</option>
+                        <option value="24">特大 (24px)</option>
+                    </select>
+                </div>
+
+                <!-- Custom Colors -->
+                <div class="customize-group">
+                    <label class="customize-label">カスタムカラー</label>
+                    <div class="color-inputs">
+                        <div class="color-input-row">
+                            <label>プライマリ</label>
+                            <input type="color" id="primaryColor" value="#667eea">
+                        </div>
+                        <div class="color-input-row">
+                            <label>セカンダリ</label>
+                            <input type="color" id="secondaryColor" value="#764ba2">
+                        </div>
+                        <div class="color-input-row">
+                            <label>アクセント</label>
+                            <input type="color" id="accentColor" value="#f093fb">
+                        </div>
+                    </div>
+                    <button class="reset-btn" id="resetColors">色をリセット</button>
+                </div>
+            </section>
+
+            <!-- SEO Settings -->
+            <section class="control-section">
+                <h3 class="section-title">SEO設定</h3>
+
+                <div class="seo-group">
+                    <label class="seo-label">ページタイトル</label>
+                    <input type="text" id="seoTitle" class="seo-input" placeholder="例: 最高のプロダクト | 会社名" maxlength="60">
+                    <small class="seo-hint">60文字以内推奨</small>
+                </div>
+
+                <div class="seo-group">
+                    <label class="seo-label">ディスクリプション</label>
+                    <textarea id="seoDescription" class="seo-textarea" placeholder="ページの説明文を入力してください" maxlength="160" rows="3"></textarea>
+                    <small class="seo-hint">160文字以内推奨</small>
+                </div>
+
+                <div class="seo-group">
+                    <label class="seo-label">キーワード</label>
+                    <input type="text" id="seoKeywords" class="seo-input" placeholder="キーワード1, キーワード2, キーワード3">
+                </div>
+
+                <div class="seo-group">
+                    <label class="seo-label">OGP画像URL</label>
+                    <input type="url" id="ogImage" class="seo-input" placeholder="https://example.com/og-image.jpg">
+                    <small class="seo-hint">1200×630px推奨</small>
+                </div>
+
+                <div class="seo-group">
+                    <label class="seo-label">Canonical URL</label>
+                    <input type="url" id="canonicalUrl" class="seo-input" placeholder="https://example.com/page">
+                </div>
+
+                <div class="seo-group">
+                    <label class="seo-label">言語</label>
+                    <select id="seoLang" class="seo-select">
+                        <option value="ja" selected>日本語 (ja)</option>
+                        <option value="en">English (en)</option>
+                        <option value="zh">中文 (zh)</option>
+                        <option value="ko">한국어 (ko)</option>
+                    </select>
+                </div>
+
+                <label class="option-item">
+                    <input type="checkbox" id="includeTwitterCard" checked>
+                    <span>Twitter Card を含める</span>
+                </label>
+                <label class="option-item">
+                    <input type="checkbox" id="includeSchema" checked>
+                    <span>Schema.org マークアップ</span>
+                </label>
             </section>
 
             <!-- Export Actions -->

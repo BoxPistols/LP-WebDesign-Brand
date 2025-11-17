@@ -4,6 +4,25 @@
 class EnhancedGenerator {
     constructor() {
         this.draggedElement = null;
+        this.seoData = {
+            title: '',
+            description: '',
+            keywords: '',
+            ogImage: '',
+            canonicalUrl: '',
+            lang: 'ja',
+            includeTwitterCard: true,
+            includeSchema: true
+        };
+        this.designSettings = {
+            fontFamily: 'Inter',
+            fontSizeScale: 1.0,
+            spacingScale: 1.0,
+            borderRadius: 8,
+            primaryColor: '#667eea',
+            secondaryColor: '#764ba2',
+            accentColor: '#f093fb'
+        };
         this.init();
     }
 
@@ -12,6 +31,8 @@ class EnhancedGenerator {
         this.setupAdvancedExport();
         this.setupPresets();
         this.setupKeyboardShortcuts();
+        this.setupDesignCustomization();
+        this.setupSEOEditor();
     }
 
     // ==========================================
@@ -453,6 +474,296 @@ export default {
                 }
             }
         });
+    }
+
+    // ==========================================
+    // DESIGN CUSTOMIZATION
+    // ==========================================
+
+    setupDesignCustomization() {
+        document.addEventListener('DOMContentLoaded', () => {
+            // Font Family
+            const fontFamilySelect = document.getElementById('fontFamilySelect');
+            if (fontFamilySelect) {
+                fontFamilySelect.addEventListener('change', (e) => {
+                    this.designSettings.fontFamily = e.target.value;
+                    this.applyFontFamily(e.target.value);
+                });
+            }
+
+            // Font Size Scale
+            const fontSizeScale = document.getElementById('fontSizeScale');
+            if (fontSizeScale) {
+                fontSizeScale.addEventListener('change', (e) => {
+                    this.designSettings.fontSizeScale = parseFloat(e.target.value);
+                    this.applyFontSizeScale(parseFloat(e.target.value));
+                });
+            }
+
+            // Spacing Scale
+            const spacingScale = document.getElementById('spacingScale');
+            if (spacingScale) {
+                spacingScale.addEventListener('change', (e) => {
+                    this.designSettings.spacingScale = parseFloat(e.target.value);
+                    this.applySpacingScale(parseFloat(e.target.value));
+                });
+            }
+
+            // Border Radius
+            const borderRadiusStyle = document.getElementById('borderRadiusStyle');
+            if (borderRadiusStyle) {
+                borderRadiusStyle.addEventListener('change', (e) => {
+                    this.designSettings.borderRadius = parseInt(e.target.value);
+                    this.applyBorderRadius(parseInt(e.target.value));
+                });
+            }
+
+            // Custom Colors
+            const primaryColor = document.getElementById('primaryColor');
+            const secondaryColor = document.getElementById('secondaryColor');
+            const accentColor = document.getElementById('accentColor');
+
+            if (primaryColor) {
+                primaryColor.addEventListener('change', (e) => {
+                    this.designSettings.primaryColor = e.target.value;
+                    this.applyCustomColors();
+                });
+            }
+
+            if (secondaryColor) {
+                secondaryColor.addEventListener('change', (e) => {
+                    this.designSettings.secondaryColor = e.target.value;
+                    this.applyCustomColors();
+                });
+            }
+
+            if (accentColor) {
+                accentColor.addEventListener('change', (e) => {
+                    this.designSettings.accentColor = e.target.value;
+                    this.applyCustomColors();
+                });
+            }
+
+            // Reset Colors Button
+            const resetColors = document.getElementById('resetColors');
+            if (resetColors) {
+                resetColors.addEventListener('click', () => {
+                    this.resetColors();
+                });
+            }
+        });
+    }
+
+    applyFontFamily(fontFamily) {
+        const previewFrame = document.getElementById('previewFrame');
+        if (previewFrame) {
+            previewFrame.style.fontFamily = `'${fontFamily}', sans-serif`;
+            this.showNotification(`フォントを ${fontFamily} に変更しました`);
+        }
+    }
+
+    applyFontSizeScale(scale) {
+        const previewFrame = document.getElementById('previewFrame');
+        if (previewFrame) {
+            previewFrame.style.fontSize = `${scale * 100}%`;
+            this.showNotification(`フォントサイズを ${scale * 100}% に変更しました`);
+        }
+    }
+
+    applySpacingScale(scale) {
+        const previewFrame = document.getElementById('previewFrame');
+        if (previewFrame) {
+            // Apply spacing scale via CSS custom property
+            previewFrame.style.setProperty('--spacing-scale', scale);
+
+            // Update all spacing-related elements
+            const sections = previewFrame.querySelectorAll('.lp-section');
+            sections.forEach(section => {
+                const computedPadding = parseFloat(getComputedStyle(section).paddingTop);
+                section.style.padding = `${computedPadding * scale}px`;
+            });
+
+            this.showNotification(`余白を ${scale * 100}% に変更しました`);
+        }
+    }
+
+    applyBorderRadius(radius) {
+        const previewFrame = document.getElementById('previewFrame');
+        if (previewFrame) {
+            // Apply border radius to buttons, cards, and images
+            const elements = previewFrame.querySelectorAll('.lp-btn, .lp-card, .lp-feature-card, .lp-pricing-card, .lp-testimonial-card, img');
+            elements.forEach(el => {
+                el.style.borderRadius = `${radius}px`;
+            });
+            this.showNotification(`角丸を ${radius}px に変更しました`);
+        }
+    }
+
+    applyCustomColors() {
+        const previewFrame = document.getElementById('previewFrame');
+        if (previewFrame) {
+            previewFrame.style.setProperty('--theme-primary', this.designSettings.primaryColor);
+            previewFrame.style.setProperty('--theme-secondary', this.designSettings.secondaryColor);
+            previewFrame.style.setProperty('--theme-accent', this.designSettings.accentColor);
+            this.showNotification('カスタムカラーを適用しました');
+        }
+    }
+
+    resetColors() {
+        this.designSettings.primaryColor = '#667eea';
+        this.designSettings.secondaryColor = '#764ba2';
+        this.designSettings.accentColor = '#f093fb';
+
+        document.getElementById('primaryColor').value = this.designSettings.primaryColor;
+        document.getElementById('secondaryColor').value = this.designSettings.secondaryColor;
+        document.getElementById('accentColor').value = this.designSettings.accentColor;
+
+        this.applyCustomColors();
+        this.showNotification('カラーをリセットしました');
+    }
+
+    // ==========================================
+    // SEO EDITOR
+    // ==========================================
+
+    setupSEOEditor() {
+        document.addEventListener('DOMContentLoaded', () => {
+            // SEO Title
+            const seoTitle = document.getElementById('seoTitle');
+            if (seoTitle) {
+                seoTitle.addEventListener('input', (e) => {
+                    this.seoData.title = e.target.value;
+                });
+            }
+
+            // SEO Description
+            const seoDescription = document.getElementById('seoDescription');
+            if (seoDescription) {
+                seoDescription.addEventListener('input', (e) => {
+                    this.seoData.description = e.target.value;
+                });
+            }
+
+            // SEO Keywords
+            const seoKeywords = document.getElementById('seoKeywords');
+            if (seoKeywords) {
+                seoKeywords.addEventListener('input', (e) => {
+                    this.seoData.keywords = e.target.value;
+                });
+            }
+
+            // OG Image
+            const ogImage = document.getElementById('ogImage');
+            if (ogImage) {
+                ogImage.addEventListener('input', (e) => {
+                    this.seoData.ogImage = e.target.value;
+                });
+            }
+
+            // Canonical URL
+            const canonicalUrl = document.getElementById('canonicalUrl');
+            if (canonicalUrl) {
+                canonicalUrl.addEventListener('input', (e) => {
+                    this.seoData.canonicalUrl = e.target.value;
+                });
+            }
+
+            // Language
+            const seoLang = document.getElementById('seoLang');
+            if (seoLang) {
+                seoLang.addEventListener('change', (e) => {
+                    this.seoData.lang = e.target.value;
+                });
+            }
+
+            // Twitter Card Checkbox
+            const includeTwitterCard = document.getElementById('includeTwitterCard');
+            if (includeTwitterCard) {
+                includeTwitterCard.addEventListener('change', (e) => {
+                    this.seoData.includeTwitterCard = e.target.checked;
+                });
+            }
+
+            // Schema.org Checkbox
+            const includeSchema = document.getElementById('includeSchema');
+            if (includeSchema) {
+                includeSchema.addEventListener('change', (e) => {
+                    this.seoData.includeSchema = e.target.checked;
+                });
+            }
+        });
+    }
+
+    generateSEOMetaTags() {
+        let metaTags = '';
+
+        // Basic meta tags
+        if (this.seoData.title) {
+            metaTags += `    <title>${this.seoData.title}</title>\n`;
+        }
+
+        if (this.seoData.description) {
+            metaTags += `    <meta name="description" content="${this.seoData.description}">\n`;
+        }
+
+        if (this.seoData.keywords) {
+            metaTags += `    <meta name="keywords" content="${this.seoData.keywords}">\n`;
+        }
+
+        // Language
+        metaTags += `    <meta http-equiv="content-language" content="${this.seoData.lang}">\n`;
+
+        // Canonical URL
+        if (this.seoData.canonicalUrl) {
+            metaTags += `    <link rel="canonical" href="${this.seoData.canonicalUrl}">\n`;
+        }
+
+        // Open Graph tags
+        if (this.seoData.title) {
+            metaTags += `    <meta property="og:title" content="${this.seoData.title}">\n`;
+        }
+
+        if (this.seoData.description) {
+            metaTags += `    <meta property="og:description" content="${this.seoData.description}">\n`;
+        }
+
+        if (this.seoData.ogImage) {
+            metaTags += `    <meta property="og:image" content="${this.seoData.ogImage}">\n`;
+        }
+
+        metaTags += `    <meta property="og:type" content="website">\n`;
+
+        if (this.seoData.canonicalUrl) {
+            metaTags += `    <meta property="og:url" content="${this.seoData.canonicalUrl}">\n`;
+        }
+
+        // Twitter Card tags
+        if (this.seoData.includeTwitterCard) {
+            metaTags += `    <meta name="twitter:card" content="summary_large_image">\n`;
+            if (this.seoData.title) {
+                metaTags += `    <meta name="twitter:title" content="${this.seoData.title}">\n`;
+            }
+            if (this.seoData.description) {
+                metaTags += `    <meta name="twitter:description" content="${this.seoData.description}">\n`;
+            }
+            if (this.seoData.ogImage) {
+                metaTags += `    <meta name="twitter:image" content="${this.seoData.ogImage}">\n`;
+            }
+        }
+
+        // Schema.org JSON-LD
+        if (this.seoData.includeSchema) {
+            const schema = {
+                "@context": "https://schema.org",
+                "@type": "WebPage",
+                "name": this.seoData.title || "Landing Page",
+                "description": this.seoData.description || "",
+                "url": this.seoData.canonicalUrl || ""
+            };
+            metaTags += `    <script type="application/ld+json">\n${JSON.stringify(schema, null, 6)}\n    <\/script>\n`;
+        }
+
+        return metaTags;
     }
 
     // ==========================================
