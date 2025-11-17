@@ -919,56 +919,105 @@
 }
 
 /* ==========================================
-   RESPONSIVE DESIGN
+   RESPONSIVE DESIGN - MOBILE FIRST
    ========================================== */
 
-@media (max-width: 1024px) {
-    .lp-split-container,
-    .lp-cta-container {
-        grid-template-columns: 1fr;
-        gap: var(--space-12);
-    }
-
-    .lp-carousel-container {
-        grid-template-columns: 1fr;
-    }
-
-    .lp-pricing-featured {
-        transform: none;
-    }
+/* Mobile Styles (Base) */
+.lp-hero-buttons {
+    flex-direction: column;
+    width: 100%;
 }
 
-@media (max-width: 768px) {
+.lp-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.lp-hero-stats {
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.lp-split-container,
+.lp-cta-container {
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+}
+
+.lp-carousel-container {
+    grid-template-columns: 1fr;
+}
+
+.lp-timeline::before {
+    left: 20px;
+}
+
+.lp-timeline-marker {
+    width: 40px;
+    height: 40px;
+    font-size: var(--text-lg);
+}
+
+.lp-timeline-item {
+    padding-left: var(--space-16);
+}
+
+.lp-newsletter-form {
+    flex-direction: column;
+}
+
+.lp-pricing-featured {
+    transform: none;
+}
+
+/* Tablet and Up (768px+) */
+@media (min-width: 768px) {
     .lp-hero-buttons {
-        flex-direction: column;
-        width: 100%;
+        flex-direction: row;
+        width: auto;
     }
 
     .lp-btn {
-        width: 100%;
-        justify-content: center;
+        width: auto;
     }
 
     .lp-hero-stats {
-        flex-direction: column;
-        gap: var(--space-4);
+        flex-direction: row;
+        gap: var(--space-8);
     }
 
     .lp-timeline::before {
-        left: 20px;
+        left: 40px;
     }
 
     .lp-timeline-marker {
-        width: 40px;
-        height: 40px;
-        font-size: var(--text-lg);
+        width: 80px;
+        height: 80px;
+        font-size: var(--text-3xl);
     }
 
     .lp-timeline-item {
-        padding-left: var(--space-16);
+        padding-left: var(--space-24);
     }
 
     .lp-newsletter-form {
-        flex-direction: column;
+        flex-direction: row;
+    }
+}
+
+/* Desktop and Up (1024px+) */
+@media (min-width: 1024px) {
+    .lp-split-container,
+    .lp-cta-container {
+        grid-template-columns: 1.5fr 1fr;
+        gap: var(--space-16);
+    }
+
+    .lp-carousel-container {
+        grid-template-columns: 2fr 1fr;
+    }
+
+    .lp-pricing-featured {
+        transform: scale(1.05);
     }
 }

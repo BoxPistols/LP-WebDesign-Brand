@@ -67,10 +67,11 @@ class EnhancedGenerator {
             e.preventDefault();
             this.draggedElement = null;
 
-            // Update the generator's internal state
-            if (window.lpGenerator) {
-                window.lpGenerator.syncSectionsFromDOM();
-            }
+            // Dispatch custom event for state update
+            const event = new CustomEvent('sectionsReordered', {
+                detail: { source: 'drag-drop' }
+            });
+            document.dispatchEvent(event);
         });
 
         // Make section wrappers draggable
@@ -443,26 +444,13 @@ export default {
 
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + S: Save/Export
+            // Ctrl/Cmd + S: Quick Export
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
                 if (window.lpGenerator) {
                     window.lpGenerator.exportHTML();
+                    this.showNotification('HTMLをエクスポートしました');
                 }
-            }
-
-            // Ctrl/Cmd + Z: Undo (placeholder for future implementation)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-                e.preventDefault();
-                // TODO: Implement undo functionality
-                console.log('Undo triggered');
-            }
-
-            // Ctrl/Cmd + Shift + Z: Redo (placeholder for future implementation)
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z') {
-                e.preventDefault();
-                // TODO: Implement redo functionality
-                console.log('Redo triggered');
             }
         });
     }
@@ -505,26 +493,27 @@ export default {
     }
 }
 
-// Extend the original LandingPageGenerator
-if (typeof LandingPageGenerator !== 'undefined') {
-    LandingPageGenerator.prototype.syncSectionsFromDOM = function() {
-        const wrappers = document.querySelectorAll('.lp-section-wrapper');
-        const newOrder = [];
-
-        wrappers.forEach(wrapper => {
-            const sectionId = wrapper.dataset.sectionId;
-            const section = this.sections.find(s => s.id === sectionId);
-            if (section) {
-                newOrder.push(section);
-            }
-        });
-
-        this.sections = newOrder;
-    };
-}
-
 // Initialize enhanced features when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.enhancedGenerator = new EnhancedGenerator();
     console.log('Enhanced Generator initialized');
+
+    // Listen for section reorder events
+    document.addEventListener('sectionsReordered', () => {
+        if (window.lpGenerator) {
+            // Sync sections from DOM
+            const wrappers = document.querySelectorAll('.lp-section-wrapper');
+            const newOrder = [];
+
+            wrappers.forEach(wrapper => {
+                const sectionId = wrapper.dataset.sectionId;
+                const section = window.lpGenerator.sections.find(s => s.id === sectionId);
+                if (section) {
+                    newOrder.push(section);
+                }
+            });
+
+            window.lpGenerator.sections = newOrder;
+        }
+    });
 });
