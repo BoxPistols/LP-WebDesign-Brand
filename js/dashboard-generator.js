@@ -1,0 +1,509 @@
+// Dashboard Generator
+// Drag & Drop Dashboard Builder
+
+class DashboardGenerator {
+    constructor() {
+        this.components = [];
+        this.currentLayout = 'sidebar-left';
+        this.currentTheme = 'blue';
+        this.draggedComponent = null;
+        this.history = [];
+        this.historyIndex = -1;
+
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        console.log('Dashboard Generator initialized');
+    }
+
+    setupEventListeners() {
+        // Layout selection
+        document.querySelectorAll('.layout-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleLayoutChange(e));
+        });
+
+        // Theme selection
+        document.querySelectorAll('.theme-option').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleThemeChange(e));
+        });
+
+        // Component drag
+        document.querySelectorAll('.component-item').forEach(item => {
+            item.setAttribute('draggable', 'true');
+            item.addEventListener('dragstart', (e) => this.handleComponentDragStart(e));
+            item.addEventListener('dragend', (e) => this.handleComponentDragEnd(e));
+        });
+
+        // Canvas drop
+        const canvas = document.getElementById('dashboardCanvas');
+        canvas.addEventListener('dragover', (e) => this.handleCanvasDragOver(e));
+        canvas.addEventListener('drop', (e) => this.handleCanvasDrop(e));
+
+        // Quick start templates
+        document.querySelectorAll('.quick-start-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleQuickStart(e));
+        });
+
+        // Actions
+        document.getElementById('exportDashboard')?.addEventListener('click', () => this.exportDashboard());
+        document.getElementById('clearDashboard')?.addEventListener('click', () => this.clearDashboard());
+        document.getElementById('previewDashboard')?.addEventListener('click', () => this.previewDashboard());
+
+        // Canvas controls
+        document.querySelectorAll('.canvas-control').forEach(btn => {
+            const action = btn.dataset.action;
+            if (action === 'undo') {
+                btn.addEventListener('click', () => this.undo());
+            } else if (action === 'redo') {
+                btn.addEventListener('click', () => this.redo());
+            }
+        });
+
+        // Zoom controls
+        document.querySelectorAll('.zoom-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleZoom(e));
+        });
+    }
+
+    handleLayoutChange(e) {
+        const btn = e.currentTarget;
+        const layout = btn.dataset.layout;
+
+        document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        this.currentLayout = layout;
+        this.showNotification(`レイアウトを変更しました: ${layout}`);
+    }
+
+    handleThemeChange(e) {
+        const btn = e.currentTarget;
+        const theme = btn.dataset.theme;
+
+        document.querySelectorAll('.theme-option').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        this.currentTheme = theme;
+        this.applyTheme(theme);
+        this.showNotification(`テーマを変更しました: ${theme}`);
+    }
+
+    applyTheme(theme) {
+        const themeColors = {
+            blue: '#3b82f6',
+            purple: '#8b5cf6',
+            green: '#10b981',
+            dark: '#1f2937'
+        };
+
+        const color = themeColors[theme];
+        document.documentElement.style.setProperty('--db-primary', color);
+    }
+
+    handleComponentDragStart(e) {
+        const componentType = e.currentTarget.dataset.component;
+        this.draggedComponent = componentType;
+        e.currentTarget.style.opacity = '0.5';
+        e.dataTransfer.effectAllowed = 'copy';
+        e.dataTransfer.setData('text/html', componentType);
+    }
+
+    handleComponentDragEnd(e) {
+        e.currentTarget.style.opacity = '1';
+    }
+
+    handleCanvasDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    }
+
+    handleCanvasDrop(e) {
+        e.preventDefault();
+
+        if (!this.draggedComponent) return;
+
+        const template = dashboardTemplates[this.draggedComponent];
+        if (!template) {
+            console.error('Template not found:', this.draggedComponent);
+            return;
+        }
+
+        this.addComponent(template, this.draggedComponent);
+        this.draggedComponent = null;
+    }
+
+    addComponent(template, type) {
+        const component = {
+            id: this.generateId(),
+            type: type,
+            template: template,
+            timestamp: Date.now()
+        };
+
+        this.components.push(component);
+        this.saveState();
+        this.renderCanvas();
+        this.showNotification(`${template.name}を追加しました`);
+    }
+
+    renderCanvas() {
+        const canvas = document.getElementById('dashboardCanvas');
+
+        if (this.components.length === 0) {
+            canvas.innerHTML = `
+                <div class="empty-canvas">
+                    <div class="empty-canvas-content">
+                        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <rect x="3" y="3" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="14" y="3" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="14" y="14" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="3" y="14" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <h3>ダッシュボードを作成しましょう</h3>
+                        <p>左側のコンポーネントをドラッグ&ドロップしてください</p>
+                        <div class="quick-start">
+                            <button class="quick-start-btn" data-template="analytics">
+                                <span>📊</span> アナリティクス
+                            </button>
+                            <button class="quick-start-btn" data-template="crm">
+                                <span>👥</span> CRM
+                            </button>
+                            <button class="quick-start-btn" data-template="ecommerce">
+                                <span>🛒</span> Eコマース
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Re-attach quick start listeners
+            document.querySelectorAll('.quick-start-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => this.handleQuickStart(e));
+            });
+            return;
+        }
+
+        const componentsHTML = this.components.map(component => {
+            return `
+                <div class="dashboard-component" data-component-id="${component.id}">
+                    <div class="component-controls">
+                        <button class="component-control" data-action="delete" title="削除">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polyline points="3 6 5 6 21 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    ${component.template.html}
+                </div>
+            `;
+        }).join('');
+
+        canvas.innerHTML = `
+            <div class="dashboard-grid">
+                ${componentsHTML}
+            </div>
+        `;
+
+        // Add component controls
+        this.attachComponentControls();
+    }
+
+    attachComponentControls() {
+        document.querySelectorAll('.component-control').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const action = e.currentTarget.dataset.action;
+                const componentEl = e.currentTarget.closest('.dashboard-component');
+                const componentId = componentEl.dataset.componentId;
+
+                if (action === 'delete') {
+                    this.deleteComponent(componentId);
+                }
+            });
+        });
+    }
+
+    deleteComponent(componentId) {
+        this.components = this.components.filter(c => c.id !== componentId);
+        this.saveState();
+        this.renderCanvas();
+        this.showNotification('コンポーネントを削除しました');
+    }
+
+    handleQuickStart(e) {
+        const template = e.currentTarget.dataset.template;
+        this.applyTemplate(template);
+    }
+
+    applyTemplate(templateName) {
+        const templates = {
+            analytics: ['stats-cards', 'chart-line', 'data-table', 'activity-feed'],
+            crm: ['stats-cards', 'user-list', 'activity-feed', 'form-basic'],
+            ecommerce: ['stats-cards', 'chart-bar', 'data-table', 'chart-pie']
+        };
+
+        const componentTypes = templates[templateName] || [];
+
+        this.components = [];
+        componentTypes.forEach(type => {
+            const template = dashboardTemplates[type];
+            if (template) {
+                this.addComponentSilent(template, type);
+            }
+        });
+
+        this.renderCanvas();
+        this.showNotification(`${templateName}テンプレートを適用しました`);
+    }
+
+    addComponentSilent(template, type) {
+        const component = {
+            id: this.generateId(),
+            type: type,
+            template: template,
+            timestamp: Date.now()
+        };
+
+        this.components.push(component);
+    }
+
+    exportDashboard() {
+        if (this.components.length === 0) {
+            this.showNotification('エクスポートするコンポーネントがありません', 'error');
+            return;
+        }
+
+        const html = this.generateFullHTML();
+        this.downloadFile(html, `dashboard-${Date.now()}.html`, 'text/html');
+        this.showNotification('ダッシュボードをエクスポートしました');
+    }
+
+    generateFullHTML() {
+        const componentsHTML = this.components.map(c => c.template.html).join('\n');
+
+        return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/dashboard-components.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+        }
+        .dashboard-container {
+            padding: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-grid">
+            ${componentsHTML}
+        </div>
+    </div>
+</body>
+</html>`;
+    }
+
+    clearDashboard() {
+        if (this.components.length === 0) return;
+
+        if (confirm('すべてのコンポーネントを削除してもよろしいですか？')) {
+            this.components = [];
+            this.history = [];
+            this.historyIndex = -1;
+            this.renderCanvas();
+            this.showNotification('ダッシュボードをクリアしました');
+        }
+    }
+
+    previewDashboard() {
+        if (this.components.length === 0) {
+            this.showNotification('プレビューするコンポーネントがありません', 'error');
+            return;
+        }
+
+        const html = this.generateFullHTML();
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    }
+
+    // History management
+    saveState() {
+        const state = JSON.parse(JSON.stringify(this.components));
+
+        // Remove future history if we're not at the end
+        this.history = this.history.slice(0, this.historyIndex + 1);
+
+        this.history.push(state);
+        this.historyIndex++;
+
+        // Limit history to 50 states
+        if (this.history.length > 50) {
+            this.history.shift();
+            this.historyIndex--;
+        }
+    }
+
+    undo() {
+        if (this.historyIndex > 0) {
+            this.historyIndex--;
+            this.components = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+            this.renderCanvas();
+            this.showNotification('元に戻しました');
+        }
+    }
+
+    redo() {
+        if (this.historyIndex < this.history.length - 1) {
+            this.historyIndex++;
+            this.components = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+            this.renderCanvas();
+            this.showNotification('やり直しました');
+        }
+    }
+
+    handleZoom(e) {
+        const action = e.currentTarget.dataset.action;
+        const zoomLevel = document.querySelector('.zoom-level');
+        let currentZoom = parseInt(zoomLevel.textContent);
+
+        if (action === 'zoom-in' && currentZoom < 200) {
+            currentZoom += 10;
+        } else if (action === 'zoom-out' && currentZoom > 50) {
+            currentZoom -= 10;
+        }
+
+        zoomLevel.textContent = `${currentZoom}%`;
+
+        const canvas = document.getElementById('dashboardCanvas');
+        canvas.style.transform = `scale(${currentZoom / 100})`;
+        canvas.style.transformOrigin = 'top left';
+    }
+
+    // Utilities
+    generateId() {
+        return `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    downloadFile(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    showNotification(message, type = 'success') {
+        const existing = document.querySelector('.db-notification');
+        if (existing) existing.remove();
+
+        const notification = document.createElement('div');
+        notification.className = `db-notification db-notification-${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            animation: slideInRight 0.3s ease-out;
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+}
+
+// Add notification animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+
+    .dashboard-component {
+        position: relative;
+    }
+
+    .component-controls {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: none;
+        gap: 8px;
+        z-index: 10;
+    }
+
+    .dashboard-component:hover .component-controls {
+        display: flex;
+    }
+
+    .component-control {
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .component-control:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        background: #fee;
+    }
+`;
+document.head.appendChild(style);
+
+// Initialize dashboard generator
+document.addEventListener('DOMContentLoaded', () => {
+    window.dashboardGenerator = new DashboardGenerator();
+    console.log('Dashboard Generator ready');
+});

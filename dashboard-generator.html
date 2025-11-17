@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Generator | Admin Panel Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/dashboard-generator.css">
+    <link rel="stylesheet" href="css/dashboard-components.css">
+</head>
+<body>
+    <div class="dashboard-builder">
+        <!-- Left Sidebar - Component Library -->
+        <aside class="builder-sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="7" height="7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="14" y="3" width="7" height="7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="14" y="14" width="7" height="7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="3" y="14" width="7" height="7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Dashboard Generator
+                </h1>
+                <p class="sidebar-subtitle">Drag & Drop Dashboard Builder</p>
+            </div>
+
+            <!-- Layout Selection -->
+            <section class="builder-section">
+                <h3 class="section-title">レイアウト</h3>
+                <div class="layout-options">
+                    <button class="layout-btn active" data-layout="sidebar-left">
+                        <div class="layout-preview">
+                            <div class="preview-sidebar"></div>
+                            <div class="preview-main"></div>
+                        </div>
+                        <span>左サイドバー</span>
+                    </button>
+                    <button class="layout-btn" data-layout="topbar">
+                        <div class="layout-preview">
+                            <div class="preview-topbar"></div>
+                            <div class="preview-content"></div>
+                        </div>
+                        <span>トップバー</span>
+                    </button>
+                    <button class="layout-btn" data-layout="sidebar-top">
+                        <div class="layout-preview">
+                            <div class="preview-sidebar"></div>
+                            <div class="preview-top"></div>
+                            <div class="preview-main"></div>
+                        </div>
+                        <span>サイドバー+トップ</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Component Library -->
+            <section class="builder-section">
+                <h3 class="section-title">コンポーネント</h3>
+
+                <div class="component-category">
+                    <h4 class="category-title">📊 データ表示</h4>
+                    <div class="component-list">
+                        <button class="component-item" data-component="stats-cards">
+                            <span class="component-icon">📈</span>
+                            <span class="component-name">統計カード</span>
+                        </button>
+                        <button class="component-item" data-component="chart-line">
+                            <span class="component-icon">📉</span>
+                            <span class="component-name">折れ線グラフ</span>
+                        </button>
+                        <button class="component-item" data-component="chart-bar">
+                            <span class="component-icon">📊</span>
+                            <span class="component-name">棒グラフ</span>
+                        </button>
+                        <button class="component-item" data-component="chart-pie">
+                            <span class="component-icon">🥧</span>
+                            <span class="component-name">円グラフ</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="component-category">
+                    <h4 class="category-title">📋 テーブル</h4>
+                    <div class="component-list">
+                        <button class="component-item" data-component="data-table">
+                            <span class="component-icon">📄</span>
+                            <span class="component-name">データテーブル</span>
+                        </button>
+                        <button class="component-item" data-component="user-list">
+                            <span class="component-icon">👥</span>
+                            <span class="component-name">ユーザーリスト</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="component-category">
+                    <h4 class="category-title">📦 カード</h4>
+                    <div class="component-list">
+                        <button class="component-item" data-component="kpi-card">
+                            <span class="component-icon">🎯</span>
+                            <span class="component-name">KPIカード</span>
+                        </button>
+                        <button class="component-item" data-component="progress-card">
+                            <span class="component-icon">📊</span>
+                            <span class="component-name">進捗カード</span>
+                        </button>
+                        <button class="component-item" data-component="activity-feed">
+                            <span class="component-icon">🔔</span>
+                            <span class="component-name">アクティビティ</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="component-category">
+                    <h4 class="category-title">📝 フォーム</h4>
+                    <div class="component-list">
+                        <button class="component-item" data-component="form-basic">
+                            <span class="component-icon">✏️</span>
+                            <span class="component-name">基本フォーム</span>
+                        </button>
+                        <button class="component-item" data-component="search-bar">
+                            <span class="component-icon">🔍</span>
+                            <span class="component-name">検索バー</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="component-category">
+                    <h4 class="category-title">🎨 その他</h4>
+                    <div class="component-list">
+                        <button class="component-item" data-component="alert-banner">
+                            <span class="component-icon">⚠️</span>
+                            <span class="component-name">アラート</span>
+                        </button>
+                        <button class="component-item" data-component="user-profile">
+                            <span class="component-icon">👤</span>
+                            <span class="component-name">プロフィール</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Color Theme -->
+            <section class="builder-section">
+                <h3 class="section-title">カラーテーマ</h3>
+                <div class="theme-selector">
+                    <button class="theme-option active" data-theme="blue">
+                        <span class="theme-color" style="background: #3b82f6;"></span>
+                        Blue
+                    </button>
+                    <button class="theme-option" data-theme="purple">
+                        <span class="theme-color" style="background: #8b5cf6;"></span>
+                        Purple
+                    </button>
+                    <button class="theme-option" data-theme="green">
+                        <span class="theme-color" style="background: #10b981;"></span>
+                        Green
+                    </button>
+                    <button class="theme-option" data-theme="dark">
+                        <span class="theme-color" style="background: #1f2937;"></span>
+                        Dark
+                    </button>
+                </div>
+            </section>
+
+            <!-- Actions -->
+            <section class="builder-section">
+                <h3 class="section-title">アクション</h3>
+                <div class="action-buttons">
+                    <button class="action-btn primary" id="exportDashboard">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="7 10 12 15 17 10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="12" y1="15" x2="12" y2="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        エクスポート
+                    </button>
+                    <button class="action-btn secondary" id="clearDashboard">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="3 6 5 6 21 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        クリア
+                    </button>
+                    <button class="action-btn secondary" id="previewDashboard">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        プレビュー
+                    </button>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Main Canvas Area -->
+        <main class="builder-canvas">
+            <div class="canvas-header">
+                <div class="canvas-title">
+                    <h2>Dashboard Canvas</h2>
+                    <p>コンポーネントをドラッグ&ドロップしてダッシュボードを作成</p>
+                </div>
+                <div class="canvas-controls">
+                    <button class="canvas-control" data-action="undo" title="元に戻す">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 7v6h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button class="canvas-control" data-action="redo" title="やり直し">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 7v6h-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="canvas-zoom">
+                        <button class="zoom-btn" data-action="zoom-out">-</button>
+                        <span class="zoom-level">100%</span>
+                        <button class="zoom-btn" data-action="zoom-in">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-workspace" id="dashboardCanvas">
+                <div class="empty-canvas">
+                    <div class="empty-canvas-content">
+                        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <rect x="3" y="3" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="14" y="3" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="14" y="14" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="3" y="14" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <h3>ダッシュボードを作成しましょう</h3>
+                        <p>左側のコンポーネントをドラッグ&ドロップしてください</p>
+                        <div class="quick-start">
+                            <button class="quick-start-btn" data-template="analytics">
+                                <span>📊</span> アナリティクス
+                            </button>
+                            <button class="quick-start-btn" data-template="crm">
+                                <span>👥</span> CRM
+                            </button>
+                            <button class="quick-start-btn" data-template="ecommerce">
+                                <span>🛒</span> Eコマース
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Properties Panel -->
+        <aside class="properties-panel">
+            <div class="panel-header">
+                <h3>プロパティ</h3>
+            </div>
+            <div class="panel-content" id="propertiesPanel">
+                <div class="no-selection">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                        <line x1="12" y1="8" x2="12" y2="12" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <p>コンポーネントを選択してください</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="js/dashboard-templates.js"></script>
+    <script src="js/dashboard-generator.js"></script>
+</body>
+</html>
