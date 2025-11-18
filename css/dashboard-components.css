@@ -22,7 +22,7 @@
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    gap: var(--space-6);
+    gap: var(--space-4);
     padding: var(--space-6);
 }
 

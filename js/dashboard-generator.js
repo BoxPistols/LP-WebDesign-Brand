@@ -664,9 +664,25 @@ class DashboardGenerator {
                 fetch('css/dashboard-components.css').then(r => r.text()),
                 fetch('css/dashboard-generator.css').then(r => r.text())
             ]);
+
             // Extract only layout-related CSS from generator (exclude builder UI)
-            const layoutCSS = generatorCSS.split('/* ==========================================')[0] +
-                              generatorCSS.substring(generatorCSS.indexOf('DASHBOARD LAYOUT PREVIEWS'));
+            // Find the start of "DASHBOARD LAYOUT PREVIEWS" section
+            const layoutSectionStart = generatorCSS.indexOf('/* ==========================================\n   DASHBOARD LAYOUT PREVIEWS');
+
+            let layoutCSS = '';
+            if (layoutSectionStart !== -1) {
+                // Get everything from the layout section onwards
+                layoutCSS = generatorCSS.substring(layoutSectionStart);
+            } else {
+                // Fallback: try to find it without newline
+                const altStart = generatorCSS.indexOf('DASHBOARD LAYOUT PREVIEWS');
+                if (altStart !== -1) {
+                    // Go back to find the comment start
+                    const commentStart = generatorCSS.lastIndexOf('/*', altStart);
+                    layoutCSS = generatorCSS.substring(commentStart);
+                }
+            }
+
             embeddedCSS = designSystemCSS + '\n' + dashboardCSS + '\n' + layoutCSS;
         } catch (error) {
             console.error('Failed to load CSS:', error);
@@ -882,7 +898,14 @@ ${embeddedCSS}
     applySpacing(scale) {
         const canvas = document.getElementById('dashboardCanvas');
         if (canvas) {
-            // Apply spacing scale to grid gaps and padding
+            // Apply spacing scale to dashboard grid gap
+            const grid = canvas.querySelector('.dashboard-grid');
+            if (grid) {
+                const baseGridGap = 16; // --space-4 default
+                grid.style.gap = `${baseGridGap * scale}px`;
+            }
+
+            // Apply spacing scale to card gaps and padding
             const cards = canvas.querySelectorAll('.dashboard-card, .stat-card, .data-table, .chart-card');
             cards.forEach(card => {
                 const baseGap = 24;
