@@ -210,14 +210,14 @@
 
     /* === Gradients === */
 
-    --gradient-primary: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-700) 100%);
-    --gradient-secondary: linear-gradient(135deg, var(--color-secondary-500) 0%, var(--color-secondary-700) 100%);
-    --gradient-accent: linear-gradient(135deg, var(--color-accent-400) 0%, var(--color-accent-600) 100%);
-    --gradient-rainbow: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #43e97b 100%);
-    --gradient-sunset: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    --gradient-ocean: linear-gradient(135deg, #2e3192 0%, #1bffff 100%);
-    --gradient-fire: linear-gradient(135deg, #f12711 0%, #f5af19 100%);
-    --gradient-ice: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    --gradient-primary: var(--color-primary-500);
+    --gradient-secondary: var(--color-secondary-500);
+    --gradient-accent: var(--color-accent-500);
+    --gradient-rainbow: #3b82f6;
+    --gradient-sunset: #f59e0b;
+    --gradient-ocean: #3b82f6;
+    --gradient-fire: #ef4444;
+    --gradient-ice: #3b82f6;
 
     /* Mesh Gradients */
     --gradient-mesh-1: radial-gradient(at 40% 20%, hsla(28,100%,74%,1) 0px, transparent 50%),
@@ -264,17 +264,17 @@
     --theme-primary: var(--color-primary-600);
     --theme-secondary: var(--color-secondary-600);
     --theme-accent: var(--color-accent-500);
-    --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --theme-gradient: #3b82f6;
     --theme-text: var(--color-neutral-900);
     --theme-bg: var(--color-neutral-50);
 }
 
 /* Sunset Theme */
 [data-theme="sunset"] {
-    --theme-primary: #f093fb;
+    --theme-primary: #10b981;
     --theme-secondary: #f5576c;
     --theme-accent: #feca57;
-    --theme-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --theme-gradient: #10b981;
     --theme-text: var(--color-neutral-900);
     --theme-bg: #fff5f7;
 }
@@ -284,7 +284,7 @@
     --theme-primary: #4facfe;
     --theme-secondary: #00f2fe;
     --theme-accent: #43e97b;
-    --theme-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --theme-gradient: #3b82f6;
     --theme-text: var(--color-neutral-900);
     --theme-bg: #f0f9ff;
 }
@@ -294,7 +294,7 @@
     --theme-primary: #43e97b;
     --theme-secondary: #38f9d7;
     --theme-accent: #4facfe;
-    --theme-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    --theme-gradient: #10b981;
     --theme-text: var(--color-neutral-900);
     --theme-bg: #f0fdf4;
 }
@@ -302,9 +302,9 @@
 /* Dark Mode Theme */
 [data-theme="dark-mode"] {
     --theme-primary: #6366f1;
-    --theme-secondary: #8b5cf6;
+    --theme-secondary: #10b981;
     --theme-accent: #ec4899;
-    --theme-gradient: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+    --theme-gradient: #1e3a8a;
     --theme-text: var(--color-neutral-100);
     --theme-bg: #0f172a;
 }
@@ -314,7 +314,7 @@
     --theme-primary: #fa709a;
     --theme-secondary: #fee140;
     --theme-accent: #30cfd0;
-    --theme-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --theme-gradient: #f59e0b;
     --theme-text: var(--color-neutral-900);
     --theme-bg: #fffbeb;
 }
@@ -326,7 +326,7 @@
     --theme-primary: #ff006e;
     --theme-secondary: #8338ec;
     --theme-accent: #3a86ff;
-    --theme-gradient: linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%);
+    --theme-gradient: #3b82f6;
     --theme-text: var(--color-neutral-100);
     --theme-bg: #0a0a0a;
 }
@@ -336,7 +336,7 @@
     --theme-primary: #2d6a4f;
     --theme-secondary: #52b788;
     --theme-accent: #95d5b2;
-    --theme-gradient: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%);
+    --theme-gradient: #10b981;
     --theme-text: var(--color-neutral-900);
     --theme-bg: #f7f9f7;
 }
@@ -346,7 +346,7 @@
     --theme-primary: #404040;
     --theme-secondary: #737373;
     --theme-accent: #a3a3a3;
-    --theme-gradient: linear-gradient(135deg, #171717 0%, #525252 100%);
+    --theme-gradient: #171717;
     --theme-text: var(--color-neutral-900);
     --theme-bg: #fafafa;
 }
@@ -356,7 +356,7 @@
     --theme-primary: #ffadad;
     --theme-secondary: #ffd6a5;
     --theme-accent: #caffbf;
-    --theme-gradient: linear-gradient(135deg, #ffadad 0%, #ffd6a5 50%, #caffbf 100%);
+    --theme-gradient: #10b981;
     --theme-text: var(--color-neutral-900);
     --theme-bg: #fff8f8;
 }

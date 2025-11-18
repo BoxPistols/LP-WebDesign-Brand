@@ -12,7 +12,7 @@
     min-height: 100vh;
     display: flex;
     align-items: center;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: #f8f9fa;
     padding: var(--space-20) var(--space-4);
 }
 
@@ -402,7 +402,7 @@
 
 /* Timeline */
 .lp-features-timeline {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    background: #f8f9fa;
     padding: var(--space-24) var(--space-4);
 }
 
@@ -517,7 +517,7 @@
    ========================================== */
 
 .lp-testimonials-carousel {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: #f8f9fa;
     padding: var(--space-24) var(--space-4);
 }
 
@@ -707,7 +707,7 @@
 
 .lp-pricing-featured {
     border-color: var(--theme-primary);
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+    background: rgba(59, 130, 246, 0.05);
     transform: scale(1.05);
 }
 
@@ -862,7 +862,7 @@
 
 /* Newsletter */
 .lp-newsletter {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #3b82f6;
     padding: var(--space-20) var(--space-4);
 }
 

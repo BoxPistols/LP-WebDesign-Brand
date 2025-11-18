@@ -56,7 +56,7 @@ body {
 .sidebar-header {
     padding: var(--space-6);
     border-bottom: 1px solid var(--db-border);
-    background: linear-gradient(135deg, var(--db-primary) 0%, var(--db-primary-dark) 100%);
+    background: var(--db-primary);
     color: white;
 }
 

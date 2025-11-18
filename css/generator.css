@@ -1,8 +1,8 @@
 :root {
     /* Color Palette */
-    --primary-color: #667eea;
-    --secondary-color: #764ba2;
-    --accent-color: #f093fb;
+    --primary-color: #3b82f6;
+    --secondary-color: #3b82f6;
+    --accent-color: #10b981;
     --bg-dark: #1a1a2e;
     --bg-light: #ffffff;
     --text-dark: #2d3748;
@@ -32,7 +32,7 @@
 body {
     font-family: var(--font-primary);
     color: var(--text-dark);
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: #f5f7fa;
     min-height: 100vh;
     overflow: hidden;
 }
@@ -55,7 +55,7 @@ body {
 
 .panel-header {
     padding: var(--spacing-lg);
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: var(--primary-color);
     color: var(--text-light);
     text-align: center;
 }
@@ -227,7 +227,7 @@ body {
 }
 
 .action-btn.primary {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: var(--primary-color);
     color: var(--text-light);
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
@@ -288,7 +288,7 @@ body {
 }
 
 .device-btn.active {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: var(--primary-color);
     color: var(--text-light);
     border-color: transparent;
 }
