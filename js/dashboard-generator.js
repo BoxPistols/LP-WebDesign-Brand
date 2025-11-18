@@ -665,28 +665,197 @@ class DashboardGenerator {
                 fetch('css/dashboard-generator.css').then(r => r.text())
             ]);
 
-            // Extract only layout-related CSS from generator (exclude builder UI)
-            // Find the start of "DASHBOARD LAYOUT PREVIEWS" section
-            const layoutSectionStart = generatorCSS.indexOf('/* ==========================================\n   DASHBOARD LAYOUT PREVIEWS');
+            // Add layout-specific CSS
+            const layoutCSS = `
+/* Dashboard Layout Styles */
+.db-layout-sidebar-left {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+    background: #f8fafc;
+    gap: 0;
+}
 
-            let layoutCSS = '';
-            if (layoutSectionStart !== -1) {
-                // Get everything from the layout section onwards
-                layoutCSS = generatorCSS.substring(layoutSectionStart);
-            } else {
-                // Fallback: try to find it without newline
-                const altStart = generatorCSS.indexOf('DASHBOARD LAYOUT PREVIEWS');
-                if (altStart !== -1) {
-                    // Go back to find the comment start
-                    const commentStart = generatorCSS.lastIndexOf('/*', altStart);
-                    layoutCSS = generatorCSS.substring(commentStart);
-                }
-            }
+.db-sidebar {
+    background: #1e293b;
+    color: white;
+    padding: 20px;
+    border-right: 1px solid #e2e8f0;
+}
+
+.db-sidebar-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.db-sidebar-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.db-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.db-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.db-nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.db-nav-item.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.db-nav-item svg {
+    flex-shrink: 0;
+}
+
+.db-main {
+    padding: 0;
+    overflow: auto;
+}
+
+.db-layout-topbar {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #f8fafc;
+}
+
+.db-topbar {
+    background: #1e293b;
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.db-topbar-brand {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.db-topbar-nav {
+    display: flex;
+    gap: 16px;
+}
+
+.db-topbar-link {
+    padding: 8px 16px;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.db-topbar-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.db-topbar-link.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.db-main-topbar {
+    flex: 1;
+    padding: 0;
+    overflow: auto;
+}
+
+.db-layout-sidebar-top {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #f8fafc;
+}
+
+.db-header-bar {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.db-header-brand {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.db-sidebar-content-wrapper {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    flex: 1;
+}
+
+.db-sidebar-mini {
+    background: #1e293b;
+    padding: 16px;
+    border-right: 1px solid #e2e8f0;
+}
+
+.db-sidebar-nav-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.db-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.db-nav-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.db-nav-icon.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.db-main-sidebar-top {
+    padding: 0;
+    overflow: auto;
+}
+`;
 
             embeddedCSS = designSystemCSS + '\n' + dashboardCSS + '\n' + layoutCSS;
         } catch (error) {
             console.error('Failed to load CSS:', error);
-            // Fallback to minimal CSS
+            // Fallback to minimal CSS with layouts
             embeddedCSS = `
                 :root {
                     --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
@@ -697,13 +866,21 @@ class DashboardGenerator {
                 }
                 * { box-sizing: border-box; }
                 body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #f8fafc; }
-                .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding: 24px; }
+                .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; padding: 24px; }
                 .grid-col-1 { grid-column: span 1; } .grid-col-2 { grid-column: span 2; }
                 .grid-col-3 { grid-column: span 3; } .grid-col-4 { grid-column: span 4; }
                 .grid-col-5 { grid-column: span 5; } .grid-col-6 { grid-column: span 6; }
                 .grid-col-7 { grid-column: span 7; } .grid-col-8 { grid-column: span 8; }
                 .grid-col-9 { grid-column: span 9; } .grid-col-10 { grid-column: span 10; }
                 .grid-col-11 { grid-column: span 11; } .grid-col-12 { grid-column: span 12; }
+                .db-layout-sidebar-left { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; gap: 0; }
+                .db-sidebar { background: #1e293b; color: white; padding: 20px; }
+                .db-sidebar-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+                .db-sidebar-header h2 { font-size: 20px; font-weight: 700; margin: 0; }
+                .db-sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
+                .db-nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 14px; }
+                .db-nav-item.active { background: #3b82f6; color: white; }
+                .db-main { padding: 0; overflow: auto; }
             `;
         }
 
@@ -901,7 +1078,7 @@ ${embeddedCSS}
             // Apply spacing scale to dashboard grid gap
             const grid = canvas.querySelector('.dashboard-grid');
             if (grid) {
-                const baseGridGap = 16; // --space-4 default
+                const baseGridGap = 8; // --space-2 default
                 grid.style.gap = `${baseGridGap * scale}px`;
             }
 
