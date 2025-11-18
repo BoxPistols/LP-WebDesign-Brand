@@ -404,7 +404,129 @@ const sectionTemplates = {
             </div>
         </section>
         `
+    },
+    // ===== NEW COMPONENTS - HERO VARIATIONS =====
+    'hero-video': {
+        name: 'Video Hero',
+        html: `
+        <section class="lp-section lp-hero" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(16, 185, 129, 0.9)), url('https://picsum.photos/1920/1080') center/cover; min-height: 600px;">
+            <div class="lp-hero-content">
+                <h1 class="lp-slide-up">ビデオで伝える、未来のストーリー</h1>
+                <p>動画で魅力を最大限に引き出します</p>
+                <div class="lp-hero-buttons">
+                    <button class="lp-btn lp-btn-primary">動画を見る</button>
+                </div>
+            </div>
+        </section>
+        `
+    },
+
+    'hero-minimal': {
+        name: 'Minimal Hero',
+        html: `
+        <section class="lp-section" style="padding: 120px 20px; text-align: center;">
+            <div class="lp-content-wrapper" style="max-width: 800px; margin: 0 auto;">
+                <h1 class="lp-slide-up" style="font-size: 3.5rem; font-weight: 300; margin-bottom: 1.5rem;">Simple. Powerful. Elegant.</h1>
+                <p style="font-size: 1.25rem; color: #64748b; margin-bottom: 2rem;">シンプルさの中に、強力な機能を。</p>
+                <button class="lp-btn lp-btn-primary">始める</button>
+            </div>
+        </section>
+        `
+    },
+
+    'hero-gradient': {
+        name: 'Gradient Hero',
+        html: `
+        <section class="lp-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 100px 20px; text-align: center;">
+            <div class="lp-hero-content">
+                <h1 class="lp-slide-up">未来を創造する</h1>
+                <p>革新的なソリューションで、ビジネスを変革</p>
+                <div class="lp-hero-buttons">
+                    <button class="lp-btn lp-btn-primary" style="background: white; color: #667eea;">無料で試す</button>
+                    <button class="lp-btn lp-btn-secondary" style="border-color: white; color: white;">詳細</button>
+                </div>
+            </div>
+        </section>
+        `
+    },
+
+    'hero-split-image': {
+        name: 'Split Image Hero',
+        html: `
+        <section class="lp-section" style="padding: 0;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 600px; gap: 0;">
+                <div style="padding: 80px 60px; display: flex; flex-direction: column; justify-content: center;">
+                    <h1 style="font-size: 2.5rem; margin-bottom: 1.5rem;">ビジネスを加速させる</h1>
+                    <p style="font-size: 1.1rem; color: #64748b; margin-bottom: 2rem;">効率的なツールで、生産性を最大化</p>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="lp-btn lp-btn-primary">今すぐ開始</button>
+                        <button class="lp-btn lp-btn-secondary">デモを見る</button>
+                    </div>
+                </div>
+                <div style="background: url('https://picsum.photos/800/600') center/cover;"></div>
+            </div>
+        </section>
+        `
+    },
+
+    'hero-fullscreen': {
+        name: 'Fullscreen Hero',
+        html: `
+        <section class="lp-section" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://picsum.photos/1920/1080') center/cover; color: white;">
+            <div class="lp-hero-content" style="text-align: center;">
+                <h1 class="lp-slide-up" style="font-size: 4rem; margin-bottom: 1.5rem;">Welcome to the Future</h1>
+                <p style="font-size: 1.5rem; margin-bottom: 2.5rem;">革新と創造の世界へようこそ</p>
+                <button class="lp-btn lp-btn-primary" style="padding: 1rem 3rem; font-size: 1.1rem;">探索を始める</button>
+            </div>
+        </section>
+        `
+    },
+
+    // ===== CONTENT SECTIONS =====
+    'content-left': {
+        name: 'Content + Image (Left)',
+        html: `
+        <section class="lp-section">
+            <div class="lp-content-wrapper">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+                    <div>
+                        <h2 class="lp-section-title" style="text-align: left;">強力な機能で効率アップ</h2>
+                        <p style="font-size: 1.1rem; line-height: 1.8; color: #64748b;">私たちのプラットフォームは、最新のテクノロジーを活用して、あなたのビジネスを次のレベルへと導きます。直感的なインターフェースと強力な機能で、作業効率を劇的に向上させます。</p>
+                        <button class="lp-btn lp-btn-primary" style="margin-top: 1.5rem;">詳しく見る</button>
+                    </div>
+                    <div>
+                        <img src="https://picsum.photos/600/400" alt="Feature" style="width: 100%; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+                    </div>
+                </div>
+            </div>
+        </section>
+        `
+    },
+
+    'content-right': {
+        name: 'Content + Image (Right)',
+        html: `
+        <section class="lp-section" style="background: #f8fafc;">
+            <div class="lp-content-wrapper">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+                    <div>
+                        <img src="https://picsum.photos/600/400?random=2" alt="Feature" style="width: 100%; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+                    </div>
+                    <div>
+                        <h2 class="lp-section-title" style="text-align: left;">データ駆動の意思決定</h2>
+                        <p style="font-size: 1.1rem; line-height: 1.8; color: #64748b;">リアルタイムの分析とインサイトで、ビジネスの成長を加速。データに基づいた戦略的な意思決定をサポートします。</p>
+                        <ul style="margin-top: 1.5rem; list-style: none; padding: 0;">
+                            <li style="padding: 0.5rem 0; color: #334155;"><strong>✓</strong> リアルタイム分析</li>
+                            <li style="padding: 0.5rem 0; color: #334155;"><strong>✓</strong> カスタムレポート</li>
+                            <li style="padding: 0.5rem 0; color: #334155;"><strong>✓</strong> データビジュアライゼーション</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        `
     }
+
 };
 
 // Export for use in generator.js
