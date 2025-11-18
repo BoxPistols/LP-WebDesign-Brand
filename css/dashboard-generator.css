@@ -772,3 +772,212 @@ body {
         box-shadow: var(--db-shadow-lg);
     }
 }
+
+/* ==========================================
+   DASHBOARD LAYOUT PREVIEWS
+   ========================================== */
+
+/* Sidebar Left Layout */
+.db-layout-sidebar-left {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 600px;
+    background: var(--db-bg);
+    gap: 0;
+}
+
+.db-sidebar {
+    background: #1e293b;
+    color: white;
+    padding: var(--space-5);
+    border-right: 1px solid var(--db-border);
+}
+
+.db-sidebar-header {
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.db-sidebar-header h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+}
+
+.db-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.db-nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: var(--text-sm);
+}
+
+.db-nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.db-nav-item.active {
+    background: var(--db-primary);
+    color: white;
+}
+
+.db-nav-item svg {
+    flex-shrink: 0;
+}
+
+.db-main {
+    padding: var(--space-6);
+    overflow: auto;
+}
+
+/* Topbar Layout */
+.db-layout-topbar {
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    background: var(--db-bg);
+}
+
+.db-topbar {
+    background: #1e293b;
+    color: white;
+    padding: var(--space-4) var(--space-6);
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    border-bottom: 1px solid var(--db-border);
+}
+
+.db-topbar-brand {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+}
+
+.db-topbar-nav {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.db-topbar-link {
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: var(--text-sm);
+}
+
+.db-topbar-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.db-topbar-link.active {
+    background: var(--db-primary);
+    color: white;
+}
+
+.db-main-topbar {
+    flex: 1;
+    padding: var(--space-6);
+    overflow: auto;
+}
+
+/* Sidebar + Top Layout */
+.db-layout-sidebar-top {
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    background: var(--db-bg);
+}
+
+.db-header-bar {
+    background: white;
+    border-bottom: 1px solid var(--db-border);
+    padding: var(--space-4) var(--space-6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.db-header-brand {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--db-text);
+}
+
+.db-header-actions {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.db-header-btn {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--db-border);
+    border-radius: var(--radius-md);
+    background: white;
+    color: var(--db-text);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.db-header-btn:hover {
+    background: var(--db-bg);
+}
+
+.db-sidebar-content-wrapper {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    flex: 1;
+}
+
+.db-sidebar-mini {
+    background: #1e293b;
+    padding: var(--space-4);
+    border-right: 1px solid var(--db-border);
+}
+
+.db-sidebar-nav-mini {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.db-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-lg);
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.db-nav-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.db-nav-icon.active {
+    background: var(--db-primary);
+    color: white;
+}
+
+.db-main-sidebar-top {
+    padding: var(--space-6);
+    overflow: auto;
+}

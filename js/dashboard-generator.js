@@ -117,6 +117,7 @@ class DashboardGenerator {
         btn.classList.add('active');
 
         this.currentLayout = layout;
+        this.renderCanvas(); // Re-render with new layout
         this.showNotification(`レイアウトを変更しました: ${layout}`);
     }
 
@@ -301,8 +302,78 @@ class DashboardGenerator {
             grid.appendChild(wrapper);
         });
 
+        // Apply layout wrapper based on currentLayout
         canvas.innerHTML = '';
-        canvas.appendChild(grid);
+
+        if (this.currentLayout === 'sidebar-left') {
+            const layoutContainer = document.createElement('div');
+            layoutContainer.className = 'db-layout-sidebar-left';
+            layoutContainer.innerHTML = `
+                <aside class="db-sidebar">
+                    <div class="db-sidebar-header">
+                        <h2>Dashboard</h2>
+                    </div>
+                    <nav class="db-sidebar-nav">
+                        <a href="#" class="db-nav-item active">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            <span>Overview</span>
+                        </a>
+                        <a href="#" class="db-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                            <span>Analytics</span>
+                        </a>
+                    </nav>
+                </aside>
+                <main class="db-main"></main>
+            `;
+            layoutContainer.querySelector('.db-main').appendChild(grid);
+            canvas.appendChild(layoutContainer);
+        } else if (this.currentLayout === 'topbar') {
+            const layoutContainer = document.createElement('div');
+            layoutContainer.className = 'db-layout-topbar';
+            layoutContainer.innerHTML = `
+                <header class="db-topbar">
+                    <div class="db-topbar-brand">Dashboard</div>
+                    <nav class="db-topbar-nav">
+                        <a href="#" class="db-topbar-link active">Overview</a>
+                        <a href="#" class="db-topbar-link">Analytics</a>
+                        <a href="#" class="db-topbar-link">Reports</a>
+                    </nav>
+                </header>
+                <main class="db-main-topbar"></main>
+            `;
+            layoutContainer.querySelector('.db-main-topbar').appendChild(grid);
+            canvas.appendChild(layoutContainer);
+        } else if (this.currentLayout === 'sidebar-top') {
+            const layoutContainer = document.createElement('div');
+            layoutContainer.className = 'db-layout-sidebar-top';
+            layoutContainer.innerHTML = `
+                <header class="db-header-bar">
+                    <div class="db-header-brand">Dashboard</div>
+                    <div class="db-header-actions">
+                        <button class="db-header-btn">Settings</button>
+                    </div>
+                </header>
+                <div class="db-sidebar-content-wrapper">
+                    <aside class="db-sidebar-mini">
+                        <nav class="db-sidebar-nav-mini">
+                            <a href="#" class="db-nav-icon active">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            </a>
+                            <a href="#" class="db-nav-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                            </a>
+                        </nav>
+                    </aside>
+                    <main class="db-main-sidebar-top"></main>
+                </div>
+            `;
+            layoutContainer.querySelector('.db-main-sidebar-top').appendChild(grid);
+            canvas.appendChild(layoutContainer);
+        } else {
+            // Default: no layout wrapper
+            canvas.appendChild(grid);
+        }
 
         // Add component controls
         this.attachComponentControls();
@@ -445,19 +516,109 @@ class DashboardGenerator {
         this.components.push(component);
     }
 
-    exportDashboard() {
+    async exportDashboard() {
         if (this.components.length === 0) {
             this.showNotification('エクスポートするコンポーネントがありません', 'error');
             return;
         }
 
-        const html = this.generateFullHTML();
+        this.showNotification('エクスポート中...', 'info');
+        const html = await this.generateFullHTML();
         this.downloadFile(html, `dashboard-${Date.now()}.html`, 'text/html');
         this.showNotification('ダッシュボードをエクスポートしました');
     }
 
-    generateFullHTML() {
+    async generateFullHTML() {
         const componentsHTML = this.components.map(c => c.template.html).join('\n');
+
+        // Fetch and embed CSS files
+        let embeddedCSS = '';
+        try {
+            const [designSystemCSS, dashboardCSS, generatorCSS] = await Promise.all([
+                fetch('css/design-system.css').then(r => r.text()),
+                fetch('css/dashboard-components.css').then(r => r.text()),
+                fetch('css/dashboard-generator.css').then(r => r.text())
+            ]);
+            // Extract only layout-related CSS from generator (exclude builder UI)
+            const layoutCSS = generatorCSS.split('/* ==========================================')[0] +
+                              generatorCSS.substring(generatorCSS.indexOf('DASHBOARD LAYOUT PREVIEWS'));
+            embeddedCSS = designSystemCSS + '\n' + dashboardCSS + '\n' + layoutCSS;
+        } catch (error) {
+            console.error('Failed to load CSS:', error);
+            // Fallback to minimal CSS
+            embeddedCSS = `
+                :root {
+                    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+                    --space-5: 20px; --space-6: 24px; --text-sm: 14px; --text-base: 16px;
+                    --text-lg: 18px; --text-xl: 20px; --text-4xl: 36px; --font-normal: 400;
+                    --font-medium: 500; --font-semibold: 600; --font-bold: 700;
+                    --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+                }
+                * { box-sizing: border-box; }
+                body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #f8fafc; }
+                .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding: 24px; }
+                .grid-col-1 { grid-column: span 1; } .grid-col-2 { grid-column: span 2; }
+                .grid-col-3 { grid-column: span 3; } .grid-col-4 { grid-column: span 4; }
+                .grid-col-5 { grid-column: span 5; } .grid-col-6 { grid-column: span 6; }
+                .grid-col-7 { grid-column: span 7; } .grid-col-8 { grid-column: span 8; }
+                .grid-col-9 { grid-column: span 9; } .grid-col-10 { grid-column: span 10; }
+                .grid-col-11 { grid-column: span 11; } .grid-col-12 { grid-column: span 12; }
+            `;
+        }
+
+        // Generate layout wrapper HTML
+        let bodyContent = '';
+        const gridContent = `<div class="dashboard-grid">${componentsHTML}</div>`;
+
+        if (this.currentLayout === 'sidebar-left') {
+            bodyContent = `
+                <div class="db-layout-sidebar-left">
+                    <aside class="db-sidebar">
+                        <div class="db-sidebar-header"><h2>Dashboard</h2></div>
+                        <nav class="db-sidebar-nav">
+                            <a href="#" class="db-nav-item active">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                <span>Overview</span>
+                            </a>
+                        </nav>
+                    </aside>
+                    <main class="db-main">${gridContent}</main>
+                </div>
+            `;
+        } else if (this.currentLayout === 'topbar') {
+            bodyContent = `
+                <div class="db-layout-topbar">
+                    <header class="db-topbar">
+                        <div class="db-topbar-brand">Dashboard</div>
+                        <nav class="db-topbar-nav">
+                            <a href="#" class="db-topbar-link active">Overview</a>
+                            <a href="#" class="db-topbar-link">Analytics</a>
+                        </nav>
+                    </header>
+                    <main class="db-main-topbar">${gridContent}</main>
+                </div>
+            `;
+        } else if (this.currentLayout === 'sidebar-top') {
+            bodyContent = `
+                <div class="db-layout-sidebar-top">
+                    <header class="db-header-bar">
+                        <div class="db-header-brand">Dashboard</div>
+                    </header>
+                    <div class="db-sidebar-content-wrapper">
+                        <aside class="db-sidebar-mini">
+                            <nav class="db-sidebar-nav-mini">
+                                <a href="#" class="db-nav-icon active">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                </a>
+                            </nav>
+                        </aside>
+                        <main class="db-main-sidebar-top">${gridContent}</main>
+                    </div>
+                </div>
+            `;
+        } else {
+            bodyContent = `<div class="dashboard-container">${gridContent}</div>`;
+        }
 
         return `<!DOCTYPE html>
 <html lang="ja">
@@ -466,26 +627,12 @@ class DashboardGenerator {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/design-system.css">
-    <link rel="stylesheet" href="css/dashboard-components.css">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background: #f8fafc;
-        }
-        .dashboard-container {
-            padding: 24px;
-        }
+${embeddedCSS}
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <div class="dashboard-grid">
-            ${componentsHTML}
-        </div>
-    </div>
+    ${bodyContent}
 </body>
 </html>`;
     }
@@ -502,16 +649,18 @@ class DashboardGenerator {
         }
     }
 
-    previewDashboard() {
+    async previewDashboard() {
         if (this.components.length === 0) {
             this.showNotification('プレビューするコンポーネントがありません', 'error');
             return;
         }
 
-        const html = this.generateFullHTML();
+        this.showNotification('プレビュー準備中...', 'info');
+        const html = await this.generateFullHTML();
         const blob = new Blob([html], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
+        this.showNotification('プレビューを開きました');
     }
 
     // History management
