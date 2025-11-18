@@ -156,15 +156,33 @@ class DashboardGenerator {
 
     handleComponentDragEnd(e) {
         e.currentTarget.style.opacity = '1';
+
+        // Remove visual feedback when drag ends
+        const workspace = document.getElementById('canvasWorkspace');
+        if (workspace) {
+            workspace.classList.remove('drag-over');
+        }
     }
 
     handleCanvasDragOver(e) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
+
+        // Add visual feedback
+        const workspace = document.getElementById('canvasWorkspace');
+        if (workspace && !workspace.classList.contains('drag-over')) {
+            workspace.classList.add('drag-over');
+        }
     }
 
     handleCanvasDrop(e) {
         e.preventDefault();
+
+        // Remove visual feedback
+        const workspace = document.getElementById('canvasWorkspace');
+        if (workspace) {
+            workspace.classList.remove('drag-over');
+        }
 
         if (!this.draggedComponent) return;
 

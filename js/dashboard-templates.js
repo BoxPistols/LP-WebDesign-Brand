@@ -54,7 +54,7 @@ const dashboardTemplates = {
                         <div class="stat-card-title">コンバージョン率</div>
                         <div class="stat-card-value">3.24%</div>
                     </div>
-                    <div class="stat-card-icon purple">
+                    <div class="stat-card-icon blue">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -94,7 +94,7 @@ const dashboardTemplates = {
         name: '折れ線グラフ',
         category: 'data',
         html: `
-        <div class="db-card grid-col-8">
+        <div class="db-card grid-col-6">
             <div class="db-card-header">
                 <h3 class="db-card-title">売上推移</h3>
                 <span class="db-card-action">詳細を見る →</span>
@@ -116,7 +116,7 @@ const dashboardTemplates = {
         name: '棒グラフ',
         category: 'data',
         html: `
-        <div class="db-card grid-col-6">
+        <div class="db-card grid-col-4">
             <div class="db-card-header">
                 <h3 class="db-card-title">月別売上</h3>
                 <span class="db-card-action">詳細を見る →</span>
@@ -139,7 +139,7 @@ const dashboardTemplates = {
         name: '円グラフ',
         category: 'data',
         html: `
-        <div class="db-card grid-col-4">
+        <div class="db-card grid-col-3">
             <div class="db-card-header">
                 <h3 class="db-card-title">カテゴリ別分布</h3>
             </div>
@@ -229,7 +229,7 @@ const dashboardTemplates = {
         name: 'ユーザーリスト',
         category: 'table',
         html: `
-        <div class="db-card grid-col-6">
+        <div class="db-card grid-col-4">
             <div class="db-card-header">
                 <h3 class="db-card-title">アクティブユーザー</h3>
                 <span class="db-card-action">すべて表示 →</span>
@@ -314,7 +314,7 @@ const dashboardTemplates = {
         name: '進捗カード',
         category: 'card',
         html: `
-        <div class="progress-card grid-col-4">
+        <div class="progress-card grid-col-3">
             <div class="progress-header">
                 <span class="progress-title">プロジェクト進捗</span>
                 <span class="progress-percentage">68%</span>
@@ -334,7 +334,7 @@ const dashboardTemplates = {
         name: 'アクティビティフィード',
         category: 'card',
         html: `
-        <div class="db-card grid-col-4">
+        <div class="db-card grid-col-3">
             <div class="db-card-header">
                 <h3 class="db-card-title">最近のアクティビティ</h3>
             </div>
@@ -385,7 +385,7 @@ const dashboardTemplates = {
         name: '基本フォーム',
         category: 'form',
         html: `
-        <div class="db-card grid-col-6">
+        <div class="db-card grid-col-4">
             <div class="db-card-header">
                 <h3 class="db-card-title">ユーザー情報</h3>
             </div>
@@ -418,7 +418,7 @@ const dashboardTemplates = {
         name: '検索バー',
         category: 'form',
         html: `
-        <div class="db-card grid-col-12">
+        <div class="db-card grid-col-6">
             <div class="search-bar">
                 <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <circle cx="11" cy="11" r="8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

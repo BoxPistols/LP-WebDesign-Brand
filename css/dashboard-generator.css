@@ -435,9 +435,28 @@ body {
     min-height: 500px;
 }
 
+.canvas-workspace.drag-over {
+    background: repeating-linear-gradient(
+        45deg,
+        #f8fafc,
+        #f8fafc 10px,
+        #e0f2fe 10px,
+        #e0f2fe 20px
+    );
+    border: 2px dashed var(--db-primary);
+}
+
 #dashboardCanvas {
     min-height: 100%;
     width: 100%;
+}
+
+.dashboard-grid {
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent calc(100% / 12 - 1px), rgba(59, 130, 246, 0.1) calc(100% / 12 - 1px), rgba(59, 130, 246, 0.1) calc(100% / 12)),
+        repeating-linear-gradient(90deg, transparent, transparent calc(100% / 12 - 1px), rgba(59, 130, 246, 0.1) calc(100% / 12 - 1px), rgba(59, 130, 246, 0.1) calc(100% / 12));
+    background-size: 100% 100%;
+    position: relative;
 }
 
 /* Empty Canvas State */

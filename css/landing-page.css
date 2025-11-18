@@ -58,7 +58,7 @@ body {
     font-family: 'Comfortaa', cursive;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #667eea;
+    color: #3b82f6;
     text-transform: lowercase;
     letter-spacing: -0.02em;
 }
@@ -85,12 +85,12 @@ body {
     left: 0;
     width: 0;
     height: 2px;
-    background: #667eea;
+    background: #3b82f6;
     transition: width 0.3s ease;
 }
 
 .lp-nav-menu li a:hover {
-    color: #667eea;
+    color: #3b82f6;
 }
 
 .lp-nav-menu li a:hover::after {
@@ -153,7 +153,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #3b82f6;
     z-index: -1;
 }
 
@@ -239,7 +239,7 @@ body {
 
 .lp-btn-primary {
     background: white;
-    color: #667eea;
+    color: #3b82f6;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
@@ -256,7 +256,7 @@ body {
 
 .lp-btn-outline:hover {
     background: white;
-    color: #667eea;
+    color: #3b82f6;
 }
 
 .lp-btn-lg {
@@ -339,7 +339,7 @@ body {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #3b82f6;
     color: white;
     display: flex;
     align-items: center;
@@ -481,7 +481,7 @@ body {
 
 .lp-cta {
     padding: 6rem 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #3b82f6;
     color: white;
     text-align: center;
 }
@@ -522,14 +522,15 @@ body {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #3b82f6;
     color: white;
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    flex-shrink: 0;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
     opacity: 0;
     visibility: hidden;
     transform: translateY(100px);
@@ -545,7 +546,13 @@ body {
 
 .lp-scroll-top:hover {
     transform: translateY(-4px);
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 15px 40px rgba(59, 130, 246, 0.5);
+}
+
+.lp-scroll-top svg {
+    flex-shrink: 0;
+    max-width: 20px;
+    max-height: 20px;
 }
 
 /* ==========================================
