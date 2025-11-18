@@ -621,6 +621,184 @@ body {
 }
 
 /* ==========================================
+   MOBILE-SPECIFIC OPTIMIZATIONS
+   ========================================== */
+
+/* Touch device optimizations */
+.touch-device * {
+    /* Prevent text selection on touch devices for better UX */
+    -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
+    -webkit-touch-callout: none;
+}
+
+.touch-device .lp-btn,
+.touch-device .lp-nav-toggle,
+.touch-device .lp-scroll-top,
+.touch-device .lp-lightbox-close,
+.touch-device .lp-gallery-item {
+    /* Allow selection for interactive elements */
+    -webkit-touch-callout: default;
+}
+
+/* Ensure minimum touch target size (44x44px for accessibility) */
+.lp-btn,
+.lp-nav-toggle,
+.lp-scroll-top,
+.lp-lightbox-close {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation; /* Disable double-tap zoom */
+}
+
+.lp-nav-menu li a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+}
+
+/* Improve scrolling performance on iOS */
+.lp-nav-menu,
+.lp-lightbox {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent zoom on input focus (iOS) */
+@media (max-width: 768px) {
+    input,
+    select,
+    textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: max(0px)) {
+    .lp-header {
+        padding-left: max(1.25rem, env(safe-area-inset-left));
+        padding-right: max(1.25rem, env(safe-area-inset-right));
+    }
+
+    .lp-nav {
+        padding-left: max(2rem, env(safe-area-inset-left));
+        padding-right: max(2rem, env(safe-area-inset-right));
+    }
+
+    .lp-scroll-top {
+        bottom: max(2rem, calc(2rem + env(safe-area-inset-bottom)));
+        right: max(2rem, calc(2rem + env(safe-area-inset-right)));
+    }
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+    /* Larger touch targets on mobile */
+    .lp-btn {
+        min-height: 48px;
+        padding: 1.2rem 2rem;
+    }
+
+    .lp-nav-toggle {
+        min-width: 48px;
+        min-height: 48px;
+    }
+
+    /* Better spacing for mobile */
+    .lp-section {
+        padding: 4rem 1.5rem;
+    }
+
+    .lp-section-bg-text {
+        font-size: 4rem;
+        top: -10px;
+    }
+
+    /* Improved gallery grid on mobile */
+    .lp-gallery {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .lp-gallery-item img {
+        height: 250px;
+    }
+
+    /* Always show gallery captions on mobile */
+    .lp-gallery-caption {
+        transform: translateY(0);
+        font-size: 0.9rem;
+        padding: 1rem;
+    }
+
+    /* Improve button layout */
+    .lp-hero-actions {
+        width: 100%;
+    }
+
+    .lp-btn {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    /* Optimize feature layout for mobile */
+    .lp-section-header {
+        margin-bottom: 3rem;
+    }
+
+    /* Better lightbox on mobile */
+    .lp-lightbox-content {
+        max-width: 95%;
+    }
+
+    .lp-lightbox-close {
+        top: 1rem;
+        right: 1rem;
+        width: 48px;
+        height: 48px;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .lp-hero-title {
+        font-size: clamp(2.5rem, 10vw, 3.5rem);
+    }
+
+    .lp-hero-subtitle {
+        font-size: clamp(1rem, 4vw, 1.2rem);
+    }
+
+    .lp-section-title {
+        font-size: clamp(1.75rem, 6vw, 2.5rem);
+    }
+
+    .lp-feature-number {
+        width: 56px;
+        height: 56px;
+        font-size: 1.3rem;
+    }
+
+    .lp-feature-text h3 {
+        font-size: 1.4rem;
+    }
+}
+
+/* Landscape mobile optimization */
+@media (max-height: 600px) and (orientation: landscape) {
+    .lp-hero {
+        min-height: auto;
+        padding: 8rem 2rem 4rem;
+    }
+
+    .lp-hero-content {
+        padding: 2rem 1rem;
+    }
+
+    .lp-section {
+        padding: 3rem 2rem;
+    }
+}
+
+/* ==========================================
    ANIMATIONS & TRANSITIONS
    ========================================== */
 
