@@ -335,6 +335,44 @@ body {
     gap: var(--space-3);
 }
 
+.device-preview-toggles {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--db-surface);
+    border: 1px solid var(--db-border);
+    border-radius: var(--radius-lg);
+}
+
+.device-preview-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--db-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.device-preview-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--db-text-primary);
+}
+
+.device-preview-btn.active {
+    background: var(--db-primary);
+    color: white;
+}
+
+.device-preview-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
 .canvas-control {
     width: 36px;
     height: 36px;
@@ -563,6 +601,70 @@ body {
     }
 }
 
+/* ===== Dashboard Component Wrapper ===== */
+.dashboard-component-wrapper {
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: move;
+}
+
+.dashboard-component-wrapper:hover {
+    z-index: 10;
+}
+
+.dashboard-component-wrapper:hover .component-controls {
+    opacity: 1;
+    visibility: visible;
+}
+
+.dashboard-component-wrapper.dragging {
+    opacity: 0.5;
+}
+
+.component-controls {
+    position: absolute;
+    top: -12px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 100;
+}
+
+.component-control {
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+    border: none;
+    background: white;
+    color: #64748b;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s;
+}
+
+.component-control:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.component-control:active {
+    transform: translateY(0);
+}
+
+.component-control svg {
+    width: 16px;
+    height: 16px;
+}
+
 /* ===== Design Customization Styles ===== */
 .customize-group {
     margin-bottom: 1rem;
@@ -596,6 +698,46 @@ body {
     outline: none;
     border-color: var(--db-primary);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===== Responsive Canvas Styles ===== */
+.canvas-workspace {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background: #f8fafc;
+}
+
+.canvas-workspace.device-mobile {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+}
+
+.canvas-workspace.device-mobile #dashboardCanvas {
+    max-width: 375px;
+    width: 100%;
+    min-height: 100%;
+    background: white;
+    box-shadow: 0 0 0 1px #e2e8f0, 0 10px 40px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.canvas-workspace.device-tablet {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+}
+
+.canvas-workspace.device-tablet #dashboardCanvas {
+    max-width: 768px;
+    width: 100%;
+    min-height: 100%;
+    background: white;
+    box-shadow: 0 0 0 1px #e2e8f0, 0 10px 40px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
 @media (max-width: 768px) {

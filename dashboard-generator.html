@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Generator | Admin Panel Builder</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -237,6 +238,27 @@
                     <p>コンポーネントをドラッグ&ドロップしてダッシュボードを作成</p>
                 </div>
                 <div class="canvas-controls">
+                    <div class="device-preview-toggles">
+                        <button class="device-preview-btn active" data-device="desktop" title="Desktop">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 21h8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 17v4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <button class="device-preview-btn" data-device="tablet" title="Tablet">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="5" y="2" width="14" height="20" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 18h.01" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <button class="device-preview-btn" data-device="mobile" title="Mobile">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="7" y="2" width="10" height="20" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 18h.01" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
                     <button class="canvas-control" data-action="undo" title="元に戻す">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M3 7v6h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -257,30 +279,8 @@
                 </div>
             </div>
 
-            <div class="canvas-workspace" id="dashboardCanvas">
-                <div class="empty-canvas">
-                    <div class="empty-canvas-content">
-                        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                            <rect x="3" y="3" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
-                            <rect x="14" y="3" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
-                            <rect x="14" y="14" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
-                            <rect x="3" y="14" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <h3>ダッシュボードを作成しましょう</h3>
-                        <p>左側のコンポーネントをドラッグ&ドロップしてください</p>
-                        <div class="quick-start">
-                            <button class="quick-start-btn" data-template="analytics">
-                                <span>📊</span> アナリティクス
-                            </button>
-                            <button class="quick-start-btn" data-template="crm">
-                                <span>👥</span> CRM
-                            </button>
-                            <button class="quick-start-btn" data-template="ecommerce">
-                                <span>🛒</span> Eコマース
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="canvas-workspace" id="canvasWorkspace">
+                <div id="dashboardCanvas"></div>
             </div>
         </main>
 

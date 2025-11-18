@@ -71,6 +71,30 @@ class DashboardGenerator {
         document.querySelectorAll('.zoom-btn').forEach(btn => {
             btn.addEventListener('click', (e) => this.handleZoom(e));
         });
+
+        // Device preview toggles
+        document.querySelectorAll('.device-preview-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleDeviceChange(e));
+        });
+    }
+
+    handleDeviceChange(e) {
+        const btn = e.currentTarget;
+        const device = btn.dataset.device;
+
+        document.querySelectorAll('.device-preview-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const workspace = document.getElementById('canvasWorkspace');
+        workspace.className = 'canvas-workspace';
+
+        if (device === 'mobile') {
+            workspace.classList.add('device-mobile');
+        } else if (device === 'tablet') {
+            workspace.classList.add('device-tablet');
+        }
+
+        this.showNotification(`プレビュー: ${device === 'desktop' ? 'デスクトップ' : device === 'tablet' ? 'タブレット' : 'モバイル'}`);
     }
 
     handleLayoutChange(e) {
@@ -171,13 +195,30 @@ class DashboardGenerator {
                         <p>左側のコンポーネントをドラッグ&ドロップしてください</p>
                         <div class="quick-start">
                             <button class="quick-start-btn" data-template="analytics">
-                                <span>📊</span> アナリティクス
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M18 17V9" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M13 17V5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M8 17v-3" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                アナリティクス
                             </button>
                             <button class="quick-start-btn" data-template="crm">
-                                <span>👥</span> CRM
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <circle cx="9" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                CRM
                             </button>
                             <button class="quick-start-btn" data-template="ecommerce">
-                                <span>🛒</span> Eコマース
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="9" cy="21" r="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <circle cx="20" cy="21" r="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Eコマース
                             </button>
                         </div>
                     </div>
@@ -191,44 +232,103 @@ class DashboardGenerator {
             return;
         }
 
-        const componentsHTML = this.components.map(component => {
-            return `
-                <div class="dashboard-component" data-component-id="${component.id}">
-                    <div class="component-controls">
-                        <button class="component-control" data-action="delete" title="削除">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polyline points="3 6 5 6 21 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                    </div>
-                    ${component.template.html}
-                </div>
-            `;
-        }).join('');
+        // Create dashboard grid container
+        const grid = document.createElement('div');
+        grid.className = 'dashboard-grid';
 
-        canvas.innerHTML = `
-            <div class="dashboard-grid">
-                ${componentsHTML}
-            </div>
-        `;
+        // Add each component to the grid
+        this.components.forEach(component => {
+            // Create a wrapper div for controls
+            const wrapper = document.createElement('div');
+            wrapper.className = 'dashboard-component-wrapper';
+            wrapper.dataset.componentId = component.id;
+            wrapper.setAttribute('draggable', 'true');
+
+            // Add controls
+            const controls = document.createElement('div');
+            controls.className = 'component-controls';
+            controls.innerHTML = `
+                <button class="component-control" data-action="move-up" title="上へ移動">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="18 15 12 9 6 15" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="component-control" data-action="move-down" title="下へ移動">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="component-control" data-action="delete" title="削除">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            `;
+
+            wrapper.appendChild(controls);
+
+            // Create a div to hold the component content
+            const content = document.createElement('div');
+            content.innerHTML = component.template.html;
+
+            // Extract the first child (which has grid-col-* class)
+            const componentElement = content.firstElementChild;
+            if (componentElement) {
+                wrapper.appendChild(componentElement);
+
+                // Apply grid-col class to wrapper if component has it
+                const gridColMatch = componentElement.className.match(/grid-col-\d+/);
+                if (gridColMatch) {
+                    wrapper.classList.add(gridColMatch[0]);
+                } else {
+                    wrapper.classList.add('grid-col-12'); // Default to full width
+                }
+            }
+
+            grid.appendChild(wrapper);
+        });
+
+        canvas.innerHTML = '';
+        canvas.appendChild(grid);
 
         // Add component controls
         this.attachComponentControls();
+        this.attachDragListeners();
     }
 
     attachComponentControls() {
         document.querySelectorAll('.component-control').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const action = e.currentTarget.dataset.action;
-                const componentEl = e.currentTarget.closest('.dashboard-component');
+                const componentEl = e.currentTarget.closest('.dashboard-component-wrapper');
                 const componentId = componentEl.dataset.componentId;
 
                 if (action === 'delete') {
                     this.deleteComponent(componentId);
+                } else if (action === 'move-up') {
+                    this.moveComponent(componentId, -1);
+                } else if (action === 'move-down') {
+                    this.moveComponent(componentId, 1);
                 }
             });
         });
+    }
+
+    moveComponent(componentId, direction) {
+        const index = this.components.findIndex(c => c.id === componentId);
+        if (index === -1) return;
+
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= this.components.length) return;
+
+        // Swap components
+        [this.components[index], this.components[newIndex]] = [this.components[newIndex], this.components[index]];
+
+        this.saveState();
+        this.renderCanvas();
+        this.showNotification('コンポーネントを移動しました');
     }
 
     deleteComponent(componentId) {
@@ -236,6 +336,61 @@ class DashboardGenerator {
         this.saveState();
         this.renderCanvas();
         this.showNotification('コンポーネントを削除しました');
+    }
+
+    attachDragListeners() {
+        const wrappers = document.querySelectorAll('.dashboard-component-wrapper');
+
+        wrappers.forEach(wrapper => {
+            wrapper.addEventListener('dragstart', (e) => {
+                wrapper.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', wrapper.dataset.componentId);
+            });
+
+            wrapper.addEventListener('dragend', (e) => {
+                wrapper.classList.remove('dragging');
+            });
+
+            wrapper.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+
+                const dragging = document.querySelector('.dragging');
+                if (!dragging || dragging === wrapper) return;
+
+                const rect = wrapper.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+
+                if (e.clientY < midpoint) {
+                    wrapper.parentNode.insertBefore(dragging, wrapper);
+                } else {
+                    wrapper.parentNode.insertBefore(dragging, wrapper.nextSibling);
+                }
+            });
+
+            wrapper.addEventListener('drop', (e) => {
+                e.preventDefault();
+                this.syncComponentsFromDOM();
+            });
+        });
+    }
+
+    syncComponentsFromDOM() {
+        const wrappers = document.querySelectorAll('.dashboard-component-wrapper');
+        const newOrder = [];
+
+        wrappers.forEach(wrapper => {
+            const componentId = wrapper.dataset.componentId;
+            const component = this.components.find(c => c.id === componentId);
+            if (component) {
+                newOrder.push(component);
+            }
+        });
+
+        this.components = newOrder;
+        this.saveState();
+        this.showNotification('コンポーネントを並べ替えました');
     }
 
     handleQuickStart(e) {
