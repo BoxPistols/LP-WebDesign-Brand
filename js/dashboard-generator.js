@@ -7,6 +7,7 @@ class DashboardGenerator {
         this.currentLayout = 'sidebar-left';
         this.currentTheme = 'blue';
         this.draggedComponent = null;
+        this.selectedComponentId = null;
         this.history = [];
         this.historyIndex = -1;
         this.designSettings = {
@@ -397,6 +398,130 @@ class DashboardGenerator {
                 }
             });
         });
+
+        // Click on component to select and show properties
+        document.querySelectorAll('.dashboard-component-wrapper').forEach(wrapper => {
+            wrapper.addEventListener('click', (e) => {
+                // Don't trigger if clicking on controls
+                if (e.target.closest('.component-controls')) {
+                    return;
+                }
+
+                const componentId = wrapper.dataset.componentId;
+                this.selectComponent(componentId);
+            });
+        });
+    }
+
+    selectComponent(componentId) {
+        // Remove previous selection
+        document.querySelectorAll('.dashboard-component-wrapper').forEach(el => {
+            el.classList.remove('selected');
+        });
+
+        // Add selection to clicked component
+        const componentEl = document.querySelector(`[data-component-id="${componentId}"]`);
+        if (componentEl) {
+            componentEl.classList.add('selected');
+        }
+
+        this.selectedComponentId = componentId;
+        this.showPropertiesPanel(componentId);
+    }
+
+    showPropertiesPanel(componentId) {
+        const component = this.components.find(c => c.id === componentId);
+        if (!component) return;
+
+        const propertiesPanel = document.getElementById('propertiesPanel');
+        if (!propertiesPanel) return;
+
+        // Build properties UI
+        propertiesPanel.innerHTML = `
+            <div class="properties-header">
+                <h4>${component.template.name}</h4>
+                <button class="properties-close" onclick="dashboardGenerator.closePropertiesPanel()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="properties-body">
+                <div class="property-group">
+                    <label class="property-label">カテゴリー</label>
+                    <div class="property-value">${component.template.category || 'data'}</div>
+                </div>
+
+                <div class="property-group">
+                    <label class="property-label">コンポーネントID</label>
+                    <div class="property-value property-id">${component.id}</div>
+                </div>
+
+                <div class="property-group">
+                    <label class="property-label">追加日時</label>
+                    <div class="property-value">${new Date(component.timestamp).toLocaleString('ja-JP')}</div>
+                </div>
+
+                <div class="property-divider"></div>
+
+                <div class="property-actions">
+                    <button class="property-btn property-btn-primary" onclick="dashboardGenerator.duplicateComponent('${component.id}')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        複製
+                    </button>
+                    <button class="property-btn property-btn-danger" onclick="dashboardGenerator.deleteComponent('${component.id}')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        削除
+                    </button>
+                </div>
+            </div>
+        `;
+
+        propertiesPanel.style.display = 'block';
+    }
+
+    closePropertiesPanel() {
+        const propertiesPanel = document.getElementById('propertiesPanel');
+        if (propertiesPanel) {
+            propertiesPanel.style.display = 'none';
+        }
+
+        // Remove selection
+        document.querySelectorAll('.dashboard-component-wrapper').forEach(el => {
+            el.classList.remove('selected');
+        });
+
+        this.selectedComponentId = null;
+    }
+
+    duplicateComponent(componentId) {
+        const component = this.components.find(c => c.id === componentId);
+        if (!component) return;
+
+        // Create a copy with new ID
+        const newComponent = {
+            id: this.generateId(),
+            type: component.type,
+            template: component.template,
+            timestamp: Date.now()
+        };
+
+        // Insert after the original component
+        const index = this.components.findIndex(c => c.id === componentId);
+        this.components.splice(index + 1, 0, newComponent);
+
+        this.saveState();
+        this.renderCanvas();
+        this.closePropertiesPanel();
+        this.showNotification(`${component.template.name}を複製しました`);
     }
 
     moveComponent(componentId, direction) {
