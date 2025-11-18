@@ -200,23 +200,47 @@ const sectionTemplates = {
                 <p class="lp-section-subtitle">私たちの作品をご覧ください</p>
 
                 <div class="lp-gallery-grid">
-                    <div class="lp-gallery-item lp-slide-up">
-                        <img src="https://picsum.photos/400/300?random=1" alt="Gallery Image 1">
+                    <div class="lp-gallery-item lp-slide-up" data-lightbox="gallery">
+                        <img src="https://picsum.photos/400/300?random=1" alt="Gallery Image 1" loading="lazy">
+                        <div class="lp-gallery-overlay">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        </div>
                     </div>
-                    <div class="lp-gallery-item lp-slide-up">
-                        <img src="https://picsum.photos/400/300?random=2" alt="Gallery Image 2">
+                    <div class="lp-gallery-item lp-slide-up" data-lightbox="gallery">
+                        <img src="https://picsum.photos/400/300?random=2" alt="Gallery Image 2" loading="lazy">
+                        <div class="lp-gallery-overlay">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        </div>
                     </div>
-                    <div class="lp-gallery-item lp-slide-up">
-                        <img src="https://picsum.photos/400/300?random=3" alt="Gallery Image 3">
+                    <div class="lp-gallery-item lp-slide-up" data-lightbox="gallery">
+                        <img src="https://picsum.photos/400/300?random=3" alt="Gallery Image 3" loading="lazy">
+                        <div class="lp-gallery-overlay">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        </div>
                     </div>
-                    <div class="lp-gallery-item lp-slide-up">
-                        <img src="https://picsum.photos/400/300?random=4" alt="Gallery Image 4">
+                    <div class="lp-gallery-item lp-slide-up" data-lightbox="gallery">
+                        <img src="https://picsum.photos/400/300?random=4" alt="Gallery Image 4" loading="lazy">
+                        <div class="lp-gallery-overlay">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        </div>
                     </div>
-                    <div class="lp-gallery-item lp-slide-up">
-                        <img src="https://picsum.photos/400/300?random=5" alt="Gallery Image 5">
+                    <div class="lp-gallery-item lp-slide-up" data-lightbox="gallery">
+                        <img src="https://picsum.photos/400/300?random=5" alt="Gallery Image 5" loading="lazy">
+                        <div class="lp-gallery-overlay">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        </div>
                     </div>
-                    <div class="lp-gallery-item lp-slide-up">
-                        <img src="https://picsum.photos/400/300?random=6" alt="Gallery Image 6">
+                    <div class="lp-gallery-item lp-slide-up" data-lightbox="gallery">
+                        <img src="https://picsum.photos/400/300?random=6" alt="Gallery Image 6" loading="lazy">
+                        <div class="lp-gallery-overlay">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        </div>
                     </div>
                 </div>
             </div>

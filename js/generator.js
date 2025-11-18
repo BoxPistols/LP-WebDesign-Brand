@@ -421,3 +421,175 @@ document.addEventListener('DOMContentLoaded', () => {
     window.lpGenerator = new LandingPageGenerator();
     console.log('Landing Page Generator initialized');
 });
+
+// ==========================================
+// LIGHTBOX FUNCTIONALITY
+// ==========================================
+
+class Lightbox {
+    constructor() {
+        this.currentIndex = 0;
+        this.images = [];
+        this.init();
+    }
+
+    init() {
+        // Create lightbox HTML
+        const lightboxHTML = `
+            <div class="lp-lightbox" id="lightbox">
+                <button class="lp-lightbox-close" id="lightboxClose">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+                <button class="lp-lightbox-nav lp-lightbox-prev" id="lightboxPrev">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+                <button class="lp-lightbox-nav lp-lightbox-next" id="lightboxNext">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+                <div class="lp-lightbox-content">
+                    <img id="lightboxImage" src="" alt="">
+                </div>
+                <div class="lp-lightbox-counter" id="lightboxCounter"></div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', lightboxHTML);
+        this.attachEventListeners();
+    }
+
+    attachEventListeners() {
+        const lightbox = document.getElementById('lightbox');
+        const closeBtn = document.getElementById('lightboxClose');
+        const prevBtn = document.getElementById('lightboxPrev');
+        const nextBtn = document.getElementById('lightboxNext');
+
+        // Close lightbox
+        closeBtn?.addEventListener('click', () => this.close());
+        lightbox?.addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') this.close();
+        });
+        
+        // Navigation
+        prevBtn?.addEventListener('click', () => this.prev());
+        nextBtn?.addEventListener('click', () => this.next());
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') this.close();
+            if (e.key === 'ArrowLeft') this.prev();
+            if (e.key === 'ArrowRight') this.next();
+        });
+
+        // Gallery items click handler using delegation
+        document.addEventListener('click', (e) => {
+            const galleryItem = e.target.closest('[data-lightbox="gallery"]');
+            if (galleryItem) {
+                e.preventDefault();
+                this.open(galleryItem);
+            }
+        });
+    }
+
+    open(clickedItem) {
+        const gallery = clickedItem.closest('.lp-gallery-grid');
+        if (!gallery) return;
+
+        this.images = Array.from(gallery.querySelectorAll('[data-lightbox="gallery"] img'));
+        this.currentIndex = this.images.findIndex(img => 
+            img.closest('[data-lightbox="gallery"]') === clickedItem
+        );
+
+        this.show();
+    }
+
+    show() {
+        const lightbox = document.getElementById('lightbox');
+        const img = document.getElementById('lightboxImage');
+        const counter = document.getElementById('lightboxCounter');
+        
+        if (this.images[this.currentIndex]) {
+            img.src = this.images[this.currentIndex].src;
+            img.alt = this.images[this.currentIndex].alt || '';
+            counter.textContent = `${this.currentIndex + 1} / ${this.images.length}`;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    close() {
+        const lightbox = document.getElementById('lightbox');
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    prev() {
+        this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+        this.show();
+    }
+
+    next() {
+        this.currentIndex = (this.currentIndex + 1) % this.images.length;
+        this.show();
+    }
+}
+
+// Initialize lightbox when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.lightbox = new Lightbox();
+});
+
+
+// ==========================================
+// DARK MODE FUNCTIONALITY
+// ==========================================
+
+class DarkModeToggle {
+    constructor() {
+        this.toggle = document.getElementById('modeToggle');
+        this.modeText = this.toggle?.querySelector('.mode-text');
+        this.init();
+    }
+
+    init() {
+        // Load saved preference from localStorage
+        const savedMode = localStorage.getItem('darkMode');
+        if (savedMode === 'enabled') {
+            this.enable();
+        }
+
+        // Attach event listener
+        this.toggle?.addEventListener('click', () => this.toggleMode());
+    }
+
+    toggleMode() {
+        if (document.body.classList.contains('dark-mode')) {
+            this.disable();
+        } else {
+            this.enable();
+        }
+    }
+
+    enable() {
+        document.body.classList.add('dark-mode');
+        if (this.modeText) this.modeText.textContent = 'Light Mode';
+        localStorage.setItem('darkMode', 'enabled');
+    }
+
+    disable() {
+        document.body.classList.remove('dark-mode');
+        if (this.modeText) this.modeText.textContent = 'Dark Mode';
+        localStorage.setItem('darkMode', 'disabled');
+    }
+}
+
+// Initialize dark mode toggle when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.darkModeToggle = new DarkModeToggle();
+});
