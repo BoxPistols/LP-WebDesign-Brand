@@ -9,6 +9,7 @@ class LandingPageGenerator {
         this.glassmorphism = false;
         this.deviceMode = 'desktop';
         this.autoSaveInterval = null;
+        this.exportedHTML = null;
 
         this.init();
     }
@@ -52,6 +53,28 @@ class LandingPageGenerator {
         // Project management
         document.getElementById('saveProject')?.addEventListener('click', () => this.saveProject());
         document.getElementById('loadProject')?.addEventListener('click', () => this.toggleProjectsList());
+
+        // Export modal
+        document.getElementById('exportModalClose')?.addEventListener('click', () => this.closeExportModal());
+        document.getElementById('copyCodeBtn')?.addEventListener('click', () => this.copyCode());
+        document.getElementById('downloadCodeBtn')?.addEventListener('click', () => this.downloadFromModal());
+
+        // Close modal on backdrop click
+        document.getElementById('exportModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'exportModal') {
+                this.closeExportModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('exportModal');
+                if (modal && modal.classList.contains('active')) {
+                    this.closeExportModal();
+                }
+            }
+        });
     }
 
     loadSectionTemplates() {
@@ -258,8 +281,71 @@ class LandingPageGenerator {
             return;
         }
 
+        // Generate HTML and show preview modal
         const fullHTML = this.generateFullHTML();
-        const blob = new Blob([fullHTML], { type: 'text/html' });
+        this.showExportModal(fullHTML);
+    }
+
+    showExportModal(htmlCode) {
+        const modal = document.getElementById('exportModal');
+        const codePreview = document.getElementById('exportCodePreview').querySelector('code');
+        const linesElement = document.getElementById('exportCodeLines');
+        const sizeElement = document.getElementById('exportCodeSize');
+
+        // Store the HTML for later download
+        this.exportedHTML = htmlCode;
+
+        // Display the code
+        codePreview.textContent = htmlCode;
+
+        // Calculate and display stats
+        const lines = htmlCode.split('\n').length;
+        const sizeKB = (new Blob([htmlCode]).size / 1024).toFixed(2);
+
+        linesElement.textContent = lines;
+        sizeElement.textContent = sizeKB;
+
+        // Show modal
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeExportModal() {
+        const modal = document.getElementById('exportModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        this.exportedHTML = null;
+    }
+
+    async copyCode() {
+        if (!this.exportedHTML) return;
+
+        try {
+            await navigator.clipboard.writeText(this.exportedHTML);
+            this.showNotification('コードをクリップボードにコピーしました');
+
+            // Update button text temporarily
+            const btn = document.getElementById('copyCodeBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                コピー完了
+            `;
+
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+            }, 2000);
+        } catch (err) {
+            this.showNotification('コピーに失敗しました', 'error');
+        }
+    }
+
+    downloadFromModal() {
+        if (!this.exportedHTML) return;
+
+        const blob = new Blob([this.exportedHTML], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -270,6 +356,7 @@ class LandingPageGenerator {
         URL.revokeObjectURL(url);
 
         this.showNotification('HTMLファイルをダウンロードしました');
+        this.closeExportModal();
     }
 
     generateFullHTML() {
