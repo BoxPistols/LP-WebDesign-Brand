@@ -328,6 +328,38 @@
                 <div id="savedProjectsList" class="saved-projects-list"></div>
             </section>
 
+            <!-- CSS Framework Selection -->
+            <section class="control-section">
+                <h3 class="section-title">CSSフレームワーク</h3>
+                <div class="css-mode-selector">
+                    <label class="css-mode-option">
+                        <input type="radio" name="cssMode" value="custom" checked>
+                        <span class="css-mode-label">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                            <div class="css-mode-info">
+                                <strong>カスタムCSS</strong>
+                                <small>完全なスタイル定義</small>
+                            </div>
+                        </span>
+                    </label>
+                    <label class="css-mode-option">
+                        <input type="radio" name="cssMode" value="tailwind">
+                        <span class="css-mode-label">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                            <div class="css-mode-info">
+                                <strong>Tailwind CSS</strong>
+                                <small>ユーティリティクラス</small>
+                            </div>
+                        </span>
+                    </label>
+                </div>
+            </section>
+
             <!-- Export Actions -->
             <section class="control-section">
                 <h3 class="section-title">エクスポート</h3>

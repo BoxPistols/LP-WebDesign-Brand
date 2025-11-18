@@ -10,6 +10,7 @@ class LandingPageGenerator {
         this.deviceMode = 'desktop';
         this.autoSaveInterval = null;
         this.exportedHTML = null;
+        this.cssMode = 'custom'; // 'custom' or 'tailwind'
 
         this.init();
     }
@@ -74,6 +75,16 @@ class LandingPageGenerator {
                     this.closeExportModal();
                 }
             }
+        });
+
+        // CSS mode selection
+        document.querySelectorAll('input[name="cssMode"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.cssMode = e.target.value;
+                this.showNotification(
+                    this.cssMode === 'tailwind' ? 'Tailwind CSSモードに切り替えました' : 'カスタムCSSモードに切り替えました'
+                );
+            });
         });
     }
 
@@ -360,6 +371,14 @@ class LandingPageGenerator {
     }
 
     generateFullHTML() {
+        if (this.cssMode === 'tailwind') {
+            return this.generateTailwindHTML();
+        } else {
+            return this.generateCustomCSSHTML();
+        }
+    }
+
+    generateCustomCSSHTML() {
         const sectionsHTML = this.sections.map(section => section.template.html).join('\n');
 
         // Get SEO meta tags from enhanced generator if available
@@ -422,6 +441,109 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     </script>
 </body>
 </html>`;
+    }
+
+    generateTailwindHTML() {
+        const sectionsHTML = this.sections.map(section => section.template.html).join('\n');
+
+        // Get SEO meta tags from enhanced generator if available
+        let seoMetaTags = '';
+        if (window.enhancedGenerator && window.enhancedGenerator.generateSEOMetaTags) {
+            seoMetaTags = window.enhancedGenerator.generateSEOMetaTags();
+        }
+
+        // Get language setting from enhanced generator if available
+        const lang = window.enhancedGenerator?.seoData?.lang || 'ja';
+
+        // Get theme colors
+        const themeColors = this.getThemeColors();
+
+        return `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+${seoMetaTags || '    <title>My Landing Page</title>'}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '${themeColors.primary}',
+                        secondary: '${themeColors.secondary}',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for compatibility */
+        ${this.getInlineCSS()}
+    </style>
+</head>
+<body class="font-sans">
+    <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
+        ${sectionsHTML}
+    </div>
+
+    <script>
+        // Smooth scroll animation observer
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.lp-slide-up, .lp-fade-in').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.8s ease-out';
+            observer.observe(el);
+        });
+
+        // Form submission handler
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('フォームが送信されました！（デモ）');
+            });
+        });
+    </script>
+</body>
+</html>`;
+    }
+
+    getThemeColors() {
+        const themes = {
+            'modern-blue': { primary: '#3b82f6', secondary: '#3b82f6' },
+            'sunset': { primary: '#f5576c', secondary: '#f093fb' },
+            'ocean': { primary: '#3b82f6', secondary: '#1e40af' },
+            'forest': { primary: '#10b981', secondary: '#059669' },
+            'dark-mode': { primary: '#1e3a8a', secondary: '#3730a3' },
+            'vibrant': { primary: '#f59e0b', secondary: '#dc2626' },
+            'neon': { primary: '#3b82f6', secondary: '#3b82f6' },
+            'nature': { primary: '#10b981', secondary: '#059669' },
+            'monochrome': { primary: '#171717', secondary: '#404040' },
+            'pastel': { primary: '#10b981', secondary: '#3b82f6' }
+        };
+
+        return themes[this.currentTheme] || themes['modern-blue'];
     }
 
     async getInlineCSS() {

@@ -247,6 +247,74 @@ body {
     transform: translateY(-2px);
 }
 
+/* CSS Mode Selector */
+.css-mode-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.css-mode-option {
+    position: relative;
+    cursor: pointer;
+}
+
+.css-mode-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.css-mode-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: #f8fafc;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.css-mode-label svg {
+    flex-shrink: 0;
+    color: #64748b;
+}
+
+.css-mode-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.css-mode-info strong {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+.css-mode-info small {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.css-mode-option:hover .css-mode-label {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.css-mode-option input[type="radio"]:checked + .css-mode-label {
+    background: #eff6ff;
+    border-color: var(--primary-color);
+}
+
+.css-mode-option input[type="radio"]:checked + .css-mode-label svg {
+    color: var(--primary-color);
+}
+
+.css-mode-option input[type="radio"]:checked + .css-mode-label strong {
+    color: var(--primary-color);
+}
+
 /* Saved Projects List */
 .saved-projects-list {
     margin-top: var(--spacing-md);
@@ -1180,4 +1248,26 @@ body.dark-mode .export-modal-btn.secondary:hover {
 body.dark-mode #exportCodePreview {
     background: #0f172a;
     color: #e2e8f0;
+}
+
+body.dark-mode .css-mode-label {
+    background: #0f172a;
+    border-color: var(--border-color);
+}
+
+body.dark-mode .css-mode-option:hover .css-mode-label {
+    background: #1e293b;
+}
+
+body.dark-mode .css-mode-option input[type="radio"]:checked + .css-mode-label {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .css-mode-info strong {
+    color: var(--text-dark);
+}
+
+body.dark-mode .css-mode-info small {
+    color: var(--text-light);
 }
