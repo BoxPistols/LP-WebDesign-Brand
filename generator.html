@@ -306,15 +306,46 @@
                 </label>
             </section>
 
+            <!-- Project Management -->
+            <section class="control-section">
+                <h3 class="section-title">プロジェクト管理</h3>
+                <div class="action-buttons">
+                    <button class="action-btn primary" id="saveProject">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        プロジェクト保存
+                    </button>
+                    <button class="action-btn secondary" id="loadProject">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/>
+                        </svg>
+                        プロジェクト読込
+                    </button>
+                </div>
+                <div id="savedProjectsList" class="saved-projects-list"></div>
+            </section>
+
             <!-- Export Actions -->
             <section class="control-section">
                 <h3 class="section-title">エクスポート</h3>
                 <div class="action-buttons">
                     <button class="action-btn primary" id="exportHTML">
-                        <span>📄</span> HTMLをダウンロード
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="16 16 12 12 8 16"/>
+                            <line x1="12" y1="12" x2="12" y2="21"/>
+                            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+                        </svg>
+                        HTMLダウンロード
                     </button>
                     <button class="action-btn secondary" id="clearAll">
-                        <span>🗑️</span> すべてクリア
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        すべてクリア
                     </button>
                 </div>
             </section>

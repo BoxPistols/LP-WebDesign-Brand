@@ -8,6 +8,7 @@ class LandingPageGenerator {
         this.animations = true;
         this.glassmorphism = false;
         this.deviceMode = 'desktop';
+        this.autoSaveInterval = null;
 
         this.init();
     }
@@ -47,11 +48,21 @@ class LandingPageGenerator {
         // Actions
         document.getElementById('exportHTML')?.addEventListener('click', () => this.exportHTML());
         document.getElementById('clearAll')?.addEventListener('click', () => this.clearAll());
+
+        // Project management
+        document.getElementById('saveProject')?.addEventListener('click', () => this.saveProject());
+        document.getElementById('loadProject')?.addEventListener('click', () => this.toggleProjectsList());
     }
 
     loadSectionTemplates() {
         // Templates are loaded from templates.js
         console.log('Section templates loaded');
+
+        // Load saved projects list on init
+        this.renderProjectsList();
+
+        // Start auto-save (every 30 seconds)
+        this.startAutoSave();
     }
 
     handleThemeChange(e) {
@@ -356,6 +367,212 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
         return `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     }
 
+    // ==========================================
+    // LOCAL STORAGE FUNCTIONALITY
+    // ==========================================
+
+    saveProject() {
+        if (this.sections.length === 0) {
+            this.showNotification('保存するセクションがありません', 'error');
+            return;
+        }
+
+        const projectName = prompt('プロジェクト名を入力してください:', `LP-${new Date().toLocaleDateString('ja-JP')}`);
+
+        if (!projectName) return;
+
+        const projectData = {
+            id: `project-${Date.now()}`,
+            name: projectName,
+            timestamp: Date.now(),
+            data: {
+                theme: this.currentTheme,
+                sections: this.sections,
+                animations: this.animations,
+                glassmorphism: this.glassmorphism,
+                deviceMode: this.deviceMode
+            }
+        };
+
+        // Get existing projects
+        const projects = this.getAllProjects();
+
+        // Add new project
+        projects.push(projectData);
+
+        // Save to localStorage
+        localStorage.setItem('lp-generator-projects', JSON.stringify(projects));
+
+        this.showNotification(`プロジェクト「${projectName}」を保存しました`);
+        this.renderProjectsList();
+    }
+
+    toggleProjectsList() {
+        const list = document.getElementById('savedProjectsList');
+        if (list.classList.contains('active')) {
+            list.classList.remove('active');
+        } else {
+            list.classList.add('active');
+            this.renderProjectsList();
+        }
+    }
+
+    getAllProjects() {
+        const data = localStorage.getItem('lp-generator-projects');
+        return data ? JSON.parse(data) : [];
+    }
+
+    renderProjectsList() {
+        const projects = this.getAllProjects();
+        const list = document.getElementById('savedProjectsList');
+
+        if (!list) return;
+
+        if (projects.length === 0) {
+            list.innerHTML = '<p style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 1rem;">保存されたプロジェクトはありません</p>';
+            return;
+        }
+
+        // Sort by timestamp (newest first)
+        projects.sort((a, b) => b.timestamp - a.timestamp);
+
+        list.innerHTML = projects.map(project => {
+            const date = new Date(project.timestamp);
+            const dateStr = date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' });
+            const timeStr = date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+            const sectionCount = project.data.sections.length;
+
+            return `
+                <div class="saved-project-item" data-project-id="${project.id}">
+                    <div class="project-info" onclick="window.lpGenerator.loadProjectById('${project.id}')">
+                        <div class="project-name">${project.name}</div>
+                        <div class="project-meta">${dateStr} ${timeStr} · ${sectionCount}セクション</div>
+                    </div>
+                    <div class="project-actions">
+                        <button class="project-action-btn" onclick="window.lpGenerator.loadProjectById('${project.id}')" title="読み込む">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/>
+                            </svg>
+                        </button>
+                        <button class="project-action-btn delete" onclick="window.lpGenerator.deleteProject('${project.id}')" title="削除">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    loadProjectById(projectId) {
+        const projects = this.getAllProjects();
+        const project = projects.find(p => p.id === projectId);
+
+        if (!project) {
+            this.showNotification('プロジェクトが見つかりません', 'error');
+            return;
+        }
+
+        if (this.sections.length > 0) {
+            if (!confirm('現在の内容を破棄して読み込みますか？')) {
+                return;
+            }
+        }
+
+        // Load project data
+        this.currentTheme = project.data.theme;
+        this.sections = project.data.sections;
+        this.animations = project.data.animations !== undefined ? project.data.animations : true;
+        this.glassmorphism = project.data.glassmorphism || false;
+        this.deviceMode = project.data.deviceMode || 'desktop';
+
+        // Update UI
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
+        });
+
+        document.getElementById('animationsToggle').checked = this.animations;
+        document.getElementById('glassmorphismToggle').checked = this.glassmorphism;
+
+        this.updatePreview();
+        this.showNotification(`プロジェクト「${project.name}」を読み込みました`);
+
+        // Close the projects list
+        document.getElementById('savedProjectsList').classList.remove('active');
+    }
+
+    deleteProject(projectId) {
+        if (!confirm('このプロジェクトを削除してもよろしいですか？')) {
+            return;
+        }
+
+        let projects = this.getAllProjects();
+        projects = projects.filter(p => p.id !== projectId);
+
+        localStorage.setItem('lp-generator-projects', JSON.stringify(projects));
+
+        this.showNotification('プロジェクトを削除しました');
+        this.renderProjectsList();
+    }
+
+    startAutoSave() {
+        // Auto-save every 30 seconds if there are sections
+        this.autoSaveInterval = setInterval(() => {
+            if (this.sections.length > 0) {
+                this.autoSave();
+            }
+        }, 30000); // 30 seconds
+    }
+
+    autoSave() {
+        const autoSaveData = {
+            theme: this.currentTheme,
+            sections: this.sections,
+            animations: this.animations,
+            glassmorphism: this.glassmorphism,
+            deviceMode: this.deviceMode,
+            timestamp: Date.now()
+        };
+
+        localStorage.setItem('lp-generator-autosave', JSON.stringify(autoSaveData));
+        console.log('Auto-saved at', new Date().toLocaleTimeString());
+    }
+
+    loadAutoSave() {
+        const data = localStorage.getItem('lp-generator-autosave');
+        if (!data) return false;
+
+        const autoSaveData = JSON.parse(data);
+
+        // Check if auto-save is recent (within 24 hours)
+        const hoursSinceAutoSave = (Date.now() - autoSaveData.timestamp) / (1000 * 60 * 60);
+        if (hoursSinceAutoSave > 24) return false;
+
+        if (confirm('前回の作業内容が見つかりました。復元しますか？')) {
+            this.currentTheme = autoSaveData.theme;
+            this.sections = autoSaveData.sections;
+            this.animations = autoSaveData.animations;
+            this.glassmorphism = autoSaveData.glassmorphism;
+            this.deviceMode = autoSaveData.deviceMode;
+
+            // Update UI
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
+            });
+
+            document.getElementById('animationsToggle').checked = this.animations;
+            document.getElementById('glassmorphismToggle').checked = this.glassmorphism;
+
+            this.updatePreview();
+            this.showNotification('前回の作業内容を復元しました');
+            return true;
+        }
+
+        return false;
+    }
+
     showNotification(message, type = 'success') {
         // Remove existing notification
         const existing = document.querySelector('.lp-notification');
@@ -420,6 +637,11 @@ document.head.appendChild(style);
 document.addEventListener('DOMContentLoaded', () => {
     window.lpGenerator = new LandingPageGenerator();
     console.log('Landing Page Generator initialized');
+
+    // Check for auto-save after a short delay to ensure everything is loaded
+    setTimeout(() => {
+        window.lpGenerator.loadAutoSave();
+    }, 500);
 });
 
 // ==========================================

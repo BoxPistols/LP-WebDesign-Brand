@@ -247,6 +247,84 @@ body {
     transform: translateY(-2px);
 }
 
+/* Saved Projects List */
+.saved-projects-list {
+    margin-top: var(--spacing-md);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.saved-projects-list.active {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.saved-project-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm);
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: var(--spacing-xs);
+    transition: all 0.2s ease;
+}
+
+.saved-project-item:hover {
+    background: #e2e8f0;
+    transform: translateX(4px);
+}
+
+.project-info {
+    flex: 1;
+    cursor: pointer;
+}
+
+.project-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+}
+
+.project-meta {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.project-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.project-action-btn {
+    padding: 6px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.project-action-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.project-action-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.project-action-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+}
+
 /* ===== Preview Area ===== */
 .preview-area {
     flex: 1;
@@ -859,4 +937,29 @@ body.dark-mode .lp-section-subtitle {
 
 body.dark-mode .lp-gallery-item {
     background: #0f172a;
+}
+
+body.dark-mode .saved-project-item {
+    background: #0f172a;
+    border-color: var(--border-color);
+}
+
+body.dark-mode .saved-project-item:hover {
+    background: #1e293b;
+}
+
+body.dark-mode .project-name {
+    color: var(--text-dark);
+}
+
+body.dark-mode .project-meta {
+    color: var(--text-light);
+}
+
+body.dark-mode .project-action-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+body.dark-mode .project-action-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.2);
 }
