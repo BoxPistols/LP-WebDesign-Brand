@@ -154,8 +154,35 @@
     font-weight: var(--font-semibold);
 }
 
-.stat-trend.up { color: #10b981; }
-.stat-trend.down { color: #ef4444; }
+.stat-trend.up {
+    color: #10b981;
+}
+
+.stat-trend.up::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2310b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.stat-trend.down {
+    color: #ef4444;
+}
+
+.stat-trend.down::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ef4444" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
 
 .stat-period {
     color: var(--db-text-muted);

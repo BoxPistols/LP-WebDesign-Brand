@@ -22,7 +22,7 @@ const dashboardTemplates = {
                     </div>
                 </div>
                 <div class="stat-card-footer">
-                    <span class="stat-trend up">↑ 12.5%</span>
+                    <span class="stat-trend up">12.5%</span>
                     <span class="stat-period">先月比</span>
                 </div>
             </div>
@@ -43,7 +43,7 @@ const dashboardTemplates = {
                     </div>
                 </div>
                 <div class="stat-card-footer">
-                    <span class="stat-trend up">↑ 8.2%</span>
+                    <span class="stat-trend up">8.2%</span>
                     <span class="stat-period">先月比</span>
                 </div>
             </div>
@@ -61,7 +61,7 @@ const dashboardTemplates = {
                     </div>
                 </div>
                 <div class="stat-card-footer">
-                    <span class="stat-trend down">↓ 2.1%</span>
+                    <span class="stat-trend down">2.1%</span>
                     <span class="stat-period">先月比</span>
                 </div>
             </div>
@@ -81,7 +81,7 @@ const dashboardTemplates = {
                     </div>
                 </div>
                 <div class="stat-card-footer">
-                    <span class="stat-trend up">↑ 18.7%</span>
+                    <span class="stat-trend up">18.7%</span>
                     <span class="stat-period">先月比</span>
                 </div>
             </div>
