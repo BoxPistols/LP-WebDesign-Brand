@@ -21,6 +21,7 @@ class DashboardGenerator {
     init() {
         this.setupEventListeners();
         this.setupDesignCustomization();
+        this.renderCanvas(); // Initialize canvas with empty state
         console.log('Dashboard Generator initialized');
     }
 
@@ -42,14 +43,25 @@ class DashboardGenerator {
             item.addEventListener('dragend', (e) => this.handleComponentDragEnd(e));
         });
 
-        // Canvas drop
+        // Canvas drop - Add to both workspace and canvas for better coverage
+        const workspace = document.getElementById('canvasWorkspace');
         const canvas = document.getElementById('dashboardCanvas');
-        canvas.addEventListener('dragover', (e) => this.handleCanvasDragOver(e));
-        canvas.addEventListener('drop', (e) => this.handleCanvasDrop(e));
 
-        // Quick start templates
-        document.querySelectorAll('.quick-start-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleQuickStart(e));
+        if (workspace) {
+            workspace.addEventListener('dragover', (e) => this.handleCanvasDragOver(e));
+            workspace.addEventListener('drop', (e) => this.handleCanvasDrop(e));
+        }
+
+        if (canvas) {
+            canvas.addEventListener('dragover', (e) => this.handleCanvasDragOver(e));
+            canvas.addEventListener('drop', (e) => this.handleCanvasDrop(e));
+        }
+
+        // Quick start templates - Use event delegation
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.quick-start-btn')) {
+                this.handleQuickStart(e);
+            }
         });
 
         // Actions
@@ -394,7 +406,10 @@ class DashboardGenerator {
     }
 
     handleQuickStart(e) {
-        const template = e.currentTarget.dataset.template;
+        const btn = e.target.closest('.quick-start-btn');
+        if (!btn) return;
+
+        const template = btn.dataset.template;
         this.applyTemplate(template);
     }
 

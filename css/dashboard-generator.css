@@ -432,6 +432,12 @@ body {
     padding: var(--space-6);
     background: var(--db-bg);
     position: relative;
+    min-height: 500px;
+}
+
+#dashboardCanvas {
+    min-height: 100%;
+    width: 100%;
 }
 
 /* Empty Canvas State */
@@ -495,8 +501,14 @@ body {
     box-shadow: var(--db-shadow-lg);
 }
 
-.quick-start-btn span {
-    font-size: var(--text-2xl);
+.quick-start-btn:active {
+    transform: translateY(0);
+}
+
+.quick-start-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--db-primary);
 }
 
 /* ==========================================
