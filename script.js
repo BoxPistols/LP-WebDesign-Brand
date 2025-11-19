@@ -4,7 +4,7 @@ window.onload = () => {
 
 function startObserve() {
   // 見えている量が閾値を上回るか下回ったときに呼ばれる
-  const callback = (entries, observer) => {
+  const callback = (entries, _observer) => {
     entries.forEach((entry) => {
       if (entry.intersectionRatio === 1) {
         // 100%見えなくなったとき
@@ -21,9 +21,9 @@ function startObserve() {
     threshold: [0.2, 1.0],
   };
 
-  let observer = new IntersectionObserver(callback, option);
+  const observer = new IntersectionObserver(callback, option);
 
-  let elements = document.querySelectorAll('.obs');
+  const elements = document.querySelectorAll('.obs');
 
   for (let i = 0; i < elements.length; i++) {
     // 同じインスタンスにターゲットとなる要素を渡す

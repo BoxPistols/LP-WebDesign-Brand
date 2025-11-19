@@ -1,0 +1,21 @@
+{
+  "name": "lp-webdesign-brand",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "serve -l 8001 .",
+    "dev": "serve -l 8001 .",
+    "lint": "eslint . --ext .js,.mjs,.cjs --max-warnings=0",
+    "lint:fix": "eslint . --ext .js,.mjs,.cjs --fix",
+    "format": "prettier . --write",
+    "fix": "eslint . --ext .js,.mjs,.cjs --fix && prettier . --write"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-html": "^7.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.2.5"
+  }
+}

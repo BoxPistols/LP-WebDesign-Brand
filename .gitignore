@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+coverage/
+*.min.js
+.DS_Store
+.vscode/
+*.log
+*.cache
+pnpm-lock.yaml
+
+# IDE files
+.idea/
+
+# System files
+.env
+.env.local
