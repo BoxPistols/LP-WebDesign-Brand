@@ -1,4 +1,18 @@
 {
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.organizeImports": true
+  },
+  "eslint.validate": ["javascript"],
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "eslint.packageManager": "pnpm",
+  "eslint.nodePath": "./node_modules",
+  "prettier.requireConfig": true,
+  "files.eol": "\n"
+}
+{
   // "editor.theme": "vs-dark",
   /**
    * Render vertical lines at the specified columns.
