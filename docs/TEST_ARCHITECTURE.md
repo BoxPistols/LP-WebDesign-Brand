@@ -1,6 +1,7 @@
 # LP-WebDesign-Brand - Test Design & Architecture Documentation
 
 ## Table of Contents
+
 1. [Overview](#overview)
 2. [Architecture](#architecture)
 3. [Testing Strategy](#testing-strategy)
@@ -17,7 +18,7 @@
 
 ### プロジェクト構成
 
-```
+```text
 LP-WebDesign-Brand/
 ├── index.html                  # メインランディングページ
 ├── generator.html              # LPジェネレーター
@@ -48,6 +49,7 @@ LP-WebDesign-Brand/
 デザインシステムは3層構造で構成されています：
 
 #### 1. Foundation Layer (design-system.css)
+
 - CSS Custom Properties（CSS変数）
 - タイポグラフィシステム
 - スペーシングシステム
@@ -56,28 +58,30 @@ LP-WebDesign-Brand/
 
 ```css
 :root {
-    /* Spacing Scale */
-    --space-1: 4px;
-    --space-2: 8px;
-    --space-6: 24px;
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-6: 24px;
 
-    /* Typography Scale */
-    --text-sm: 14px;
-    --text-base: 16px;
-    --text-xl: 20px;
+  /* Typography Scale */
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-xl: 20px;
 
-    /* Colors */
-    --primary: #667eea;
-    --secondary: #764ba2;
+  /* Colors */
+  --primary: #667eea;
+  --secondary: #764ba2;
 }
 ```
 
 #### 2. Component Layer
+
 - 再利用可能なコンポーネント
 - 一貫したデザインパターン
 - アクセシビリティ準拠
 
 #### 3. Page Layer
+
 - ページ固有のスタイル
 - レイアウト構成
 - インタラクション
@@ -85,7 +89,9 @@ LP-WebDesign-Brand/
 ### Generator Architecture
 
 #### LP Generator
+
 **責任範囲:**
+
 - セクションベースのページ構築
 - 19種類のコンポーネントライブラリ
 - 10種類のテーマシステム
@@ -93,6 +99,7 @@ LP-WebDesign-Brand/
 - SEO最適化（メタタグ、OGP、Twitter Card、Schema.org）
 
 **主要クラス:**
+
 ```javascript
 class LandingPageGenerator {
     constructor() {
@@ -119,7 +126,9 @@ class EnhancedGenerator extends LandingPageGenerator {
 ```
 
 #### Dashboard Generator
+
 **責任範囲:**
+
 - ドラッグ&ドロップインターフェース
 - グリッドベースのレイアウト
 - 14種類のダッシュボードコンポーネント
@@ -128,6 +137,7 @@ class EnhancedGenerator extends LandingPageGenerator {
 - CSS埋め込みエクスポート
 
 **主要クラス:**
+
 ```javascript
 class DashboardGenerator {
     constructor() {
@@ -150,6 +160,7 @@ class DashboardGenerator {
 ### 1. Manual Testing Checklist
 
 #### Landing Page (index.html)
+
 - [ ] ナビゲーションメニューの動作
   - [ ] デスクトップビュー
   - [ ] モバイルビュー（ハンバーガーメニュー）
@@ -170,6 +181,7 @@ class DashboardGenerator {
   - [ ] Intersection Observerによる遅延表示
 
 #### LP Generator (generator.html)
+
 - [ ] セクション追加/削除
 - [ ] ドラッグ&ドロップ並び替え
 - [ ] テーマ切り替え（10種類）
@@ -196,6 +208,7 @@ class DashboardGenerator {
   - [ ] カスタムデザインの反映
 
 #### Dashboard Generator (dashboard-generator.html)
+
 - [ ] コンポーネント追加
   - [ ] サイドバーからドラッグ&ドロップ
   - [ ] クイックスタートテンプレート（Analytics, CRM, Ecommerce）
@@ -231,54 +244,56 @@ class DashboardGenerator {
 ### 2. Automated Testing (Future Implementation)
 
 #### Unit Tests
+
 ```javascript
 // Example: Landing Page Generator
 describe('LandingPageGenerator', () => {
-    test('should add section correctly', () => {
-        const generator = new LandingPageGenerator();
-        generator.addSection('hero-section');
-        expect(generator.sections.length).toBe(1);
-    });
+  test('should add section correctly', () => {
+    const generator = new LandingPageGenerator();
+    generator.addSection('hero-section');
+    expect(generator.sections.length).toBe(1);
+  });
 
-    test('should reorder sections', () => {
-        const generator = new LandingPageGenerator();
-        generator.addSection('hero');
-        generator.addSection('features');
-        generator.reorderSections(0, 1);
-        expect(generator.sections[0].type).toBe('features');
-    });
+  test('should reorder sections', () => {
+    const generator = new LandingPageGenerator();
+    generator.addSection('hero');
+    generator.addSection('features');
+    generator.reorderSections(0, 1);
+    expect(generator.sections[0].type).toBe('features');
+  });
 });
 
 // Example: Dashboard Generator
 describe('DashboardGenerator', () => {
-    test('should change layout correctly', () => {
-        const generator = new DashboardGenerator();
-        generator.handleLayoutChange({ currentTarget: { dataset: { layout: 'topbar' }}});
-        expect(generator.currentLayout).toBe('topbar');
-    });
+  test('should change layout correctly', () => {
+    const generator = new DashboardGenerator();
+    generator.handleLayoutChange({ currentTarget: { dataset: { layout: 'topbar' } } });
+    expect(generator.currentLayout).toBe('topbar');
+  });
 
-    test('should embed CSS in export', async () => {
-        const generator = new DashboardGenerator();
-        generator.addComponent(dashboardTemplates['stats-cards'], 'stats-cards');
-        const html = await generator.generateFullHTML();
-        expect(html).toContain('<style>');
-        expect(html).toContain('--space-');
-    });
+  test('should embed CSS in export', async () => {
+    const generator = new DashboardGenerator();
+    generator.addComponent(dashboardTemplates['stats-cards'], 'stats-cards');
+    const html = await generator.generateFullHTML();
+    expect(html).toContain('<style>');
+    expect(html).toContain('--space-');
+  });
 });
 ```
 
 #### Integration Tests
+
 ```javascript
 describe('LP Generator Integration', () => {
-    test('SEO tags should be included in export', async () => {
-        const generator = new EnhancedGenerator();
-        generator.seoData.title = 'Test Page';
-        generator.seoData.description = 'Test Description';
+  test('SEO tags should be included in export', async () => {
+    const generator = new EnhancedGenerator();
+    generator.seoData.title = 'Test Page';
+    generator.seoData.description = 'Test Description';
 
-        const html = generator.generateFullHTML();
-        expect(html).toContain('<title>Test Page</title>');
-        expect(html).toContain('Test Description');
-    });
+    const html = generator.generateFullHTML();
+    expect(html).toContain('<title>Test Page</title>');
+    expect(html).toContain('Test Description');
+  });
 });
 ```
 
@@ -288,25 +303,28 @@ describe('LP Generator Integration', () => {
 
 ### Testing Matrix
 
-| Component | Desktop | Tablet | Mobile | Touch | Keyboard | Screen Reader |
-|-----------|---------|--------|--------|-------|----------|---------------|
-| Navigation | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Hero Section | ✓ | ✓ | ✓ | ✓ | N/A | ✓ |
-| Features | ✓ | ✓ | ✓ | ✓ | N/A | ✓ |
-| Gallery | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Lightbox | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| CTA Section | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Scroll Top | ✓ | ✓ | ✓ | ✓ | ✓ | N/A |
+| Component    | Desktop | Tablet | Mobile | Touch | Keyboard | Screen Reader |
+| ------------ | ------- | ------ | ------ | ----- | -------- | ------------- |
+| Navigation   | ✓       | ✓      | ✓      | ✓     | ✓        | ✓             |
+| Hero Section | ✓       | ✓      | ✓      | ✓     | N/A      | ✓             |
+| Features     | ✓       | ✓      | ✓      | ✓     | N/A      | ✓             |
+| Gallery      | ✓       | ✓      | ✓      | ✓     | ✓        | ✓             |
+| Lightbox     | ✓       | ✓      | ✓      | ✓     | ✓        | ✓             |
+| CTA Section  | ✓       | ✓      | ✓      | ✓     | ✓        | ✓             |
+| Scroll Top   | ✓       | ✓      | ✓      | ✓     | ✓        | N/A           |
 
 ### Component-Specific Tests
 
 #### Navigation Component
+
 ```markdown
 **Desktop:**
+
 - ホバー時にアンダーラインアニメーション
 - アクティブリンクのハイライト
 
 **Mobile:**
+
 - ハンバーガーメニューのトグル
 - メニュー開閉時のボディスクロール制御
 - スワイプアップでメニューを閉じる
@@ -314,26 +332,31 @@ describe('LP Generator Integration', () => {
 - 外側クリックでメニューを閉じる
 
 **Touch:**
+
 - 44x44px以上のタッチターゲット
 - タップハイライト色の設定
 - ダブルタップズーム防止
 ```
 
 #### Lightbox Component
+
 ```markdown
 **Desktop:**
+
 - 画像クリックで開く
 - 背景クリックで閉じる
 - Escキーで閉じる
 - 閉じるボタンのホバーエフェクト
 
 **Mobile:**
+
 - 画像タップで開く
 - スワイプダウンで閉じる（100px以上）
 - 背景タップで閉じる
 - ピンチズーム対応
 
 **Accessibility:**
+
 - フォーカストラップ
 - ARIAラベル
 - キーボードナビゲーション
@@ -345,56 +368,66 @@ describe('LP Generator Integration', () => {
 
 ### Device Testing Matrix
 
-| Device | Screen Size | Test Type | Priority |
-|--------|-------------|-----------|----------|
-| iPhone SE | 375x667 | Real Device | High |
-| iPhone 12/13 | 390x844 | Real Device | High |
-| iPhone 14 Pro Max | 430x932 | Simulator | Medium |
-| iPad | 768x1024 | Real Device | High |
-| iPad Pro | 1024x1366 | Simulator | Medium |
-| Android Phone | 360x740 | Real Device | High |
-| Android Tablet | 800x1280 | Simulator | Medium |
+| Device            | Screen Size | Test Type   | Priority |
+| ----------------- | ----------- | ----------- | -------- |
+| iPhone SE         | 375x667     | Real Device | High     |
+| iPhone 12/13      | 390x844     | Real Device | High     |
+| iPhone 14 Pro Max | 430x932     | Simulator   | Medium   |
+| iPad              | 768x1024    | Real Device | High     |
+| iPad Pro          | 1024x1366   | Simulator   | Medium   |
+| Android Phone     | 360x740     | Real Device | High     |
+| Android Tablet    | 800x1280    | Simulator   | Medium   |
 
 ### Mobile-Specific Features
 
 #### 1. Touch Optimizations
+
 ```javascript
 // Touch detection
 const isTouchDevice = () => {
-    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 };
 
 // Prevent double-tap zoom on buttons
-document.addEventListener('touchend', function(e) {
+document.addEventListener(
+  'touchend',
+  function (e) {
     if (e.target.tagName === 'BUTTON') {
-        e.preventDefault();
-        e.target.click();
+      e.preventDefault();
+      e.target.click();
     }
-}, { passive: false });
+  },
+  { passive: false }
+);
 ```
 
 #### 2. Gesture Support
+
 - **Swipe Up:** メニューを閉じる
 - **Swipe Down:** ライトボックスを閉じる
 - **Pinch Zoom:** 画像拡大（ライトボックス内）
 
 #### 3. Viewport Optimizations
+
 ```css
 /* Safe area insets for notched devices */
 @supports (padding: max(0px)) {
-    .lp-header {
-        padding-left: max(1.25rem, env(safe-area-inset-left));
-        padding-right: max(1.25rem, env(safe-area-inset-right));
-    }
+  .lp-header {
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+  }
 }
 
 /* Prevent zoom on input focus (iOS) */
-input, select, textarea {
-    font-size: 16px; /* Prevents zoom on iOS */
+input,
+select,
+textarea {
+  font-size: 16px; /* Prevents zoom on iOS */
 }
 ```
 
 #### 4. Performance Optimizations
+
 ```javascript
 // Passive event listeners
 window.addEventListener('scroll', handleScroll, { passive: true });
@@ -405,12 +438,12 @@ element.addEventListener('touchstart', handler, { passive: true });
 // Throttled scroll handling
 let scrollTimeout;
 function handleScroll() {
-    if (!scrollTimeout) {
-        scrollTimeout = setTimeout(function() {
-            actualScrollHandler();
-            scrollTimeout = null;
-        }, 16); // ~60fps
-    }
+  if (!scrollTimeout) {
+    scrollTimeout = setTimeout(function () {
+      actualScrollHandler();
+      scrollTimeout = null;
+    }, 16); // ~60fps
+  }
 }
 ```
 
@@ -429,18 +462,21 @@ function handleScroll() {
 ### Optimization Techniques
 
 #### 1. CSS Optimization
+
 - CSS変数の使用
 - 不要なセレクタの削除
 - モバイルファーストアプローチ
 - Critical CSSのインライン化（将来的に）
 
 #### 2. JavaScript Optimization
+
 - パッシブイベントリスナー
 - スクロールイベントのスロットリング
 - Intersection Observerの使用
 - 遅延ローディング（画像）
 
 #### 3. Image Optimization
+
 - WebP形式の使用（将来的に）
 - レスポンシブ画像
 - 遅延読み込み
@@ -453,24 +489,28 @@ function handleScroll() {
 ### WCAG 2.1 Level AA Compliance
 
 #### 1. Perceivable
+
 - [x] テキスト代替（alt属性）
 - [x] 十分なコントラスト比（4.5:1以上）
 - [x] レスポンシブテキスト（ズーム対応）
 - [x] タッチターゲットサイズ（44x44px以上）
 
 #### 2. Operable
+
 - [x] キーボードアクセシブル
 - [x] フォーカス可視化
 - [x] スキップリンク（将来的に）
 - [x] 一時停止可能なアニメーション（prefers-reduced-motion対応）
 
 #### 3. Understandable
+
 - [x] 明確な言語設定（lang属性）
 - [x] 一貫したナビゲーション
 - [x] エラーメッセージ（フォーム）
 - [x] ヘルプテキスト
 
 #### 4. Robust
+
 - [x] 有効なHTML
 - [x] ARIAラベル
 - [x] セマンティックHTML
@@ -500,18 +540,21 @@ Arrow Keys: メニュー内でのナビゲーション（将来的に）
 ## Test Execution Plan
 
 ### Phase 1: Manual Testing (Current)
+
 1. 機能テスト（全機能の動作確認）
 2. モバイルテスト（各デバイスでの確認）
 3. ブラウザテスト（Chrome, Safari, Firefox, Edge）
 4. アクセシビリティテスト（スクリーンリーダー、キーボード）
 
 ### Phase 2: Automated Testing (Future)
+
 1. Unit tests setup (Jest)
 2. Integration tests (Testing Library)
 3. E2E tests (Playwright/Cypress)
 4. Visual regression tests (Percy/Chromatic)
 
 ### Phase 3: Continuous Monitoring
+
 1. Lighthouse CI integration
 2. Performance monitoring
 3. Error tracking (Sentry)
@@ -522,11 +565,13 @@ Arrow Keys: メニュー内でのナビゲーション（将来的に）
 ## Known Issues & Limitations
 
 ### Current Limitations
+
 1. **エクスポート機能:** CSSファイルは fetch() でロードするため、ローカルファイルシステムでは動作しない（HTTPサーバー必須）
 2. **ブラウザサポート:** IE11非対応（モダンブラウザのみ）
 3. **画像管理:** 画像はプレースホルダーのみ（実際の画像アップロード機能なし）
 
 ### Future Improvements
+
 1. ユニットテストの追加
 2. E2Eテストの自動化
 3. CI/CDパイプラインの構築

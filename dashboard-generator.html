@@ -1,416 +1,686 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Generator | Admin Panel Builder</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/design-system.css">
-    <link rel="stylesheet" href="css/dashboard-generator.css">
-    <link rel="stylesheet" href="css/dashboard-components.css">
-</head>
-<body>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/design-system.css" />
+    <link rel="stylesheet" href="css/dashboard-generator.css" />
+    <link rel="stylesheet" href="css/dashboard-components.css" />
+  </head>
+  <body>
     <div class="dashboard-builder">
-        <!-- Left Sidebar - Component Library -->
-        <aside class="builder-sidebar">
-            <div class="sidebar-header">
-                <h1 class="sidebar-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="3" y="3" width="7" height="7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <rect x="14" y="3" width="7" height="7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <rect x="14" y="14" width="7" height="7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <rect x="3" y="14" width="7" height="7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Dashboard Generator
-                </h1>
-                <p class="sidebar-subtitle">Drag & Drop Dashboard Builder</p>
+      <!-- Left Sidebar - Component Library -->
+      <aside class="builder-sidebar">
+        <div class="sidebar-header">
+          <h1 class="sidebar-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect
+                x="3"
+                y="3"
+                width="7"
+                height="7"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <rect
+                x="14"
+                y="3"
+                width="7"
+                height="7"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <rect
+                x="14"
+                y="14"
+                width="7"
+                height="7"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <rect
+                x="3"
+                y="14"
+                width="7"
+                height="7"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Dashboard Generator
+          </h1>
+          <p class="sidebar-subtitle">Drag & Drop Dashboard Builder</p>
+        </div>
+
+        <!-- Layout Selection -->
+        <section class="builder-section">
+          <h3 class="section-title">レイアウト</h3>
+          <div class="layout-options">
+            <button class="layout-btn active" data-layout="sidebar-left">
+              <div class="layout-preview">
+                <div class="preview-sidebar"></div>
+                <div class="preview-main"></div>
+              </div>
+              <span>左サイドバー</span>
+            </button>
+            <button class="layout-btn" data-layout="topbar">
+              <div class="layout-preview">
+                <div class="preview-topbar"></div>
+                <div class="preview-content"></div>
+              </div>
+              <span>トップバー</span>
+            </button>
+            <button class="layout-btn" data-layout="sidebar-top">
+              <div class="layout-preview">
+                <div class="preview-sidebar"></div>
+                <div class="preview-top"></div>
+                <div class="preview-main"></div>
+              </div>
+              <span>サイドバー+トップ</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Component Library -->
+        <section class="builder-section">
+          <h3 class="section-title">コンポーネント</h3>
+
+          <div class="component-category">
+            <h4 class="category-title">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M3 3v18h18" />
+                <path d="M18 17V9" />
+                <path d="M13 17V5" />
+                <path d="M8 17v-3" />
+              </svg>
+              データ表示
+            </h4>
+            <div class="component-list">
+              <button class="component-item" data-component="stats-cards">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
+                </span>
+                <span class="component-name">統計カード</span>
+              </button>
+              <button class="component-item" data-component="chart-line">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
+                  </svg>
+                </span>
+                <span class="component-name">折れ線グラフ</span>
+              </button>
+              <button class="component-item" data-component="chart-bar">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="20" x2="12" y2="10" />
+                    <line x1="18" y1="20" x2="18" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="16" />
+                  </svg>
+                </span>
+                <span class="component-name">棒グラフ</span>
+              </button>
+              <button class="component-item" data-component="chart-pie">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+                    <path d="M22 12A10 10 0 0 0 12 2v10z" />
+                  </svg>
+                </span>
+                <span class="component-name">円グラフ</span>
+              </button>
             </div>
+          </div>
 
-            <!-- Layout Selection -->
-            <section class="builder-section">
-                <h3 class="section-title">レイアウト</h3>
-                <div class="layout-options">
-                    <button class="layout-btn active" data-layout="sidebar-left">
-                        <div class="layout-preview">
-                            <div class="preview-sidebar"></div>
-                            <div class="preview-main"></div>
-                        </div>
-                        <span>左サイドバー</span>
-                    </button>
-                    <button class="layout-btn" data-layout="topbar">
-                        <div class="layout-preview">
-                            <div class="preview-topbar"></div>
-                            <div class="preview-content"></div>
-                        </div>
-                        <span>トップバー</span>
-                    </button>
-                    <button class="layout-btn" data-layout="sidebar-top">
-                        <div class="layout-preview">
-                            <div class="preview-sidebar"></div>
-                            <div class="preview-top"></div>
-                            <div class="preview-main"></div>
-                        </div>
-                        <span>サイドバー+トップ</span>
-                    </button>
-                </div>
-            </section>
-
-            <!-- Component Library -->
-            <section class="builder-section">
-                <h3 class="section-title">コンポーネント</h3>
-
-                <div class="component-category">
-                    <h4 class="category-title">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 3v18h18"/>
-                            <path d="M18 17V9"/>
-                            <path d="M13 17V5"/>
-                            <path d="M8 17v-3"/>
-                        </svg>
-                        データ表示
-                    </h4>
-                    <div class="component-list">
-                        <button class="component-item" data-component="stats-cards">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">統計カード</span>
-                        </button>
-                        <button class="component-item" data-component="chart-line">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                                    <polyline points="17 6 23 6 23 12"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">折れ線グラフ</span>
-                        </button>
-                        <button class="component-item" data-component="chart-bar">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="12" y1="20" x2="12" y2="10"/>
-                                    <line x1="18" y1="20" x2="18" y2="4"/>
-                                    <line x1="6" y1="20" x2="6" y2="16"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">棒グラフ</span>
-                        </button>
-                        <button class="component-item" data-component="chart-pie">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-                                    <path d="M22 12A10 10 0 0 0 12 2v10z"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">円グラフ</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="component-category">
-                    <h4 class="category-title">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                            <polyline points="10 9 9 9 8 9"/>
-                        </svg>
-                        テーブル
-                    </h4>
-                    <div class="component-list">
-                        <button class="component-item" data-component="data-table">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                    <polyline points="14 2 14 8 20 8"/>
-                                    <line x1="16" y1="13" x2="8" y2="13"/>
-                                    <line x1="16" y1="17" x2="8" y2="17"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">データテーブル</span>
-                        </button>
-                        <button class="component-item" data-component="user-list">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="9" cy="7" r="4"/>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">ユーザーリスト</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="component-category">
-                    <h4 class="category-title">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="3" y1="9" x2="21" y2="9"/>
-                            <line x1="9" y1="21" x2="9" y2="9"/>
-                        </svg>
-                        カード
-                    </h4>
-                    <div class="component-list">
-                        <button class="component-item" data-component="kpi-card">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <line x1="12" y1="8" x2="12" y2="12"/>
-                                    <line x1="12" y1="12" x2="14.5" y2="14.5"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">KPIカード</span>
-                        </button>
-                        <button class="component-item" data-component="progress-card">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="22" y1="12" x2="2" y2="12"/>
-                                    <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">進捗カード</span>
-                        </button>
-                        <button class="component-item" data-component="activity-feed">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">アクティビティ</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="component-category">
-                    <h4 class="category-title">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                        フォーム
-                    </h4>
-                    <div class="component-list">
-                        <button class="component-item" data-component="form-basic">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">基本フォーム</span>
-                        </button>
-                        <button class="component-item" data-component="search-bar">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">検索バー</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="component-category">
-                    <h4 class="category-title">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-                            <line x1="9" y1="9" x2="9.01" y2="9"/>
-                            <line x1="15" y1="9" x2="15.01" y2="9"/>
-                        </svg>
-                        その他
-                    </h4>
-                    <div class="component-list">
-                        <button class="component-item" data-component="alert-banner">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                                    <line x1="12" y1="9" x2="12" y2="13"/>
-                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">アラート</span>
-                        </button>
-                        <button class="component-item" data-component="user-profile">
-                            <span class="component-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="12" cy="7" r="4"/>
-                                </svg>
-                            </span>
-                            <span class="component-name">プロフィール</span>
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Color Theme -->
-            <section class="builder-section">
-                <h3 class="section-title">カラーテーマ</h3>
-                <div class="theme-selector">
-                    <button class="theme-option active" data-theme="blue">
-                        <span class="theme-color" style="background: #3b82f6;"></span>
-                        Blue
-                    </button>
-                    <button class="theme-option" data-theme="purple">
-                        <span class="theme-color" style="background: #8b5cf6;"></span>
-                        Purple
-                    </button>
-                    <button class="theme-option" data-theme="green">
-                        <span class="theme-color" style="background: #10b981;"></span>
-                        Green
-                    </button>
-                    <button class="theme-option" data-theme="dark">
-                        <span class="theme-color" style="background: #1f2937;"></span>
-                        Dark
-                    </button>
-                </div>
-            </section>
-
-            <!-- Design Customization -->
-            <section class="builder-section">
-                <h3 class="section-title">デザイン</h3>
-
-                <div class="customize-group">
-                    <label class="customize-label">フォントサイズ</label>
-                    <select id="dashFontSize" class="customize-select">
-                        <option value="12">小 (12px)</option>
-                        <option value="14" selected>標準 (14px)</option>
-                        <option value="16">大 (16px)</option>
-                    </select>
-                </div>
-
-                <div class="customize-group">
-                    <label class="customize-label">余白</label>
-                    <select id="dashSpacing" class="customize-select">
-                        <option value="0.75">コンパクト</option>
-                        <option value="1.0" selected>標準</option>
-                        <option value="1.25">ゆったり</option>
-                    </select>
-                </div>
-
-                <div class="customize-group">
-                    <label class="customize-label">角丸</label>
-                    <select id="dashBorderRadius" class="customize-select">
-                        <option value="4">小 (4px)</option>
-                        <option value="8" selected>標準 (8px)</option>
-                        <option value="12">大 (12px)</option>
-                    </select>
-                </div>
-            </section>
-
-            <!-- Actions -->
-            <section class="builder-section">
-                <h3 class="section-title">アクション</h3>
-                <div class="action-buttons">
-                    <button class="action-btn primary" id="exportDashboard">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <polyline points="7 10 12 15 17 10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="12" y1="15" x2="12" y2="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        エクスポート
-                    </button>
-                    <button class="action-btn secondary" id="clearDashboard">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="3 6 5 6 21 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        クリア
-                    </button>
-                    <button class="action-btn secondary" id="previewDashboard">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        プレビュー
-                    </button>
-                </div>
-            </section>
-        </aside>
-
-        <!-- Main Canvas Area -->
-        <main class="builder-canvas">
-            <div class="canvas-header">
-                <div class="canvas-title">
-                    <h2>Dashboard Canvas</h2>
-                    <p>コンポーネントをドラッグ&ドロップしてダッシュボードを作成</p>
-                </div>
-                <div class="canvas-controls">
-                    <div class="device-preview-toggles">
-                        <button class="device-preview-btn active" data-device="desktop" title="Desktop">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="3" width="20" height="14" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M8 21h8" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12 17v4" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                        <button class="device-preview-btn" data-device="tablet" title="Tablet">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="5" y="2" width="14" height="20" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12 18h.01" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                        <button class="device-preview-btn" data-device="mobile" title="Mobile">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="7" y="2" width="10" height="20" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12 18h.01" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <button class="canvas-control" data-action="undo" title="元に戻す">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M3 7v6h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <button class="canvas-control" data-action="redo" title="やり直し">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M21 7v6h-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <div class="canvas-zoom">
-                        <button class="zoom-btn" data-action="zoom-out">-</button>
-                        <span class="zoom-level">100%</span>
-                        <button class="zoom-btn" data-action="zoom-in">+</button>
-                    </div>
-                </div>
+          <div class="component-category">
+            <h4 class="category-title">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+              テーブル
+            </h4>
+            <div class="component-list">
+              <button class="component-item" data-component="data-table">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                  </svg>
+                </span>
+                <span class="component-name">データテーブル</span>
+              </button>
+              <button class="component-item" data-component="user-list">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                </span>
+                <span class="component-name">ユーザーリスト</span>
+              </button>
             </div>
+          </div>
 
-            <div class="canvas-workspace" id="canvasWorkspace">
-                <div id="dashboardCanvas"></div>
+          <div class="component-category">
+            <h4 class="category-title">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="9" y1="21" x2="9" y2="9" />
+              </svg>
+              カード
+            </h4>
+            <div class="component-list">
+              <button class="component-item" data-component="kpi-card">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="12" x2="14.5" y2="14.5" />
+                  </svg>
+                </span>
+                <span class="component-name">KPIカード</span>
+              </button>
+              <button class="component-item" data-component="progress-card">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="22" y1="12" x2="2" y2="12" />
+                    <path
+                      d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"
+                    />
+                  </svg>
+                </span>
+                <span class="component-name">進捗カード</span>
+              </button>
+              <button class="component-item" data-component="activity-feed">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                </span>
+                <span class="component-name">アクティビティ</span>
+              </button>
             </div>
-        </main>
+          </div>
 
-        <!-- Right Properties Panel -->
-        <aside class="properties-panel">
-            <div class="panel-header">
-                <h3>プロパティ</h3>
+          <div class="component-category">
+            <h4 class="category-title">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              フォーム
+            </h4>
+            <div class="component-list">
+              <button class="component-item" data-component="form-basic">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                  </svg>
+                </span>
+                <span class="component-name">基本フォーム</span>
+              </button>
+              <button class="component-item" data-component="search-bar">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </span>
+                <span class="component-name">検索バー</span>
+              </button>
             </div>
-            <div class="panel-content" id="propertiesPanel">
-                <div class="no-selection">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                        <line x1="12" y1="8" x2="12" y2="12" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    <p>コンポーネントを選択してください</p>
-                </div>
+          </div>
+
+          <div class="component-category">
+            <h4 class="category-title">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                <line x1="9" y1="9" x2="9.01" y2="9" />
+                <line x1="15" y1="9" x2="15.01" y2="9" />
+              </svg>
+              その他
+            </h4>
+            <div class="component-list">
+              <button class="component-item" data-component="alert-banner">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                    />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                </span>
+                <span class="component-name">アラート</span>
+              </button>
+              <button class="component-item" data-component="user-profile">
+                <span class="component-icon">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </span>
+                <span class="component-name">プロフィール</span>
+              </button>
             </div>
-        </aside>
+          </div>
+        </section>
+
+        <!-- Color Theme -->
+        <section class="builder-section">
+          <h3 class="section-title">カラーテーマ</h3>
+          <div class="theme-selector">
+            <button class="theme-option active" data-theme="blue">
+              <span class="theme-color" style="background: #3b82f6"></span>
+              Blue
+            </button>
+            <button class="theme-option" data-theme="purple">
+              <span class="theme-color" style="background: #8b5cf6"></span>
+              Purple
+            </button>
+            <button class="theme-option" data-theme="green">
+              <span class="theme-color" style="background: #10b981"></span>
+              Green
+            </button>
+            <button class="theme-option" data-theme="dark">
+              <span class="theme-color" style="background: #1f2937"></span>
+              Dark
+            </button>
+          </div>
+        </section>
+
+        <!-- Design Customization -->
+        <section class="builder-section">
+          <h3 class="section-title">デザイン</h3>
+
+          <div class="customize-group">
+            <label class="customize-label">フォントサイズ</label>
+            <select id="dashFontSize" class="customize-select">
+              <option value="12">小 (12px)</option>
+              <option value="14" selected>標準 (14px)</option>
+              <option value="16">大 (16px)</option>
+            </select>
+          </div>
+
+          <div class="customize-group">
+            <label class="customize-label">余白</label>
+            <select id="dashSpacing" class="customize-select">
+              <option value="0.75">コンパクト</option>
+              <option value="1.0" selected>標準</option>
+              <option value="1.25">ゆったり</option>
+            </select>
+          </div>
+
+          <div class="customize-group">
+            <label class="customize-label">角丸</label>
+            <select id="dashBorderRadius" class="customize-select">
+              <option value="4">小 (4px)</option>
+              <option value="8" selected>標準 (8px)</option>
+              <option value="12">大 (12px)</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Actions -->
+        <section class="builder-section">
+          <h3 class="section-title">アクション</h3>
+          <div class="action-buttons">
+            <button class="action-btn primary" id="exportDashboard">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                  d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <polyline
+                  points="7 10 12 15 17 10"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <line
+                  x1="12"
+                  y1="15"
+                  x2="12"
+                  y2="3"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              エクスポート
+            </button>
+            <button class="action-btn secondary" id="clearDashboard">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline
+                  points="3 6 5 6 21 6"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              クリア
+            </button>
+            <button class="action-btn secondary" id="previewDashboard">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                  d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="3"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              プレビュー
+            </button>
+          </div>
+        </section>
+      </aside>
+
+      <!-- Main Canvas Area -->
+      <main class="builder-canvas">
+        <div class="canvas-header">
+          <div class="canvas-title">
+            <h2>Dashboard Canvas</h2>
+            <p>コンポーネントをドラッグ&ドロップしてダッシュボードを作成</p>
+          </div>
+          <div class="canvas-controls">
+            <div class="device-preview-toggles">
+              <button class="device-preview-btn active" data-device="desktop" title="Desktop">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect
+                    x="2"
+                    y="3"
+                    width="20"
+                    height="14"
+                    rx="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path d="M8 21h8" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M12 17v4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+              <button class="device-preview-btn" data-device="tablet" title="Tablet">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect
+                    x="5"
+                    y="2"
+                    width="14"
+                    height="20"
+                    rx="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path d="M12 18h.01" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+              <button class="device-preview-btn" data-device="mobile" title="Mobile">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect
+                    x="7"
+                    y="2"
+                    width="10"
+                    height="20"
+                    rx="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path d="M12 18h.01" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+            <button class="canvas-control" data-action="undo" title="元に戻す">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                  d="M3 7v6h6"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <button class="canvas-control" data-action="redo" title="やり直し">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                  d="M21 7v6h-6"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <div class="canvas-zoom">
+              <button class="zoom-btn" data-action="zoom-out">-</button>
+              <span class="zoom-level">100%</span>
+              <button class="zoom-btn" data-action="zoom-in">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-workspace" id="canvasWorkspace">
+          <div id="dashboardCanvas"></div>
+        </div>
+      </main>
+
+      <!-- Right Properties Panel -->
+      <aside class="properties-panel">
+        <div class="panel-header">
+          <h3>プロパティ</h3>
+        </div>
+        <div class="panel-content" id="propertiesPanel">
+          <div class="no-selection">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" stroke-width="2" />
+              <line x1="12" y1="8" x2="12" y2="12" stroke-width="2" stroke-linecap="round" />
+              <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <p>コンポーネントを選択してください</p>
+          </div>
+        </div>
+      </aside>
     </div>
 
     <script src="js/dashboard-templates.js"></script>
     <script src="js/dashboard-generator.js"></script>
-</body>
+  </body>
 </html>

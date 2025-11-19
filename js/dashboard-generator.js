@@ -2,219 +2,227 @@
 // Drag & Drop Dashboard Builder
 
 class DashboardGenerator {
-    constructor() {
-        this.components = [];
-        this.currentLayout = 'sidebar-left';
-        this.currentTheme = 'blue';
-        this.draggedComponent = null;
-        this.selectedComponentId = null;
-        this.history = [];
-        this.historyIndex = -1;
-        this.designSettings = {
-            fontSize: 14,
-            spacing: 1.0,
-            borderRadius: 8
-        };
+  constructor() {
+    this.components = [];
+    this.currentLayout = 'sidebar-left';
+    this.currentTheme = 'blue';
+    this.draggedComponent = null;
+    this.selectedComponentId = null;
+    this.history = [];
+    this.historyIndex = -1;
+    this.designSettings = {
+      fontSize: 14,
+      spacing: 1.0,
+      borderRadius: 8,
+    };
 
-        this.init();
+    this.init();
+  }
+
+  init() {
+    this.setupEventListeners();
+    this.setupDesignCustomization();
+    this.renderCanvas(); // Initialize canvas with empty state
+    console.log('Dashboard Generator initialized');
+  }
+
+  setupEventListeners() {
+    // Layout selection
+    document.querySelectorAll('.layout-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => this.handleLayoutChange(e));
+    });
+
+    // Theme selection
+    document.querySelectorAll('.theme-option').forEach((btn) => {
+      btn.addEventListener('click', (e) => this.handleThemeChange(e));
+    });
+
+    // Component drag
+    document.querySelectorAll('.component-item').forEach((item) => {
+      item.setAttribute('draggable', 'true');
+      item.addEventListener('dragstart', (e) => this.handleComponentDragStart(e));
+      item.addEventListener('dragend', (e) => this.handleComponentDragEnd(e));
+    });
+
+    // Canvas drop - Add to both workspace and canvas for better coverage
+    const workspace = document.getElementById('canvasWorkspace');
+    const canvas = document.getElementById('dashboardCanvas');
+
+    if (workspace) {
+      workspace.addEventListener('dragover', (e) => this.handleCanvasDragOver(e));
+      workspace.addEventListener('drop', (e) => this.handleCanvasDrop(e));
     }
 
-    init() {
-        this.setupEventListeners();
-        this.setupDesignCustomization();
-        this.renderCanvas(); // Initialize canvas with empty state
-        console.log('Dashboard Generator initialized');
+    if (canvas) {
+      canvas.addEventListener('dragover', (e) => this.handleCanvasDragOver(e));
+      canvas.addEventListener('drop', (e) => this.handleCanvasDrop(e));
     }
 
-    setupEventListeners() {
-        // Layout selection
-        document.querySelectorAll('.layout-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleLayoutChange(e));
-        });
+    // Quick start templates - Use event delegation
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.quick-start-btn')) {
+        this.handleQuickStart(e);
+      }
+    });
 
-        // Theme selection
-        document.querySelectorAll('.theme-option').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleThemeChange(e));
-        });
+    // Actions
+    document
+      .getElementById('exportDashboard')
+      ?.addEventListener('click', () => this.exportDashboard());
+    document
+      .getElementById('clearDashboard')
+      ?.addEventListener('click', () => this.clearDashboard());
+    document
+      .getElementById('previewDashboard')
+      ?.addEventListener('click', () => this.previewDashboard());
 
-        // Component drag
-        document.querySelectorAll('.component-item').forEach(item => {
-            item.setAttribute('draggable', 'true');
-            item.addEventListener('dragstart', (e) => this.handleComponentDragStart(e));
-            item.addEventListener('dragend', (e) => this.handleComponentDragEnd(e));
-        });
+    // Canvas controls
+    document.querySelectorAll('.canvas-control').forEach((btn) => {
+      const action = btn.dataset.action;
+      if (action === 'undo') {
+        btn.addEventListener('click', () => this.undo());
+      } else if (action === 'redo') {
+        btn.addEventListener('click', () => this.redo());
+      }
+    });
 
-        // Canvas drop - Add to both workspace and canvas for better coverage
-        const workspace = document.getElementById('canvasWorkspace');
-        const canvas = document.getElementById('dashboardCanvas');
+    // Zoom controls
+    document.querySelectorAll('.zoom-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => this.handleZoom(e));
+    });
 
-        if (workspace) {
-            workspace.addEventListener('dragover', (e) => this.handleCanvasDragOver(e));
-            workspace.addEventListener('drop', (e) => this.handleCanvasDrop(e));
-        }
+    // Device preview toggles
+    document.querySelectorAll('.device-preview-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => this.handleDeviceChange(e));
+    });
+  }
 
-        if (canvas) {
-            canvas.addEventListener('dragover', (e) => this.handleCanvasDragOver(e));
-            canvas.addEventListener('drop', (e) => this.handleCanvasDrop(e));
-        }
+  handleDeviceChange(e) {
+    const btn = e.currentTarget;
+    const device = btn.dataset.device;
 
-        // Quick start templates - Use event delegation
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.quick-start-btn')) {
-                this.handleQuickStart(e);
-            }
-        });
+    document.querySelectorAll('.device-preview-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
 
-        // Actions
-        document.getElementById('exportDashboard')?.addEventListener('click', () => this.exportDashboard());
-        document.getElementById('clearDashboard')?.addEventListener('click', () => this.clearDashboard());
-        document.getElementById('previewDashboard')?.addEventListener('click', () => this.previewDashboard());
+    const workspace = document.getElementById('canvasWorkspace');
+    workspace.className = 'canvas-workspace';
 
-        // Canvas controls
-        document.querySelectorAll('.canvas-control').forEach(btn => {
-            const action = btn.dataset.action;
-            if (action === 'undo') {
-                btn.addEventListener('click', () => this.undo());
-            } else if (action === 'redo') {
-                btn.addEventListener('click', () => this.redo());
-            }
-        });
-
-        // Zoom controls
-        document.querySelectorAll('.zoom-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleZoom(e));
-        });
-
-        // Device preview toggles
-        document.querySelectorAll('.device-preview-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleDeviceChange(e));
-        });
+    if (device === 'mobile') {
+      workspace.classList.add('device-mobile');
+    } else if (device === 'tablet') {
+      workspace.classList.add('device-tablet');
     }
 
-    handleDeviceChange(e) {
-        const btn = e.currentTarget;
-        const device = btn.dataset.device;
+    this.showNotification(
+      `プレビュー: ${device === 'desktop' ? 'デスクトップ' : device === 'tablet' ? 'タブレット' : 'モバイル'}`
+    );
+  }
 
-        document.querySelectorAll('.device-preview-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+  handleLayoutChange(e) {
+    const btn = e.currentTarget;
+    const layout = btn.dataset.layout;
 
-        const workspace = document.getElementById('canvasWorkspace');
-        workspace.className = 'canvas-workspace';
+    document.querySelectorAll('.layout-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
 
-        if (device === 'mobile') {
-            workspace.classList.add('device-mobile');
-        } else if (device === 'tablet') {
-            workspace.classList.add('device-tablet');
-        }
+    this.currentLayout = layout;
+    this.renderCanvas(); // Re-render with new layout
+    this.showNotification(`レイアウトを変更しました: ${layout}`);
+  }
 
-        this.showNotification(`プレビュー: ${device === 'desktop' ? 'デスクトップ' : device === 'tablet' ? 'タブレット' : 'モバイル'}`);
+  handleThemeChange(e) {
+    const btn = e.currentTarget;
+    const theme = btn.dataset.theme;
+
+    document.querySelectorAll('.theme-option').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    this.currentTheme = theme;
+    this.applyTheme(theme);
+    this.showNotification(`テーマを変更しました: ${theme}`);
+  }
+
+  applyTheme(theme) {
+    const themeColors = {
+      blue: '#3b82f6',
+      purple: '#8b5cf6',
+      green: '#10b981',
+      dark: '#1f2937',
+    };
+
+    const color = themeColors[theme];
+    document.documentElement.style.setProperty('--db-primary', color);
+  }
+
+  handleComponentDragStart(e) {
+    const componentType = e.currentTarget.dataset.component;
+    this.draggedComponent = componentType;
+    e.currentTarget.style.opacity = '0.5';
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/html', componentType);
+  }
+
+  handleComponentDragEnd(e) {
+    e.currentTarget.style.opacity = '1';
+
+    // Remove visual feedback when drag ends
+    const workspace = document.getElementById('canvasWorkspace');
+    if (workspace) {
+      workspace.classList.remove('drag-over');
+    }
+  }
+
+  handleCanvasDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+
+    // Add visual feedback
+    const workspace = document.getElementById('canvasWorkspace');
+    if (workspace && !workspace.classList.contains('drag-over')) {
+      workspace.classList.add('drag-over');
+    }
+  }
+
+  handleCanvasDrop(e) {
+    e.preventDefault();
+
+    // Remove visual feedback
+    const workspace = document.getElementById('canvasWorkspace');
+    if (workspace) {
+      workspace.classList.remove('drag-over');
     }
 
-    handleLayoutChange(e) {
-        const btn = e.currentTarget;
-        const layout = btn.dataset.layout;
+    if (!this.draggedComponent) return;
 
-        document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        this.currentLayout = layout;
-        this.renderCanvas(); // Re-render with new layout
-        this.showNotification(`レイアウトを変更しました: ${layout}`);
+    const template = dashboardTemplates[this.draggedComponent];
+    if (!template) {
+      console.error('Template not found:', this.draggedComponent);
+      return;
     }
 
-    handleThemeChange(e) {
-        const btn = e.currentTarget;
-        const theme = btn.dataset.theme;
+    this.addComponent(template, this.draggedComponent);
+    this.draggedComponent = null;
+  }
 
-        document.querySelectorAll('.theme-option').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+  addComponent(template, type) {
+    const component = {
+      id: this.generateId(),
+      type: type,
+      template: template,
+      timestamp: Date.now(),
+    };
 
-        this.currentTheme = theme;
-        this.applyTheme(theme);
-        this.showNotification(`テーマを変更しました: ${theme}`);
-    }
+    this.components.push(component);
+    this.saveState();
+    this.renderCanvas();
+    this.showNotification(`${template.name}を追加しました`);
+  }
 
-    applyTheme(theme) {
-        const themeColors = {
-            blue: '#3b82f6',
-            purple: '#8b5cf6',
-            green: '#10b981',
-            dark: '#1f2937'
-        };
+  renderCanvas() {
+    const canvas = document.getElementById('dashboardCanvas');
 
-        const color = themeColors[theme];
-        document.documentElement.style.setProperty('--db-primary', color);
-    }
-
-    handleComponentDragStart(e) {
-        const componentType = e.currentTarget.dataset.component;
-        this.draggedComponent = componentType;
-        e.currentTarget.style.opacity = '0.5';
-        e.dataTransfer.effectAllowed = 'copy';
-        e.dataTransfer.setData('text/html', componentType);
-    }
-
-    handleComponentDragEnd(e) {
-        e.currentTarget.style.opacity = '1';
-
-        // Remove visual feedback when drag ends
-        const workspace = document.getElementById('canvasWorkspace');
-        if (workspace) {
-            workspace.classList.remove('drag-over');
-        }
-    }
-
-    handleCanvasDragOver(e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-
-        // Add visual feedback
-        const workspace = document.getElementById('canvasWorkspace');
-        if (workspace && !workspace.classList.contains('drag-over')) {
-            workspace.classList.add('drag-over');
-        }
-    }
-
-    handleCanvasDrop(e) {
-        e.preventDefault();
-
-        // Remove visual feedback
-        const workspace = document.getElementById('canvasWorkspace');
-        if (workspace) {
-            workspace.classList.remove('drag-over');
-        }
-
-        if (!this.draggedComponent) return;
-
-        const template = dashboardTemplates[this.draggedComponent];
-        if (!template) {
-            console.error('Template not found:', this.draggedComponent);
-            return;
-        }
-
-        this.addComponent(template, this.draggedComponent);
-        this.draggedComponent = null;
-    }
-
-    addComponent(template, type) {
-        const component = {
-            id: this.generateId(),
-            type: type,
-            template: template,
-            timestamp: Date.now()
-        };
-
-        this.components.push(component);
-        this.saveState();
-        this.renderCanvas();
-        this.showNotification(`${template.name}を追加しました`);
-    }
-
-    renderCanvas() {
-        const canvas = document.getElementById('dashboardCanvas');
-
-        if (this.components.length === 0) {
-            canvas.innerHTML = `
+    if (this.components.length === 0) {
+      canvas.innerHTML = `
                 <div class="empty-canvas">
                     <div class="empty-canvas-content">
                         <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -257,29 +265,29 @@ class DashboardGenerator {
                 </div>
             `;
 
-            // Re-attach quick start listeners
-            document.querySelectorAll('.quick-start-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => this.handleQuickStart(e));
-            });
-            return;
-        }
+      // Re-attach quick start listeners
+      document.querySelectorAll('.quick-start-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => this.handleQuickStart(e));
+      });
+      return;
+    }
 
-        // Create dashboard grid container
-        const grid = document.createElement('div');
-        grid.className = 'dashboard-grid';
+    // Create dashboard grid container
+    const grid = document.createElement('div');
+    grid.className = 'dashboard-grid';
 
-        // Add each component to the grid
-        this.components.forEach(component => {
-            // Create a wrapper div for controls
-            const wrapper = document.createElement('div');
-            wrapper.className = 'dashboard-component-wrapper';
-            wrapper.dataset.componentId = component.id;
-            wrapper.setAttribute('draggable', 'true');
+    // Add each component to the grid
+    this.components.forEach((component) => {
+      // Create a wrapper div for controls
+      const wrapper = document.createElement('div');
+      wrapper.className = 'dashboard-component-wrapper';
+      wrapper.dataset.componentId = component.id;
+      wrapper.setAttribute('draggable', 'true');
 
-            // Add controls
-            const controls = document.createElement('div');
-            controls.className = 'component-controls';
-            controls.innerHTML = `
+      // Add controls
+      const controls = document.createElement('div');
+      controls.className = 'component-controls';
+      controls.innerHTML = `
                 <button class="component-control" data-action="move-up" title="上へ移動">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="18 15 12 9 6 15" stroke-linecap="round" stroke-linejoin="round"/>
@@ -298,36 +306,36 @@ class DashboardGenerator {
                 </button>
             `;
 
-            wrapper.appendChild(controls);
+      wrapper.appendChild(controls);
 
-            // Create a div to hold the component content
-            const content = document.createElement('div');
-            content.innerHTML = component.template.html;
+      // Create a div to hold the component content
+      const content = document.createElement('div');
+      content.innerHTML = component.template.html;
 
-            // Extract the first child (which has grid-col-* class)
-            const componentElement = content.firstElementChild;
-            if (componentElement) {
-                wrapper.appendChild(componentElement);
+      // Extract the first child (which has grid-col-* class)
+      const componentElement = content.firstElementChild;
+      if (componentElement) {
+        wrapper.appendChild(componentElement);
 
-                // Apply grid-col class to wrapper if component has it
-                const gridColMatch = componentElement.className.match(/grid-col-\d+/);
-                if (gridColMatch) {
-                    wrapper.classList.add(gridColMatch[0]);
-                } else {
-                    wrapper.classList.add('grid-col-12'); // Default to full width
-                }
-            }
+        // Apply grid-col class to wrapper if component has it
+        const gridColMatch = componentElement.className.match(/grid-col-\d+/);
+        if (gridColMatch) {
+          wrapper.classList.add(gridColMatch[0]);
+        } else {
+          wrapper.classList.add('grid-col-12'); // Default to full width
+        }
+      }
 
-            grid.appendChild(wrapper);
-        });
+      grid.appendChild(wrapper);
+    });
 
-        // Apply layout wrapper based on currentLayout
-        canvas.innerHTML = '';
+    // Apply layout wrapper based on currentLayout
+    canvas.innerHTML = '';
 
-        if (this.currentLayout === 'sidebar-left') {
-            const layoutContainer = document.createElement('div');
-            layoutContainer.className = 'db-layout-sidebar-left';
-            layoutContainer.innerHTML = `
+    if (this.currentLayout === 'sidebar-left') {
+      const layoutContainer = document.createElement('div');
+      layoutContainer.className = 'db-layout-sidebar-left';
+      layoutContainer.innerHTML = `
                 <aside class="db-sidebar">
                     <div class="db-sidebar-header">
                         <h2>Dashboard</h2>
@@ -345,12 +353,12 @@ class DashboardGenerator {
                 </aside>
                 <main class="db-main"></main>
             `;
-            layoutContainer.querySelector('.db-main').appendChild(grid);
-            canvas.appendChild(layoutContainer);
-        } else if (this.currentLayout === 'topbar') {
-            const layoutContainer = document.createElement('div');
-            layoutContainer.className = 'db-layout-topbar';
-            layoutContainer.innerHTML = `
+      layoutContainer.querySelector('.db-main').appendChild(grid);
+      canvas.appendChild(layoutContainer);
+    } else if (this.currentLayout === 'topbar') {
+      const layoutContainer = document.createElement('div');
+      layoutContainer.className = 'db-layout-topbar';
+      layoutContainer.innerHTML = `
                 <header class="db-topbar">
                     <div class="db-topbar-brand">Dashboard</div>
                     <nav class="db-topbar-nav">
@@ -361,12 +369,12 @@ class DashboardGenerator {
                 </header>
                 <main class="db-main-topbar"></main>
             `;
-            layoutContainer.querySelector('.db-main-topbar').appendChild(grid);
-            canvas.appendChild(layoutContainer);
-        } else if (this.currentLayout === 'sidebar-top') {
-            const layoutContainer = document.createElement('div');
-            layoutContainer.className = 'db-layout-sidebar-top';
-            layoutContainer.innerHTML = `
+      layoutContainer.querySelector('.db-main-topbar').appendChild(grid);
+      canvas.appendChild(layoutContainer);
+    } else if (this.currentLayout === 'sidebar-top') {
+      const layoutContainer = document.createElement('div');
+      layoutContainer.className = 'db-layout-sidebar-top';
+      layoutContainer.innerHTML = `
                 <header class="db-header-bar">
                     <div class="db-header-brand">Dashboard</div>
                     <div class="db-header-actions">
@@ -387,75 +395,75 @@ class DashboardGenerator {
                     <main class="db-main-sidebar-top"></main>
                 </div>
             `;
-            layoutContainer.querySelector('.db-main-sidebar-top').appendChild(grid);
-            canvas.appendChild(layoutContainer);
-        } else {
-            // Default: no layout wrapper
-            canvas.appendChild(grid);
+      layoutContainer.querySelector('.db-main-sidebar-top').appendChild(grid);
+      canvas.appendChild(layoutContainer);
+    } else {
+      // Default: no layout wrapper
+      canvas.appendChild(grid);
+    }
+
+    // Add component controls
+    this.attachComponentControls();
+    this.attachDragListeners();
+  }
+
+  attachComponentControls() {
+    document.querySelectorAll('.component-control').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = e.currentTarget.dataset.action;
+        const componentEl = e.currentTarget.closest('.dashboard-component-wrapper');
+        const componentId = componentEl.dataset.componentId;
+
+        if (action === 'delete') {
+          this.deleteComponent(componentId);
+        } else if (action === 'move-up') {
+          this.moveComponent(componentId, -1);
+        } else if (action === 'move-down') {
+          this.moveComponent(componentId, 1);
+        }
+      });
+    });
+
+    // Click on component to select and show properties
+    document.querySelectorAll('.dashboard-component-wrapper').forEach((wrapper) => {
+      wrapper.addEventListener('click', (e) => {
+        // Don't trigger if clicking on controls
+        if (e.target.closest('.component-controls')) {
+          return;
         }
 
-        // Add component controls
-        this.attachComponentControls();
-        this.attachDragListeners();
+        const componentId = wrapper.dataset.componentId;
+        this.selectComponent(componentId);
+      });
+    });
+  }
+
+  selectComponent(componentId) {
+    // Remove previous selection
+    document.querySelectorAll('.dashboard-component-wrapper').forEach((el) => {
+      el.classList.remove('selected');
+    });
+
+    // Add selection to clicked component
+    const componentEl = document.querySelector(`[data-component-id="${componentId}"]`);
+    if (componentEl) {
+      componentEl.classList.add('selected');
     }
 
-    attachComponentControls() {
-        document.querySelectorAll('.component-control').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const action = e.currentTarget.dataset.action;
-                const componentEl = e.currentTarget.closest('.dashboard-component-wrapper');
-                const componentId = componentEl.dataset.componentId;
+    this.selectedComponentId = componentId;
+    this.showPropertiesPanel(componentId);
+  }
 
-                if (action === 'delete') {
-                    this.deleteComponent(componentId);
-                } else if (action === 'move-up') {
-                    this.moveComponent(componentId, -1);
-                } else if (action === 'move-down') {
-                    this.moveComponent(componentId, 1);
-                }
-            });
-        });
+  showPropertiesPanel(componentId) {
+    const component = this.components.find((c) => c.id === componentId);
+    if (!component) return;
 
-        // Click on component to select and show properties
-        document.querySelectorAll('.dashboard-component-wrapper').forEach(wrapper => {
-            wrapper.addEventListener('click', (e) => {
-                // Don't trigger if clicking on controls
-                if (e.target.closest('.component-controls')) {
-                    return;
-                }
+    const propertiesPanel = document.getElementById('propertiesPanel');
+    if (!propertiesPanel) return;
 
-                const componentId = wrapper.dataset.componentId;
-                this.selectComponent(componentId);
-            });
-        });
-    }
-
-    selectComponent(componentId) {
-        // Remove previous selection
-        document.querySelectorAll('.dashboard-component-wrapper').forEach(el => {
-            el.classList.remove('selected');
-        });
-
-        // Add selection to clicked component
-        const componentEl = document.querySelector(`[data-component-id="${componentId}"]`);
-        if (componentEl) {
-            componentEl.classList.add('selected');
-        }
-
-        this.selectedComponentId = componentId;
-        this.showPropertiesPanel(componentId);
-    }
-
-    showPropertiesPanel(componentId) {
-        const component = this.components.find(c => c.id === componentId);
-        if (!component) return;
-
-        const propertiesPanel = document.getElementById('propertiesPanel');
-        if (!propertiesPanel) return;
-
-        // Build properties UI
-        propertiesPanel.innerHTML = `
+    // Build properties UI
+    propertiesPanel.innerHTML = `
             <div class="properties-header">
                 <h4>${component.template.name}</h4>
                 <button class="properties-close" onclick="dashboardGenerator.closePropertiesPanel()">
@@ -503,188 +511,191 @@ class DashboardGenerator {
             </div>
         `;
 
-        propertiesPanel.style.display = 'block';
+    propertiesPanel.style.display = 'block';
+  }
+
+  closePropertiesPanel() {
+    const propertiesPanel = document.getElementById('propertiesPanel');
+    if (propertiesPanel) {
+      propertiesPanel.style.display = 'none';
     }
 
-    closePropertiesPanel() {
-        const propertiesPanel = document.getElementById('propertiesPanel');
-        if (propertiesPanel) {
-            propertiesPanel.style.display = 'none';
+    // Remove selection
+    document.querySelectorAll('.dashboard-component-wrapper').forEach((el) => {
+      el.classList.remove('selected');
+    });
+
+    this.selectedComponentId = null;
+  }
+
+  duplicateComponent(componentId) {
+    const component = this.components.find((c) => c.id === componentId);
+    if (!component) return;
+
+    // Create a copy with new ID
+    const newComponent = {
+      id: this.generateId(),
+      type: component.type,
+      template: component.template,
+      timestamp: Date.now(),
+    };
+
+    // Insert after the original component
+    const index = this.components.findIndex((c) => c.id === componentId);
+    this.components.splice(index + 1, 0, newComponent);
+
+    this.saveState();
+    this.renderCanvas();
+    this.closePropertiesPanel();
+    this.showNotification(`${component.template.name}を複製しました`);
+  }
+
+  moveComponent(componentId, direction) {
+    const index = this.components.findIndex((c) => c.id === componentId);
+    if (index === -1) return;
+
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= this.components.length) return;
+
+    // Swap components
+    [this.components[index], this.components[newIndex]] = [
+      this.components[newIndex],
+      this.components[index],
+    ];
+
+    this.saveState();
+    this.renderCanvas();
+    this.showNotification('コンポーネントを移動しました');
+  }
+
+  deleteComponent(componentId) {
+    this.components = this.components.filter((c) => c.id !== componentId);
+    this.saveState();
+    this.renderCanvas();
+    this.showNotification('コンポーネントを削除しました');
+  }
+
+  attachDragListeners() {
+    const wrappers = document.querySelectorAll('.dashboard-component-wrapper');
+
+    wrappers.forEach((wrapper) => {
+      wrapper.addEventListener('dragstart', (e) => {
+        wrapper.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', wrapper.dataset.componentId);
+      });
+
+      wrapper.addEventListener('dragend', (_e) => {
+        wrapper.classList.remove('dragging');
+      });
+
+      wrapper.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+
+        const dragging = document.querySelector('.dragging');
+        if (!dragging || dragging === wrapper) return;
+
+        const rect = wrapper.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+
+        if (e.clientY < midpoint) {
+          wrapper.parentNode.insertBefore(dragging, wrapper);
+        } else {
+          wrapper.parentNode.insertBefore(dragging, wrapper.nextSibling);
         }
+      });
 
-        // Remove selection
-        document.querySelectorAll('.dashboard-component-wrapper').forEach(el => {
-            el.classList.remove('selected');
-        });
+      wrapper.addEventListener('drop', (e) => {
+        e.preventDefault();
+        this.syncComponentsFromDOM();
+      });
+    });
+  }
 
-        this.selectedComponentId = null;
+  syncComponentsFromDOM() {
+    const wrappers = document.querySelectorAll('.dashboard-component-wrapper');
+    const newOrder = [];
+
+    wrappers.forEach((wrapper) => {
+      const componentId = wrapper.dataset.componentId;
+      const component = this.components.find((c) => c.id === componentId);
+      if (component) {
+        newOrder.push(component);
+      }
+    });
+
+    this.components = newOrder;
+    this.saveState();
+    this.showNotification('コンポーネントを並べ替えました');
+  }
+
+  handleQuickStart(e) {
+    const btn = e.target.closest('.quick-start-btn');
+    if (!btn) return;
+
+    const template = btn.dataset.template;
+    this.applyTemplate(template);
+  }
+
+  applyTemplate(templateName) {
+    const templates = {
+      analytics: ['stats-cards', 'chart-line', 'data-table', 'activity-feed'],
+      crm: ['stats-cards', 'user-list', 'activity-feed', 'form-basic'],
+      ecommerce: ['stats-cards', 'chart-bar', 'data-table', 'chart-pie'],
+    };
+
+    const componentTypes = templates[templateName] || [];
+
+    this.components = [];
+    componentTypes.forEach((type) => {
+      const template = dashboardTemplates[type];
+      if (template) {
+        this.addComponentSilent(template, type);
+      }
+    });
+
+    this.renderCanvas();
+    this.showNotification(`${templateName}テンプレートを適用しました`);
+  }
+
+  addComponentSilent(template, type) {
+    const component = {
+      id: this.generateId(),
+      type: type,
+      template: template,
+      timestamp: Date.now(),
+    };
+
+    this.components.push(component);
+  }
+
+  async exportDashboard() {
+    if (this.components.length === 0) {
+      this.showNotification('エクスポートするコンポーネントがありません', 'error');
+      return;
     }
 
-    duplicateComponent(componentId) {
-        const component = this.components.find(c => c.id === componentId);
-        if (!component) return;
+    this.showNotification('エクスポート中...', 'info');
+    const html = await this.generateFullHTML();
+    this.downloadFile(html, `dashboard-${Date.now()}.html`, 'text/html');
+    this.showNotification('ダッシュボードをエクスポートしました');
+  }
 
-        // Create a copy with new ID
-        const newComponent = {
-            id: this.generateId(),
-            type: component.type,
-            template: component.template,
-            timestamp: Date.now()
-        };
+  async generateFullHTML() {
+    const componentsHTML = this.components.map((c) => c.template.html).join('\n');
 
-        // Insert after the original component
-        const index = this.components.findIndex(c => c.id === componentId);
-        this.components.splice(index + 1, 0, newComponent);
+    // Fetch and embed CSS files
+    let embeddedCSS = '';
+    try {
+      const [designSystemCSS, dashboardCSS, generatorCSS] = await Promise.all([
+        fetch('css/design-system.css').then((r) => r.text()),
+        fetch('css/dashboard-components.css').then((r) => r.text()),
+        fetch('css/dashboard-generator.css').then((r) => r.text()),
+      ]);
 
-        this.saveState();
-        this.renderCanvas();
-        this.closePropertiesPanel();
-        this.showNotification(`${component.template.name}を複製しました`);
-    }
-
-    moveComponent(componentId, direction) {
-        const index = this.components.findIndex(c => c.id === componentId);
-        if (index === -1) return;
-
-        const newIndex = index + direction;
-        if (newIndex < 0 || newIndex >= this.components.length) return;
-
-        // Swap components
-        [this.components[index], this.components[newIndex]] = [this.components[newIndex], this.components[index]];
-
-        this.saveState();
-        this.renderCanvas();
-        this.showNotification('コンポーネントを移動しました');
-    }
-
-    deleteComponent(componentId) {
-        this.components = this.components.filter(c => c.id !== componentId);
-        this.saveState();
-        this.renderCanvas();
-        this.showNotification('コンポーネントを削除しました');
-    }
-
-    attachDragListeners() {
-        const wrappers = document.querySelectorAll('.dashboard-component-wrapper');
-
-        wrappers.forEach(wrapper => {
-            wrapper.addEventListener('dragstart', (e) => {
-                wrapper.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/html', wrapper.dataset.componentId);
-            });
-
-            wrapper.addEventListener('dragend', (e) => {
-                wrapper.classList.remove('dragging');
-            });
-
-            wrapper.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-
-                const dragging = document.querySelector('.dragging');
-                if (!dragging || dragging === wrapper) return;
-
-                const rect = wrapper.getBoundingClientRect();
-                const midpoint = rect.top + rect.height / 2;
-
-                if (e.clientY < midpoint) {
-                    wrapper.parentNode.insertBefore(dragging, wrapper);
-                } else {
-                    wrapper.parentNode.insertBefore(dragging, wrapper.nextSibling);
-                }
-            });
-
-            wrapper.addEventListener('drop', (e) => {
-                e.preventDefault();
-                this.syncComponentsFromDOM();
-            });
-        });
-    }
-
-    syncComponentsFromDOM() {
-        const wrappers = document.querySelectorAll('.dashboard-component-wrapper');
-        const newOrder = [];
-
-        wrappers.forEach(wrapper => {
-            const componentId = wrapper.dataset.componentId;
-            const component = this.components.find(c => c.id === componentId);
-            if (component) {
-                newOrder.push(component);
-            }
-        });
-
-        this.components = newOrder;
-        this.saveState();
-        this.showNotification('コンポーネントを並べ替えました');
-    }
-
-    handleQuickStart(e) {
-        const btn = e.target.closest('.quick-start-btn');
-        if (!btn) return;
-
-        const template = btn.dataset.template;
-        this.applyTemplate(template);
-    }
-
-    applyTemplate(templateName) {
-        const templates = {
-            analytics: ['stats-cards', 'chart-line', 'data-table', 'activity-feed'],
-            crm: ['stats-cards', 'user-list', 'activity-feed', 'form-basic'],
-            ecommerce: ['stats-cards', 'chart-bar', 'data-table', 'chart-pie']
-        };
-
-        const componentTypes = templates[templateName] || [];
-
-        this.components = [];
-        componentTypes.forEach(type => {
-            const template = dashboardTemplates[type];
-            if (template) {
-                this.addComponentSilent(template, type);
-            }
-        });
-
-        this.renderCanvas();
-        this.showNotification(`${templateName}テンプレートを適用しました`);
-    }
-
-    addComponentSilent(template, type) {
-        const component = {
-            id: this.generateId(),
-            type: type,
-            template: template,
-            timestamp: Date.now()
-        };
-
-        this.components.push(component);
-    }
-
-    async exportDashboard() {
-        if (this.components.length === 0) {
-            this.showNotification('エクスポートするコンポーネントがありません', 'error');
-            return;
-        }
-
-        this.showNotification('エクスポート中...', 'info');
-        const html = await this.generateFullHTML();
-        this.downloadFile(html, `dashboard-${Date.now()}.html`, 'text/html');
-        this.showNotification('ダッシュボードをエクスポートしました');
-    }
-
-    async generateFullHTML() {
-        const componentsHTML = this.components.map(c => c.template.html).join('\n');
-
-        // Fetch and embed CSS files
-        let embeddedCSS = '';
-        try {
-            const [designSystemCSS, dashboardCSS, generatorCSS] = await Promise.all([
-                fetch('css/design-system.css').then(r => r.text()),
-                fetch('css/dashboard-components.css').then(r => r.text()),
-                fetch('css/dashboard-generator.css').then(r => r.text())
-            ]);
-
-            // Add layout-specific CSS
-            const layoutCSS = `
+      // Add layout-specific CSS
+      const layoutCSS = `
 /* Dashboard Layout Styles */
 .db-layout-sidebar-left {
     display: grid;
@@ -870,11 +881,11 @@ class DashboardGenerator {
 }
 `;
 
-            embeddedCSS = designSystemCSS + '\n' + dashboardCSS + '\n' + layoutCSS;
-        } catch (error) {
-            console.error('Failed to load CSS:', error);
-            // Fallback to minimal CSS with layouts
-            embeddedCSS = `
+      embeddedCSS = designSystemCSS + '\n' + dashboardCSS + '\n' + generatorCSS + '\n' + layoutCSS;
+    } catch (error) {
+      console.error('Failed to load CSS:', error);
+      // Fallback to minimal CSS with layouts
+      embeddedCSS = `
                 :root {
                     --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
                     --space-5: 20px; --space-6: 24px; --text-sm: 14px; --text-base: 16px;
@@ -900,14 +911,14 @@ class DashboardGenerator {
                 .db-nav-item.active { background: #3b82f6; color: white; }
                 .db-main { padding: 0; overflow: auto; }
             `;
-        }
+    }
 
-        // Generate layout wrapper HTML
-        let bodyContent = '';
-        const gridContent = `<div class="dashboard-grid">${componentsHTML}</div>`;
+    // Generate layout wrapper HTML
+    let bodyContent = '';
+    const gridContent = `<div class="dashboard-grid">${componentsHTML}</div>`;
 
-        if (this.currentLayout === 'sidebar-left') {
-            bodyContent = `
+    if (this.currentLayout === 'sidebar-left') {
+      bodyContent = `
                 <div class="db-layout-sidebar-left">
                     <aside class="db-sidebar">
                         <div class="db-sidebar-header"><h2>Dashboard</h2></div>
@@ -921,8 +932,8 @@ class DashboardGenerator {
                     <main class="db-main">${gridContent}</main>
                 </div>
             `;
-        } else if (this.currentLayout === 'topbar') {
-            bodyContent = `
+    } else if (this.currentLayout === 'topbar') {
+      bodyContent = `
                 <div class="db-layout-topbar">
                     <header class="db-topbar">
                         <div class="db-topbar-brand">Dashboard</div>
@@ -934,8 +945,8 @@ class DashboardGenerator {
                     <main class="db-main-topbar">${gridContent}</main>
                 </div>
             `;
-        } else if (this.currentLayout === 'sidebar-top') {
-            bodyContent = `
+    } else if (this.currentLayout === 'sidebar-top') {
+      bodyContent = `
                 <div class="db-layout-sidebar-top">
                     <header class="db-header-bar">
                         <div class="db-header-brand">Dashboard</div>
@@ -952,11 +963,11 @@ class DashboardGenerator {
                     </div>
                 </div>
             `;
-        } else {
-            bodyContent = `<div class="dashboard-container">${gridContent}</div>`;
-        }
+    } else {
+      bodyContent = `<div class="dashboard-container">${gridContent}</div>`;
+    }
 
-        return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -971,183 +982,187 @@ ${embeddedCSS}
     ${bodyContent}
 </body>
 </html>`;
+  }
+
+  clearDashboard() {
+    if (this.components.length === 0) return;
+
+    if (confirm('すべてのコンポーネントを削除してもよろしいですか？')) {
+      this.components = [];
+      this.history = [];
+      this.historyIndex = -1;
+      this.renderCanvas();
+      this.showNotification('ダッシュボードをクリアしました');
+    }
+  }
+
+  async previewDashboard() {
+    if (this.components.length === 0) {
+      this.showNotification('プレビューするコンポーネントがありません', 'error');
+      return;
     }
 
-    clearDashboard() {
-        if (this.components.length === 0) return;
+    this.showNotification('プレビュー準備中...', 'info');
+    const html = await this.generateFullHTML();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    this.showNotification('プレビューを開きました');
+  }
 
-        if (confirm('すべてのコンポーネントを削除してもよろしいですか？')) {
-            this.components = [];
-            this.history = [];
-            this.historyIndex = -1;
-            this.renderCanvas();
-            this.showNotification('ダッシュボードをクリアしました');
-        }
+  // History management
+  saveState() {
+    const state = JSON.parse(JSON.stringify(this.components));
+
+    // Remove future history if we're not at the end
+    this.history = this.history.slice(0, this.historyIndex + 1);
+
+    this.history.push(state);
+    this.historyIndex++;
+
+    // Limit history to 50 states
+    if (this.history.length > 50) {
+      this.history.shift();
+      this.historyIndex--;
+    }
+  }
+
+  undo() {
+    if (this.historyIndex > 0) {
+      this.historyIndex--;
+      this.components = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+      this.renderCanvas();
+      this.showNotification('元に戻しました');
+    }
+  }
+
+  redo() {
+    if (this.historyIndex < this.history.length - 1) {
+      this.historyIndex++;
+      this.components = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+      this.renderCanvas();
+      this.showNotification('やり直しました');
+    }
+  }
+
+  handleZoom(e) {
+    const action = e.currentTarget.dataset.action;
+    const zoomLevel = document.querySelector('.zoom-level');
+    let currentZoom = parseInt(zoomLevel.textContent);
+
+    if (action === 'zoom-in' && currentZoom < 200) {
+      currentZoom += 10;
+    } else if (action === 'zoom-out' && currentZoom > 50) {
+      currentZoom -= 10;
     }
 
-    async previewDashboard() {
-        if (this.components.length === 0) {
-            this.showNotification('プレビューするコンポーネントがありません', 'error');
-            return;
-        }
+    zoomLevel.textContent = `${currentZoom}%`;
 
-        this.showNotification('プレビュー準備中...', 'info');
-        const html = await this.generateFullHTML();
-        const blob = new Blob([html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        this.showNotification('プレビューを開きました');
+    const canvas = document.getElementById('dashboardCanvas');
+    canvas.style.transform = `scale(${currentZoom / 100})`;
+    canvas.style.transformOrigin = 'top left';
+  }
+
+  // Design Customization
+  setupDesignCustomization() {
+    // Font Size
+    const fontSizeSelect = document.getElementById('dashFontSize');
+    if (fontSizeSelect) {
+      fontSizeSelect.addEventListener('change', (e) => {
+        this.designSettings.fontSize = parseInt(e.target.value);
+        this.applyFontSize(parseInt(e.target.value));
+      });
     }
 
-    // History management
-    saveState() {
-        const state = JSON.parse(JSON.stringify(this.components));
-
-        // Remove future history if we're not at the end
-        this.history = this.history.slice(0, this.historyIndex + 1);
-
-        this.history.push(state);
-        this.historyIndex++;
-
-        // Limit history to 50 states
-        if (this.history.length > 50) {
-            this.history.shift();
-            this.historyIndex--;
-        }
+    // Spacing
+    const spacingSelect = document.getElementById('dashSpacing');
+    if (spacingSelect) {
+      spacingSelect.addEventListener('change', (e) => {
+        this.designSettings.spacing = parseFloat(e.target.value);
+        this.applySpacing(parseFloat(e.target.value));
+      });
     }
 
-    undo() {
-        if (this.historyIndex > 0) {
-            this.historyIndex--;
-            this.components = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
-            this.renderCanvas();
-            this.showNotification('元に戻しました');
-        }
+    // Border Radius
+    const borderRadiusSelect = document.getElementById('dashBorderRadius');
+    if (borderRadiusSelect) {
+      borderRadiusSelect.addEventListener('change', (e) => {
+        this.designSettings.borderRadius = parseInt(e.target.value);
+        this.applyBorderRadius(parseInt(e.target.value));
+      });
     }
+  }
 
-    redo() {
-        if (this.historyIndex < this.history.length - 1) {
-            this.historyIndex++;
-            this.components = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
-            this.renderCanvas();
-            this.showNotification('やり直しました');
-        }
+  applyFontSize(size) {
+    const canvas = document.getElementById('dashboardCanvas');
+    if (canvas) {
+      canvas.style.fontSize = `${size}px`;
+      this.showNotification(`フォントサイズを ${size}px に変更しました`);
     }
+  }
 
-    handleZoom(e) {
-        const action = e.currentTarget.dataset.action;
-        const zoomLevel = document.querySelector('.zoom-level');
-        let currentZoom = parseInt(zoomLevel.textContent);
+  applySpacing(scale) {
+    const canvas = document.getElementById('dashboardCanvas');
+    if (canvas) {
+      // Apply spacing scale to dashboard grid gap
+      const grid = canvas.querySelector('.dashboard-grid');
+      if (grid) {
+        const baseGridGap = 8; // --space-2 default
+        grid.style.gap = `${baseGridGap * scale}px`;
+      }
 
-        if (action === 'zoom-in' && currentZoom < 200) {
-            currentZoom += 10;
-        } else if (action === 'zoom-out' && currentZoom > 50) {
-            currentZoom -= 10;
-        }
-
-        zoomLevel.textContent = `${currentZoom}%`;
-
-        const canvas = document.getElementById('dashboardCanvas');
-        canvas.style.transform = `scale(${currentZoom / 100})`;
-        canvas.style.transformOrigin = 'top left';
+      // Apply spacing scale to card gaps and padding
+      const cards = canvas.querySelectorAll(
+        '.dashboard-card, .stat-card, .data-table, .chart-card'
+      );
+      cards.forEach((card) => {
+        const baseGap = 24;
+        card.style.gap = `${baseGap * scale}px`;
+        const basePadding = 24;
+        card.style.padding = `${basePadding * scale}px`;
+      });
+      this.showNotification(`余白を ${scale * 100}% に変更しました`);
     }
+  }
 
-    // Design Customization
-    setupDesignCustomization() {
-        // Font Size
-        const fontSizeSelect = document.getElementById('dashFontSize');
-        if (fontSizeSelect) {
-            fontSizeSelect.addEventListener('change', (e) => {
-                this.designSettings.fontSize = parseInt(e.target.value);
-                this.applyFontSize(parseInt(e.target.value));
-            });
-        }
-
-        // Spacing
-        const spacingSelect = document.getElementById('dashSpacing');
-        if (spacingSelect) {
-            spacingSelect.addEventListener('change', (e) => {
-                this.designSettings.spacing = parseFloat(e.target.value);
-                this.applySpacing(parseFloat(e.target.value));
-            });
-        }
-
-        // Border Radius
-        const borderRadiusSelect = document.getElementById('dashBorderRadius');
-        if (borderRadiusSelect) {
-            borderRadiusSelect.addEventListener('change', (e) => {
-                this.designSettings.borderRadius = parseInt(e.target.value);
-                this.applyBorderRadius(parseInt(e.target.value));
-            });
-        }
+  applyBorderRadius(radius) {
+    const canvas = document.getElementById('dashboardCanvas');
+    if (canvas) {
+      const elements = canvas.querySelectorAll(
+        '.dashboard-card, .stat-card, .data-table, .chart-card, .btn'
+      );
+      elements.forEach((el) => {
+        el.style.borderRadius = `${radius}px`;
+      });
+      this.showNotification(`角丸を ${radius}px に変更しました`);
     }
+  }
 
-    applyFontSize(size) {
-        const canvas = document.getElementById('dashboardCanvas');
-        if (canvas) {
-            canvas.style.fontSize = `${size}px`;
-            this.showNotification(`フォントサイズを ${size}px に変更しました`);
-        }
-    }
+  // Utilities
+  generateId() {
+    return `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
 
-    applySpacing(scale) {
-        const canvas = document.getElementById('dashboardCanvas');
-        if (canvas) {
-            // Apply spacing scale to dashboard grid gap
-            const grid = canvas.querySelector('.dashboard-grid');
-            if (grid) {
-                const baseGridGap = 8; // --space-2 default
-                grid.style.gap = `${baseGridGap * scale}px`;
-            }
+  downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
-            // Apply spacing scale to card gaps and padding
-            const cards = canvas.querySelectorAll('.dashboard-card, .stat-card, .data-table, .chart-card');
-            cards.forEach(card => {
-                const baseGap = 24;
-                card.style.gap = `${baseGap * scale}px`;
-                const basePadding = 24;
-                card.style.padding = `${basePadding * scale}px`;
-            });
-            this.showNotification(`余白を ${scale * 100}% に変更しました`);
-        }
-    }
+  showNotification(message, type = 'success') {
+    const existing = document.querySelector('.db-notification');
+    if (existing) existing.remove();
 
-    applyBorderRadius(radius) {
-        const canvas = document.getElementById('dashboardCanvas');
-        if (canvas) {
-            const elements = canvas.querySelectorAll('.dashboard-card, .stat-card, .data-table, .chart-card, .btn');
-            elements.forEach(el => {
-                el.style.borderRadius = `${radius}px`;
-            });
-            this.showNotification(`角丸を ${radius}px に変更しました`);
-        }
-    }
-
-    // Utilities
-    generateId() {
-        return `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    downloadFile(content, filename, mimeType) {
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    showNotification(message, type = 'success') {
-        const existing = document.querySelector('.db-notification');
-        if (existing) existing.remove();
-
-        const notification = document.createElement('div');
-        notification.className = `db-notification db-notification-${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
+    const notification = document.createElement('div');
+    notification.className = `db-notification db-notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -1162,13 +1177,13 @@ ${embeddedCSS}
             animation: slideInRight 0.3s ease-out;
         `;
 
-        document.body.appendChild(notification);
+    document.body.appendChild(notification);
 
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.3s ease-out';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
 }
 
 // Add notification animations
@@ -1236,6 +1251,6 @@ document.head.appendChild(style);
 
 // Initialize dashboard generator
 document.addEventListener('DOMContentLoaded', () => {
-    window.dashboardGenerator = new DashboardGenerator();
-    console.log('Dashboard Generator ready');
+  window.dashboardGenerator = new DashboardGenerator();
+  console.log('Dashboard Generator ready');
 });

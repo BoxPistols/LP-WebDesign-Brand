@@ -10,14 +10,18 @@
 ## 🚀 2つの強力なジェネレーター
 
 ### 📄 Landing Page Generator
+
 マーケティングサイト・プロダクトページ向け
+
 - 19種類のセクションコンポーネント
 - 10種類のプレミアムテーマ
 - React/Vue/JSON エクスポート
 - [generator.html で起動](./generator.html)
 
 ### 📊 Dashboard Generator 🆕
+
 管理画面・SaaS ダッシュボード向け（Dribbbleインスパイア）
+
 - 14種類のダッシュボードコンポーネント
 - 3種類のレイアウトオプション
 - アナリティクス/CRM/Eコマース テンプレート
@@ -28,6 +32,7 @@
 ## ✨ Landing Page Generator v2.0の機能
 
 ### 🎯 大幅な機能拡張
+
 - ✅ **10種類のプレミアムテーマ**（4テーマ追加）
 - ✅ **19種類の高度なコンポーネント**（9コンポーネント追加）
 - ✅ **ドラッグ&ドロップ**によるセクション並び替え
@@ -39,6 +44,7 @@
 ## 🎨 豊富なデザインテーマ
 
 ### スタンダードテーマ
+
 - **Modern Blue** - モダンで洗練されたブルーグラデーション
 - **Sunset** - 温かみのあるサンセットカラー
 - **Ocean** - 清涼感のあるオーシャンブルー
@@ -47,6 +53,7 @@
 - **Vibrant** - エネルギッシュなカラフルテーマ
 
 ### 🆕 新テーマ
+
 - **Neon** - 鮮やかなネオンカラー
 - **Nature** - 落ち着いたナチュラルトーン
 - **Monochrome** - 洗練されたモノクロームデザイン
@@ -55,32 +62,39 @@
 ## 📦 19種類の再利用可能なコンポーネント
 
 ### ヒーローセクション
+
 1. **Hero Classic** - クラシックなヒーローバナー
 2. **Hero Split** 🆕 - 分割レイアウトのヒーロー
 3. **Hero Animated** 🆕 - アニメーション付きヒーロー
 
 ### フィーチャーセクション
+
 4. **Features Grid** - グリッドレイアウトの機能紹介
 5. **Features Cards** 🆕 - インタラクティブなカード
 6. **Features Timeline** 🆕 - タイムライン形式
 
 ### ソーシャルプルーフ
+
 7. **Social Proof** 🆕 - 企業ロゴグリッド
 
 ### 料金プラン
+
 8. **Pricing Simple** - シンプルな料金表
 9. **Pricing Modern** 🆕 - モダンな料金表（月額/年額切替）
 
 ### お客様の声
+
 10. **Testimonials** - 標準的なレイアウト
 11. **Testimonials Pro** 🆕 - カルーセル形式
 
 ### CTA（Call to Action）
+
 12. **CTA Simple** - シンプルなCTA
 13. **CTA Split** 🆕 - 分割レイアウトCTA
 14. **Newsletter** 🆕 - メルマガ登録
 
 ### その他
+
 15. **Gallery** - 画像ギャラリー
 16. **Statistics** - 統計情報表示
 17. **Team** - チームメンバー紹介
@@ -90,6 +104,7 @@
 ## 🚀 主な機能
 
 ### 🎯 コアコンセプト
+
 - **ノーコード** - コーディング不要で美しいLPを作成
 - **モダンデザイン** - 最新のデザイントレンドを取り入れた洗練されたUI
 - **汎用性** - あらゆる業種・用途に対応できる柔軟なシステム
@@ -98,24 +113,29 @@
 ### 💎 高度な機能
 
 #### 1. ドラッグ&ドロップ
+
 - セクションをドラッグして自由に並び替え
 - 直感的な操作でレイアウトを調整
 - リアルタイムプレビュー
 
 #### 2. プリセットテンプレート
+
 業種別に最適化されたテンプレートをワンクリックで適用：
+
 - **スタートアップ**: Hero Split + Features Cards + Social Proof + Pricing Modern + Testimonials Pro + CTA Split
 - **SaaS**: Hero Animated + Features Timeline + Pricing Modern + Testimonials + FAQ + Newsletter
 - **ポートフォリオ**: Hero Classic + Gallery + Features Grid + Team + Testimonials + Contact
 - **Eコマース**: Hero Split + Features Grid + Gallery + Pricing + Testimonials + CTA
 
 #### 3. 複数のエクスポート形式
+
 - **HTML** - スタンドアロンのHTMLファイル
 - **React** - React Component (.jsx)
 - **Vue** - Vue Component (.vue)
 - **JSON** - 設定ファイル（共有・バックアップ用）
 
 #### 4. 包括的なデザインシステム
+
 - **カラーパレット**: 50段階のカラースケール
 - **タイポグラフィ**: 9段階のテキストサイズ
 - **スペーシング**: 48段階の間隔設定
@@ -124,16 +144,19 @@
 - **アニメーション**: 豊富なアニメーションプリセット
 
 #### 5. レスポンシブ対応
+
 - デスクトップ、タブレット、モバイルに完全対応
 - デバイスプレビュー機能
 - モバイルファーストアプローチ
 
 #### 6. キーボードショートカット
+
 - `Ctrl/Cmd + S`: 高速エクスポート
 
 ## 🚀 使い方
 
 ### 1. ジェネレーターを開く
+
 ```bash
 # プロジェクトディレクトリで
 open generator.html
@@ -144,21 +167,26 @@ python -m http.server 8000
 ```
 
 ### 2. テーマを選択
+
 左側のパネルから好みのカラーテーマを選択します（10種類から選択）。
 
 ### 3. セクションを追加
 
 **方法A: 手動で追加**
+
 - 必要なセクションをクリックして、ランディングページに追加
 - セクションは好きな順序で追加可能
 - ドラッグ&ドロップで並び替え
 
 **方法B: プリセットを使用**
+
 - 「プリセットテンプレート」から業種を選択
 - 最適なセクション構成が自動的に適用されます
 
 ### 4. プレビューで確認
+
 右側のプレビューエリアで、デザインをリアルタイムで確認：
+
 - デバイスモード切替（デスクトップ/タブレット/モバイル）
 - 各セクションにホバーで編集コントロール表示
   - ↑ 上に移動
@@ -166,6 +194,7 @@ python -m http.server 8000
   - 🗑️ 削除
 
 ### 5. レイアウト設定
+
 - ✓ フルワイドレイアウト
 - ✓ アニメーション
 - ✓ ガラスモーフィズム
@@ -173,12 +202,14 @@ python -m http.server 8000
 ### 6. エクスポート
 
 **HTML形式**
+
 ```
 「HTMLをダウンロード」ボタンをクリック
 → スタンドアロンのHTMLファイルが生成されます
 ```
 
 **React/Vue形式**
+
 ```
 「エクスポート形式」ドロップダウンをクリック
 → React Component または Vue Component を選択
@@ -186,6 +217,7 @@ python -m http.server 8000
 ```
 
 **JSON設定**
+
 ```
 「エクスポート形式」から「JSON Config」を選択
 → 設定ファイルとして保存・共有できます
@@ -216,7 +248,9 @@ LP-WebDesign-Brand/
 ## 🎨 デザインシステム
 
 ### カラーシステム
+
 各色は50〜900の段階で定義：
+
 ```css
 --color-primary-50: #f0f4ff;
 --color-primary-500: #6366f1;
@@ -224,22 +258,25 @@ LP-WebDesign-Brand/
 ```
 
 ### タイポグラフィ
+
 ```css
---text-xs: 0.75rem;   /* 12px */
---text-base: 1rem;    /* 16px */
---text-4xl: 2.25rem;  /* 36px */
---text-9xl: 8rem;     /* 128px */
+--text-xs: 0.75rem; /* 12px */
+--text-base: 1rem; /* 16px */
+--text-4xl: 2.25rem; /* 36px */
+--text-9xl: 8rem; /* 128px */
 ```
 
 ### スペーシング
+
 ```css
---space-1: 0.25rem;   /* 4px */
---space-4: 1rem;      /* 16px */
---space-16: 4rem;     /* 64px */
---space-96: 24rem;    /* 384px */
+--space-1: 0.25rem; /* 4px */
+--space-4: 1rem; /* 16px */
+--space-16: 4rem; /* 64px */
+--space-96: 24rem; /* 384px */
 ```
 
 ### シャドウ
+
 ```css
 --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
 --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1);
@@ -251,6 +288,7 @@ LP-WebDesign-Brand/
 ### セクション構成の推奨順序
 
 **スタートアップ向け:**
+
 1. Hero (Split/Animated) - 強力な第一印象
 2. Social Proof - 信頼性の構築
 3. Features - 主要機能の紹介
@@ -259,6 +297,7 @@ LP-WebDesign-Brand/
 6. CTA - 明確な行動喚起
 
 **SaaS向け:**
+
 1. Hero Animated - 製品の魅力を訴求
 2. Features Timeline - ステップバイステップ
 3. Pricing Modern - 柔軟な料金プラン
@@ -269,31 +308,35 @@ LP-WebDesign-Brand/
 ## 🔧 カスタマイズ
 
 ### 新しいテーマを追加
+
 `css/design-system.css`に追加：
+
 ```css
-[data-theme="your-theme"] {
-    --theme-primary: #your-color;
-    --theme-secondary: #your-color;
-    --theme-accent: #your-color;
-    --theme-gradient: linear-gradient(...);
-    --theme-text: #your-color;
-    --theme-bg: #your-color;
+[data-theme='your-theme'] {
+  --theme-primary: #your-color;
+  --theme-secondary: #your-color;
+  --theme-accent: #your-color;
+  --theme-gradient: linear-gradient(...);
+  --theme-text: #your-color;
+  --theme-bg: #your-color;
 }
 ```
 
 ### 新しいセクションを追加
+
 `js/advanced-templates.js`に追加：
+
 ```javascript
 const advancedTemplates = {
-    'your-section': {
-        name: 'Your Section Name',
-        category: 'your-category',
-        html: `
+  'your-section': {
+    name: 'Your Section Name',
+    category: 'your-category',
+    html: `
             <section class="lp-section your-section">
                 <!-- Your HTML here -->
             </section>
-        `
-    }
+        `,
+  },
 };
 ```
 
@@ -308,6 +351,7 @@ const advancedTemplates = {
 ## 📱 レスポンシブ対応
 
 すべてのコンポーネントは以下のブレークポイントで最適化：
+
 - **Desktop**: 1024px以上
 - **Tablet**: 768px - 1024px
 - **Mobile**: 768px以下
@@ -322,6 +366,7 @@ const advancedTemplates = {
 ## 🗺️ ロードマップ
 
 ### 将来の機能（計画中）
+
 - ⏳ 元に戻す/やり直し機能（Ctrl/Cmd+Z）
 - ⏳ インライン編集（テキストの直接編集）
 - ⏳ カラーピッカー（カスタムテーマ作成）

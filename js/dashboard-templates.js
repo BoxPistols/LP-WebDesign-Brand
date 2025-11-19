@@ -2,11 +2,11 @@
 // Modern SaaS Dashboard Components
 
 const dashboardTemplates = {
-    // ========== STATS CARDS ==========
-    'stats-cards': {
-        name: '統計カード',
-        category: 'data',
-        html: `
+  // ========== STATS CARDS ==========
+  'stats-cards': {
+    name: '統計カード',
+    category: 'data',
+    html: `
         <div class="stats-card-grid grid-col-12">
             <div class="stat-card">
                 <div class="stat-card-header">
@@ -86,14 +86,14 @@ const dashboardTemplates = {
                 </div>
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    // ========== CHARTS ==========
-    'chart-line': {
-        name: '折れ線グラフ',
-        category: 'data',
-        html: `
+  // ========== CHARTS ==========
+  'chart-line': {
+    name: '折れ線グラフ',
+    category: 'data',
+    html: `
         <div class="db-card grid-col-6">
             <div class="db-card-header">
                 <h3 class="db-card-title">売上推移</h3>
@@ -109,13 +109,13 @@ const dashboardTemplates = {
                 </div>
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    'chart-bar': {
-        name: '棒グラフ',
-        category: 'data',
-        html: `
+  'chart-bar': {
+    name: '棒グラフ',
+    category: 'data',
+    html: `
         <div class="db-card grid-col-4">
             <div class="db-card-header">
                 <h3 class="db-card-title">月別売上</h3>
@@ -132,13 +132,13 @@ const dashboardTemplates = {
                 </div>
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    'chart-pie': {
-        name: '円グラフ',
-        category: 'data',
-        html: `
+  'chart-pie': {
+    name: '円グラフ',
+    category: 'data',
+    html: `
         <div class="db-card grid-col-3">
             <div class="db-card-header">
                 <h3 class="db-card-title">カテゴリ別分布</h3>
@@ -153,14 +153,14 @@ const dashboardTemplates = {
                 </div>
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    // ========== TABLES ==========
-    'data-table': {
-        name: 'データテーブル',
-        category: 'table',
-        html: `
+  // ========== TABLES ==========
+  'data-table': {
+    name: 'データテーブル',
+    category: 'table',
+    html: `
         <div class="db-card grid-col-12">
             <div class="db-card-header">
                 <h3 class="db-card-title">最近の注文</h3>
@@ -222,13 +222,13 @@ const dashboardTemplates = {
                 </table>
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    'user-list': {
-        name: 'ユーザーリスト',
-        category: 'table',
-        html: `
+  'user-list': {
+    name: 'ユーザーリスト',
+    category: 'table',
+    html: `
         <div class="db-card grid-col-4">
             <div class="db-card-header">
                 <h3 class="db-card-title">アクティブユーザー</h3>
@@ -287,14 +287,14 @@ const dashboardTemplates = {
                 </table>
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    // ========== CARDS ==========
-    'kpi-card': {
-        name: 'KPIカード',
-        category: 'card',
-        html: `
+  // ========== CARDS ==========
+  'kpi-card': {
+    name: 'KPIカード',
+    category: 'card',
+    html: `
         <div class="kpi-card grid-col-3">
             <div class="kpi-card-content">
                 <div class="kpi-card-label">今月の目標達成率</div>
@@ -307,13 +307,13 @@ const dashboardTemplates = {
                 </div>
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    'progress-card': {
-        name: '進捗カード',
-        category: 'card',
-        html: `
+  'progress-card': {
+    name: '進捗カード',
+    category: 'card',
+    html: `
         <div class="progress-card grid-col-3">
             <div class="progress-header">
                 <span class="progress-title">プロジェクト進捗</span>
@@ -327,13 +327,13 @@ const dashboardTemplates = {
                 <span>残り12日</span>
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    'activity-feed': {
-        name: 'アクティビティフィード',
-        category: 'card',
-        html: `
+  'activity-feed': {
+    name: 'アクティビティフィード',
+    category: 'card',
+    html: `
         <div class="db-card grid-col-3">
             <div class="db-card-header">
                 <h3 class="db-card-title">最近のアクティビティ</h3>
@@ -377,14 +377,14 @@ const dashboardTemplates = {
                 </div>
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    // ========== FORMS ==========
-    'form-basic': {
-        name: '基本フォーム',
-        category: 'form',
-        html: `
+  // ========== FORMS ==========
+  'form-basic': {
+    name: '基本フォーム',
+    category: 'form',
+    html: `
         <div class="db-card grid-col-4">
             <div class="db-card-header">
                 <h3 class="db-card-title">ユーザー情報</h3>
@@ -411,13 +411,13 @@ const dashboardTemplates = {
                 </button>
             </form>
         </div>
-        `
-    },
+        `,
+  },
 
-    'search-bar': {
-        name: '検索バー',
-        category: 'form',
-        html: `
+  'search-bar': {
+    name: '検索バー',
+    category: 'form',
+    html: `
         <div class="db-card grid-col-6">
             <div class="search-bar">
                 <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -427,27 +427,27 @@ const dashboardTemplates = {
                 <input type="text" class="search-input" placeholder="検索...">
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    // ========== OTHERS ==========
-    'alert-banner': {
-        name: 'アラートバナー',
-        category: 'other',
-        html: `
+  // ========== OTHERS ==========
+  'alert-banner': {
+    name: 'アラートバナー',
+    category: 'other',
+    html: `
         <div class="grid-col-12">
             <div class="alert-banner info">
                 <span class="alert-icon">ℹ️</span>
                 <span>新しいアップデートが利用可能です。今すぐアップデートして最新機能をお試しください。</span>
             </div>
         </div>
-        `
-    },
+        `,
+  },
 
-    'user-profile': {
-        name: 'ユーザープロフィール',
-        category: 'other',
-        html: `
+  'user-profile': {
+    name: 'ユーザープロフィール',
+    category: 'other',
+    html: `
         <div class="user-profile-card grid-col-3">
             <div class="user-avatar-large">田</div>
             <div class="user-name">田中太郎</div>
@@ -467,11 +467,11 @@ const dashboardTemplates = {
                 </div>
             </div>
         </div>
-        `
-    }
+        `,
+  },
 };
 
 // Export for use in dashboard generator
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = dashboardTemplates;
+  module.exports = dashboardTemplates;
 }

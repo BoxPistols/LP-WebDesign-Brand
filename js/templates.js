@@ -1,9 +1,9 @@
 // Section Templates for Landing Page Generator
 
 const sectionTemplates = {
-    'hero-1': {
-        name: 'Hero Banner',
-        html: `
+  'hero-1': {
+    name: 'Hero Banner',
+    html: `
         <section class="lp-section lp-hero lp-fade-in">
             <div class="lp-hero-content">
                 <h1 class="lp-slide-up">あなたのビジネスを次のレベルへ</h1>
@@ -14,12 +14,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'features-grid': {
-        name: 'Features Grid',
-        html: `
+  'features-grid': {
+    name: 'Features Grid',
+    html: `
         <section class="lp-section lp-features">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">主な機能</h2>
@@ -64,12 +64,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'pricing': {
-        name: 'Pricing Table',
-        html: `
+  pricing: {
+    name: 'Pricing Table',
+    html: `
         <section class="lp-section lp-pricing">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">料金プラン</h2>
@@ -119,12 +119,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'testimonials': {
-        name: 'Testimonials',
-        html: `
+  testimonials: {
+    name: 'Testimonials',
+    html: `
         <section class="lp-section lp-testimonials">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">お客様の声</h2>
@@ -172,12 +172,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'cta': {
-        name: 'Call to Action',
-        html: `
+  cta: {
+    name: 'Call to Action',
+    html: `
         <section class="lp-section lp-cta">
             <div class="lp-content-wrapper">
                 <h2 class="lp-fade-in">今すぐ始めましょう</h2>
@@ -188,12 +188,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'gallery': {
-        name: 'Image Gallery',
-        html: `
+  gallery: {
+    name: 'Image Gallery',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">ギャラリー</h2>
@@ -245,12 +245,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'stats': {
-        name: 'Statistics',
-        html: `
+  stats: {
+    name: 'Statistics',
+    html: `
         <section class="lp-section lp-stats">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title" style="color: white;">数字で見る実績</h2>
@@ -274,12 +274,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'team': {
-        name: 'Team Members',
-        html: `
+  team: {
+    name: 'Team Members',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">チームメンバー</h2>
@@ -316,12 +316,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'faq': {
-        name: 'FAQ Section',
-        html: `
+  faq: {
+    name: 'FAQ Section',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">よくある質問</h2>
@@ -365,12 +365,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'contact': {
-        name: 'Contact Form',
-        html: `
+  contact: {
+    name: 'Contact Form',
+    html: `
         <section class="lp-section lp-contact">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">お問い合わせ</h2>
@@ -403,12 +403,12 @@ const sectionTemplates = {
                 </form>
             </div>
         </section>
-        `
-    },
-    // ===== NEW COMPONENTS - HERO VARIATIONS =====
-    'hero-video': {
-        name: 'Video Hero',
-        html: `
+        `,
+  },
+  // ===== NEW COMPONENTS - HERO VARIATIONS =====
+  'hero-video': {
+    name: 'Video Hero',
+    html: `
         <section class="lp-section lp-hero" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(16, 185, 129, 0.9)), url('https://picsum.photos/1920/1080') center/cover; min-height: 600px;">
             <div class="lp-hero-content">
                 <h1 class="lp-slide-up">ビデオで伝える、未来のストーリー</h1>
@@ -418,12 +418,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'hero-minimal': {
-        name: 'Minimal Hero',
-        html: `
+  'hero-minimal': {
+    name: 'Minimal Hero',
+    html: `
         <section class="lp-section" style="padding: 120px 20px; text-align: center;">
             <div class="lp-content-wrapper" style="max-width: 800px; margin: 0 auto;">
                 <h1 class="lp-slide-up" style="font-size: 3.5rem; font-weight: 300; margin-bottom: 1.5rem;">Simple. Powerful. Elegant.</h1>
@@ -431,12 +431,12 @@ const sectionTemplates = {
                 <button class="lp-btn lp-btn-primary">始める</button>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'hero-gradient': {
-        name: 'Gradient Hero',
-        html: `
+  'hero-gradient': {
+    name: 'Gradient Hero',
+    html: `
         <section class="lp-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 100px 20px; text-align: center;">
             <div class="lp-hero-content">
                 <h1 class="lp-slide-up">未来を創造する</h1>
@@ -447,12 +447,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'hero-split-image': {
-        name: 'Split Image Hero',
-        html: `
+  'hero-split-image': {
+    name: 'Split Image Hero',
+    html: `
         <section class="lp-section" style="padding: 0;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 600px; gap: 0;">
                 <div style="padding: 80px 60px; display: flex; flex-direction: column; justify-content: center;">
@@ -466,12 +466,12 @@ const sectionTemplates = {
                 <div style="background: url('https://picsum.photos/800/600') center/cover;"></div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'hero-fullscreen': {
-        name: 'Fullscreen Hero',
-        html: `
+  'hero-fullscreen': {
+    name: 'Fullscreen Hero',
+    html: `
         <section class="lp-section" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://picsum.photos/1920/1080') center/cover; color: white;">
             <div class="lp-hero-content" style="text-align: center;">
                 <h1 class="lp-slide-up" style="font-size: 4rem; margin-bottom: 1.5rem;">Welcome to the Future</h1>
@@ -479,13 +479,13 @@ const sectionTemplates = {
                 <button class="lp-btn lp-btn-primary" style="padding: 1rem 3rem; font-size: 1.1rem;">探索を始める</button>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    // ===== CONTENT SECTIONS =====
-    'content-left': {
-        name: 'Content + Image (Left)',
-        html: `
+  // ===== CONTENT SECTIONS =====
+  'content-left': {
+    name: 'Content + Image (Left)',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
@@ -500,12 +500,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'content-right': {
-        name: 'Content + Image (Right)',
-        html: `
+  'content-right': {
+    name: 'Content + Image (Right)',
+    html: `
         <section class="lp-section" style="background: #f8fafc;">
             <div class="lp-content-wrapper">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
@@ -524,12 +524,11 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    }
-,
-    'content-centered': {
-        name: 'Centered Content',
-        html: `
+        `,
+  },
+  'content-centered': {
+    name: 'Centered Content',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center" style="max-width: 800px; margin: 0 auto;">
                 <h2 class="lp-section-title">なぜ私たちを選ぶのか</h2>
@@ -550,12 +549,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'quote-section': {
-        name: 'Quote/Blockquote',
-        html: `
+  'quote-section': {
+    name: 'Quote/Blockquote',
+    html: `
         <section class="lp-section" style="background: #1e293b; color: white; padding: 80px 20px;">
             <div class="lp-content-wrapper lp-text-center" style="max-width: 900px; margin: 0 auto;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.3; margin-bottom: 2rem;">
@@ -569,12 +568,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'video-section': {
-        name: 'Video Section',
-        html: `
+  'video-section': {
+    name: 'Video Section',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">動画で見る製品紹介</h2>
@@ -589,12 +588,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'logo-cloud': {
-        name: 'Logo Cloud',
-        html: `
+  'logo-cloud': {
+    name: 'Logo Cloud',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <p style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 2rem;">信頼されている企業</p>
@@ -607,12 +606,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'steps-horizontal': {
-        name: 'Steps Horizontal',
-        html: `
+  'steps-horizontal': {
+    name: 'Steps Horizontal',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">簡単3ステップ</h2>
@@ -636,12 +635,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'benefits-grid': {
-        name: 'Benefits Grid',
-        html: `
+  'benefits-grid': {
+    name: 'Benefits Grid',
+    html: `
         <section class="lp-section" style="background: #f8fafc;">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">導入のメリット</h2>
@@ -685,12 +684,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'comparison-table': {
-        name: 'Comparison Table',
-        html: `
+  'comparison-table': {
+    name: 'Comparison Table',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">プラン比較</h2>
@@ -735,12 +734,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'cta-banner': {
-        name: 'CTA Banner',
-        html: `
+  'cta-banner': {
+    name: 'CTA Banner',
+    html: `
         <section class="lp-section" style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; padding: 60px 20px;">
             <div class="lp-content-wrapper" style="display: flex; align-items: center; justify-content: space-between; gap: 2rem;">
                 <div>
@@ -752,12 +751,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'cta-centered': {
-        name: 'CTA Centered',
-        html: `
+  'cta-centered': {
+    name: 'CTA Centered',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center" style="max-width: 700px; margin: 0 auto;">
                 <h2 class="lp-section-title">準備はできましたか？</h2>
@@ -769,12 +768,12 @@ const sectionTemplates = {
                 <p style="font-size: 0.9rem; color: #94a3b8; margin-top: 1.5rem;">14日間の無料トライアル · クレジットカード不要</p>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'features-list': {
-        name: 'Features List',
-        html: `
+  'features-list': {
+    name: 'Features List',
+    html: `
         <section class="lp-section" style="background: #f8fafc;">
             <div class="lp-content-wrapper">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
@@ -823,12 +822,11 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    }
-,
-    'alert-banner': {
-        name: 'Alert Banner',
-        html: `
+        `,
+  },
+  'alert-banner': {
+    name: 'Alert Banner',
+    html: `
         <section style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1.5rem 2rem;">
             <div class="lp-content-wrapper" style="display: flex; align-items: center; gap: 1rem;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
@@ -841,12 +839,12 @@ const sectionTemplates = {
                 <button class="lp-btn lp-btn-primary" style="padding: 0.5rem 1.5rem;">詳細</button>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'accordion-faq': {
-        name: 'Accordion FAQ',
-        html: `
+  'accordion-faq': {
+    name: 'Accordion FAQ',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper" style="max-width: 800px; margin: 0 auto;">
                 <h2 class="lp-section-title lp-text-center">よくある質問</h2>
@@ -866,12 +864,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'newsletter-inline': {
-        name: 'Newsletter Inline',
-        html: `
+  'newsletter-inline': {
+    name: 'Newsletter Inline',
+    html: `
         <section class="lp-section" style="background: #f8fafc;">
             <div class="lp-content-wrapper" style="max-width: 900px; margin: 0 auto;">
                 <div style="background: white; padding: 3rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); text-align: center;">
@@ -885,12 +883,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'app-screenshot': {
-        name: 'App Screenshot',
-        html: `
+  'app-screenshot': {
+    name: 'App Screenshot',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">美しいインターフェース</h2>
@@ -900,12 +898,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'feature-tabs': {
-        name: 'Feature Tabs',
-        html: `
+  'feature-tabs': {
+    name: 'Feature Tabs',
+    html: `
         <section class="lp-section" style="background: #f8fafc;">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">主要機能</h2>
@@ -924,12 +922,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'social-links': {
-        name: 'Social Links',
-        html: `
+  'social-links': {
+    name: 'Social Links',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">フォローしてください</h2>
@@ -958,12 +956,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'awards-badges': {
-        name: 'Awards & Badges',
-        html: `
+  'awards-badges': {
+    name: 'Awards & Badges',
+    html: `
         <section class="lp-section" style="background: #f8fafc;">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">受賞歴</h2>
@@ -1004,12 +1002,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'metrics-counter': {
-        name: 'Metrics Counter',
-        html: `
+  'metrics-counter': {
+    name: 'Metrics Counter',
+    html: `
         <section class="lp-section" style="background: #1e293b; color: white;">
             <div class="lp-content-wrapper">
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 3rem; text-align: center;">
@@ -1032,12 +1030,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'integration-logos': {
-        name: 'Integrations',
-        html: `
+  'integration-logos': {
+    name: 'Integrations',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">連携サービス</h2>
@@ -1064,12 +1062,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'before-after': {
-        name: 'Before/After',
-        html: `
+  'before-after': {
+    name: 'Before/After',
+    html: `
         <section class="lp-section" style="background: #f8fafc;">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">導入前後の変化</h2>
@@ -1124,12 +1122,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'roadmap': {
-        name: 'Roadmap',
-        html: `
+  roadmap: {
+    name: 'Roadmap',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">製品ロードマップ</h2>
@@ -1167,12 +1165,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'carousel-testimonials': {
-        name: 'Carousel Testimonials',
-        html: `
+  'carousel-testimonials': {
+    name: 'Carousel Testimonials',
+    html: `
         <section class="lp-section" style="background: #f8fafc;">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">お客様の声</h2>
@@ -1192,12 +1190,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'job-openings': {
-        name: 'Job Openings',
-        html: `
+  'job-openings': {
+    name: 'Job Openings',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">採用情報</h2>
@@ -1233,12 +1231,11 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    }
-,
-    'feature-highlight': {
-        name: 'Feature Highlight',
-        html: `
+        `,
+  },
+  'feature-highlight': {
+    name: 'Feature Highlight',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper">
                 <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem; align-items: center;">
@@ -1264,12 +1261,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'pricing-toggle': {
-        name: 'Pricing with Toggle',
-        html: `
+  'pricing-toggle': {
+    name: 'Pricing with Toggle',
+    html: `
         <section class="lp-section" style="background: #f8fafc;">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">シンプルな料金体系</h2>
@@ -1319,12 +1316,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'trust-badges': {
-        name: 'Trust Badges',
-        html: `
+  'trust-badges': {
+    name: 'Trust Badges',
+    html: `
         <section class="lp-section" style="background: #1e293b; color: white; padding: 3rem 20px;">
             <div class="lp-content-wrapper">
                 <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 3rem; align-items: center; text-align: center;">
@@ -1361,12 +1358,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'mobile-app-cta': {
-        name: 'Mobile App CTA',
-        html: `
+  'mobile-app-cta': {
+    name: 'Mobile App CTA',
+    html: `
         <section class="lp-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
             <div class="lp-content-wrapper">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
@@ -1404,12 +1401,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'feature-comparison': {
-        name: 'Feature Comparison',
-        html: `
+  'feature-comparison': {
+    name: 'Feature Comparison',
+    html: `
         <section class="lp-section">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">他社との違い</h2>
@@ -1454,12 +1451,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'security-features': {
-        name: 'Security Features',
-        html: `
+  'security-features': {
+    name: 'Security Features',
+    html: `
         <section class="lp-section" style="background: #f8fafc;">
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">エンタープライズレベルのセキュリティ</h2>
@@ -1495,12 +1492,12 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'enterprise-cta': {
-        name: 'Enterprise CTA',
-        html: `
+  'enterprise-cta': {
+    name: 'Enterprise CTA',
+    html: `
         <section class="lp-section" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white;">
             <div class="lp-content-wrapper">
                 <div style="max-width: 900px; margin: 0 auto; text-align: center;">
@@ -1570,12 +1567,11 @@ const sectionTemplates = {
                 </div>
             </div>
         </section>
-        `
-    }
-
+        `,
+  },
 };
 
 // Export for use in generator.js
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = sectionTemplates;
+  module.exports = sectionTemplates;
 }

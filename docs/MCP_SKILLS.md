@@ -25,6 +25,7 @@ Model Context Protocol (MCP) は、AIアシスタントが外部ツールやデ�
 ### Project MCP Resources
 
 #### 1. Design System Resource
+
 ```json
 {
   "name": "lp-design-system",
@@ -35,6 +36,7 @@ Model Context Protocol (MCP) は、AIアシスタントが外部ツールやデ�
 ```
 
 **Capabilities:**
+
 - CSS Custom Properties (Variables)
 - Typography scale
 - Spacing system
@@ -42,6 +44,7 @@ Model Context Protocol (MCP) は、AIアシスタントが外部ツールやデ�
 - Responsive breakpoints
 
 #### 2. Component Library Resource
+
 ```json
 {
   "name": "lp-components",
@@ -52,12 +55,14 @@ Model Context Protocol (MCP) は、AIアシスタントが外部ツールやデ�
 ```
 
 **Capabilities:**
+
 - 19 LP section templates
 - 14 Dashboard components
 - Theme system
 - Template metadata
 
 #### 3. Generator Tools Resource
+
 ```json
 {
   "name": "lp-generators",
@@ -68,6 +73,7 @@ Model Context Protocol (MCP) は、AIアシスタントが外部ツールやデ�
 ```
 
 **Capabilities:**
+
 - LP Generator API
 - Dashboard Generator API
 - Export utilities
@@ -85,8 +91,10 @@ Model Context Protocol (MCP) は、AIアシスタントが外部ツールやデ�
 ランディングページのコンポーネントライブラリを作成・管理するためのスキル
 
 **Context:**
+
 ```markdown
 You are an expert in creating landing page components. You have access to:
+
 - Design system with CSS variables
 - 19 pre-built section templates
 - 10 theme variations
@@ -94,26 +102,29 @@ You are an expert in creating landing page components. You have access to:
 ```
 
 **Tools:**
+
 ```javascript
 // Add new component template
 function addComponentTemplate(config) {
-    return {
-        id: config.id,
-        name: config.name,
-        category: config.category,
-        html: config.html,
-        preview: config.preview
-    };
+  return {
+    id: config.id,
+    name: config.name,
+    category: config.category,
+    html: config.html,
+    preview: config.preview,
+  };
 }
 
 // Apply theme to component
 function applyTheme(componentId, themeId) {
-    const component = getComponent(componentId);
-    const theme = getTheme(themeId);
-    return applyThemeToHTML(component.html, theme);
+  const component = getComponent(componentId);
+  const theme = getTheme(themeId);
+  return applyThemeToHTML(component.html, theme);
 }
 ```
 
 **Usage Example:**
+
 ```markdown
 User: "Create a new hero section with a video background"
+```

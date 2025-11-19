@@ -2,12 +2,12 @@
 // Extended collection with modern, interactive components
 
 const advancedTemplates = {
-    // ========== HERO VARIATIONS ==========
+  // ========== HERO VARIATIONS ==========
 
-    'hero-split': {
-        name: 'Hero Split Layout',
-        category: 'hero',
-        html: `
+  'hero-split': {
+    name: 'Hero Split Layout',
+    category: 'hero',
+    html: `
         <section class="lp-section lp-hero-split">
             <div class="lp-content-wrapper">
                 <div class="lp-split-container">
@@ -51,13 +51,13 @@ const advancedTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'hero-animated': {
-        name: 'Animated Hero',
-        category: 'hero',
-        html: `
+  'hero-animated': {
+    name: 'Animated Hero',
+    category: 'hero',
+    html: `
         <section class="lp-section lp-hero-animated">
             <div class="lp-animated-bg">
                 <div class="lp-floating-shape lp-shape-1"></div>
@@ -81,15 +81,15 @@ const advancedTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    // ========== FEATURE VARIATIONS ==========
+  // ========== FEATURE VARIATIONS ==========
 
-    'features-cards-hover': {
-        name: 'Interactive Feature Cards',
-        category: 'features',
-        html: `
+  'features-cards-hover': {
+    name: 'Interactive Feature Cards',
+    category: 'features',
+    html: `
         <section class="lp-section lp-features-modern">
             <div class="lp-content-wrapper">
                 <div class="lp-section-header lp-text-center">
@@ -184,13 +184,13 @@ const advancedTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'features-timeline': {
-        name: 'Feature Timeline',
-        category: 'features',
-        html: `
+  'features-timeline': {
+    name: 'Feature Timeline',
+    category: 'features',
+    html: `
         <section class="lp-section lp-features-timeline">
             <div class="lp-content-wrapper">
                 <div class="lp-section-header lp-text-center">
@@ -229,15 +229,15 @@ const advancedTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    // ========== SOCIAL PROOF ==========
+  // ========== SOCIAL PROOF ==========
 
-    'social-proof': {
-        name: 'Social Proof Section',
-        category: 'testimonials',
-        html: `
+  'social-proof': {
+    name: 'Social Proof Section',
+    category: 'testimonials',
+    html: `
         <section class="lp-section lp-social-proof">
             <div class="lp-content-wrapper lp-text-center">
                 <p class="lp-trust-text">世界中の企業から信頼されています</p>
@@ -263,13 +263,13 @@ const advancedTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    'testimonials-carousel': {
-        name: 'Testimonials Carousel',
-        category: 'testimonials',
-        html: `
+  'testimonials-carousel': {
+    name: 'Testimonials Carousel',
+    category: 'testimonials',
+    html: `
         <section class="lp-section lp-testimonials-carousel">
             <div class="lp-content-wrapper">
                 <div class="lp-section-header lp-text-center">
@@ -328,15 +328,15 @@ const advancedTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    // ========== PRICING VARIATIONS ==========
+  // ========== PRICING VARIATIONS ==========
 
-    'pricing-modern': {
-        name: 'Modern Pricing Table',
-        category: 'pricing',
-        html: `
+  'pricing-modern': {
+    name: 'Modern Pricing Table',
+    category: 'pricing',
+    html: `
         <section class="lp-section lp-pricing-modern">
             <div class="lp-content-wrapper">
                 <div class="lp-section-header lp-text-center">
@@ -414,15 +414,15 @@ const advancedTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    // ========== CTA VARIATIONS ==========
+  // ========== CTA VARIATIONS ==========
 
-    'cta-split': {
-        name: 'Split CTA Section',
-        category: 'cta',
-        html: `
+  'cta-split': {
+    name: 'Split CTA Section',
+    category: 'cta',
+    html: `
         <section class="lp-section lp-cta-split">
             <div class="lp-content-wrapper">
                 <div class="lp-cta-container">
@@ -447,15 +447,15 @@ const advancedTemplates = {
                 </div>
             </div>
         </section>
-        `
-    },
+        `,
+  },
 
-    // ========== NEWSLETTER ==========
+  // ========== NEWSLETTER ==========
 
-    'newsletter': {
-        name: 'Newsletter Signup',
-        category: 'cta',
-        html: `
+  newsletter: {
+    name: 'Newsletter Signup',
+    category: 'cta',
+    html: `
         <section class="lp-section lp-newsletter">
             <div class="lp-content-wrapper">
                 <div class="lp-newsletter-container">
@@ -475,16 +475,16 @@ const advancedTemplates = {
                 </div>
             </div>
         </section>
-        `
-    }
+        `,
+  },
 };
 
 // Merge with existing templates
 if (typeof sectionTemplates !== 'undefined') {
-    Object.assign(sectionTemplates, advancedTemplates);
+  Object.assign(sectionTemplates, advancedTemplates);
 }
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = advancedTemplates;
+  module.exports = advancedTemplates;
 }
