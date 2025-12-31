@@ -212,11 +212,12 @@ const sectionTemplates = {
                 </div>
 
                 <div class="lp-pricing-toggle">
-                    <span class="lp-toggle-label lp-toggle-active">月額</span>
-                    <div class="lp-toggle-switch">
-                        <div class="lp-toggle-slider"></div>
-                    </div>
-                    <span class="lp-toggle-label">年額<span class="lp-toggle-badge">2ヶ月無料</span></span>
+                    <span class="lp-toggle-label">月額</span>
+                    <label class="lp-toggle-switch">
+                        <input type="checkbox">
+                        <span class="lp-toggle-slider"></span>
+                    </label>
+                    <span class="lp-toggle-label">年額<span class="lp-discount-badge">20% OFF</span></span>
                 </div>
 
                 <div class="lp-pricing-grid lp-pricing-grid-modern">
@@ -2000,12 +2001,13 @@ const sectionTemplates = {
             <div class="lp-content-wrapper lp-text-center">
                 <h2 class="lp-section-title">シンプルな料金体系</h2>
                 <p class="lp-section-subtitle">年間払いで20%お得</p>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 2rem 0;">
-                    <span style="color: #64748b;">月払い</span>
-                    <div style="width: 50px; height: 28px; background: #3b82f6; border-radius: 14px; cursor: pointer; position: relative;">
-                        <div style="width: 24px; height: 24px; background: white; border-radius: 50%; position: absolute; top: 2px; right: 2px; transition: all 0.3s;"></div>
-                    </div>
-                    <span style="color: #1e293b; font-weight: 600;">年払い <span style="color: #10b981; font-size: 0.85rem;">(20% OFF)</span></span>
+                <div class="lp-pricing-toggle">
+                    <span class="lp-toggle-label">月払い</span>
+                    <label class="lp-toggle-switch">
+                        <input type="checkbox">
+                        <span class="lp-toggle-slider"></span>
+                    </label>
+                    <span class="lp-toggle-label">年払い<span class="lp-discount-badge">20% OFF</span></span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; max-width: 1000px; margin-left: auto; margin-right: auto;">
                     <div style="background: white; padding: 2rem; border-radius: 12px; border: 2px solid #e2e8f0;">

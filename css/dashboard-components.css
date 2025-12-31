@@ -118,8 +118,8 @@
    ========================================== */
 
 .stats-card-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
   width: 100%;
 }
@@ -130,9 +130,7 @@
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  flex: 1 1 200px;
-  min-width: 200px;
-  max-width: 100%;
+  min-width: 0;
 }
 
 .stat-card-header {
@@ -810,9 +808,8 @@
     min-width: 280px;
   }
 
-  .stat-card {
-    flex: 1 1 calc(50% - 16px);
-    min-width: 200px;
+  .stats-card-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -842,9 +839,11 @@
     min-width: 100%;
   }
 
+  .stats-card-grid {
+    grid-template-columns: 1fr;
+  }
+
   .stat-card {
-    flex: 1 1 100%;
-    min-width: 100%;
     padding: 16px;
   }
 

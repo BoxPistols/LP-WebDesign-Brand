@@ -2951,3 +2951,83 @@ body.dark-mode .export-tab.active {
   color: var(--primary-color);
   background: #1e293b;
 }
+
+/* ==========================================
+   FOOTER NAVIGATION
+   ========================================== */
+
+.generator-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1e293b;
+  border-top: 1px solid #334155;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+}
+
+.footer-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.footer-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.footer-nav-link:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.footer-nav-link.active {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.footer-nav-link svg,
+.footer-nav-link i {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Adjust main content to account for footer */
+.main-content {
+  padding-bottom: 60px;
+}
+
+@media (max-width: 640px) {
+  .footer-nav {
+    gap: 0.5rem;
+  }
+
+  .footer-nav-link {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .footer-nav-link span {
+    display: none;
+  }
+
+  .footer-nav-link svg,
+  .footer-nav-link i {
+    width: 22px;
+    height: 22px;
+  }
+}

@@ -74,12 +74,17 @@ class DashboardGenerator {
       btn.addEventListener('click', (e) => this.handleThemeChange(e));
     });
 
-    // Component drag
+    // Component drag and preview
     document.querySelectorAll('.component-item').forEach((item) => {
       item.setAttribute('draggable', 'true');
       item.addEventListener('dragstart', (e) => this.handleComponentDragStart(e));
       item.addEventListener('dragend', (e) => this.handleComponentDragEnd(e));
+      item.addEventListener('mouseenter', (e) => this.showComponentPreview(e));
+      item.addEventListener('mouseleave', () => this.hideComponentPreview());
     });
+
+    // Create preview tooltip container
+    this.createPreviewTooltip();
 
     // Canvas drop - Add to both workspace and canvas for better coverage
     const workspace = document.getElementById('canvasWorkspace');
@@ -128,10 +133,19 @@ class DashboardGenerator {
       btn.addEventListener('click', (e) => this.handleZoom(e));
     });
 
+    // Zoom slider
+    const zoomSlider = document.getElementById('zoomSlider');
+    if (zoomSlider) {
+      zoomSlider.addEventListener('input', (e) => this.handleZoomSlider(e));
+    }
+
     // Device preview toggles
     document.querySelectorAll('.device-preview-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => this.handleDeviceChange(e));
     });
+
+    // Initialize current zoom level
+    this.currentZoom = 100;
   }
 
   handleDeviceChange(e) {
@@ -149,6 +163,9 @@ class DashboardGenerator {
     } else if (device === 'tablet') {
       workspace.classList.add('device-tablet');
     }
+
+    // Reapply current zoom to maintain canvas dimensions
+    this.applyZoom(this.currentZoom || 100);
 
     this.showNotification(
       `プレビュー: ${device === 'desktop' ? 'デスクトップ' : device === 'tablet' ? 'タブレット' : 'モバイル'}`
@@ -1153,20 +1170,51 @@ ${embeddedCSS}
 
   handleZoom(e) {
     const action = e.currentTarget.dataset.action;
-    const zoomLevel = document.querySelector('.zoom-level');
-    let currentZoom = parseInt(zoomLevel.textContent);
+    let currentZoom = this.currentZoom || 100;
 
-    if (action === 'zoom-in' && currentZoom < 200) {
+    if (action === 'zoom-in' && currentZoom < 150) {
       currentZoom += 10;
-    } else if (action === 'zoom-out' && currentZoom > 50) {
+    } else if (action === 'zoom-out' && currentZoom > 25) {
       currentZoom -= 10;
     }
 
-    zoomLevel.textContent = `${currentZoom}%`;
+    this.applyZoom(currentZoom);
+
+    // Update slider
+    const slider = document.getElementById('zoomSlider');
+    if (slider) {
+      slider.value = currentZoom;
+    }
+  }
+
+  handleZoomSlider(e) {
+    const currentZoom = parseInt(e.target.value);
+    this.applyZoom(currentZoom);
+  }
+
+  applyZoom(zoomPercent) {
+    this.currentZoom = zoomPercent;
+
+    const zoomLevel = document.querySelector('.zoom-level');
+    if (zoomLevel) {
+      zoomLevel.textContent = `${zoomPercent}%`;
+    }
 
     const canvas = document.getElementById('dashboardCanvas');
-    canvas.style.transform = `scale(${currentZoom / 100})`;
-    canvas.style.transformOrigin = 'top left';
+    const scale = zoomPercent / 100;
+    canvas.style.transform = `scale(${scale})`;
+    canvas.style.transformOrigin = 'top center';
+
+    // Adjust canvas height to maintain visual size when zoomed out
+    const baseHeight = 800;
+    const adjustedHeight = Math.max(baseHeight, baseHeight / scale);
+    canvas.style.minHeight = `${adjustedHeight}px`;
+
+    // Update slider
+    const slider = document.getElementById('zoomSlider');
+    if (slider && slider.value !== zoomPercent.toString()) {
+      slider.value = zoomPercent;
+    }
   }
 
   // Design Customization
@@ -1369,6 +1417,59 @@ ${embeddedCSS}
     this.showNotification('カラーをリセットしました');
   }
 
+  // Component Preview Tooltip
+  createPreviewTooltip() {
+    if (document.getElementById('componentPreviewTooltip')) return;
+
+    const tooltip = document.createElement('div');
+    tooltip.id = 'componentPreviewTooltip';
+    tooltip.className = 'component-preview-tooltip';
+    tooltip.innerHTML = `
+      <div class="preview-tooltip-header"></div>
+      <div class="preview-tooltip-content">
+        <div class="preview-scale"></div>
+      </div>
+    `;
+    document.body.appendChild(tooltip);
+    this.previewTooltip = tooltip;
+  }
+
+  showComponentPreview(e) {
+    const item = e.currentTarget;
+    const componentType = item.dataset.component;
+    const template = dashboardTemplates[componentType];
+
+    if (!template || !this.previewTooltip) return;
+
+    const header = this.previewTooltip.querySelector('.preview-tooltip-header');
+    const content = this.previewTooltip.querySelector('.preview-scale');
+
+    header.textContent = template.name;
+    content.innerHTML = template.html;
+
+    // Position tooltip to the right of the sidebar
+    const rect = item.getBoundingClientRect();
+    const tooltipWidth = 280;
+    const sidebarRight = document.querySelector('.db-sidebar')?.getBoundingClientRect().right || 300;
+
+    this.previewTooltip.style.left = `${sidebarRight + 10}px`;
+    this.previewTooltip.style.top = `${Math.max(60, rect.top - 20)}px`;
+
+    // Ensure tooltip doesn't go off screen
+    const maxTop = window.innerHeight - 260;
+    if (parseInt(this.previewTooltip.style.top) > maxTop) {
+      this.previewTooltip.style.top = `${maxTop}px`;
+    }
+
+    this.previewTooltip.classList.add('visible');
+  }
+
+  hideComponentPreview() {
+    if (this.previewTooltip) {
+      this.previewTooltip.classList.remove('visible');
+    }
+  }
+
   // Utilities
   generateId() {
     return `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -1395,16 +1496,22 @@ ${embeddedCSS}
     notification.textContent = message;
     notification.style.cssText = `
             position: fixed;
-            top: 20px;
+            bottom: 80px;
             right: 20px;
-            padding: 16px 24px;
+            padding: 12px 20px;
+            max-width: 320px;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
             background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
             color: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             z-index: 10000;
             font-family: 'Inter', sans-serif;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 500;
             animation: slideInRight 0.3s ease-out;
         `;
 

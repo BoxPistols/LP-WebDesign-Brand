@@ -687,11 +687,43 @@ body {
   background: white;
 }
 
+.zoom-slider {
+  width: 80px;
+  height: 4px;
+  appearance: none;
+  background: #cbd5e1;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.zoom-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--db-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.zoom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.zoom-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--db-primary);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
 .zoom-level {
   font-size: 13px;
   font-weight: 500;
   color: var(--db-text);
-  min-width: 50px;
+  min-width: 45px;
   text-align: center;
 }
 
@@ -701,10 +733,11 @@ body {
   overflow: auto;
   padding: 24px;
   background: var(--db-bg);
+  min-height: calc(100vh - 120px);
 }
 
 #dashboardCanvas {
-  min-height: 100%;
+  min-height: 800px;
   width: 100%;
   background: white;
   border-radius: 12px;
@@ -730,6 +763,7 @@ body {
 .canvas-workspace.device-tablet #dashboardCanvas {
   max-width: 768px;
   width: 100%;
+  min-height: 600px;
 }
 
 .canvas-workspace.device-mobile {
@@ -741,6 +775,7 @@ body {
 .canvas-workspace.device-mobile #dashboardCanvas {
   max-width: 375px;
   width: 100%;
+  min-height: 700px;
 }
 
 /* Empty Canvas State */
@@ -1735,11 +1770,16 @@ body {
 
 .db-notification {
   position: fixed;
-  bottom: 20px;
+  bottom: 80px;
   right: 20px;
-  padding: 14px 20px;
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  padding: 12px 20px;
+  max-width: 320px;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 10000;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
@@ -1782,4 +1822,132 @@ body {
     transform: translateX(100%);
     opacity: 0;
   }
+}
+
+/* ==========================================
+   FOOTER NAVIGATION
+   ========================================== */
+
+.generator-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1e293b;
+  border-top: 1px solid #334155;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+}
+
+.footer-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.footer-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.footer-nav-link:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.footer-nav-link.active {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.footer-nav-link svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Adjust app container to account for footer */
+.db-app-container {
+  padding-bottom: 50px;
+}
+
+@media (max-width: 640px) {
+  .footer-nav {
+    gap: 0.5rem;
+  }
+
+  .footer-nav-link {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .footer-nav-link span {
+    display: none;
+  }
+
+  .footer-nav-link svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* ==========================================
+   COMPONENT PREVIEW TOOLTIP
+   ========================================== */
+
+.component-preview-tooltip {
+  position: fixed;
+  z-index: 10001;
+  width: 280px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.95) translateY(5px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.component-preview-tooltip.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.preview-tooltip-header {
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.preview-tooltip-content {
+  padding: 12px;
+  background: #f1f5f9;
+  max-height: 200px;
+  overflow: hidden;
+}
+
+.preview-tooltip-content .preview-scale {
+  transform: scale(0.35);
+  transform-origin: top left;
+  width: 285%;
+  pointer-events: none;
+}
+
+.preview-tooltip-content .preview-scale * {
+  pointer-events: none !important;
 }
