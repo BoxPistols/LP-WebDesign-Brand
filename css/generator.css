@@ -1,5 +1,6 @@
+/* Generator-specific variables */
 :root {
-  /* Color Palette */
+  /* Color Palette - Generator specific */
   --primary-color: #3b82f6;
   --secondary-color: #3b82f6;
   --accent-color: #10b981;
@@ -23,11 +24,7 @@
   --font-display: 'Poppins', sans-serif;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Reset is handled by base.css or design-system.css */
 
 body {
   font-family: var(--font-primary);
@@ -194,6 +191,87 @@ body.dark-mode .sidebar-toggle svg {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+/* Section Accordion */
+.section-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.accordion-item {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-light);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.accordion-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.accordion-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  gap: 0.5rem;
+  transition: background 0.2s ease;
+}
+
+.accordion-header:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.accordion-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: left;
+}
+
+.accordion-title svg {
+  flex-shrink: 0;
+  color: var(--primary-color);
+}
+
+.accordion-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.125rem 0.5rem;
+  border-radius: 10px;
+}
+
+.accordion-chevron {
+  flex-shrink: 0;
+  color: #94a3b8;
+  transition: transform 0.3s ease;
+}
+
+.accordion-header[aria-expanded='true'] .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.accordion-content.open {
+  max-height: 1000px;
+  padding: 0 0.75rem 0.75rem;
 }
 
 /* Component Grid */
@@ -497,6 +575,12 @@ body.dark-mode .sidebar-toggle svg {
   display: flex;
   flex-direction: column;
   background: #f0f4f8;
+  overflow: hidden;
+}
+
+/* When zoomed, allow scrolling in preview-area */
+.preview-area.zoom-active {
+  overflow: auto;
 }
 
 .preview-toolbar {
@@ -655,11 +739,13 @@ body.dark-mode .sidebar-toggle svg {
   margin: var(--spacing-lg) auto;
 }
 
-/* Zoom Levels - Width based zoom, height stays 100% */
+/* Zoom Levels - Scale entire preview maintaining aspect ratio */
+/* Width is fixed to prevent responsive breakpoints from triggering */
 .preview-frame.zoomed {
-  margin-left: 0;
-  margin-right: auto;
-  transition: width 0.3s ease;
+  flex: none;
+  margin: var(--spacing-lg);
+  overflow: visible;
+  transition: transform 0.2s ease;
 }
 
 /* Empty State */
@@ -2476,8 +2562,10 @@ body.dark-mode .format-label small {
   box-shadow: 0 6px 24px rgba(59, 130, 246, 0.5);
 }
 
-.help-toggle svg {
+.help-toggle svg,
+.help-toggle [data-lucide] {
   stroke: white;
+  color: white;
 }
 
 .help-content {

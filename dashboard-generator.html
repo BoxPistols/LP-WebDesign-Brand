@@ -22,6 +22,8 @@
         class="sidebar-toggle sidebar-toggle-left"
         id="toggleLeftSidebar"
         title="サイドバーを開閉"
+        aria-label="左サイドバーを開閉"
+        aria-expanded="true"
       >
         <svg
           width="20"
@@ -84,16 +86,16 @@
 
         <!-- Layout Selection -->
         <section class="builder-section">
-          <h3 class="section-title">レイアウト</h3>
-          <div class="layout-options">
-            <button class="layout-btn active" data-layout="sidebar-left">
+          <h3 class="section-title" id="layoutSelectionTitle">レイアウト</h3>
+          <div class="layout-options" role="radiogroup" aria-labelledby="layoutSelectionTitle">
+            <button class="layout-btn active" data-layout="sidebar-left" role="radio" aria-checked="true">
               <div class="layout-preview">
                 <div class="preview-sidebar"></div>
                 <div class="preview-main"></div>
               </div>
               <span>左サイドバー</span>
             </button>
-            <button class="layout-btn" data-layout="topbar">
+            <button class="layout-btn" data-layout="topbar" role="radio" aria-checked="false">
               <div class="layout-preview">
                 <div class="preview-topbar"></div>
                 <div class="preview-content"></div>
@@ -776,6 +778,8 @@
         class="sidebar-toggle sidebar-toggle-right"
         id="toggleRightSidebar"
         title="プロパティパネルを開閉"
+        aria-label="プロパティパネルを開閉"
+        aria-expanded="true"
       >
         <svg
           width="20"

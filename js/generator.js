@@ -29,7 +29,68 @@ class LandingPageGenerator {
     this.setupHelpPanel();
     this.setupWelcomeModal();
     this.setupZoomControls();
+    this.setupSectionAccordion();
     this.draggedItem = null;
+  }
+
+  setupSectionAccordion() {
+    const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+    accordionHeaders.forEach((header) => {
+      header.addEventListener('click', () => {
+        const accordionItem = header.closest('.accordion-item');
+        const content = accordionItem.querySelector('.accordion-content');
+        const isExpanded = header.getAttribute('aria-expanded') === 'true';
+
+        // Toggle current accordion
+        header.setAttribute('aria-expanded', !isExpanded);
+        content.classList.toggle('open', !isExpanded);
+
+        // Save accordion state to localStorage
+        this.saveAccordionState();
+      });
+    });
+
+    // Restore accordion state from localStorage
+    this.restoreAccordionState();
+  }
+
+  saveAccordionState() {
+    const accordionItems = document.querySelectorAll('.accordion-item');
+    const state = {};
+
+    accordionItems.forEach((item) => {
+      const accordionId = item.dataset.accordion;
+      const isExpanded =
+        item.querySelector('.accordion-header').getAttribute('aria-expanded') === 'true';
+      state[accordionId] = isExpanded;
+    });
+
+    localStorage.setItem('lpAccordionState', JSON.stringify(state));
+  }
+
+  restoreAccordionState() {
+    const savedState = localStorage.getItem('lpAccordionState');
+    if (!savedState) return;
+
+    try {
+      const state = JSON.parse(savedState);
+      const accordionItems = document.querySelectorAll('.accordion-item');
+
+      accordionItems.forEach((item) => {
+        const accordionId = item.dataset.accordion;
+        if (accordionId in state) {
+          const header = item.querySelector('.accordion-header');
+          const content = item.querySelector('.accordion-content');
+          const isExpanded = state[accordionId];
+
+          header.setAttribute('aria-expanded', isExpanded);
+          content.classList.toggle('open', isExpanded);
+        }
+      });
+    } catch (e) {
+      console.warn('Failed to restore accordion state:', e);
+    }
   }
 
   setupSidebarToggle() {
@@ -58,22 +119,40 @@ class LandingPageGenerator {
     const zoomFit = document.getElementById('zoomFit');
     const zoomReset = document.getElementById('zoomReset');
     const previewFrame = document.getElementById('previewFrame');
+    const previewArea = document.querySelector('.preview-area');
 
     if (!zoomSlider || !previewFrame) return;
 
-    // Apply zoom level (width only, height stays 100%)
+    // Store original dimensions for zoom calculations
+    let baseWidth = null;
+    let baseHeight = null;
+
+    // Apply zoom level (scale entire preview, maintain aspect ratio)
     const applyZoom = (level) => {
       this.zoomLevel = Math.max(25, Math.min(100, level));
-
-      // Only change width, keep height at 100%
-      previewFrame.style.width = `${this.zoomLevel}%`;
-      previewFrame.style.transform = '';
-      previewFrame.style.minHeight = '100%';
+      const scale = this.zoomLevel / 100;
 
       if (this.zoomLevel < 100) {
+        // Fix dimensions to prevent responsive breakpoints from triggering
+        if (!baseWidth) {
+          baseWidth = previewFrame.offsetWidth;
+          baseHeight = previewFrame.scrollHeight;
+        }
+        previewFrame.style.width = `${baseWidth}px`;
+        previewFrame.style.height = `${baseHeight}px`;
+        previewFrame.style.transform = `scale(${scale})`;
+        previewFrame.style.transformOrigin = 'top left';
         previewFrame.classList.add('zoomed');
+        previewArea?.classList.add('zoom-active');
       } else {
+        // Reset to normal
+        previewFrame.style.width = '';
+        previewFrame.style.height = '';
+        previewFrame.style.transform = '';
         previewFrame.classList.remove('zoomed');
+        previewArea?.classList.remove('zoom-active');
+        baseWidth = null;
+        baseHeight = null;
       }
 
       zoomSlider.value = this.zoomLevel;
@@ -994,6 +1073,11 @@ class LandingPageGenerator {
         filename = `LandingPage-${Date.now()}.tsx`;
         formatLabel = 'shadcn/ui (React)';
         break;
+      case 'mui':
+        code = this.generateMUI();
+        filename = `LandingPage-${Date.now()}.tsx`;
+        formatLabel = 'MUI (React)';
+        break;
       case 'html':
       default:
         code = await this.generateCustomCSSHTML();
@@ -1193,8 +1277,8 @@ class LandingPageGenerator {
     // Get language setting from enhanced generator if available
     const lang = window.enhancedGenerator?.seoData?.lang || 'ja';
 
-    // Load CSS asynchronously
-    const inlineCSS = await this.getInlineCSS();
+    // CDN URLs for CSS (via jsDelivr from GitHub)
+    const cdnBase = 'https://cdn.jsdelivr.net/gh/BoxPistols/LP-WebDesign-Brand@main/css';
 
     return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -1205,9 +1289,9 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <style>
-        ${inlineCSS}
-    </style>
+    <!-- Landing Page Styles via CDN -->
+    <link rel="stylesheet" href="${cdnBase}/landing-page.css">
+    <link rel="stylesheet" href="${cdnBase}/advanced-components.css">
 </head>
 <body>
     <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
@@ -1270,8 +1354,9 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <!-- External CSS file - download separately -->
+    <!-- External CSS files - download separately -->
     <link rel="stylesheet" href="landing-page.css">
+    <link rel="stylesheet" href="advanced-components.css">
 </head>
 <body>
     <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
@@ -1331,12 +1416,57 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     // Get theme colors
     const themeColors = this.getThemeColors();
 
-    return `<!DOCTYPE html>
+    return `<!--
+============================================
+環境構築ガイド (Tailwind CSS Setup Guide)
+============================================
+
+【CDN版（このファイルのまま使用）】
+  このHTMLファイルをそのままブラウザで開けば動作します。
+  本番環境では以下のビルド版を推奨します。
+
+【ビルド版（推奨）】
+1. プロジェクト作成:
+   npm create vite@latest my-landing-page -- --template vanilla
+   cd my-landing-page
+
+2. Tailwind CSS インストール:
+   npm install -D tailwindcss postcss autoprefixer
+   npx tailwindcss init -p
+
+3. tailwind.config.js を編集:
+   module.exports = {
+     content: ["./*.html", "./src/**/*.{js,ts}"],
+     theme: {
+       extend: {
+         colors: {
+           primary: '${themeColors.primary}',
+           secondary: '${themeColors.secondary}',
+         }
+       }
+     }
+   }
+
+4. src/style.css を作成:
+   @tailwind base;
+   @tailwind components;
+   @tailwind utilities;
+
+5. index.html の <script src="https://cdn.tailwindcss.com"> を削除し、
+   CSSファイルをリンク: <link rel="stylesheet" href="./src/style.css">
+
+6. 開発サーバー起動:
+   npm run dev
+
+============================================
+-->
+<!DOCTYPE html>
 <html lang="${lang}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ${seoMetaTags || '    <title>My Landing Page</title>'}
+    <!-- CDN版: 開発用。本番ではビルド版を使用してください -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1563,32 +1693,59 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 
   generateShadcnUI() {
     const themeColors = this.getThemeColors();
-    const lang = window.enhancedGenerator?.seoData?.lang || 'ja';
 
     // Convert HTML sections to React components
     const sectionComponents = this.sections
-      .map((section, index) => {
-        return this.convertToReactComponent(section, index);
+      .map((section) => {
+        return this.convertToReactComponent(section);
       })
-      .join('\n\n');
+      .join('\n');
 
     // Generate imports based on used components
     const imports = this.getShadcnImports();
 
-    return `// Generated by LP Generator - shadcn/ui React Component
-// Install dependencies: npx shadcn-ui@latest init
-// Then add required components: npx shadcn-ui@latest add button card input
+    // Get required shadcn components
+    const requiredComponents = this.getRequiredShadcnComponents();
+
+    return `/**
+ * Generated by LP Generator - shadcn/ui React Component
+ *
+ * ============================================
+ * 環境構築ガイド (Setup Guide)
+ * ============================================
+ *
+ * 1. プロジェクト作成 (Create Project):
+ *    npx create-next-app@latest my-landing-page --typescript --tailwind --eslint
+ *    cd my-landing-page
+ *
+ * 2. shadcn/ui 初期化 (Initialize shadcn/ui):
+ *    npx shadcn@latest init
+ *    - Style: Default
+ *    - Base color: Slate
+ *    - CSS variables: Yes
+ *
+ * 3. 必要なコンポーネントをインストール (Install Components):
+ *    npx shadcn@latest add ${requiredComponents.join(' ')}
+ *
+ * 4. globals.css でカラー変数を設定 (Set Color Variables):
+ *    :root {
+ *      --primary: ${this.hexToHSL(themeColors.primary)};
+ *      --secondary: ${this.hexToHSL(themeColors.secondary)};
+ *    }
+ *
+ * 5. このファイルを配置 (Place this file):
+ *    app/page.tsx または components/LandingPage.tsx
+ *
+ * 6. 開発サーバー起動 (Start Dev Server):
+ *    npm run dev
+ *
+ * ============================================
+ */
 
 'use client';
 
 import React from 'react';
 ${imports}
-
-// Theme colors from LP Generator
-const themeColors = {
-  primary: '${themeColors.primary}',
-  secondary: '${themeColors.secondary}',
-};
 
 export default function LandingPage() {
   return (
@@ -1604,6 +1761,54 @@ ${sectionComponents}
 
 ${this.generateShadcnSectionComponents()}
 `;
+  }
+
+  getRequiredShadcnComponents() {
+    const components = new Set(['button']);
+
+    this.sections.forEach((section) => {
+      if (section.type.includes('features') || section.type.includes('pricing') || section.type.includes('testimonial')) {
+        components.add('card');
+      }
+      if (section.type.includes('contact') || section.type.includes('newsletter')) {
+        components.add('input');
+        components.add('label');
+        components.add('textarea');
+      }
+      if (section.type.includes('faq') || section.type.includes('accordion')) {
+        components.add('accordion');
+      }
+      if (section.type.includes('pricing')) {
+        components.add('badge');
+      }
+    });
+
+    return Array.from(components).sort();
+  }
+
+  hexToHSL(hex) {
+    // Convert hex to HSL for CSS variables
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+      h = s = 0;
+    } else {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+        case g: h = ((b - r) / d + 2) / 6; break;
+        case b: h = ((r - g) / d + 4) / 6; break;
+      }
+    }
+
+    return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
   }
 
   convertToReactComponent(section, index) {
@@ -2237,16 +2442,447 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
+  // ==========================================
+  // MUI (Material UI) Export Methods
+  // ==========================================
+
+  generateMUI() {
+    const themeColors = this.getThemeColors();
+
+    const sectionComponents = this.sections
+      .map((section) => `        <${this.pascalCase(section.type)} />`)
+      .join('\n');
+
+    const imports = this.getMUIImports();
+
+    return `/**
+ * Generated by LP Generator - MUI (Material UI) React Component
+ *
+ * ============================================
+ * 環境構築ガイド (Setup Guide)
+ * ============================================
+ *
+ * 1. プロジェクト作成 (Create Project):
+ *    npx create-next-app@latest my-landing-page --typescript
+ *    cd my-landing-page
+ *
+ * 2. 依存関係インストール (Install Dependencies):
+ *    npm install @mui/material @mui/icons-material @emotion/react @emotion/styled
+ *
+ * 3. フォントの設定 (Font Setup - app/layout.tsx):
+ *    import { Inter } from 'next/font/google';
+ *    const inter = Inter({ subsets: ['latin'] });
+ *
+ * 4. このファイルを配置 (Place this file):
+ *    app/page.tsx または components/LandingPage.tsx
+ *
+ * 5. 開発サーバー起動 (Start Dev Server):
+ *    npm run dev
+ *
+ * ============================================
+ */
+
+'use client';
+
+import React from 'react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+${imports}
+
+const theme = createTheme({
+  palette: {
+    primary: { main: '${themeColors.primary}' },
+    secondary: { main: '${themeColors.secondary}' },
+  },
+  typography: {
+    fontFamily: '"Inter", "Noto Sans JP", sans-serif',
+    h1: { fontWeight: 700 },
+    h2: { fontWeight: 700 },
+  },
+  shape: { borderRadius: 12 },
+});
+
+export default function LandingPage() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+${sectionComponents}
+      </Box>
+    </ThemeProvider>
+  );
+}
+
+${this.generateMUISectionComponents()}
+`;
+  }
+
+  getMUIImports() {
+    // Collect components by package
+    const materialComponents = new Set(['Box', 'Container', 'Typography', 'Button', 'Grid']);
+    const iconComponents = new Set();
+
+    this.sections.forEach((section) => {
+      if (section.type.includes('features') || section.type.includes('pricing') || section.type.includes('testimonial')) {
+        materialComponents.add('Card');
+        materialComponents.add('CardContent');
+      }
+      if (section.type.includes('contact') || section.type.includes('newsletter')) {
+        materialComponents.add('TextField');
+        materialComponents.add('Paper');
+      }
+      if (section.type.includes('faq')) {
+        materialComponents.add('Accordion');
+        materialComponents.add('AccordionSummary');
+        materialComponents.add('AccordionDetails');
+        iconComponents.add('ExpandMore');
+      }
+      if (section.type.includes('pricing')) {
+        materialComponents.add('Chip');
+        materialComponents.add('List');
+        materialComponents.add('ListItem');
+        materialComponents.add('ListItemIcon');
+        materialComponents.add('ListItemText');
+        iconComponents.add('Check');
+      }
+      if (section.type.includes('stats')) {
+        materialComponents.add('Paper');
+      }
+      if (section.type.includes('testimonial')) {
+        materialComponents.add('Avatar');
+      }
+      if (section.type.includes('footer')) {
+        materialComponents.add('Stack');
+        materialComponents.add('Link');
+        materialComponents.add('Divider');
+        materialComponents.add('IconButton');
+      }
+    });
+
+    // Generate grouped imports
+    const imports = [];
+
+    // Material UI components (single line)
+    const materialList = Array.from(materialComponents).sort();
+    imports.push(`import { ${materialList.join(', ')} } from '@mui/material';`);
+
+    // Icons (if any)
+    if (iconComponents.size > 0) {
+      const iconList = Array.from(iconComponents).sort().map(name => `${name} as ${name}Icon`);
+      imports.push(`import { ${iconList.join(', ')} } from '@mui/icons-material';`);
+    }
+
+    return imports.join('\n');
+  }
+
+  generateMUISectionComponents() {
+    const components = [];
+    const generatedTypes = new Set();
+
+    this.sections.forEach((section) => {
+      if (generatedTypes.has(section.type)) return;
+      generatedTypes.add(section.type);
+      components.push(this.generateMUIComponent(section));
+    });
+
+    return components.join('\n\n');
+  }
+
+  generateMUIComponent(section) {
+    const name = this.pascalCase(section.type);
+    const type = section.type;
+
+    if (type.includes('hero')) return this.muiHero(name);
+    if (type.includes('features')) return this.muiFeatures(name);
+    if (type.includes('pricing')) return this.muiPricing(name);
+    if (type.includes('testimonial')) return this.muiTestimonials(name);
+    if (type.includes('cta')) return this.muiCta(name);
+    if (type.includes('faq')) return this.muiFaq(name);
+    if (type.includes('contact')) return this.muiContact(name);
+    if (type.includes('newsletter')) return this.muiNewsletter(name);
+    if (type.includes('stats')) return this.muiStats(name);
+    if (type.includes('footer')) return this.muiFooter(name);
+    return this.muiGeneric(name, type);
+  }
+
+  muiHero(name) {
+    return `function ${name}() {
+  return (
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', background: (t) => \`linear-gradient(135deg, \${t.palette.primary.main}, \${t.palette.secondary.main})\`, color: 'white', py: { xs: 8, md: 12 }, px: 2 }}>
+      <Container maxWidth="lg">
+        <Box sx={{ maxWidth: 800 }}>
+          <Typography variant="h1" sx={{ fontSize: { xs: '2.5rem', md: '4rem' }, mb: 3 }}>あなたのビジネスを次のレベルへ</Typography>
+          <Typography variant="h5" sx={{ mb: 4, opacity: 0.9 }}>革新的なソリューションで、ビジネスの成長を加速させましょう。</Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Button variant="contained" size="large" sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}>今すぐ始める</Button>
+            <Button variant="outlined" size="large" sx={{ borderColor: 'white', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}>詳しく見る</Button>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
+  muiFeatures(name) {
+    return `function ${name}() {
+  const features = [
+    { title: '高速パフォーマンス', description: '最新技術により、高速で安定したパフォーマンスを実現します。', icon: '⚡' },
+    { title: 'セキュリティ', description: '業界最高水準のセキュリティで、大切なデータを保護します。', icon: '🔒' },
+    { title: '24時間サポート', description: '専門チームが24時間体制でサポートいたします。', icon: '💬' },
+  ];
+  return (
+    <Box sx={{ py: { xs: 8, md: 12 }, px: 2, bgcolor: 'background.paper' }}>
+      <Container maxWidth="lg">
+        <Box sx={{ textAlign: 'center', mb: 8 }}>
+          <Typography variant="h2" sx={{ fontSize: { xs: '2rem', md: '2.5rem' }, mb: 2 }}>主な機能</Typography>
+          <Typography color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>最高の体験を提供するための機能をご紹介します</Typography>
+        </Box>
+        <Grid container spacing={4}>
+          {features.map((f, i) => (
+            <Grid item xs={12} md={4} key={i}>
+              <Card elevation={0} sx={{ height: '100%', p: 3, border: '1px solid', borderColor: 'divider', '&:hover': { boxShadow: 4, transform: 'translateY(-4px)' }, transition: 'all 0.3s' }}>
+                <CardContent>
+                  <Typography sx={{ fontSize: '3rem', mb: 2 }}>{f.icon}</Typography>
+                  <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 600 }}>{f.title}</Typography>
+                  <Typography variant="body2" color="text.secondary">{f.description}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
+  muiPricing(name) {
+    return `function ${name}() {
+  const plans = [
+    { name: 'スターター', price: '¥980', period: '/月', description: '個人利用に最適', features: ['基本機能', 'メールサポート', '1GB ストレージ'], featured: false },
+    { name: 'プロ', price: '¥2,980', period: '/月', description: 'チーム利用に最適', features: ['全機能', '優先サポート', '10GB ストレージ', 'API アクセス'], featured: true },
+    { name: 'エンタープライズ', price: 'お問合せ', period: '', description: '大規模組織向け', features: ['カスタム機能', '専用サポート', '無制限ストレージ'], featured: false },
+  ];
+  return (
+    <Box sx={{ py: { xs: 8, md: 12 }, px: 2, bgcolor: 'grey.50' }}>
+      <Container maxWidth="lg">
+        <Box sx={{ textAlign: 'center', mb: 8 }}>
+          <Typography variant="h2" sx={{ fontSize: { xs: '2rem', md: '2.5rem' }, mb: 2 }}>料金プラン</Typography>
+        </Box>
+        <Grid container spacing={4} justifyContent="center">
+          {plans.map((plan, i) => (
+            <Grid item xs={12} md={4} key={i}>
+              <Card elevation={plan.featured ? 8 : 1} sx={{ height: '100%', position: 'relative', border: plan.featured ? 2 : 0, borderColor: 'primary.main', transform: plan.featured ? 'scale(1.05)' : 'none' }}>
+                {plan.featured && <Chip label="人気" color="primary" size="small" sx={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)' }} />}
+                <CardContent sx={{ p: 4 }}>
+                  <Typography variant="h6" sx={{ mb: 1 }}>{plan.name}</Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>{plan.description}</Typography>
+                  <Box sx={{ mb: 3 }}><Typography variant="h3" component="span" sx={{ fontWeight: 700 }}>{plan.price}</Typography><Typography variant="body2" component="span" color="text.secondary">{plan.period}</Typography></Box>
+                  <List dense>{plan.features.map((f, j) => <ListItem key={j} disableGutters><ListItemIcon sx={{ minWidth: 36 }}><CheckIcon color="primary" fontSize="small" /></ListItemIcon><ListItemText primary={f} /></ListItem>)}</List>
+                  <Button variant={plan.featured ? 'contained' : 'outlined'} fullWidth sx={{ mt: 2 }}>選択する</Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
+  muiTestimonials(name) {
+    return `function ${name}() {
+  const testimonials = [
+    { name: '田中 太郎', role: 'CEO', content: 'このサービスのおかげで、業務効率が劇的に向上しました。', avatar: 'T' },
+    { name: '鈴木 花子', role: 'マーケティング部長', content: 'サポートが素晴らしく、困った時にすぐに対応してもらえます。', avatar: 'S' },
+    { name: '山田 次郎', role: 'フリーランス', content: '直感的な操作性で、すぐに使いこなせました。', avatar: 'Y' },
+  ];
+  return (
+    <Box sx={{ py: { xs: 8, md: 12 }, px: 2, bgcolor: 'background.paper' }}>
+      <Container maxWidth="lg">
+        <Box sx={{ textAlign: 'center', mb: 8 }}><Typography variant="h2" sx={{ fontSize: { xs: '2rem', md: '2.5rem' }, mb: 2 }}>お客様の声</Typography></Box>
+        <Grid container spacing={4}>
+          {testimonials.map((t, i) => (
+            <Grid item xs={12} md={4} key={i}>
+              <Card elevation={2} sx={{ height: '100%', p: 3 }}>
+                <CardContent>
+                  <Typography sx={{ mb: 3, fontStyle: 'italic' }}>"{t.content}"</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Avatar sx={{ bgcolor: 'primary.main' }}>{t.avatar}</Avatar>
+                    <Box><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{t.name}</Typography><Typography variant="caption" color="text.secondary">{t.role}</Typography></Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
+  muiCta(name) {
+    return `function ${name}() {
+  return (
+    <Box sx={{ py: { xs: 8, md: 12 }, px: 2, background: (t) => \`linear-gradient(135deg, \${t.palette.primary.main}, \${t.palette.secondary.main})\`, color: 'white', textAlign: 'center' }}>
+      <Container maxWidth="md">
+        <Typography variant="h2" sx={{ fontSize: { xs: '2rem', md: '2.5rem' }, mb: 2 }}>今すぐ始めましょう</Typography>
+        <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>14日間の無料トライアルで、すべての機能をお試しいただけます</Typography>
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Button variant="contained" size="large" sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}>無料で始める</Button>
+          <Button variant="outlined" size="large" sx={{ borderColor: 'white', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}>お問い合わせ</Button>
+        </Box>
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
+  muiFaq(name) {
+    return `function ${name}() {
+  const faqs = [
+    { q: '無料トライアルは何日間ですか？', a: '14日間の無料トライアルをご用意しています。' },
+    { q: 'いつでも解約できますか？', a: 'はい、いつでも解約可能です。' },
+    { q: 'サポート体制について教えてください', a: 'メール、チャット、電話でのサポートを提供しています。' },
+  ];
+  return (
+    <Box sx={{ py: { xs: 8, md: 12 }, px: 2, bgcolor: 'background.paper' }}>
+      <Container maxWidth="md">
+        <Box sx={{ textAlign: 'center', mb: 8 }}><Typography variant="h2" sx={{ fontSize: { xs: '2rem', md: '2.5rem' }, mb: 2 }}>よくある質問</Typography></Box>
+        {faqs.map((f, i) => (
+          <Accordion key={i} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', mb: 1 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}><Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{f.q}</Typography></AccordionSummary>
+            <AccordionDetails><Typography variant="body2" color="text.secondary">{f.a}</Typography></AccordionDetails>
+          </Accordion>
+        ))}
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
+  muiContact(name) {
+    return `function ${name}() {
+  return (
+    <Box sx={{ py: { xs: 8, md: 12 }, px: 2, bgcolor: 'grey.50' }}>
+      <Container maxWidth="md">
+        <Box sx={{ textAlign: 'center', mb: 8 }}><Typography variant="h2" sx={{ fontSize: { xs: '2rem', md: '2.5rem' }, mb: 2 }}>お問い合わせ</Typography></Box>
+        <Paper elevation={3} sx={{ p: { xs: 3, md: 5 } }}>
+          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}><TextField fullWidth label="お名前" required /></Grid>
+              <Grid item xs={12} md={6}><TextField fullWidth label="メールアドレス" type="email" required /></Grid>
+            </Grid>
+            <TextField fullWidth label="件名" required />
+            <TextField fullWidth label="メッセージ" multiline rows={5} required />
+            <Button variant="contained" size="large" type="submit" sx={{ alignSelf: 'center', px: 6 }}>送信する</Button>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
+  muiNewsletter(name) {
+    return `function ${name}() {
+  return (
+    <Box sx={{ py: { xs: 6, md: 8 }, px: 2, bgcolor: 'primary.main', color: 'white' }}>
+      <Container maxWidth="md">
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="h4" sx={{ mb: 2 }}>ニュースレターに登録</Typography>
+          <Typography sx={{ mb: 4, opacity: 0.9 }}>最新情報やお得な情報をお届けします</Typography>
+          <Box component="form" sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap', maxWidth: 500, mx: 'auto' }}>
+            <TextField placeholder="メールアドレス" size="small" sx={{ flex: 1, minWidth: 250, bgcolor: 'white', borderRadius: 1 }} />
+            <Button variant="contained" sx={{ bgcolor: 'secondary.main', '&:hover': { bgcolor: 'secondary.dark' } }}>登録</Button>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
+  muiStats(name) {
+    return `function ${name}() {
+  const stats = [{ value: '10K+', label: 'アクティブユーザー' }, { value: '99.9%', label: '稼働率' }, { value: '24/7', label: 'サポート対応' }, { value: '50+', label: '導入企業' }];
+  return (
+    <Box sx={{ py: { xs: 6, md: 8 }, px: 2, bgcolor: 'background.paper' }}>
+      <Container maxWidth="lg">
+        <Grid container spacing={4}>
+          {stats.map((s, i) => (
+            <Grid item xs={6} md={3} key={i}>
+              <Paper elevation={0} sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.50', borderRadius: 2 }}>
+                <Typography variant="h3" sx={{ fontWeight: 700, color: 'primary.main', mb: 1 }}>{s.value}</Typography>
+                <Typography variant="body2" color="text.secondary">{s.label}</Typography>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
+  muiFooter(name) {
+    return `function ${name}() {
+  const links = [{ title: '製品', items: ['機能', '料金', '導入事例'] }, { title: '会社情報', items: ['会社概要', 'ブログ', '採用情報'] }, { title: 'サポート', items: ['ヘルプセンター', 'API ドキュメント', 'ステータス'] }];
+  return (
+    <Box sx={{ bgcolor: 'grey.900', color: 'white', py: { xs: 6, md: 8 }, px: 2 }}>
+      <Container maxWidth="lg">
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={4}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>LP Generator</Typography>
+            <Typography variant="body2" sx={{ color: 'grey.400', mb: 3 }}>美しいランディングページを簡単に作成できるサービスです。</Typography>
+            <Stack direction="row" spacing={1}>{['T', 'F', 'L'].map((s) => <IconButton key={s} size="small" sx={{ color: 'grey.400', '&:hover': { color: 'white' } }}><Typography variant="caption">{s}</Typography></IconButton>)}</Stack>
+          </Grid>
+          {links.map((section, i) => (
+            <Grid item xs={6} md={2} key={i}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>{section.title}</Typography>
+              <Stack spacing={1}>{section.items.map((link, j) => <Link key={j} href="#" underline="hover" sx={{ color: 'grey.400', fontSize: '0.875rem', '&:hover': { color: 'white' } }}>{link}</Link>)}</Stack>
+            </Grid>
+          ))}
+        </Grid>
+        <Divider sx={{ my: 4, borderColor: 'grey.800' }} />
+        <Typography variant="body2" sx={{ color: 'grey.500', textAlign: 'center' }}>© {new Date().getFullYear()} LP Generator. All rights reserved.</Typography>
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
+  muiGeneric(name, type) {
+    return `function ${name}() {
+  return (
+    <Box sx={{ py: { xs: 8, md: 12 }, px: 2, bgcolor: 'background.paper' }}>
+      <Container maxWidth="lg">
+        <Card elevation={1}>
+          <CardContent sx={{ p: 4 }}>
+            <Typography variant="h5" sx={{ mb: 2 }}>${name} Section</Typography>
+            <Typography variant="body2" color="text.secondary">Placeholder for ${type} section. Customize as needed.</Typography>
+          </CardContent>
+        </Card>
+      </Container>
+    </Box>
+  );
+}`;
+  }
+
   async getInlineCSS() {
-    // In a real implementation, this would fetch the CSS file content
-    // For now, we'll return a placeholder that references the external file
+    // Load both landing-page.css and advanced-components.css
     try {
-      const response = await fetch('css/landing-page.css');
-      const css = await response.text();
-      return css;
+      const [landingPageCSS, advancedComponentsCSS] = await Promise.all([
+        fetch('css/landing-page.css').then(r => r.text()),
+        fetch('css/advanced-components.css').then(r => r.text())
+      ]);
+      return `/* Landing Page Styles */\n${landingPageCSS}\n\n/* Advanced Components */\n${advancedComponentsCSS}`;
     } catch (error) {
       console.error('Failed to load CSS:', error);
-      return '/* CSS loading failed - please include css/landing-page.css manually */';
+      return '/* CSS loading failed - please include css/landing-page.css and css/advanced-components.css manually */';
     }
   }
 
@@ -2698,7 +3334,7 @@ ${this.generateShadcnSectionComponents()}
     notification.textContent = message;
     notification.style.cssText = `
             position: fixed;
-            top: 20px;
+            bottom: 20px;
             right: 20px;
             padding: 16px 24px;
             background: ${type === 'success' ? '#48bb78' : type === 'error' ? '#f56565' : '#4299e1'};

@@ -1704,6 +1704,24 @@ body {
   color: #3b82f6;
 }
 
+/* Outline button for light/colored backgrounds */
+.lp-btn-outline-light {
+  padding: 0.875rem 1.75rem;
+  background: transparent;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lp-btn-outline-light:hover {
+  background: white;
+  color: var(--lp-primary, #3b82f6);
+  border-color: white;
+}
+
 /* ==========================================
    RESPONSIVE - MODERN SECTIONS
    ========================================== */
@@ -2007,6 +2025,35 @@ body {
   display: block;
   width: 100%;
   text-align: center;
+}
+
+/* ==========================================
+   BUTTON OVERRIDES FOR COLORED BACKGROUNDS
+   ========================================== */
+
+/* Override button colors on hero sections and gradient backgrounds */
+.lp-hero .lp-btn-secondary,
+.lp-hero .lp-btn-outline,
+.lp-hero-modern .lp-btn-secondary,
+.lp-hero-modern .lp-btn-outline,
+section[style*="linear-gradient"] .lp-btn-secondary,
+section[style*="linear-gradient"] .lp-btn-outline,
+section[style*="background:"][style*="color: white"] .lp-btn-secondary,
+section[style*="background:"][style*="color: white"] .lp-btn-outline {
+  background: transparent;
+  color: white;
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.lp-hero .lp-btn-secondary:hover,
+.lp-hero .lp-btn-outline:hover,
+.lp-hero-modern .lp-btn-secondary:hover,
+.lp-hero-modern .lp-btn-outline:hover,
+section[style*="linear-gradient"] .lp-btn-secondary:hover,
+section[style*="linear-gradient"] .lp-btn-outline:hover {
+  background: white;
+  color: var(--lp-primary, #3b82f6);
+  border-color: white;
 }
 
 /* ==========================================
