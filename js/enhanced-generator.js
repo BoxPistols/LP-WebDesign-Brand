@@ -680,93 +680,124 @@ export default {
   // ==========================================
 
   setupDesignCustomization() {
-    document.addEventListener('DOMContentLoaded', () => {
-      // Font Family
-      const fontFamilySelect = document.getElementById('fontFamilySelect');
-      if (fontFamilySelect) {
-        fontFamilySelect.addEventListener('change', (e) => {
-          this.designSettings.fontFamily = e.target.value;
-          this.applyFontFamily(e.target.value);
-        });
-      }
+    // Font Family
+    const fontFamilySelect = document.getElementById('fontFamilySelect');
+    if (fontFamilySelect) {
+      fontFamilySelect.addEventListener('change', (e) => {
+        this.designSettings.fontFamily = e.target.value;
+        this.applyFontFamily(e.target.value);
+      });
+    }
 
-      // Font Size Scale
-      const fontSizeScale = document.getElementById('fontSizeScale');
-      if (fontSizeScale) {
-        fontSizeScale.addEventListener('change', (e) => {
-          this.designSettings.fontSizeScale = parseFloat(e.target.value);
-          this.applyFontSizeScale(parseFloat(e.target.value));
-        });
-      }
+    // Font Size Scale
+    const fontSizeScale = document.getElementById('fontSizeScale');
+    if (fontSizeScale) {
+      fontSizeScale.addEventListener('change', (e) => {
+        this.designSettings.fontSizeScale = parseFloat(e.target.value);
+        this.applyFontSizeScale(parseFloat(e.target.value));
+      });
+    }
 
-      // Spacing Scale
-      const spacingScale = document.getElementById('spacingScale');
-      if (spacingScale) {
-        spacingScale.addEventListener('change', (e) => {
-          this.designSettings.spacingScale = parseFloat(e.target.value);
-          this.applySpacingScale(parseFloat(e.target.value));
-        });
-      }
+    // Spacing Scale
+    const spacingScale = document.getElementById('spacingScale');
+    if (spacingScale) {
+      spacingScale.addEventListener('change', (e) => {
+        this.designSettings.spacingScale = parseFloat(e.target.value);
+        this.applySpacingScale(parseFloat(e.target.value));
+      });
+    }
 
-      // Border Radius
-      const borderRadiusStyle = document.getElementById('borderRadiusStyle');
-      if (borderRadiusStyle) {
-        borderRadiusStyle.addEventListener('change', (e) => {
-          this.designSettings.borderRadius = parseInt(e.target.value);
-          this.applyBorderRadius(parseInt(e.target.value));
-        });
-      }
+    // Border Radius
+    const borderRadiusStyle = document.getElementById('borderRadiusStyle');
+    if (borderRadiusStyle) {
+      borderRadiusStyle.addEventListener('change', (e) => {
+        this.designSettings.borderRadius = parseInt(e.target.value);
+        this.applyBorderRadius(parseInt(e.target.value));
+      });
+    }
 
-      // Custom Colors
-      const primaryColor = document.getElementById('primaryColor');
-      const secondaryColor = document.getElementById('secondaryColor');
-      const accentColor = document.getElementById('accentColor');
+    // Custom Colors
+    const primaryColor = document.getElementById('primaryColor');
+    const secondaryColor = document.getElementById('secondaryColor');
+    const accentColor = document.getElementById('accentColor');
 
-      if (primaryColor) {
-        primaryColor.addEventListener('change', (e) => {
-          this.designSettings.primaryColor = e.target.value;
-          this.applyCustomColors();
-        });
-      }
+    if (primaryColor) {
+      primaryColor.addEventListener('change', (e) => {
+        this.designSettings.primaryColor = e.target.value;
+        this.applyCustomColors();
+      });
+    }
 
-      if (secondaryColor) {
-        secondaryColor.addEventListener('change', (e) => {
-          this.designSettings.secondaryColor = e.target.value;
-          this.applyCustomColors();
-        });
-      }
+    if (secondaryColor) {
+      secondaryColor.addEventListener('change', (e) => {
+        this.designSettings.secondaryColor = e.target.value;
+        this.applyCustomColors();
+      });
+    }
 
-      if (accentColor) {
-        accentColor.addEventListener('change', (e) => {
-          this.designSettings.accentColor = e.target.value;
-          this.applyCustomColors();
-        });
-      }
+    if (accentColor) {
+      accentColor.addEventListener('change', (e) => {
+        this.designSettings.accentColor = e.target.value;
+        this.applyCustomColors();
+      });
+    }
 
-      // Reset Colors Button
-      const resetColors = document.getElementById('resetColors');
-      if (resetColors) {
-        resetColors.addEventListener('click', () => {
-          this.resetColors();
-        });
-      }
-    });
+    // Reset Colors Button
+    const resetColors = document.getElementById('resetColors');
+    if (resetColors) {
+      resetColors.addEventListener('click', () => {
+        this.resetColors();
+      });
+    }
   }
 
   applyFontFamily(fontFamily) {
     const previewFrame = document.getElementById('previewFrame');
     if (previewFrame) {
       previewFrame.style.fontFamily = `'${fontFamily}', sans-serif`;
+
+      // Also inject CSS for all text elements
+      this.injectFontCSS(fontFamily);
       this.showNotification(`フォントを ${fontFamily} に変更しました`);
     }
+  }
+
+  injectFontCSS(fontFamily) {
+    const existingStyle = document.getElementById('custom-font-css');
+    if (existingStyle) existingStyle.remove();
+
+    const style = document.createElement('style');
+    style.id = 'custom-font-css';
+    style.textContent = `
+      #previewFrame,
+      #previewFrame * {
+        font-family: '${fontFamily}', sans-serif !important;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   applyFontSizeScale(scale) {
     const previewFrame = document.getElementById('previewFrame');
     if (previewFrame) {
       previewFrame.style.fontSize = `${scale * 100}%`;
+      this.injectFontSizeCSS(scale);
       this.showNotification(`フォントサイズを ${scale * 100}% に変更しました`);
     }
+  }
+
+  injectFontSizeCSS(scale) {
+    const existingStyle = document.getElementById('custom-fontsize-css');
+    if (existingStyle) existingStyle.remove();
+
+    const style = document.createElement('style');
+    style.id = 'custom-fontsize-css';
+    style.textContent = `
+      #previewFrame {
+        font-size: ${scale * 100}% !important;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   applySpacingScale(scale) {
@@ -774,16 +805,32 @@ export default {
     if (previewFrame) {
       // Apply spacing scale via CSS custom property
       previewFrame.style.setProperty('--spacing-scale', scale);
-
-      // Update all spacing-related elements
-      const sections = previewFrame.querySelectorAll('.lp-section');
-      sections.forEach((section) => {
-        const computedPadding = parseFloat(getComputedStyle(section).paddingTop);
-        section.style.padding = `${computedPadding * scale}px`;
-      });
-
+      this.injectSpacingCSS(scale);
       this.showNotification(`余白を ${scale * 100}% に変更しました`);
     }
+  }
+
+  injectSpacingCSS(scale) {
+    const existingStyle = document.getElementById('custom-spacing-css');
+    if (existingStyle) existingStyle.remove();
+
+    const style = document.createElement('style');
+    style.id = 'custom-spacing-css';
+    style.textContent = `
+      #previewFrame [class*="lp-section"] {
+        padding-top: calc(80px * ${scale}) !important;
+        padding-bottom: calc(80px * ${scale}) !important;
+      }
+      #previewFrame [class*="lp-hero"] {
+        padding-top: calc(120px * ${scale}) !important;
+        padding-bottom: calc(120px * ${scale}) !important;
+      }
+      #previewFrame [class*="lp-card"],
+      #previewFrame [class*="lp-feature"] {
+        padding: calc(24px * ${scale}) !important;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   applyBorderRadius(radius) {
@@ -791,13 +838,42 @@ export default {
     if (previewFrame) {
       // Apply border radius to buttons, cards, and images
       const elements = previewFrame.querySelectorAll(
-        '.lp-btn, .lp-card, .lp-feature-card, .lp-pricing-card, .lp-testimonial-card, img'
+        '[class*="lp-btn"], [class*="lp-card"], [class*="lp-feature"], [class*="lp-pricing"], [class*="lp-testimonial"], [class*="lp-mockup"], img'
       );
       elements.forEach((el) => {
         el.style.borderRadius = `${radius}px`;
       });
+
+      // Also inject CSS for consistent application
+      this.injectBorderRadiusCSS(radius);
       this.showNotification(`角丸を ${radius}px に変更しました`);
     }
+  }
+
+  injectBorderRadiusCSS(radius) {
+    const existingStyle = document.getElementById('custom-radius-css');
+    if (existingStyle) existingStyle.remove();
+
+    const style = document.createElement('style');
+    style.id = 'custom-radius-css';
+    style.textContent = `
+      #previewFrame [class*="lp-btn"] {
+        border-radius: ${radius}px !important;
+      }
+      #previewFrame [class*="lp-card"],
+      #previewFrame [class*="lp-feature-card"],
+      #previewFrame [class*="lp-pricing-card"],
+      #previewFrame [class*="lp-testimonial"] {
+        border-radius: ${radius}px !important;
+      }
+      #previewFrame [class*="lp-mockup"] {
+        border-radius: ${radius}px !important;
+      }
+      #previewFrame .lp-hero-visual img {
+        border-radius: ${radius}px !important;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   applyCustomColors() {
@@ -861,49 +937,74 @@ export default {
     const style = document.createElement('style');
     style.id = 'custom-theme-css';
     style.textContent = `
-      #previewFrame .lp-hero-background,
-      #previewFrame .lp-hero {
+      /* Hero sections - using attribute selector for broader matching */
+      #previewFrame [class*="lp-hero"]:not([class*="lp-hero-stat"]):not([class*="lp-hero-content"]):not([class*="lp-hero-visual"]):not([class*="lp-hero-title"]):not([class*="lp-hero-subtitle"]):not([class*="lp-hero-buttons"]):not([class*="lp-hero-badge"]) {
         background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}) !important;
       }
 
-      #previewFrame .lp-btn,
+      /* Primary buttons */
       #previewFrame .lp-btn-primary,
-      #previewFrame .lp-cta-btn {
+      #previewFrame [class*="lp-btn-primary"],
+      #previewFrame .lp-cta-btn,
+      #previewFrame [class*="lp-cta"] button {
         background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}) !important;
         border-color: ${this.designSettings.primaryColor} !important;
       }
 
-      #previewFrame .lp-btn:hover,
-      #previewFrame .lp-btn-primary:hover {
+      #previewFrame .lp-btn-primary:hover,
+      #previewFrame [class*="lp-btn-primary"]:hover {
         box-shadow: 0 10px 30px ${this.designSettings.primaryColor}40 !important;
       }
 
-      #previewFrame .lp-section-badge,
-      #previewFrame .lp-feature-icon,
-      #previewFrame .lp-stat-number,
-      #previewFrame .lp-testimonial-rating {
+      /* Badge/tag elements */
+      #previewFrame .lp-hero-badge,
+      #previewFrame [class*="lp-badge"],
+      #previewFrame .lp-section-badge {
+        background: ${this.designSettings.primaryColor}15 !important;
         color: ${this.designSettings.primaryColor} !important;
       }
 
+      #previewFrame .lp-badge-dot {
+        background: ${this.designSettings.primaryColor} !important;
+      }
+
+      /* Stat numbers */
+      #previewFrame .lp-hero-stat-number,
+      #previewFrame .lp-stat-number,
+      #previewFrame [class*="stat-number"] {
+        color: ${this.designSettings.primaryColor} !important;
+      }
+
+      /* Feature icons */
+      #previewFrame .lp-feature-icon,
+      #previewFrame [class*="lp-feature-icon"] {
+        color: ${this.designSettings.primaryColor} !important;
+      }
+
+      #previewFrame .lp-feature-icon-wrapper,
+      #previewFrame [class*="icon-wrapper"] {
+        background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}) !important;
+      }
+
+      /* Pricing cards */
       #previewFrame .lp-pricing-card.featured,
-      #previewFrame .lp-pricing-card.highlighted {
+      #previewFrame .lp-pricing-card.highlighted,
+      #previewFrame [class*="lp-pricing"][class*="featured"] {
         border-color: ${this.designSettings.primaryColor} !important;
       }
 
+      #previewFrame .lp-pricing-card .lp-pricing-cta {
+        background: ${this.designSettings.primaryColor} !important;
+      }
+
+      /* CTA sections */
       #previewFrame .lp-cta,
+      #previewFrame [class*="lp-cta-section"],
       #previewFrame .lp-newsletter {
         background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}) !important;
       }
 
-      #previewFrame a:hover {
-        color: ${this.designSettings.primaryColor} !important;
-      }
-
-      #previewFrame .lp-feature-card:hover {
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
-      }
-
-      /* Gradient text for headings */
+      /* Gradient text */
       #previewFrame .lp-gradient-text {
         background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}, ${this.designSettings.accentColor}) !important;
         -webkit-background-clip: text !important;
@@ -911,24 +1012,43 @@ export default {
         background-clip: text !important;
       }
 
-      /* Section eyebrow accent */
-      #previewFrame .lp-section-eyebrow {
+      /* Links */
+      #previewFrame a:not([class*="lp-btn"]):hover {
         color: ${this.designSettings.primaryColor} !important;
       }
 
-      /* Feature icon wrapper */
-      #previewFrame .lp-feature-icon-wrapper {
-        background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}) !important;
-      }
-
-      /* Team role text */
-      #previewFrame .lp-team-role {
+      /* Team role */
+      #previewFrame .lp-team-role,
+      #previewFrame [class*="lp-team-role"] {
         color: ${this.designSettings.primaryColor} !important;
       }
 
       /* Nav logo */
       #previewFrame .lp-nav-logo {
         color: ${this.designSettings.primaryColor} !important;
+      }
+
+      /* Testimonial rating */
+      #previewFrame .lp-testimonial-rating,
+      #previewFrame [class*="rating"] svg {
+        color: ${this.designSettings.accentColor} !important;
+        fill: ${this.designSettings.accentColor} !important;
+      }
+
+      /* FAQ accordion icons */
+      #previewFrame [class*="faq"] [class*="icon"] {
+        color: ${this.designSettings.primaryColor} !important;
+      }
+
+      /* Mockup decorations */
+      #previewFrame .lp-hero-orb-1 {
+        background: ${this.designSettings.primaryColor} !important;
+      }
+      #previewFrame .lp-hero-orb-2 {
+        background: ${this.designSettings.secondaryColor} !important;
+      }
+      #previewFrame .lp-hero-orb-3 {
+        background: ${this.designSettings.accentColor} !important;
       }
 
       /* Links hover */

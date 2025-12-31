@@ -3369,3 +3369,532 @@ img[data-editable='true']:hover {
 [data-editable='true'][style*='background']:hover {
   filter: brightness(0.9);
 }
+
+/* ==========================================
+   FORM COMPONENTS
+   ========================================== */
+
+/* Contact Form Container */
+.lp-contact-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.lp-contact-form.lp-form-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+}
+
+/* Form Group */
+.lp-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.lp-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .lp-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Form Labels */
+.lp-form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.lp-form-label.required::after {
+  content: '*';
+  color: #ef4444;
+  margin-left: 0.25rem;
+}
+
+/* Base Input Styles */
+.lp-form-input,
+.lp-form-textarea,
+.lp-form-select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #1f2937;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.lp-form-input::placeholder,
+.lp-form-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.lp-form-input:hover,
+.lp-form-textarea:hover,
+.lp-form-select:hover {
+  border-color: #9ca3af;
+}
+
+.lp-form-input:focus,
+.lp-form-textarea:focus,
+.lp-form-select:focus {
+  border-color: var(--lp-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Textarea */
+.lp-form-textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Select */
+.lp-form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+/* Input Variants - Filled */
+.lp-form-input.lp-input-filled,
+.lp-form-textarea.lp-input-filled,
+.lp-form-select.lp-input-filled {
+  background: #f3f4f6;
+  border-color: transparent;
+}
+
+.lp-form-input.lp-input-filled:focus,
+.lp-form-textarea.lp-input-filled:focus,
+.lp-form-select.lp-input-filled:focus {
+  background: #ffffff;
+  border-color: var(--lp-primary, #3b82f6);
+}
+
+/* Input Variants - Underline */
+.lp-form-input.lp-input-underline,
+.lp-form-textarea.lp-input-underline,
+.lp-form-select.lp-input-underline {
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid #d1d5db;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.lp-form-input.lp-input-underline:focus,
+.lp-form-textarea.lp-input-underline:focus,
+.lp-form-select.lp-input-underline:focus {
+  border-bottom-color: var(--lp-primary, #3b82f6);
+  box-shadow: none;
+}
+
+/* Input Sizes */
+.lp-form-input.lp-input-sm,
+.lp-form-select.lp-input-sm {
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+}
+
+.lp-form-input.lp-input-lg,
+.lp-form-select.lp-input-lg {
+  padding: 1rem 1.25rem;
+  font-size: 1.125rem;
+}
+
+/* Validation States */
+.lp-form-input.lp-input-error,
+.lp-form-textarea.lp-input-error,
+.lp-form-select.lp-input-error {
+  border-color: #ef4444;
+}
+
+.lp-form-input.lp-input-error:focus,
+.lp-form-textarea.lp-input-error:focus,
+.lp-form-select.lp-input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.lp-form-input.lp-input-success,
+.lp-form-textarea.lp-input-success,
+.lp-form-select.lp-input-success {
+  border-color: #10b981;
+}
+
+.lp-form-input.lp-input-success:focus,
+.lp-form-textarea.lp-input-success:focus,
+.lp-form-select.lp-input-success:focus {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* Error/Success Messages */
+.lp-form-error,
+.lp-form-success {
+  font-size: 0.8125rem;
+  margin-top: 0.375rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.lp-form-error {
+  color: #ef4444;
+}
+
+.lp-form-success {
+  color: #10b981;
+}
+
+/* Helper Text */
+.lp-form-hint {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin-top: 0.375rem;
+}
+
+/* Checkbox & Radio */
+.lp-form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.lp-form-check input[type='checkbox'],
+.lp-form-check input[type='radio'] {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.125rem;
+  accent-color: var(--lp-primary, #3b82f6);
+  cursor: pointer;
+}
+
+.lp-form-check-label {
+  font-size: 0.9375rem;
+  color: #374151;
+  line-height: 1.5;
+}
+
+/* Custom Checkbox */
+.lp-checkbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.lp-checkbox input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.lp-checkbox-mark {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.lp-checkbox input:checked + .lp-checkbox-mark {
+  background: var(--lp-primary, #3b82f6);
+  border-color: var(--lp-primary, #3b82f6);
+}
+
+.lp-checkbox-mark svg {
+  width: 14px;
+  height: 14px;
+  color: white;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.2s ease;
+}
+
+.lp-checkbox input:checked + .lp-checkbox-mark svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.lp-checkbox:hover .lp-checkbox-mark {
+  border-color: #9ca3af;
+}
+
+/* Custom Radio */
+.lp-radio {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.lp-radio input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.lp-radio-mark {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.lp-radio-mark::after {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--lp-primary, #3b82f6);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.2s ease;
+}
+
+.lp-radio input:checked + .lp-radio-mark {
+  border-color: var(--lp-primary, #3b82f6);
+}
+
+.lp-radio input:checked + .lp-radio-mark::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.lp-radio:hover .lp-radio-mark {
+  border-color: #9ca3af;
+}
+
+/* Toggle Switch */
+.lp-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.lp-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.lp-toggle-track {
+  width: 2.75rem;
+  height: 1.5rem;
+  background: #d1d5db;
+  border-radius: 1rem;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.lp-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.lp-toggle input:checked + .lp-toggle-track {
+  background: var(--lp-primary, #3b82f6);
+}
+
+.lp-toggle input:checked + .lp-toggle-track .lp-toggle-thumb {
+  transform: translateX(1.25rem);
+}
+
+/* Input with Icon */
+.lp-input-group {
+  position: relative;
+}
+
+.lp-input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.lp-input-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.lp-input-group .lp-form-input {
+  padding-left: 2.75rem;
+}
+
+.lp-input-group.lp-input-icon-right .lp-input-icon {
+  left: auto;
+  right: 1rem;
+}
+
+.lp-input-group.lp-input-icon-right .lp-form-input {
+  padding-left: 1rem;
+  padding-right: 2.75rem;
+}
+
+/* Input with Button */
+.lp-input-addon {
+  display: flex;
+  gap: 0;
+}
+
+.lp-input-addon .lp-form-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+
+.lp-input-addon .lp-btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  white-space: nowrap;
+}
+
+/* Floating Label */
+.lp-floating-label {
+  position: relative;
+}
+
+.lp-floating-label .lp-form-input,
+.lp-floating-label .lp-form-textarea {
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.lp-floating-label .lp-form-label {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-weight: 400;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  margin-bottom: 0;
+}
+
+.lp-floating-label .lp-form-textarea ~ .lp-form-label {
+  top: 1rem;
+  transform: none;
+}
+
+.lp-floating-label .lp-form-input:focus ~ .lp-form-label,
+.lp-floating-label .lp-form-input:not(:placeholder-shown) ~ .lp-form-label,
+.lp-floating-label .lp-form-textarea:focus ~ .lp-form-label,
+.lp-floating-label .lp-form-textarea:not(:placeholder-shown) ~ .lp-form-label {
+  top: 0.5rem;
+  transform: none;
+  font-size: 0.75rem;
+  color: var(--lp-primary, #3b82f6);
+}
+
+/* File Input */
+.lp-file-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.lp-file-input:hover {
+  border-color: var(--lp-primary, #3b82f6);
+  background: #f0f9ff;
+}
+
+.lp-file-input input {
+  display: none;
+}
+
+.lp-file-input-icon {
+  width: 3rem;
+  height: 3rem;
+  color: #9ca3af;
+  margin-bottom: 0.75rem;
+}
+
+.lp-file-input-text {
+  font-size: 0.9375rem;
+  color: #374151;
+}
+
+.lp-file-input-hint {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+/* Form Actions */
+.lp-form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.lp-form-actions.lp-actions-center {
+  justify-content: center;
+}
+
+.lp-form-actions.lp-actions-right {
+  justify-content: flex-end;
+}
+
+.lp-form-actions.lp-actions-between {
+  justify-content: space-between;
+}
+
+/* Disabled State */
+.lp-form-input:disabled,
+.lp-form-textarea:disabled,
+.lp-form-select:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}

@@ -11,6 +11,7 @@ class LandingPageGenerator {
     this.autoSaveInterval = null;
     this.exportedHTML = null;
     this.cssMode = 'custom'; // 'custom' or 'tailwind'
+    this.zoomLevel = 100; // Zoom level percentage
 
     // Undo/Redo 履歴管理
     this.history = [];
@@ -27,6 +28,7 @@ class LandingPageGenerator {
     this.setupInlineEditing();
     this.setupHelpPanel();
     this.setupWelcomeModal();
+    this.setupZoomControls();
     this.draggedItem = null;
   }
 
@@ -45,6 +47,104 @@ class LandingPageGenerator {
       if (localStorage.getItem('lpSidebarCollapsed') === 'true') {
         container.classList.add('sidebar-collapsed');
       }
+    }
+  }
+
+  setupZoomControls() {
+    const zoomSlider = document.getElementById('zoomSlider');
+    const zoomValue = document.getElementById('zoomValue');
+    const zoomIn = document.getElementById('zoomIn');
+    const zoomOut = document.getElementById('zoomOut');
+    const zoomFit = document.getElementById('zoomFit');
+    const zoomReset = document.getElementById('zoomReset');
+    const previewFrame = document.getElementById('previewFrame');
+
+    if (!zoomSlider || !previewFrame) return;
+
+    // Apply zoom level (width only, height stays 100%)
+    const applyZoom = (level) => {
+      this.zoomLevel = Math.max(25, Math.min(100, level));
+
+      // Only change width, keep height at 100%
+      previewFrame.style.width = `${this.zoomLevel}%`;
+      previewFrame.style.transform = '';
+      previewFrame.style.minHeight = '100%';
+
+      if (this.zoomLevel < 100) {
+        previewFrame.classList.add('zoomed');
+      } else {
+        previewFrame.classList.remove('zoomed');
+      }
+
+      zoomSlider.value = this.zoomLevel;
+      zoomValue.textContent = `${this.zoomLevel}%`;
+
+      // Save to localStorage
+      localStorage.setItem('lpZoomLevel', this.zoomLevel);
+    };
+
+    // Slider change
+    zoomSlider.addEventListener('input', (e) => {
+      applyZoom(parseInt(e.target.value));
+    });
+
+    // Zoom in button
+    zoomIn?.addEventListener('click', () => {
+      applyZoom(this.zoomLevel + 10);
+    });
+
+    // Zoom out button
+    zoomOut?.addEventListener('click', () => {
+      applyZoom(this.zoomLevel - 10);
+    });
+
+    // Fit to screen (compact view at 50%)
+    zoomFit?.addEventListener('click', () => {
+      applyZoom(50);
+    });
+
+    // Reset to 100%
+    zoomReset?.addEventListener('click', () => {
+      applyZoom(100);
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.target.tagName !== 'INPUT' &&
+        e.target.tagName !== 'TEXTAREA'
+      ) {
+        if (e.key === '=' || e.key === '+') {
+          e.preventDefault();
+          applyZoom(this.zoomLevel + 10);
+        } else if (e.key === '-') {
+          e.preventDefault();
+          applyZoom(this.zoomLevel - 10);
+        } else if (e.key === '0') {
+          e.preventDefault();
+          applyZoom(100);
+        }
+      }
+    });
+
+    // Mouse wheel zoom with Ctrl
+    previewFrame.addEventListener(
+      'wheel',
+      (e) => {
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          const delta = e.deltaY > 0 ? -10 : 10;
+          applyZoom(this.zoomLevel + delta);
+        }
+      },
+      { passive: false }
+    );
+
+    // Restore zoom level from localStorage
+    const savedZoom = localStorage.getItem('lpZoomLevel');
+    if (savedZoom) {
+      applyZoom(parseInt(savedZoom));
     }
   }
 
@@ -1214,7 +1314,10 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
   }
 
   async generateTailwindHTML() {
-    const sectionsHTML = this.sections.map((section) => section.template.html).join('\n');
+    // Convert sections to Tailwind classes
+    const sectionsHTML = this.sections
+      .map((section) => this.convertToTailwind(section.template.html))
+      .join('\n');
 
     // Get SEO meta tags from enhanced generator if available
     let seoMetaTags = '';
@@ -1228,9 +1331,6 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     // Get theme colors
     const themeColors = this.getThemeColors();
 
-    // Load CSS asynchronously
-    const inlineCSS = await this.getInlineCSS();
-
     return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -1240,7 +1340,7 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -1250,56 +1350,198 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
                         secondary: '${themeColors.secondary}',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Poppins', 'sans-serif'],
+                        sans: ['Inter', 'Noto Sans JP', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-    <style>
-        /* Custom styles for compatibility */
-        ${inlineCSS}
-    </style>
 </head>
-<body class="font-sans">
-    <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
-        ${sectionsHTML}
-    </div>
+<body class="font-sans antialiased bg-white text-gray-900">
+    ${sectionsHTML}
 
     <script>
-        // Smooth scroll animation observer
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
+        // Intersection Observer for animations
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-8');
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.1 });
 
-        document.querySelectorAll('.lp-slide-up, .lp-fade-in').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = 'all 0.8s ease-out';
-            observer.observe(el);
-        });
+        document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
 
-        // Form submission handler
+        // Form handler
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
-                alert('フォームが送信されました！（デモ）');
+                alert('フォームが送信されました！');
             });
         });
     </script>
 </body>
 </html>`;
+  }
+
+  convertToTailwind(html) {
+    // Map of lp- classes to Tailwind classes (comprehensive mapping)
+    const classMap = {
+      // Sections
+      'lp-section-alt': 'bg-gray-50',
+      'lp-section': 'py-20 px-4 md:px-8 lg:px-16',
+      'lp-hero-modern': 'relative overflow-hidden',
+      'lp-hero': 'min-h-screen flex items-center bg-gradient-to-br from-primary to-secondary text-white py-20 px-4',
+
+      // Layout
+      'lp-container': 'max-w-7xl mx-auto px-4',
+      'lp-hero-content': 'relative z-10 max-w-3xl',
+      'lp-section-header': 'text-center mb-16',
+
+      // Typography
+      'lp-hero-title': 'text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight',
+      'lp-hero-subtitle': 'text-xl md:text-2xl opacity-90 mb-8',
+      'lp-section-title': 'text-3xl md:text-4xl font-bold text-gray-900 mb-4',
+      'lp-section-subtitle': 'text-lg text-gray-600 max-w-2xl mx-auto',
+      'lp-gradient-text': 'bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent',
+      'lp-feature-title': 'text-xl font-semibold text-gray-900 mb-3',
+      'lp-feature-description': 'text-gray-600 leading-relaxed',
+      'lp-pricing-price': 'text-4xl font-bold text-gray-900 mb-2',
+      'lp-pricing-period': 'text-gray-500',
+      'lp-pricing-title': 'text-xl font-semibold text-gray-900 mb-2',
+      'lp-pricing-description': 'text-gray-600 mb-6',
+      'lp-testimonial-text': 'text-gray-700 mb-4 italic',
+      'lp-testimonial-author': 'font-semibold text-gray-900',
+      'lp-testimonial-role': 'text-sm text-gray-500',
+
+      // Buttons
+      'lp-btn-primary': 'bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl',
+      'lp-btn-secondary': 'bg-secondary hover:bg-secondary/90 text-white',
+      'lp-btn-ghost': 'border-2 border-white/30 text-white hover:bg-white/10',
+      'lp-btn-outline': 'border-2 border-primary text-primary hover:bg-primary hover:text-white',
+      'lp-btn-lg': 'px-8 py-4 text-lg',
+      'lp-btn': 'inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-all duration-300',
+      'lp-hero-buttons': 'flex flex-col sm:flex-row gap-4',
+
+      // Cards
+      'lp-feature-card': 'bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300',
+      'lp-pricing-card-popular': 'ring-2 ring-primary scale-105',
+      'lp-pricing-card': 'bg-white rounded-2xl p-8 shadow-lg border border-gray-100',
+      'lp-testimonial-card': 'bg-white rounded-2xl p-6 shadow-lg',
+      'lp-cta-content': 'max-w-3xl mx-auto text-center',
+
+      // Grid
+      'lp-features-grid': 'grid md:grid-cols-2 lg:grid-cols-3 gap-8',
+      'lp-pricing-grid': 'grid md:grid-cols-3 gap-8 items-start',
+      'lp-testimonials-grid': 'grid md:grid-cols-2 lg:grid-cols-3 gap-6',
+      'lp-footer-grid': 'grid md:grid-cols-4 gap-8',
+
+      // Stats
+      'lp-hero-stats': 'flex flex-wrap gap-8 mt-12 pt-8 border-t border-white/20',
+      'lp-hero-stat-number': 'text-3xl font-bold',
+      'lp-hero-stat-label': 'text-sm opacity-80',
+      'lp-hero-stat': 'text-center',
+
+      // Badges
+      'lp-hero-badge': 'inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6',
+      'lp-badge-dot': 'w-2 h-2 bg-white rounded-full animate-pulse',
+      'lp-pricing-badge': 'absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-sm font-medium rounded-full',
+
+      // Icons
+      'lp-feature-icon-wrapper': 'w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white mb-6',
+      'lp-feature-icon': 'w-8 h-8',
+
+      // CTA
+      'lp-cta': 'bg-gradient-to-r from-primary to-secondary text-white py-20 px-4',
+      'lp-cta-title': 'text-3xl md:text-4xl font-bold mb-4',
+      'lp-cta-subtitle': 'text-xl opacity-90 mb-8',
+
+      // Forms
+      'lp-contact-form': 'bg-white rounded-2xl p-8 shadow-xl',
+      'lp-form-group': 'mb-6',
+      'lp-form-label': 'block text-sm font-medium text-gray-700 mb-2',
+      'lp-input': 'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition',
+      'lp-textarea': 'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none',
+      'lp-select': 'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition appearance-none bg-white',
+
+      // Lists
+      'lp-pricing-features': 'space-y-3 mb-8',
+      'lp-pricing-feature': 'flex items-center gap-3 text-gray-600',
+      'lp-footer-links': 'space-y-2',
+      'lp-footer-link': 'text-gray-400 hover:text-white transition-colors',
+
+      // Animation classes
+      'lp-slide-up': 'opacity-0 translate-y-8 transition-all duration-700',
+      'lp-fade-in': 'opacity-0 transition-opacity duration-700',
+
+      // Visual elements
+      'lp-hero-visual': 'relative mt-12 lg:mt-0',
+      'lp-hero-image': 'rounded-2xl shadow-2xl',
+      'lp-hero-bg-pattern': 'absolute inset-0 overflow-hidden pointer-events-none',
+      'lp-hero-gradient-orb': 'absolute w-96 h-96 rounded-full blur-3xl opacity-30',
+      'lp-hero-orb-1': 'bg-blue-500 top-0 right-0',
+      'lp-hero-orb-2': 'bg-purple-500 bottom-0 left-1/4',
+      'lp-hero-orb-3': 'bg-pink-500 top-1/2 right-1/4',
+
+      // Footer
+      'lp-footer': 'bg-gray-900 text-white py-16 px-4',
+      'lp-footer-logo': 'text-2xl font-bold mb-4',
+      'lp-footer-description': 'text-gray-400 mb-6',
+      'lp-footer-title': 'font-semibold mb-4',
+      'lp-footer-bottom': 'border-t border-gray-800 mt-12 pt-8 text-center text-gray-400',
+      'lp-social-links': 'flex gap-4',
+      'lp-social-link': 'w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-colors',
+
+      // FAQ
+      'lp-faq-list': 'max-w-3xl mx-auto space-y-4',
+      'lp-faq-item': 'bg-white rounded-xl shadow-md overflow-hidden',
+      'lp-faq-question': 'w-full px-6 py-4 text-left font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors',
+      'lp-faq-answer': 'px-6 py-4 text-gray-600 border-t border-gray-100',
+
+      // Gallery
+      'lp-gallery-grid': 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4',
+      'lp-gallery-item': 'aspect-square rounded-xl overflow-hidden',
+      'lp-gallery-image': 'w-full h-full object-cover hover:scale-110 transition-transform duration-300',
+
+      // Timeline
+      'lp-timeline': 'relative max-w-3xl mx-auto',
+      'lp-timeline-item': 'relative pl-8 pb-8 border-l-2 border-primary/30 last:border-transparent',
+      'lp-timeline-dot': 'absolute left-0 -translate-x-1/2 w-4 h-4 bg-primary rounded-full',
+      'lp-timeline-content': 'bg-white rounded-xl p-6 shadow-lg',
+      'lp-timeline-date': 'text-sm text-primary font-medium mb-2',
+      'lp-timeline-title': 'text-lg font-semibold text-gray-900 mb-2',
+      'lp-timeline-description': 'text-gray-600',
+    };
+
+    let result = html;
+
+    // Sort by length (longest first) to match more specific classes first
+    const sortedEntries = Object.entries(classMap).sort((a, b) => b[0].length - a[0].length);
+
+    // Replace lp- classes with Tailwind equivalents (completely remove lp- classes)
+    sortedEntries.forEach(([lpClass, twClasses]) => {
+      // Match class="...lp-class..." patterns and replace the lp- class with Tailwind
+      const regex = new RegExp(`\\b${lpClass}\\b`, 'g');
+      result = result.replace(regex, twClasses);
+    });
+
+    // Clean up any remaining unmapped lp- classes (remove them entirely)
+    result = result.replace(/\blp-[a-zA-Z0-9-]+\b\s*/g, '');
+
+    // Clean up extra whitespace in class attributes
+    result = result.replace(/class="([^"]*)"/g, (match, classes) => {
+      const cleaned = classes.replace(/\s+/g, ' ').trim();
+      return cleaned ? `class="${cleaned}"` : '';
+    });
+
+    // Remove empty class attributes
+    result = result.replace(/\s*class=""\s*/g, ' ');
+
+    // Add data-animate to elements with animation classes
+    result = result.replace(/class="([^"]*(?:opacity-0[^"]*translate-y-8|transition-all duration-700)[^"]*)"/g, 'class="$1" data-animate');
+
+    return result;
   }
 
   getThemeColors() {

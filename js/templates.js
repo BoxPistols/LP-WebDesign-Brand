@@ -787,6 +787,270 @@ const sectionTemplates = {
         </section>
         `,
   },
+
+  'contact-card': {
+    name: 'Contact Form (Card)',
+    html: `
+        <section class="lp-section" style="background: #f8fafc;">
+            <div class="lp-content-wrapper lp-text-center">
+                <h2 class="lp-section-title">お問い合わせ</h2>
+                <p class="lp-section-subtitle">ご質問やご相談はこちらから</p>
+
+                <form class="lp-contact-form lp-form-card lp-slide-up">
+                    <div class="lp-form-row">
+                        <div class="lp-form-group">
+                            <label class="lp-form-label required">姓</label>
+                            <input type="text" class="lp-form-input" placeholder="山田" required>
+                        </div>
+                        <div class="lp-form-group">
+                            <label class="lp-form-label required">名</label>
+                            <input type="text" class="lp-form-input" placeholder="太郎" required>
+                        </div>
+                    </div>
+
+                    <div class="lp-form-group">
+                        <label class="lp-form-label required">メールアドレス</label>
+                        <input type="email" class="lp-form-input" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="lp-form-group">
+                        <label class="lp-form-label">電話番号</label>
+                        <input type="tel" class="lp-form-input" placeholder="090-1234-5678">
+                    </div>
+
+                    <div class="lp-form-group">
+                        <label class="lp-form-label">お問い合わせ種別</label>
+                        <select class="lp-form-select">
+                            <option value="">選択してください</option>
+                            <option value="general">一般的なお問い合わせ</option>
+                            <option value="support">サポート</option>
+                            <option value="sales">お見積り・ご相談</option>
+                            <option value="other">その他</option>
+                        </select>
+                    </div>
+
+                    <div class="lp-form-group">
+                        <label class="lp-form-label required">メッセージ</label>
+                        <textarea class="lp-form-textarea" placeholder="お問い合わせ内容を入力してください" required></textarea>
+                    </div>
+
+                    <div class="lp-form-group">
+                        <label class="lp-form-check">
+                            <input type="checkbox" required>
+                            <span class="lp-form-check-label">プライバシーポリシーに同意します</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="lp-btn lp-btn-primary" style="width: 100%;">
+                        送信する
+                    </button>
+                </form>
+            </div>
+        </section>
+        `,
+  },
+
+  'contact-split': {
+    name: 'Contact Form (Split)',
+    html: `
+        <section class="lp-section">
+            <div class="lp-content-wrapper">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+                    <div>
+                        <h2 class="lp-section-title" style="text-align: left;">お気軽にお問い合わせください</h2>
+                        <p style="color: #64748b; margin-bottom: 2rem;">ご質問やご相談がございましたら、下記フォームからお問い合わせください。担当者より2営業日以内にご連絡いたします。</p>
+
+                        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 48px; height: 48px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #1e293b;">電話番号</div>
+                                    <div style="color: #64748b;">03-1234-5678</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 48px; height: 48px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #1e293b;">メール</div>
+                                    <div style="color: #64748b;">info@example.com</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 48px; height: 48px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #1e293b;">所在地</div>
+                                    <div style="color: #64748b;">東京都渋谷区〇〇 1-2-3</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form class="lp-contact-form lp-form-card" style="margin: 0;">
+                        <div class="lp-form-group">
+                            <label class="lp-form-label required">お名前</label>
+                            <input type="text" class="lp-form-input" placeholder="山田 太郎" required>
+                        </div>
+
+                        <div class="lp-form-group">
+                            <label class="lp-form-label required">メールアドレス</label>
+                            <input type="email" class="lp-form-input" placeholder="your@email.com" required>
+                        </div>
+
+                        <div class="lp-form-group">
+                            <label class="lp-form-label required">メッセージ</label>
+                            <textarea class="lp-form-textarea" placeholder="お問い合わせ内容" required></textarea>
+                        </div>
+
+                        <button type="submit" class="lp-btn lp-btn-primary" style="width: 100%;">
+                            送信する
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+        `,
+  },
+
+  newsletter: {
+    name: 'Newsletter Signup',
+    html: `
+        <section class="lp-section" style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white;">
+            <div class="lp-content-wrapper lp-text-center" style="max-width: 600px;">
+                <h2 style="font-size: 2rem; margin-bottom: 1rem;">ニュースレターを購読</h2>
+                <p style="opacity: 0.9; margin-bottom: 2rem;">最新情報やお得な情報をメールでお届けします</p>
+
+                <form class="lp-input-addon" style="max-width: 450px; margin: 0 auto;">
+                    <input type="email" class="lp-form-input" placeholder="メールアドレスを入力" required style="flex: 1;">
+                    <button type="submit" class="lp-btn" style="background: white; color: #3b82f6; font-weight: 600;">
+                        購読する
+                    </button>
+                </form>
+
+                <p style="font-size: 0.875rem; opacity: 0.7; margin-top: 1rem;">
+                    いつでも購読を解除できます
+                </p>
+            </div>
+        </section>
+        `,
+  },
+
+  'login-form': {
+    name: 'Login Form',
+    html: `
+        <section class="lp-section" style="background: #f8fafc; min-height: 600px; display: flex; align-items: center;">
+            <div class="lp-content-wrapper" style="max-width: 400px; margin: 0 auto;">
+                <form class="lp-contact-form lp-form-card" style="margin: 0;">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">ログイン</h2>
+                        <p style="color: #64748b;">アカウントにサインイン</p>
+                    </div>
+
+                    <div class="lp-form-group">
+                        <label class="lp-form-label">メールアドレス</label>
+                        <div class="lp-input-group">
+                            <span class="lp-input-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            </span>
+                            <input type="email" class="lp-form-input" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="lp-form-group">
+                        <label class="lp-form-label">パスワード</label>
+                        <div class="lp-input-group">
+                            <span class="lp-input-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            </span>
+                            <input type="password" class="lp-form-input" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <label class="lp-form-check" style="margin: 0;">
+                            <input type="checkbox">
+                            <span class="lp-form-check-label">ログイン状態を保持</span>
+                        </label>
+                        <a href="#" style="color: #3b82f6; font-size: 0.875rem; text-decoration: none;">パスワードを忘れた方</a>
+                    </div>
+
+                    <button type="submit" class="lp-btn lp-btn-primary" style="width: 100%;">
+                        ログイン
+                    </button>
+
+                    <p style="text-align: center; color: #64748b; margin-top: 1.5rem; font-size: 0.875rem;">
+                        アカウントをお持ちでない方は <a href="#" style="color: #3b82f6; text-decoration: none;">新規登録</a>
+                    </p>
+                </form>
+            </div>
+        </section>
+        `,
+  },
+
+  'signup-form': {
+    name: 'Signup Form',
+    html: `
+        <section class="lp-section" style="background: #f8fafc; min-height: 600px; display: flex; align-items: center;">
+            <div class="lp-content-wrapper" style="max-width: 450px; margin: 0 auto;">
+                <form class="lp-contact-form lp-form-card" style="margin: 0;">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">アカウント作成</h2>
+                        <p style="color: #64748b;">無料でアカウントを作成</p>
+                    </div>
+
+                    <div class="lp-form-row">
+                        <div class="lp-form-group">
+                            <label class="lp-form-label">姓</label>
+                            <input type="text" class="lp-form-input" placeholder="山田" required>
+                        </div>
+                        <div class="lp-form-group">
+                            <label class="lp-form-label">名</label>
+                            <input type="text" class="lp-form-input" placeholder="太郎" required>
+                        </div>
+                    </div>
+
+                    <div class="lp-form-group">
+                        <label class="lp-form-label">メールアドレス</label>
+                        <input type="email" class="lp-form-input" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="lp-form-group">
+                        <label class="lp-form-label">パスワード</label>
+                        <input type="password" class="lp-form-input" placeholder="8文字以上" required>
+                        <p class="lp-form-hint">8文字以上、英数字を含む</p>
+                    </div>
+
+                    <div class="lp-form-group">
+                        <label class="lp-form-check">
+                            <input type="checkbox" required>
+                            <span class="lp-form-check-label"><a href="#" style="color: #3b82f6;">利用規約</a> と <a href="#" style="color: #3b82f6;">プライバシーポリシー</a> に同意します</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="lp-btn lp-btn-primary" style="width: 100%;">
+                        アカウントを作成
+                    </button>
+
+                    <div style="display: flex; align-items: center; margin: 1.5rem 0; gap: 1rem;">
+                        <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
+                        <span style="color: #94a3b8; font-size: 0.875rem;">または</span>
+                        <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
+                    </div>
+
+                    <button type="button" class="lp-btn lp-btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Googleで続ける
+                    </button>
+                </form>
+            </div>
+        </section>
+        `,
+  },
   // ===== NEW COMPONENTS - HERO VARIATIONS =====
   'hero-video': {
     name: 'Video Hero',
