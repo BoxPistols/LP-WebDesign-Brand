@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/design-system.css" />
@@ -17,8 +17,26 @@
   </head>
   <body>
     <div class="dashboard-builder">
+      <!-- Left Sidebar Toggle Button -->
+      <button
+        class="sidebar-toggle sidebar-toggle-left"
+        id="toggleLeftSidebar"
+        title="サイドバーを開閉"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="15 18 9 12 15 6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+
       <!-- Left Sidebar - Component Library -->
-      <aside class="builder-sidebar">
+      <aside class="builder-sidebar" id="leftSidebar">
         <div class="sidebar-header">
           <h1 class="sidebar-title">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -443,33 +461,124 @@
 
         <!-- Design Customization -->
         <section class="builder-section">
-          <h3 class="section-title">デザイン</h3>
+          <h3 class="section-title">デザインカスタマイズ</h3>
 
           <div class="customize-group">
-            <label class="customize-label">フォントサイズ</label>
-            <select id="dashFontSize" class="customize-select">
-              <option value="12">小 (12px)</option>
-              <option value="14" selected>標準 (14px)</option>
-              <option value="16">大 (16px)</option>
+            <label class="customize-label">フォント</label>
+            <select id="dashFontFamily" class="customize-select">
+              <optgroup label="欧文フォント">
+                <option value="Inter">Inter (デフォルト)</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Roboto">Roboto</option>
+              </optgroup>
+              <optgroup label="日本語フォント">
+                <option value="Noto Sans JP">Noto Sans JP</option>
+                <option value="BIZ UDPGothic">BIZ UDPゴシック</option>
+                <option value="M PLUS 1p">M PLUS 1p</option>
+                <option value="Zen Kaku Gothic New">Zen角ゴシック New</option>
+              </optgroup>
+              <optgroup label="システムフォント">
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="Helvetica, Arial, sans-serif">Helvetica</option>
+                <option value="Verdana, sans-serif">Verdana</option>
+                <option value="Trebuchet MS, sans-serif">Trebuchet MS</option>
+                <option value="Georgia, serif">Georgia</option>
+                <option value="Times New Roman, serif">Times New Roman</option>
+                <option value="Impact, sans-serif">Impact</option>
+                <option value="Courier New, monospace">Courier New</option>
+                <option value="system-ui">System UI</option>
+              </optgroup>
             </select>
           </div>
 
           <div class="customize-group">
-            <label class="customize-label">余白</label>
+            <label class="customize-label">フォントサイズ</label>
+            <select id="dashFontSize" class="customize-select">
+              <option value="0.875">小 (87.5%)</option>
+              <option value="1.0" selected>標準 (100%)</option>
+              <option value="1.125">大 (112.5%)</option>
+            </select>
+          </div>
+
+          <div class="customize-group">
+            <label class="customize-label">余白スケール</label>
             <select id="dashSpacing" class="customize-select">
-              <option value="0.75">コンパクト</option>
-              <option value="1.0" selected>標準</option>
-              <option value="1.25">ゆったり</option>
+              <option value="0.75">コンパクト (75%)</option>
+              <option value="1.0" selected>標準 (100%)</option>
+              <option value="1.25">ゆったり (125%)</option>
             </select>
           </div>
 
           <div class="customize-group">
             <label class="customize-label">角丸</label>
             <select id="dashBorderRadius" class="customize-select">
+              <option value="0">なし (0px)</option>
               <option value="4">小 (4px)</option>
               <option value="8" selected>標準 (8px)</option>
               <option value="12">大 (12px)</option>
+              <option value="16">特大 (16px)</option>
             </select>
+          </div>
+
+          <div class="customize-group">
+            <label class="customize-label">カスタムカラー</label>
+            <div class="color-inputs">
+              <div class="color-row">
+                <span>プライマリ</span>
+                <input type="color" id="dashPrimaryColor" value="#3b82f6" />
+              </div>
+              <div class="color-row">
+                <span>セカンダリ</span>
+                <input type="color" id="dashSecondaryColor" value="#64748b" />
+              </div>
+              <div class="color-row">
+                <span>アクセント</span>
+                <input type="color" id="dashAccentColor" value="#10b981" />
+              </div>
+              <div class="color-row">
+                <span>背景</span>
+                <input type="color" id="dashBgColor" value="#f8fafc" />
+              </div>
+            </div>
+            <button class="reset-colors-btn" id="dashResetColors">色をリセット</button>
+          </div>
+
+          <div class="customize-group">
+            <label class="customize-label">シャドウ</label>
+            <select id="dashShadow" class="customize-select">
+              <option value="none">なし</option>
+              <option value="sm">小</option>
+              <option value="md" selected>標準</option>
+              <option value="lg">大</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Export Options -->
+        <section class="builder-section">
+          <h3 class="section-title">エクスポート形式</h3>
+          <div class="export-format-selector">
+            <label class="format-option">
+              <input type="radio" name="exportFormat" value="html" checked />
+              <span class="format-label">
+                <strong>HTML/CSS</strong>
+                <small>プレーンなHTML + CSS</small>
+              </span>
+            </label>
+            <label class="format-option">
+              <input type="radio" name="exportFormat" value="tailwind" />
+              <span class="format-label">
+                <strong>Tailwind CSS</strong>
+                <small>Tailwindユーティリティクラス</small>
+              </span>
+            </label>
+            <label class="format-option">
+              <input type="radio" name="exportFormat" value="shadcn" />
+              <span class="format-label">
+                <strong>shadcn/ui</strong>
+                <small>React + shadcn/uiコンポーネント</small>
+              </span>
+            </label>
           </div>
         </section>
 
@@ -662,8 +771,26 @@
         </div>
       </main>
 
+      <!-- Right Sidebar Toggle Button -->
+      <button
+        class="sidebar-toggle sidebar-toggle-right"
+        id="toggleRightSidebar"
+        title="プロパティパネルを開閉"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="9 18 15 12 9 6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+
       <!-- Right Properties Panel -->
-      <aside class="properties-panel">
+      <aside class="properties-panel" id="rightSidebar">
         <div class="panel-header">
           <h3>プロパティ</h3>
         </div>

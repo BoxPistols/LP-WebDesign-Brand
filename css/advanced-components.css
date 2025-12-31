@@ -435,6 +435,7 @@
   top: 0;
   width: 80px;
   height: 80px;
+  aspect-ratio: 1;
   background: var(--theme-gradient);
   border-radius: 50%;
   display: flex;
@@ -559,6 +560,7 @@
 .lp-author-avatar img {
   width: 64px;
   height: 64px;
+  aspect-ratio: 1;
   border-radius: 50%;
   border: 3px solid var(--theme-primary);
 }
@@ -602,6 +604,7 @@
 .lp-author-compact img {
   width: 32px;
   height: 32px;
+  aspect-ratio: 1;
   border-radius: 50%;
 }
 

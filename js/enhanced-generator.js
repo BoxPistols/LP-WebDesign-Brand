@@ -33,6 +33,184 @@ class EnhancedGenerator {
     this.setupKeyboardShortcuts();
     this.setupDesignCustomization();
     this.setupSEOEditor();
+    this.setupInlineEditing();
+    this.setupScrollAnimations();
+    this.setupHoverEffects();
+    this.setupParallaxEffects();
+  }
+
+  // ==========================================
+  // INLINE EDITING FUNCTIONALITY
+  // ==========================================
+
+  setupInlineEditing() {
+    document.addEventListener('DOMContentLoaded', () => {
+      this.enableInlineEditing();
+    });
+  }
+
+  enableInlineEditing() {
+    const previewFrame = document.getElementById('previewFrame');
+    if (!previewFrame) return;
+
+    // Use event delegation for editable elements
+    previewFrame.addEventListener('dblclick', (e) => {
+      const editableSelectors = 'h1, h2, h3, h4, h5, h6, p, span, a, button, li, label';
+      const target = e.target.closest(editableSelectors);
+
+      if (
+        target &&
+        !target.classList.contains('lp-control-btn') &&
+        !target.closest('.lp-section-controls')
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.makeEditable(target);
+      }
+    });
+
+    // Add inline editing styles
+    this.addInlineEditingStyles();
+  }
+
+  addInlineEditingStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+      .lp-inline-editing {
+        outline: 2px solid #3b82f6 !important;
+        outline-offset: 2px;
+        background: rgba(59, 130, 246, 0.05) !important;
+        min-width: 50px;
+        cursor: text !important;
+      }
+
+      .lp-inline-editing:focus {
+        outline: 2px solid #2563eb !important;
+      }
+
+      .lp-editable-hint {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e293b;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 10000;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        animation: fadeInUp 0.3s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      .lp-section-wrapper [contenteditable="true"]:hover {
+        cursor: text;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  makeEditable(element) {
+    // Store original content for potential undo
+    const originalContent = element.textContent;
+
+    // Make element editable
+    element.contentEditable = 'true';
+    element.classList.add('lp-inline-editing');
+    element.focus();
+
+    // Select all text
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    // Show hint
+    this.showEditingHint();
+
+    // Handle blur (save changes)
+    const handleBlur = () => {
+      element.contentEditable = 'false';
+      element.classList.remove('lp-inline-editing');
+      this.hideEditingHint();
+
+      // If content changed, update section and save state
+      if (element.textContent !== originalContent) {
+        this.updateSectionContent(element);
+        if (window.lpGenerator) {
+          window.lpGenerator.saveState();
+          window.lpGenerator.showNotification('テキストを更新しました');
+        }
+      }
+
+      element.removeEventListener('blur', handleBlur);
+      element.removeEventListener('keydown', handleKeydown);
+    };
+
+    // Handle keyboard events
+    const handleKeydown = (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        element.blur();
+      }
+      if (e.key === 'Escape') {
+        element.textContent = originalContent;
+        element.blur();
+      }
+    };
+
+    element.addEventListener('blur', handleBlur);
+    element.addEventListener('keydown', handleKeydown);
+  }
+
+  updateSectionContent(element) {
+    if (!window.lpGenerator) return;
+
+    const wrapper = element.closest('.lp-section-wrapper');
+    if (!wrapper) return;
+
+    const sectionId = wrapper.dataset.sectionId;
+    const section = window.lpGenerator.sections.find((s) => s.id === sectionId);
+
+    if (section) {
+      // Get updated HTML from the wrapper (excluding controls)
+      const clone = wrapper.cloneNode(true);
+      const controls = clone.querySelector('.lp-section-controls');
+      if (controls) controls.remove();
+
+      // Update section template HTML
+      section.template = {
+        ...section.template,
+        html: clone.innerHTML,
+      };
+    }
+  }
+
+  showEditingHint() {
+    if (document.querySelector('.lp-editable-hint')) return;
+
+    const hint = document.createElement('div');
+    hint.className = 'lp-editable-hint';
+    hint.textContent = 'Enter: 保存 | Esc: キャンセル | Shift+Enter: 改行';
+    document.body.appendChild(hint);
+  }
+
+  hideEditingHint() {
+    const hint = document.querySelector('.lp-editable-hint');
+    if (hint) hint.remove();
   }
 
   // ==========================================
@@ -129,20 +307,25 @@ class EnhancedGenerator {
     exportDropdown.className = 'export-dropdown';
     exportDropdown.innerHTML = `
             <button class="action-btn secondary export-toggle" id="exportOptions">
-                <span>⬇️</span> エクスポート形式
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                エクスポート形式
             </button>
             <div class="export-menu" id="exportMenu" style="display: none;">
                 <button class="export-option" data-format="html">
-                    <span>📄</span> HTML
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    HTML
                 </button>
                 <button class="export-option" data-format="react">
-                    <span>⚛️</span> React Component
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c1.5 0 3-.3 4.3-.9"/><path d="M19.8 10.1c1.4.8 2.2 1.7 2.2 2.9 0 2.2-3.5 4-8 4-1.5 0-3-.2-4.3-.6"/></svg>
+                    React Component
                 </button>
                 <button class="export-option" data-format="vue">
-                    <span>💚</span> Vue Component
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    Vue Component
                 </button>
                 <button class="export-option" data-format="json">
-                    <span>📋</span> JSON Config
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                    JSON Config
                 </button>
             </div>
         `;
@@ -619,12 +802,141 @@ export default {
 
   applyCustomColors() {
     const previewFrame = document.getElementById('previewFrame');
-    if (previewFrame) {
-      previewFrame.style.setProperty('--theme-primary', this.designSettings.primaryColor);
-      previewFrame.style.setProperty('--theme-secondary', this.designSettings.secondaryColor);
-      previewFrame.style.setProperty('--theme-accent', this.designSettings.accentColor);
-      this.showNotification('カスタムカラーを適用しました');
-    }
+    if (!previewFrame) return;
+
+    // Set CSS custom properties
+    previewFrame.style.setProperty('--theme-primary', this.designSettings.primaryColor);
+    previewFrame.style.setProperty('--theme-secondary', this.designSettings.secondaryColor);
+    previewFrame.style.setProperty('--theme-accent', this.designSettings.accentColor);
+
+    // Generate gradient
+    const gradient = `linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor})`;
+
+    // Apply to hero backgrounds
+    const heroBackgrounds = previewFrame.querySelectorAll('.lp-hero-background, .lp-hero');
+    heroBackgrounds.forEach((el) => {
+      el.style.background = gradient;
+    });
+
+    // Apply to buttons
+    const buttons = previewFrame.querySelectorAll('.lp-btn, .lp-btn-primary, .lp-cta-btn');
+    buttons.forEach((btn) => {
+      btn.style.background = gradient;
+      btn.style.borderColor = this.designSettings.primaryColor;
+    });
+
+    // Apply to pricing cards highlighted
+    const pricingHighlighted = previewFrame.querySelectorAll(
+      '.lp-pricing-card.featured, .lp-pricing-card.highlighted'
+    );
+    pricingHighlighted.forEach((card) => {
+      card.style.borderColor = this.designSettings.primaryColor;
+    });
+
+    // Apply to section titles and accents
+    const accents = previewFrame.querySelectorAll(
+      '.lp-section-badge, .lp-feature-icon, .lp-stat-number'
+    );
+    accents.forEach((el) => {
+      el.style.color = this.designSettings.primaryColor;
+    });
+
+    // Apply to CTA sections
+    const ctaSections = previewFrame.querySelectorAll('.lp-cta, .lp-newsletter');
+    ctaSections.forEach((section) => {
+      section.style.background = gradient;
+    });
+
+    // Inject dynamic CSS for theme
+    this.injectThemeCSS();
+
+    this.showNotification('カスタムカラーを適用しました');
+  }
+
+  injectThemeCSS() {
+    // Remove existing theme CSS
+    const existingStyle = document.getElementById('custom-theme-css');
+    if (existingStyle) existingStyle.remove();
+
+    const style = document.createElement('style');
+    style.id = 'custom-theme-css';
+    style.textContent = `
+      #previewFrame .lp-hero-background,
+      #previewFrame .lp-hero {
+        background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}) !important;
+      }
+
+      #previewFrame .lp-btn,
+      #previewFrame .lp-btn-primary,
+      #previewFrame .lp-cta-btn {
+        background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}) !important;
+        border-color: ${this.designSettings.primaryColor} !important;
+      }
+
+      #previewFrame .lp-btn:hover,
+      #previewFrame .lp-btn-primary:hover {
+        box-shadow: 0 10px 30px ${this.designSettings.primaryColor}40 !important;
+      }
+
+      #previewFrame .lp-section-badge,
+      #previewFrame .lp-feature-icon,
+      #previewFrame .lp-stat-number,
+      #previewFrame .lp-testimonial-rating {
+        color: ${this.designSettings.primaryColor} !important;
+      }
+
+      #previewFrame .lp-pricing-card.featured,
+      #previewFrame .lp-pricing-card.highlighted {
+        border-color: ${this.designSettings.primaryColor} !important;
+      }
+
+      #previewFrame .lp-cta,
+      #previewFrame .lp-newsletter {
+        background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}) !important;
+      }
+
+      #previewFrame a:hover {
+        color: ${this.designSettings.primaryColor} !important;
+      }
+
+      #previewFrame .lp-feature-card:hover {
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+      }
+
+      /* Gradient text for headings */
+      #previewFrame .lp-gradient-text {
+        background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}, ${this.designSettings.accentColor}) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+      }
+
+      /* Section eyebrow accent */
+      #previewFrame .lp-section-eyebrow {
+        color: ${this.designSettings.primaryColor} !important;
+      }
+
+      /* Feature icon wrapper */
+      #previewFrame .lp-feature-icon-wrapper {
+        background: linear-gradient(135deg, ${this.designSettings.primaryColor}, ${this.designSettings.secondaryColor}) !important;
+      }
+
+      /* Team role text */
+      #previewFrame .lp-team-role {
+        color: ${this.designSettings.primaryColor} !important;
+      }
+
+      /* Nav logo */
+      #previewFrame .lp-nav-logo {
+        color: ${this.designSettings.primaryColor} !important;
+      }
+
+      /* Links hover */
+      #previewFrame .lp-nav-menu li a::after {
+        background: ${this.designSettings.primaryColor} !important;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   resetColors() {
@@ -819,6 +1131,480 @@ export default {
       notification.style.animation = 'slideOutRight 0.3s ease-out';
       setTimeout(() => notification.remove(), 300);
     }, 3000);
+  }
+
+  // ==========================================
+  // SCROLL ANIMATIONS
+  // ==========================================
+
+  setupScrollAnimations() {
+    // Add animation styles
+    this.addAnimationStyles();
+
+    // Setup Intersection Observer for scroll-triggered animations
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px 0px -10% 0px',
+      threshold: [0, 0.1, 0.2, 0.3],
+    };
+
+    this.animationObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
+          const target = entry.target;
+          const delay = target.dataset.animDelay || 0;
+
+          setTimeout(() => {
+            target.classList.add('lp-animated');
+            target.classList.remove('lp-animate-ready');
+          }, delay);
+
+          // Unobserve after animation
+          this.animationObserver.unobserve(target);
+        }
+      });
+    }, observerOptions);
+
+    // Observe preview frame for changes
+    this.observePreviewChanges();
+  }
+
+  observePreviewChanges() {
+    const previewFrame = document.getElementById('previewFrame');
+    if (!previewFrame) {
+      setTimeout(() => this.observePreviewChanges(), 500);
+      return;
+    }
+
+    // Initial setup
+    this.initializeAnimatedElements(previewFrame);
+
+    // Watch for DOM changes in preview
+    const mutationObserver = new MutationObserver(() => {
+      this.initializeAnimatedElements(previewFrame);
+    });
+
+    mutationObserver.observe(previewFrame, {
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  initializeAnimatedElements(container) {
+    const animatableSelectors = [
+      '.lp-slide-up',
+      '.lp-fade-in',
+      '.lp-scale-in',
+      '.lp-slide-left',
+      '.lp-slide-right',
+      '.lp-feature-card',
+      '.lp-pricing-card-modern',
+      '.lp-testimonial-card',
+      '.lp-stat-card',
+      '.lp-faq-item',
+    ];
+
+    const elements = container.querySelectorAll(animatableSelectors.join(', '));
+
+    elements.forEach((el, index) => {
+      if (!el.classList.contains('lp-animated') && !el.classList.contains('lp-animate-ready')) {
+        el.classList.add('lp-animate-ready');
+        el.dataset.animDelay = index * 100; // Stagger animations
+        this.animationObserver.observe(el);
+      }
+    });
+  }
+
+  addAnimationStyles() {
+    const existingStyle = document.getElementById('lp-animation-styles');
+    if (existingStyle) return;
+
+    const style = document.createElement('style');
+    style.id = 'lp-animation-styles';
+    style.textContent = `
+      /* Animation Ready States */
+      .lp-animate-ready.lp-slide-up {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+
+      .lp-animate-ready.lp-fade-in {
+        opacity: 0;
+      }
+
+      .lp-animate-ready.lp-scale-in {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+
+      .lp-animate-ready.lp-slide-left {
+        opacity: 0;
+        transform: translateX(-40px);
+      }
+
+      .lp-animate-ready.lp-slide-right {
+        opacity: 0;
+        transform: translateX(40px);
+      }
+
+      .lp-animate-ready.lp-feature-card,
+      .lp-animate-ready.lp-pricing-card-modern,
+      .lp-animate-ready.lp-testimonial-card,
+      .lp-animate-ready.lp-stat-card,
+      .lp-animate-ready.lp-faq-item {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      /* Animated States */
+      .lp-animated.lp-slide-up {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .lp-animated.lp-fade-in {
+        opacity: 1;
+        transition: opacity 0.8s ease;
+      }
+
+      .lp-animated.lp-scale-in {
+        opacity: 1;
+        transform: scale(1);
+        transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .lp-animated.lp-slide-left {
+        opacity: 1;
+        transform: translateX(0);
+        transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .lp-animated.lp-slide-right {
+        opacity: 1;
+        transform: translateX(0);
+        transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .lp-animated.lp-feature-card,
+      .lp-animated.lp-pricing-card-modern,
+      .lp-animated.lp-testimonial-card,
+      .lp-animated.lp-stat-card,
+      .lp-animated.lp-faq-item {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      /* Stagger animation for grids */
+      .lp-features-grid-modern .lp-feature-card:nth-child(1) { transition-delay: 0ms; }
+      .lp-features-grid-modern .lp-feature-card:nth-child(2) { transition-delay: 100ms; }
+      .lp-features-grid-modern .lp-feature-card:nth-child(3) { transition-delay: 200ms; }
+      .lp-features-grid-modern .lp-feature-card:nth-child(4) { transition-delay: 300ms; }
+      .lp-features-grid-modern .lp-feature-card:nth-child(5) { transition-delay: 400ms; }
+      .lp-features-grid-modern .lp-feature-card:nth-child(6) { transition-delay: 500ms; }
+
+      .lp-pricing-grid-modern .lp-pricing-card-modern:nth-child(1) { transition-delay: 0ms; }
+      .lp-pricing-grid-modern .lp-pricing-card-modern:nth-child(2) { transition-delay: 150ms; }
+      .lp-pricing-grid-modern .lp-pricing-card-modern:nth-child(3) { transition-delay: 300ms; }
+
+      .lp-stats-grid-modern .lp-stat-card:nth-child(1) { transition-delay: 0ms; }
+      .lp-stats-grid-modern .lp-stat-card:nth-child(2) { transition-delay: 100ms; }
+      .lp-stats-grid-modern .lp-stat-card:nth-child(3) { transition-delay: 200ms; }
+      .lp-stats-grid-modern .lp-stat-card:nth-child(4) { transition-delay: 300ms; }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // ==========================================
+  // HOVER EFFECTS
+  // ==========================================
+
+  setupHoverEffects() {
+    this.addHoverEffectStyles();
+
+    // Enhanced hover effects via event delegation
+    document.addEventListener('mousemove', (e) => {
+      const cards = document.querySelectorAll(
+        '.lp-feature-card, .lp-pricing-card-modern, .lp-stat-card'
+      );
+      cards.forEach((card) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+          card.style.setProperty('--mouse-x', `${x}px`);
+          card.style.setProperty('--mouse-y', `${y}px`);
+        }
+      });
+    });
+  }
+
+  addHoverEffectStyles() {
+    const existingStyle = document.getElementById('lp-hover-effect-styles');
+    if (existingStyle) return;
+
+    const style = document.createElement('style');
+    style.id = 'lp-hover-effect-styles';
+    style.textContent = `
+      /* Spotlight hover effect for cards */
+      .lp-feature-card::before,
+      .lp-pricing-card-modern::before,
+      .lp-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+          600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(59, 130, 246, 0.08),
+          transparent 40%
+        );
+        border-radius: inherit;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .lp-feature-card:hover::before,
+      .lp-pricing-card-modern:hover::before,
+      .lp-stat-card:hover::before {
+        opacity: 1;
+      }
+
+      /* Button ripple effect */
+      .lp-btn {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .lp-btn::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10%);
+        transform: scale(10);
+        opacity: 0;
+        transition: transform 0.5s, opacity 0.3s;
+        pointer-events: none;
+      }
+
+      .lp-btn:active::after {
+        transform: scale(0);
+        opacity: 1;
+        transition: 0s;
+      }
+
+      /* Image zoom effect */
+      .lp-gallery-item img,
+      .lp-feature-image img {
+        transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .lp-gallery-item:hover img,
+      .lp-feature-image:hover img {
+        transform: scale(1.05);
+      }
+
+      /* Link underline animation */
+      .lp-feature-link {
+        position: relative;
+      }
+
+      .lp-feature-link::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: currentColor;
+        transition: width 0.3s ease;
+      }
+
+      .lp-feature-link:hover::after {
+        width: 100%;
+      }
+
+      /* Card tilt effect on hover */
+      @media (hover: hover) {
+        .lp-pricing-card-modern {
+          transform-style: preserve-3d;
+          perspective: 1000px;
+        }
+
+        .lp-pricing-card-modern:hover {
+          transform: translateY(-8px) rotateX(2deg);
+        }
+
+        .lp-pricing-featured:hover {
+          transform: scale(1.05) translateY(-10px) rotateX(2deg);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // ==========================================
+  // PARALLAX EFFECTS
+  // ==========================================
+
+  setupParallaxEffects() {
+    this.addParallaxStyles();
+
+    // Smooth parallax scrolling for hero elements
+    let ticking = false;
+
+    const updateParallax = () => {
+      const scrollY = window.scrollY;
+      const heroSection = document.querySelector('.lp-hero-modern');
+
+      if (heroSection) {
+        const heroRect = heroSection.getBoundingClientRect();
+        const heroOffset = heroRect.top + scrollY;
+        const scrollProgress = Math.max(0, scrollY - heroOffset);
+
+        // Parallax for orbs
+        const orbs = heroSection.querySelectorAll('.lp-hero-gradient-orb');
+        orbs.forEach((orb, index) => {
+          const speed = 0.3 + index * 0.1;
+          orb.style.transform = `translateY(${scrollProgress * speed}px)`;
+        });
+
+        // Parallax for mockup
+        const mockup = heroSection.querySelector('.lp-hero-mockup');
+        if (mockup) {
+          mockup.style.transform = `translateY(${scrollProgress * 0.15}px)`;
+        }
+
+        // Fade out hero content on scroll
+        const heroContent = heroSection.querySelector('.lp-hero-content');
+        if (heroContent) {
+          const opacity = Math.max(0, 1 - scrollProgress / 400);
+          heroContent.style.opacity = opacity;
+        }
+      }
+
+      // Stats section parallax
+      const statsSection = document.querySelector('.lp-stats-modern');
+      if (statsSection) {
+        const gradientLine = statsSection.querySelector('.lp-stats-gradient-line');
+        if (gradientLine) {
+          gradientLine.style.backgroundPosition = `${scrollY * 0.5}% 0%`;
+        }
+      }
+
+      ticking = false;
+    };
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    });
+  }
+
+  addParallaxStyles() {
+    const existingStyle = document.getElementById('lp-parallax-styles');
+    if (existingStyle) return;
+
+    const style = document.createElement('style');
+    style.id = 'lp-parallax-styles';
+    style.textContent = `
+      /* Smooth transitions for parallax elements */
+      .lp-hero-gradient-orb {
+        will-change: transform;
+        transition: transform 0.1s ease-out;
+      }
+
+      .lp-hero-mockup {
+        will-change: transform;
+        transition: transform 0.1s ease-out;
+      }
+
+      .lp-hero-content {
+        will-change: opacity;
+        transition: opacity 0.1s ease-out;
+      }
+
+      /* Floating animation enhancement */
+      @keyframes float-subtle {
+        0%, 100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        25% {
+          transform: translateY(-10px) rotate(1deg);
+        }
+        50% {
+          transform: translateY(-5px) rotate(-1deg);
+        }
+        75% {
+          transform: translateY(-15px) rotate(0.5deg);
+        }
+      }
+
+      .lp-hero-stats .lp-hero-stat-item {
+        animation: float-subtle 6s ease-in-out infinite;
+      }
+
+      .lp-hero-stats .lp-hero-stat-item:nth-child(1) {
+        animation-delay: 0s;
+      }
+
+      .lp-hero-stats .lp-hero-stat-item:nth-child(2) {
+        animation-delay: 1s;
+      }
+
+      .lp-hero-stats .lp-hero-stat-item:nth-child(3) {
+        animation-delay: 2s;
+      }
+
+      /* Gradient text shimmer animation */
+      @keyframes shimmer {
+        0% {
+          background-position: -200% center;
+        }
+        100% {
+          background-position: 200% center;
+        }
+      }
+
+      .lp-gradient-text {
+        background-size: 200% auto;
+        animation: shimmer 4s linear infinite;
+      }
+
+      /* Pulse animation for badges */
+      @keyframes badge-pulse {
+        0%, 100% {
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+        }
+      }
+
+      .lp-hero-badge,
+      .lp-cta-badge {
+        animation: badge-pulse 3s infinite;
+      }
+
+      /* Counter animation for stats */
+      .lp-stat-count {
+        display: inline-block;
+      }
+    `;
+    document.head.appendChild(style);
   }
 }
 

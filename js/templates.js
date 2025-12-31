@@ -4,13 +4,77 @@ const sectionTemplates = {
   'hero-1': {
     name: 'Hero Banner',
     html: `
-        <section class="lp-section lp-hero lp-fade-in">
+        <section class="lp-section lp-hero lp-hero-modern">
+            <div class="lp-hero-bg-pattern">
+                <div class="lp-hero-gradient-orb lp-hero-orb-1"></div>
+                <div class="lp-hero-gradient-orb lp-hero-orb-2"></div>
+                <div class="lp-hero-gradient-orb lp-hero-orb-3"></div>
+            </div>
             <div class="lp-hero-content">
-                <h1 class="lp-slide-up">あなたのビジネスを次のレベルへ</h1>
-                <p>モダンで効果的なソリューションで、成長を加速させましょう。今すぐ始めて、未来を創造してください。</p>
+                <div class="lp-hero-badge">
+                    <span class="lp-badge-dot"></span>
+                    <span>新機能リリース</span>
+                </div>
+                <h1 class="lp-hero-title lp-slide-up">
+                    ビジネスの成長を<br>
+                    <span class="lp-gradient-text">加速させる</span>
+                </h1>
+                <p class="lp-hero-subtitle">
+                    最先端のテクノロジーと洗練されたデザインで、<br class="lp-hide-mobile">
+                    あなたのビジョンを現実に変えます。
+                </p>
                 <div class="lp-hero-buttons">
-                    <button class="lp-btn lp-btn-primary">今すぐ始める</button>
-                    <button class="lp-btn lp-btn-secondary">詳細を見る</button>
+                    <button class="lp-btn lp-btn-primary lp-btn-lg">
+                        <span>無料で始める</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                    <button class="lp-btn lp-btn-ghost lp-btn-lg">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        <span>デモを見る</span>
+                    </button>
+                </div>
+                <div class="lp-hero-stats">
+                    <div class="lp-hero-stat">
+                        <span class="lp-hero-stat-number">50K+</span>
+                        <span class="lp-hero-stat-label">アクティブユーザー</span>
+                    </div>
+                    <div class="lp-hero-stat-divider"></div>
+                    <div class="lp-hero-stat">
+                        <span class="lp-hero-stat-number">99.9%</span>
+                        <span class="lp-hero-stat-label">稼働率</span>
+                    </div>
+                    <div class="lp-hero-stat-divider"></div>
+                    <div class="lp-hero-stat">
+                        <span class="lp-hero-stat-number">4.9</span>
+                        <span class="lp-hero-stat-label">ユーザー評価</span>
+                    </div>
+                </div>
+            </div>
+            <div class="lp-hero-visual">
+                <div class="lp-hero-mockup">
+                    <div class="lp-mockup-browser">
+                        <div class="lp-mockup-header">
+                            <div class="lp-mockup-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <div class="lp-mockup-url">dashboard.example.com</div>
+                        </div>
+                        <div class="lp-mockup-content">
+                            <div class="lp-mockup-sidebar"></div>
+                            <div class="lp-mockup-main">
+                                <div class="lp-mockup-chart"></div>
+                                <div class="lp-mockup-cards">
+                                    <div class="lp-mockup-card"></div>
+                                    <div class="lp-mockup-card"></div>
+                                    <div class="lp-mockup-card"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -20,46 +84,115 @@ const sectionTemplates = {
   'features-grid': {
     name: 'Features Grid',
     html: `
-        <section class="lp-section lp-features">
-            <div class="lp-content-wrapper lp-text-center">
-                <h2 class="lp-section-title">主な機能</h2>
-                <p class="lp-section-subtitle">私たちが提供する素晴らしい機能をご覧ください</p>
+        <section class="lp-section lp-features lp-features-modern">
+            <div class="lp-content-wrapper">
+                <div class="lp-section-header lp-text-center">
+                    <span class="lp-section-eyebrow">機能紹介</span>
+                    <h2 class="lp-section-title">ビジネスを変革する<br><span class="lp-gradient-text">パワフルな機能</span></h2>
+                    <p class="lp-section-subtitle">最先端のテクノロジーで、あなたのビジネスを次のレベルへ</p>
+                </div>
 
-                <div class="lp-features-grid">
-                    <div class="lp-feature-card lp-slide-up">
-                        <div class="lp-feature-icon">⚡</div>
+                <div class="lp-features-grid lp-features-grid-3">
+                    <div class="lp-feature-card lp-feature-card-modern lp-slide-up">
+                        <div class="lp-feature-icon-wrapper">
+                            <svg class="lp-feature-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                            </svg>
+                        </div>
                         <h3 class="lp-feature-title">高速パフォーマンス</h3>
                         <p class="lp-feature-description">最先端の技術により、驚くほど高速な処理を実現。ユーザー体験を最優先に設計されています。</p>
+                        <a href="#" class="lp-feature-link">
+                            詳しく見る
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
                     </div>
 
-                    <div class="lp-feature-card lp-slide-up">
-                        <div class="lp-feature-icon">🔒</div>
+                    <div class="lp-feature-card lp-feature-card-modern lp-slide-up">
+                        <div class="lp-feature-icon-wrapper">
+                            <svg class="lp-feature-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </div>
                         <h3 class="lp-feature-title">セキュアな環境</h3>
                         <p class="lp-feature-description">エンタープライズグレードのセキュリティで、あなたのデータを完全に保護します。</p>
+                        <a href="#" class="lp-feature-link">
+                            詳しく見る
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
                     </div>
 
-                    <div class="lp-feature-card lp-slide-up">
-                        <div class="lp-feature-icon">🎨</div>
-                        <h3 class="lp-feature-title">美しいデザイン</h3>
-                        <p class="lp-feature-description">モダンで洗練されたUIで、直感的な操作を提供します。</p>
+                    <div class="lp-feature-card lp-feature-card-modern lp-slide-up">
+                        <div class="lp-feature-icon-wrapper">
+                            <svg class="lp-feature-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                                <line x1="15" y1="9" x2="15.01" y2="9"/>
+                            </svg>
+                        </div>
+                        <h3 class="lp-feature-title">直感的なUI</h3>
+                        <p class="lp-feature-description">モダンで洗練されたUIで、誰でも迷わず使えるデザインを提供します。</p>
+                        <a href="#" class="lp-feature-link">
+                            詳しく見る
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
                     </div>
 
-                    <div class="lp-feature-card lp-slide-up">
-                        <div class="lp-feature-icon">📱</div>
+                    <div class="lp-feature-card lp-feature-card-modern lp-slide-up">
+                        <div class="lp-feature-icon-wrapper">
+                            <svg class="lp-feature-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                                <line x1="12" y1="18" x2="12.01" y2="18"/>
+                            </svg>
+                        </div>
                         <h3 class="lp-feature-title">レスポンシブ対応</h3>
                         <p class="lp-feature-description">あらゆるデバイスで完璧に動作。スマホ、タブレット、デスクトップに最適化。</p>
+                        <a href="#" class="lp-feature-link">
+                            詳しく見る
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
                     </div>
 
-                    <div class="lp-feature-card lp-slide-up">
-                        <div class="lp-feature-icon">🚀</div>
+                    <div class="lp-feature-card lp-feature-card-modern lp-slide-up">
+                        <div class="lp-feature-icon-wrapper">
+                            <svg class="lp-feature-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
                         <h3 class="lp-feature-title">簡単セットアップ</h3>
                         <p class="lp-feature-description">数分で始められる簡単セットアップ。技術的な知識は不要です。</p>
+                        <a href="#" class="lp-feature-link">
+                            詳しく見る
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
                     </div>
 
-                    <div class="lp-feature-card lp-slide-up">
-                        <div class="lp-feature-icon">💬</div>
+                    <div class="lp-feature-card lp-feature-card-modern lp-slide-up">
+                        <div class="lp-feature-icon-wrapper">
+                            <svg class="lp-feature-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
                         <h3 class="lp-feature-title">24/7サポート</h3>
                         <p class="lp-feature-description">いつでもどこでも、専門チームがサポート。あなたの成功をお手伝いします。</p>
+                        <a href="#" class="lp-feature-link">
+                            詳しく見る
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -70,51 +203,155 @@ const sectionTemplates = {
   pricing: {
     name: 'Pricing Table',
     html: `
-        <section class="lp-section lp-pricing">
-            <div class="lp-content-wrapper lp-text-center">
-                <h2 class="lp-section-title">料金プラン</h2>
-                <p class="lp-section-subtitle">あなたに最適なプランを選択してください</p>
+        <section class="lp-section lp-pricing lp-pricing-modern">
+            <div class="lp-content-wrapper">
+                <div class="lp-section-header lp-text-center">
+                    <span class="lp-section-eyebrow">料金プラン</span>
+                    <h2 class="lp-section-title">シンプルで透明な<span class="lp-gradient-text">価格設定</span></h2>
+                    <p class="lp-section-subtitle">14日間の無料トライアル。クレジットカード不要。</p>
+                </div>
 
-                <div class="lp-pricing-grid">
-                    <div class="lp-pricing-card lp-slide-up">
-                        <h3 class="lp-pricing-title">スターター</h3>
-                        <div class="lp-pricing-price">¥2,980<span>/月</span></div>
-                        <ul class="lp-pricing-features">
-                            <li>基本機能の利用</li>
-                            <li>月間10,000リクエスト</li>
-                            <li>メールサポート</li>
-                            <li>1ユーザー</li>
+                <div class="lp-pricing-toggle">
+                    <span class="lp-toggle-label lp-toggle-active">月額</span>
+                    <div class="lp-toggle-switch">
+                        <div class="lp-toggle-slider"></div>
+                    </div>
+                    <span class="lp-toggle-label">年額<span class="lp-toggle-badge">2ヶ月無料</span></span>
+                </div>
+
+                <div class="lp-pricing-grid lp-pricing-grid-modern">
+                    <div class="lp-pricing-card lp-pricing-card-modern lp-slide-up">
+                        <div class="lp-pricing-header">
+                            <h3 class="lp-pricing-title">スターター</h3>
+                            <p class="lp-pricing-desc">個人や小規模チーム向け</p>
+                        </div>
+                        <div class="lp-pricing-price-wrapper">
+                            <span class="lp-pricing-currency">¥</span>
+                            <span class="lp-pricing-amount">2,980</span>
+                            <span class="lp-pricing-period">/月</span>
+                        </div>
+                        <ul class="lp-pricing-features lp-pricing-features-modern">
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                基本機能の利用
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                月間10,000リクエスト
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                メールサポート
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                1ユーザー
+                            </li>
                         </ul>
-                        <button class="lp-btn lp-btn-secondary" style="width: 100%;">プランを選択</button>
+                        <button class="lp-btn lp-btn-outline lp-btn-block">無料で始める</button>
                     </div>
 
-                    <div class="lp-pricing-card featured lp-slide-up">
-                        <div class="lp-pricing-badge">人気</div>
-                        <h3 class="lp-pricing-title">プロフェッショナル</h3>
-                        <div class="lp-pricing-price">¥9,800<span>/月</span></div>
-                        <ul class="lp-pricing-features">
-                            <li>全機能の利用</li>
-                            <li>月間100,000リクエスト</li>
-                            <li>優先サポート</li>
-                            <li>5ユーザーまで</li>
-                            <li>カスタムドメイン</li>
-                            <li>高度な分析</li>
+                    <div class="lp-pricing-card lp-pricing-card-modern lp-pricing-featured lp-slide-up">
+                        <div class="lp-pricing-popular">最も人気</div>
+                        <div class="lp-pricing-header">
+                            <h3 class="lp-pricing-title">プロフェッショナル</h3>
+                            <p class="lp-pricing-desc">成長するビジネス向け</p>
+                        </div>
+                        <div class="lp-pricing-price-wrapper">
+                            <span class="lp-pricing-currency">¥</span>
+                            <span class="lp-pricing-amount">9,800</span>
+                            <span class="lp-pricing-period">/月</span>
+                        </div>
+                        <ul class="lp-pricing-features lp-pricing-features-modern">
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                全機能の利用
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                月間100,000リクエスト
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                優先サポート
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                5ユーザーまで
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                カスタムドメイン
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                高度な分析
+                            </li>
                         </ul>
-                        <button class="lp-btn lp-btn-primary" style="width: 100%;">プランを選択</button>
+                        <button class="lp-btn lp-btn-primary lp-btn-block">無料で始める</button>
                     </div>
 
-                    <div class="lp-pricing-card lp-slide-up">
-                        <h3 class="lp-pricing-title">エンタープライズ</h3>
-                        <div class="lp-pricing-price">カスタム</div>
-                        <ul class="lp-pricing-features">
-                            <li>無制限の機能</li>
-                            <li>無制限リクエスト</li>
-                            <li>専任サポート</li>
-                            <li>無制限ユーザー</li>
-                            <li>カスタム統合</li>
-                            <li>SLA保証</li>
+                    <div class="lp-pricing-card lp-pricing-card-modern lp-slide-up">
+                        <div class="lp-pricing-header">
+                            <h3 class="lp-pricing-title">エンタープライズ</h3>
+                            <p class="lp-pricing-desc">大規模組織向け</p>
+                        </div>
+                        <div class="lp-pricing-price-wrapper">
+                            <span class="lp-pricing-custom">カスタム</span>
+                        </div>
+                        <ul class="lp-pricing-features lp-pricing-features-modern">
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                無制限の機能
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                無制限リクエスト
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                専任サポート
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                無制限ユーザー
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                SLA保証
+                            </li>
                         </ul>
-                        <button class="lp-btn lp-btn-secondary" style="width: 100%;">お問い合わせ</button>
+                        <button class="lp-btn lp-btn-outline lp-btn-block">お問い合わせ</button>
                     </div>
                 </div>
             </div>
@@ -125,49 +362,90 @@ const sectionTemplates = {
   testimonials: {
     name: 'Testimonials',
     html: `
-        <section class="lp-section lp-testimonials">
-            <div class="lp-content-wrapper lp-text-center">
-                <h2 class="lp-section-title">お客様の声</h2>
-                <p class="lp-section-subtitle">多くのお客様に選ばれています</p>
+        <section class="lp-section lp-testimonials lp-testimonials-modern">
+            <div class="lp-content-wrapper">
+                <div class="lp-section-header lp-text-center">
+                    <span class="lp-section-eyebrow">お客様の声</span>
+                    <h2 class="lp-section-title">信頼される理由が<span class="lp-gradient-text">ここにある</span></h2>
+                    <p class="lp-section-subtitle">10,000社以上の企業に選ばれています</p>
+                </div>
 
-                <div class="lp-testimonials-grid">
-                    <div class="lp-testimonial-card lp-slide-up">
+                <div class="lp-testimonials-grid lp-testimonials-grid-modern">
+                    <div class="lp-testimonial-card lp-testimonial-card-modern lp-slide-up">
+                        <div class="lp-testimonial-rating">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
                         <p class="lp-testimonial-quote">
-                            「このサービスは本当に素晴らしい！私たちのビジネスを劇的に変革してくれました。チーム全員が大満足です。」
+                            「導入後3ヶ月で売上が40%向上しました。チーム全員の生産性が劇的に改善され、本当に感謝しています。」
                         </p>
                         <div class="lp-testimonial-author">
-                            <div class="lp-testimonial-avatar">A</div>
+                            <div class="lp-testimonial-avatar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">
+                                <span>山</span>
+                            </div>
                             <div class="lp-testimonial-info">
-                                <h4>山田 太郎</h4>
-                                <p>株式会社ABC・CEO</p>
+                                <h4 class="lp-testimonial-name">山田 太郎</h4>
+                                <p class="lp-testimonial-role">株式会社ABC / CEO</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="lp-testimonial-card lp-slide-up">
+                    <div class="lp-testimonial-card lp-testimonial-card-modern lp-slide-up">
+                        <div class="lp-testimonial-rating">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
                         <p class="lp-testimonial-quote">
-                            「使いやすさと機能性のバランスが完璧。コストパフォーマンスも最高で、導入して本当に良かったです。」
+                            「UIが直感的で、新しいメンバーも即座に使いこなせました。カスタマーサポートも迅速で丁寧です。」
                         </p>
                         <div class="lp-testimonial-author">
-                            <div class="lp-testimonial-avatar">B</div>
+                            <div class="lp-testimonial-avatar" style="background: linear-gradient(135deg, #ec4899, #f472b6);">
+                                <span>佐</span>
+                            </div>
                             <div class="lp-testimonial-info">
-                                <h4>佐藤 花子</h4>
-                                <p>XYZ株式会社・マーケティング部長</p>
+                                <h4 class="lp-testimonial-name">佐藤 花子</h4>
+                                <p class="lp-testimonial-role">XYZ株式会社 / マーケティング部長</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="lp-testimonial-card lp-slide-up">
+                    <div class="lp-testimonial-card lp-testimonial-card-modern lp-slide-up">
+                        <div class="lp-testimonial-rating">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
                         <p class="lp-testimonial-quote">
-                            「サポートチームの対応が素晴らしい。24時間いつでも頼りになる存在です。これからも使い続けます！」
+                            「APIの統合が驚くほど簡単でした。ドキュメントも充実していて、開発チームからの評価も最高です。」
                         </p>
                         <div class="lp-testimonial-author">
-                            <div class="lp-testimonial-avatar">C</div>
+                            <div class="lp-testimonial-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">
+                                <span>鈴</span>
+                            </div>
                             <div class="lp-testimonial-info">
-                                <h4>鈴木 一郎</h4>
-                                <p>テック株式会社・CTO</p>
+                                <h4 class="lp-testimonial-name">鈴木 一郎</h4>
+                                <p class="lp-testimonial-role">テック株式会社 / CTO</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="lp-testimonials-logos">
+                    <p class="lp-logos-label">導入企業</p>
+                    <div class="lp-logos-grid">
+                        <div class="lp-logo-item">Company A</div>
+                        <div class="lp-logo-item">Company B</div>
+                        <div class="lp-logo-item">Company C</div>
+                        <div class="lp-logo-item">Company D</div>
+                        <div class="lp-logo-item">Company E</div>
                     </div>
                 </div>
             </div>
@@ -178,13 +456,62 @@ const sectionTemplates = {
   cta: {
     name: 'Call to Action',
     html: `
-        <section class="lp-section lp-cta">
-            <div class="lp-content-wrapper">
-                <h2 class="lp-fade-in">今すぐ始めましょう</h2>
-                <p class="lp-fade-in">無料トライアルで、すべての機能をお試しいただけます。クレジットカード不要。</p>
-                <div class="lp-hero-buttons">
-                    <button class="lp-btn lp-btn-primary">無料で始める</button>
-                    <button class="lp-btn lp-btn-secondary">デモを見る</button>
+        <section class="lp-section lp-cta lp-cta-modern">
+            <div class="lp-cta-bg">
+                <div class="lp-cta-gradient-orb lp-cta-orb-1"></div>
+                <div class="lp-cta-gradient-orb lp-cta-orb-2"></div>
+                <div class="lp-cta-grid-pattern"></div>
+            </div>
+            <div class="lp-content-wrapper lp-cta-content">
+                <div class="lp-cta-badge lp-fade-in">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    <span>期間限定オファー</span>
+                </div>
+                <h2 class="lp-cta-title lp-slide-up">
+                    今すぐ始めて<br>
+                    <span class="lp-gradient-text-white">ビジネスを加速</span>
+                </h2>
+                <p class="lp-cta-description lp-fade-in">
+                    無料トライアルで、すべての機能をお試しいただけます。<br>
+                    クレジットカード不要、いつでもキャンセル可能。
+                </p>
+                <div class="lp-cta-buttons lp-slide-up">
+                    <button class="lp-btn lp-btn-cta-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                        無料で始める
+                    </button>
+                    <button class="lp-btn lp-btn-cta-secondary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        デモを見る
+                    </button>
+                </div>
+                <div class="lp-cta-trust lp-fade-in">
+                    <div class="lp-cta-trust-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <span>14日間無料</span>
+                    </div>
+                    <div class="lp-cta-trust-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <span>セキュア決済</span>
+                    </div>
+                    <div class="lp-cta-trust-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        <span>返金保証</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -251,25 +578,80 @@ const sectionTemplates = {
   stats: {
     name: 'Statistics',
     html: `
-        <section class="lp-section lp-stats">
-            <div class="lp-content-wrapper lp-text-center">
-                <h2 class="lp-section-title" style="color: white;">数字で見る実績</h2>
-                <div class="lp-stats-grid">
-                    <div class="lp-stat-item lp-fade-in">
-                        <div class="lp-stat-number">10,000+</div>
-                        <div class="lp-stat-label">満足しているユーザー</div>
+        <section class="lp-section lp-stats lp-stats-modern">
+            <div class="lp-stats-bg">
+                <div class="lp-stats-gradient-line"></div>
+            </div>
+            <div class="lp-content-wrapper">
+                <div class="lp-stats-header lp-text-center">
+                    <h2 class="lp-section-title lp-slide-up">
+                        <span class="lp-gradient-text">数字</span>で見る実績
+                    </h2>
+                    <p class="lp-section-subtitle lp-fade-in">多くの企業様に信頼されています</p>
+                </div>
+                <div class="lp-stats-grid-modern">
+                    <div class="lp-stat-card lp-slide-up">
+                        <div class="lp-stat-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </div>
+                        <div class="lp-stat-number-modern">
+                            <span class="lp-stat-count" data-target="10000">10,000</span>+
+                        </div>
+                        <div class="lp-stat-label-modern">満足しているユーザー</div>
+                        <div class="lp-stat-growth">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                <polyline points="17 6 23 6 23 12"/>
+                            </svg>
+                            <span>前年比 +42%</span>
+                        </div>
                     </div>
-                    <div class="lp-stat-item lp-fade-in">
-                        <div class="lp-stat-number">99.9%</div>
-                        <div class="lp-stat-label">稼働率</div>
+                    <div class="lp-stat-card lp-stat-card-featured lp-slide-up">
+                        <div class="lp-stat-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                        </div>
+                        <div class="lp-stat-number-modern">99.9<span class="lp-stat-unit">%</span></div>
+                        <div class="lp-stat-label-modern">稼働率</div>
+                        <div class="lp-stat-progress">
+                            <div class="lp-stat-progress-bar" style="width: 99.9%;"></div>
+                        </div>
                     </div>
-                    <div class="lp-stat-item lp-fade-in">
-                        <div class="lp-stat-number">50+</div>
-                        <div class="lp-stat-label">国で利用</div>
+                    <div class="lp-stat-card lp-slide-up">
+                        <div class="lp-stat-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="2" y1="12" x2="22" y2="12"/>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                            </svg>
+                        </div>
+                        <div class="lp-stat-number-modern">50+</div>
+                        <div class="lp-stat-label-modern">国で利用</div>
+                        <div class="lp-stat-countries">
+                            <span class="lp-country-dot"></span>
+                            <span class="lp-country-dot"></span>
+                            <span class="lp-country-dot"></span>
+                            <span>+47</span>
+                        </div>
                     </div>
-                    <div class="lp-stat-item lp-fade-in">
-                        <div class="lp-stat-number">24/7</div>
-                        <div class="lp-stat-label">サポート体制</div>
+                    <div class="lp-stat-card lp-slide-up">
+                        <div class="lp-stat-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="lp-stat-number-modern">24/7</div>
+                        <div class="lp-stat-label-modern">サポート体制</div>
+                        <div class="lp-stat-online">
+                            <span class="lp-online-dot"></span>
+                            <span>オンライン中</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -845,22 +1227,105 @@ const sectionTemplates = {
   'accordion-faq': {
     name: 'Accordion FAQ',
     html: `
-        <section class="lp-section">
-            <div class="lp-content-wrapper" style="max-width: 800px; margin: 0 auto;">
-                <h2 class="lp-section-title lp-text-center">よくある質問</h2>
-                <div style="margin-top: 3rem; display: flex; flex-direction: column; gap: 1rem;">
-                    <details style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem;">
-                        <summary style="font-weight: 600; cursor: pointer; list-style: none;">無料トライアルはありますか？</summary>
-                        <p style="margin-top: 1rem; color: #64748b; padding-left: 0;">はい、14日間の無料トライアルをご利用いただけます。クレジットカードの登録は不要です。</p>
-                    </details>
-                    <details style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem;">
-                        <summary style="font-weight: 600; cursor: pointer; list-style: none;">プランの変更は可能ですか？</summary>
-                        <p style="margin-top: 1rem; color: #64748b; padding-left: 0;">はい、いつでもプランのアップグレードまたはダウングレードが可能です。</p>
-                    </details>
-                    <details style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem;">
-                        <summary style="font-weight: 600; cursor: pointer; list-style: none;">サポート体制について教えてください</summary>
-                        <p style="margin-top: 1rem; color: #64748b; padding-left: 0;">全プランで24時間365日、メールとチャットによるサポートを提供しています。</p>
-                    </details>
+        <section class="lp-section lp-faq-modern">
+            <div class="lp-content-wrapper">
+                <div class="lp-faq-header lp-text-center">
+                    <div class="lp-section-badge lp-fade-in">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <span>FAQ</span>
+                    </div>
+                    <h2 class="lp-section-title lp-slide-up">よくある質問</h2>
+                    <p class="lp-section-subtitle lp-fade-in">お客様からよくいただくご質問にお答えします</p>
+                </div>
+                <div class="lp-faq-grid">
+                    <div class="lp-faq-item lp-slide-up">
+                        <details class="lp-faq-details">
+                            <summary class="lp-faq-summary">
+                                <span class="lp-faq-question">無料トライアルはありますか？</span>
+                                <span class="lp-faq-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div class="lp-faq-answer">
+                                <p>はい、14日間の無料トライアルをご利用いただけます。クレジットカードの登録は不要で、すべての機能をお試しいただけます。</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="lp-faq-item lp-slide-up">
+                        <details class="lp-faq-details">
+                            <summary class="lp-faq-summary">
+                                <span class="lp-faq-question">プランの変更は可能ですか？</span>
+                                <span class="lp-faq-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div class="lp-faq-answer">
+                                <p>はい、いつでもプランのアップグレードまたはダウングレードが可能です。請求は日割り計算されます。</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="lp-faq-item lp-slide-up">
+                        <details class="lp-faq-details">
+                            <summary class="lp-faq-summary">
+                                <span class="lp-faq-question">サポート体制について教えてください</span>
+                                <span class="lp-faq-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div class="lp-faq-answer">
+                                <p>全プランで24時間365日、メールとチャットによるサポートを提供しています。Proプラン以上では電話サポートもご利用いただけます。</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="lp-faq-item lp-slide-up">
+                        <details class="lp-faq-details">
+                            <summary class="lp-faq-summary">
+                                <span class="lp-faq-question">解約手数料はかかりますか？</span>
+                                <span class="lp-faq-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div class="lp-faq-answer">
+                                <p>いいえ、解約手数料は一切かかりません。いつでも自由に解約でき、残りの期間分は返金されます。</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="lp-faq-item lp-slide-up">
+                        <details class="lp-faq-details">
+                            <summary class="lp-faq-summary">
+                                <span class="lp-faq-question">データのセキュリティはどうなっていますか？</span>
+                                <span class="lp-faq-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div class="lp-faq-answer">
+                                <p>すべてのデータは256ビットSSL暗号化で保護され、SOC2およびISO27001認証を取得しています。</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+                <div class="lp-faq-cta lp-fade-in">
+                    <p>その他のご質問がありますか？</p>
+                    <a href="#contact" class="lp-btn lp-btn-outline-modern">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        お問い合わせ
+                    </a>
                 </div>
             </div>
         </section>

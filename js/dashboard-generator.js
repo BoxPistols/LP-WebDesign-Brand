@@ -11,9 +11,15 @@ class DashboardGenerator {
     this.history = [];
     this.historyIndex = -1;
     this.designSettings = {
-      fontSize: 14,
+      fontFamily: 'Inter',
+      fontSize: 1.0,
       spacing: 1.0,
       borderRadius: 8,
+      primaryColor: '#3b82f6',
+      secondaryColor: '#64748b',
+      accentColor: '#10b981',
+      bgColor: '#f8fafc',
+      shadow: 'md',
     };
 
     this.init();
@@ -22,8 +28,39 @@ class DashboardGenerator {
   init() {
     this.setupEventListeners();
     this.setupDesignCustomization();
+    this.setupSidebarToggles();
     this.renderCanvas(); // Initialize canvas with empty state
     console.log('Dashboard Generator initialized');
+  }
+
+  setupSidebarToggles() {
+    const toggleLeft = document.getElementById('toggleLeftSidebar');
+    const toggleRight = document.getElementById('toggleRightSidebar');
+    const builder = document.querySelector('.dashboard-builder');
+
+    if (toggleLeft) {
+      toggleLeft.addEventListener('click', () => {
+        builder.classList.toggle('left-collapsed');
+        const isCollapsed = builder.classList.contains('left-collapsed');
+        localStorage.setItem('leftSidebarCollapsed', isCollapsed);
+      });
+    }
+
+    if (toggleRight) {
+      toggleRight.addEventListener('click', () => {
+        builder.classList.toggle('right-collapsed');
+        const isCollapsed = builder.classList.contains('right-collapsed');
+        localStorage.setItem('rightSidebarCollapsed', isCollapsed);
+      });
+    }
+
+    // Restore state from localStorage
+    if (localStorage.getItem('leftSidebarCollapsed') === 'true') {
+      builder.classList.add('left-collapsed');
+    }
+    if (localStorage.getItem('rightSidebarCollapsed') === 'true') {
+      builder.classList.add('right-collapsed');
+    }
   }
 
   setupEventListeners() {
@@ -315,15 +352,13 @@ class DashboardGenerator {
       // Extract the first child (which has grid-col-* class)
       const componentElement = content.firstElementChild;
       if (componentElement) {
+        // Remove existing grid-col class from component element
+        componentElement.className = componentElement.className.replace(/grid-col-\d+/g, '').trim();
         wrapper.appendChild(componentElement);
 
-        // Apply grid-col class to wrapper if component has it
-        const gridColMatch = componentElement.className.match(/grid-col-\d+/);
-        if (gridColMatch) {
-          wrapper.classList.add(gridColMatch[0]);
-        } else {
-          wrapper.classList.add('grid-col-12'); // Default to full width
-        }
+        // Apply grid-col class from component data or use default
+        const gridCol = component.gridCol || this.getDefaultGridCol(component.type);
+        wrapper.classList.add(`grid-col-${gridCol}`);
       }
 
       grid.appendChild(wrapper);
@@ -462,6 +497,9 @@ class DashboardGenerator {
     const propertiesPanel = document.getElementById('propertiesPanel');
     if (!propertiesPanel) return;
 
+    // Get current grid column
+    const currentGridCol = component.gridCol || this.getDefaultGridCol(component.type);
+
     // Build properties UI
     propertiesPanel.innerHTML = `
             <div class="properties-header">
@@ -476,6 +514,35 @@ class DashboardGenerator {
 
             <div class="properties-body">
                 <div class="property-group">
+                    <label class="property-label">グリッド幅</label>
+                    <div class="grid-column-selector">
+                        <div class="grid-column-visual">
+                            ${this.generateGridVisual(currentGridCol)}
+                        </div>
+                        <div class="grid-column-controls">
+                            <select id="gridColumnSelect" class="property-select" onchange="dashboardGenerator.changeGridColumn('${component.id}', this.value)">
+                                <option value="3" ${currentGridCol === 3 ? 'selected' : ''}>3/12 (25%)</option>
+                                <option value="4" ${currentGridCol === 4 ? 'selected' : ''}>4/12 (33%)</option>
+                                <option value="5" ${currentGridCol === 5 ? 'selected' : ''}>5/12 (42%)</option>
+                                <option value="6" ${currentGridCol === 6 ? 'selected' : ''}>6/12 (50%)</option>
+                                <option value="7" ${currentGridCol === 7 ? 'selected' : ''}>7/12 (58%)</option>
+                                <option value="8" ${currentGridCol === 8 ? 'selected' : ''}>8/12 (67%)</option>
+                                <option value="9" ${currentGridCol === 9 ? 'selected' : ''}>9/12 (75%)</option>
+                                <option value="10" ${currentGridCol === 10 ? 'selected' : ''}>10/12 (83%)</option>
+                                <option value="12" ${currentGridCol === 12 ? 'selected' : ''}>12/12 (100%)</option>
+                            </select>
+                            <div class="grid-quick-buttons">
+                                <button class="grid-quick-btn ${currentGridCol === 4 ? 'active' : ''}" onclick="dashboardGenerator.changeGridColumn('${component.id}', 4)">1/3</button>
+                                <button class="grid-quick-btn ${currentGridCol === 6 ? 'active' : ''}" onclick="dashboardGenerator.changeGridColumn('${component.id}', 6)">1/2</button>
+                                <button class="grid-quick-btn ${currentGridCol === 12 ? 'active' : ''}" onclick="dashboardGenerator.changeGridColumn('${component.id}', 12)">Full</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="property-divider"></div>
+
+                <div class="property-group">
                     <label class="property-label">カテゴリー</label>
                     <div class="property-value">${component.template.category || 'data'}</div>
                 </div>
@@ -483,11 +550,6 @@ class DashboardGenerator {
                 <div class="property-group">
                     <label class="property-label">コンポーネントID</label>
                     <div class="property-value property-id">${component.id}</div>
-                </div>
-
-                <div class="property-group">
-                    <label class="property-label">追加日時</label>
-                    <div class="property-value">${new Date(component.timestamp).toLocaleString('ja-JP')}</div>
                 </div>
 
                 <div class="property-divider"></div>
@@ -512,6 +574,50 @@ class DashboardGenerator {
         `;
 
     propertiesPanel.style.display = 'block';
+  }
+
+  generateGridVisual(cols) {
+    let html = '';
+    for (let i = 1; i <= 12; i++) {
+      const isActive = i <= cols;
+      html += `<div class="grid-col-block ${isActive ? 'active' : ''}"></div>`;
+    }
+    return html;
+  }
+
+  getDefaultGridCol(type) {
+    const defaults = {
+      'stats-cards': 12,
+      'chart-line': 6,
+      'chart-bar': 4,
+      'chart-pie': 4,
+      'data-table': 12,
+      'user-list': 4,
+      'kpi-card': 4,
+      'progress-card': 4,
+      'activity-feed': 4,
+      'form-basic': 4,
+      'search-bar': 6,
+      'alert-banner': 12,
+      'user-profile': 4,
+    };
+    return defaults[type] || 6;
+  }
+
+  changeGridColumn(componentId, newCol) {
+    const component = this.components.find((c) => c.id === componentId);
+    if (!component) return;
+
+    component.gridCol = parseInt(newCol);
+    this.saveState();
+    this.renderCanvas();
+
+    // Re-select the component to update properties panel
+    setTimeout(() => {
+      this.selectComponent(componentId);
+    }, 50);
+
+    this.showNotification(`グリッド幅を ${newCol}/12 に変更しました`);
   }
 
   closePropertiesPanel() {
@@ -1065,12 +1171,21 @@ ${embeddedCSS}
 
   // Design Customization
   setupDesignCustomization() {
+    // Font Family
+    const fontFamilySelect = document.getElementById('dashFontFamily');
+    if (fontFamilySelect) {
+      fontFamilySelect.addEventListener('change', (e) => {
+        this.designSettings.fontFamily = e.target.value;
+        this.applyDesignSettings();
+      });
+    }
+
     // Font Size
     const fontSizeSelect = document.getElementById('dashFontSize');
     if (fontSizeSelect) {
       fontSizeSelect.addEventListener('change', (e) => {
-        this.designSettings.fontSize = parseInt(e.target.value);
-        this.applyFontSize(parseInt(e.target.value));
+        this.designSettings.fontSize = parseFloat(e.target.value);
+        this.applyDesignSettings();
       });
     }
 
@@ -1079,7 +1194,7 @@ ${embeddedCSS}
     if (spacingSelect) {
       spacingSelect.addEventListener('change', (e) => {
         this.designSettings.spacing = parseFloat(e.target.value);
-        this.applySpacing(parseFloat(e.target.value));
+        this.applyDesignSettings();
       });
     }
 
@@ -1088,54 +1203,170 @@ ${embeddedCSS}
     if (borderRadiusSelect) {
       borderRadiusSelect.addEventListener('change', (e) => {
         this.designSettings.borderRadius = parseInt(e.target.value);
-        this.applyBorderRadius(parseInt(e.target.value));
+        this.applyDesignSettings();
       });
     }
-  }
 
-  applyFontSize(size) {
-    const canvas = document.getElementById('dashboardCanvas');
-    if (canvas) {
-      canvas.style.fontSize = `${size}px`;
-      this.showNotification(`フォントサイズを ${size}px に変更しました`);
+    // Shadow
+    const shadowSelect = document.getElementById('dashShadow');
+    if (shadowSelect) {
+      shadowSelect.addEventListener('change', (e) => {
+        this.designSettings.shadow = e.target.value;
+        this.applyDesignSettings();
+      });
+    }
+
+    // Custom Colors
+    const primaryColor = document.getElementById('dashPrimaryColor');
+    const secondaryColor = document.getElementById('dashSecondaryColor');
+    const accentColor = document.getElementById('dashAccentColor');
+    const bgColor = document.getElementById('dashBgColor');
+
+    if (primaryColor) {
+      primaryColor.addEventListener('input', (e) => {
+        this.designSettings.primaryColor = e.target.value;
+        this.applyDesignSettings();
+      });
+    }
+    if (secondaryColor) {
+      secondaryColor.addEventListener('input', (e) => {
+        this.designSettings.secondaryColor = e.target.value;
+        this.applyDesignSettings();
+      });
+    }
+    if (accentColor) {
+      accentColor.addEventListener('input', (e) => {
+        this.designSettings.accentColor = e.target.value;
+        this.applyDesignSettings();
+      });
+    }
+    if (bgColor) {
+      bgColor.addEventListener('input', (e) => {
+        this.designSettings.bgColor = e.target.value;
+        this.applyDesignSettings();
+      });
+    }
+
+    // Reset Colors
+    const resetColors = document.getElementById('dashResetColors');
+    if (resetColors) {
+      resetColors.addEventListener('click', () => this.resetDesignColors());
     }
   }
 
-  applySpacing(scale) {
+  applyDesignSettings() {
     const canvas = document.getElementById('dashboardCanvas');
-    if (canvas) {
-      // Apply spacing scale to dashboard grid gap
-      const grid = canvas.querySelector('.dashboard-grid');
-      if (grid) {
-        const baseGridGap = 8; // --space-2 default
-        grid.style.gap = `${baseGridGap * scale}px`;
+    if (!canvas) return;
+
+    // Apply CSS custom properties
+    canvas.style.setProperty(
+      '--dash-font-family',
+      `'${this.designSettings.fontFamily}', sans-serif`
+    );
+    canvas.style.setProperty('--dash-font-scale', this.designSettings.fontSize);
+    canvas.style.setProperty('--dash-spacing-scale', this.designSettings.spacing);
+    canvas.style.setProperty('--dash-radius', `${this.designSettings.borderRadius}px`);
+    canvas.style.setProperty('--dash-primary', this.designSettings.primaryColor);
+    canvas.style.setProperty('--dash-secondary', this.designSettings.secondaryColor);
+    canvas.style.setProperty('--dash-accent', this.designSettings.accentColor);
+    canvas.style.setProperty('--dash-bg', this.designSettings.bgColor);
+
+    // Apply font
+    canvas.style.fontFamily = `'${this.designSettings.fontFamily}', sans-serif`;
+    canvas.style.fontSize = `${this.designSettings.fontSize * 100}%`;
+
+    // Apply background
+    canvas.style.background = this.designSettings.bgColor;
+
+    // Shadow mapping
+    const shadowMap = {
+      none: 'none',
+      sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+      md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+    };
+
+    // Apply to cards
+    const cards = canvas.querySelectorAll(
+      '.dashboard-card, .stat-card, .data-table, .chart-card, .component-wrapper'
+    );
+    cards.forEach((card) => {
+      card.style.borderRadius = `${this.designSettings.borderRadius}px`;
+      card.style.boxShadow = shadowMap[this.designSettings.shadow];
+    });
+
+    // Apply spacing
+    const grid = canvas.querySelector('.dashboard-grid');
+    if (grid) {
+      grid.style.gap = `${20 * this.designSettings.spacing}px`;
+      grid.style.padding = `${24 * this.designSettings.spacing}px`;
+    }
+
+    // Apply primary color to buttons and accents
+    const buttons = canvas.querySelectorAll('.btn-primary, .primary-btn');
+    buttons.forEach((btn) => {
+      btn.style.background = this.designSettings.primaryColor;
+    });
+
+    // Apply accent color to stats
+    const statValues = canvas.querySelectorAll('.stat-value, .stat-change.positive');
+    statValues.forEach((el) => {
+      if (el.classList.contains('positive')) {
+        el.style.color = this.designSettings.accentColor;
       }
+    });
 
-      // Apply spacing scale to card gaps and padding
-      const cards = canvas.querySelectorAll(
-        '.dashboard-card, .stat-card, .data-table, .chart-card'
-      );
-      cards.forEach((card) => {
-        const baseGap = 24;
-        card.style.gap = `${baseGap * scale}px`;
-        const basePadding = 24;
-        card.style.padding = `${basePadding * scale}px`;
-      });
-      this.showNotification(`余白を ${scale * 100}% に変更しました`);
-    }
+    // Inject theme CSS
+    this.injectThemeCSS();
   }
 
-  applyBorderRadius(radius) {
-    const canvas = document.getElementById('dashboardCanvas');
-    if (canvas) {
-      const elements = canvas.querySelectorAll(
-        '.dashboard-card, .stat-card, .data-table, .chart-card, .btn'
-      );
-      elements.forEach((el) => {
-        el.style.borderRadius = `${radius}px`;
-      });
-      this.showNotification(`角丸を ${radius}px に変更しました`);
+  injectThemeCSS() {
+    let styleEl = document.getElementById('dash-theme-css');
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'dash-theme-css';
+      document.head.appendChild(styleEl);
     }
+
+    styleEl.textContent = `
+      #dashboardCanvas {
+        --primary: ${this.designSettings.primaryColor};
+        --secondary: ${this.designSettings.secondaryColor};
+        --accent: ${this.designSettings.accentColor};
+      }
+      #dashboardCanvas .btn-primary,
+      #dashboardCanvas .primary-btn {
+        background: ${this.designSettings.primaryColor} !important;
+      }
+      #dashboardCanvas .text-primary {
+        color: ${this.designSettings.primaryColor} !important;
+      }
+      #dashboardCanvas .stat-change.positive {
+        color: ${this.designSettings.accentColor} !important;
+      }
+      #dashboardCanvas .chart-line {
+        stroke: ${this.designSettings.primaryColor};
+      }
+      #dashboardCanvas .progress-bar {
+        background: ${this.designSettings.primaryColor};
+      }
+    `;
+  }
+
+  resetDesignColors() {
+    this.designSettings.primaryColor = '#3b82f6';
+    this.designSettings.secondaryColor = '#64748b';
+    this.designSettings.accentColor = '#10b981';
+    this.designSettings.bgColor = '#f8fafc';
+
+    // Update inputs
+    document.getElementById('dashPrimaryColor').value = this.designSettings.primaryColor;
+    document.getElementById('dashSecondaryColor').value = this.designSettings.secondaryColor;
+    document.getElementById('dashAccentColor').value = this.designSettings.accentColor;
+    document.getElementById('dashBgColor').value = this.designSettings.bgColor;
+
+    this.applyDesignSettings();
+    this.showNotification('カラーをリセットしました');
   }
 
   // Utilities

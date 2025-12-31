@@ -139,17 +139,17 @@ const dashboardTemplates = {
     name: '円グラフ',
     category: 'data',
     html: `
-        <div class="db-card grid-col-3">
+        <div class="db-card grid-col-4">
             <div class="db-card-header">
                 <h3 class="db-card-title">カテゴリ別分布</h3>
             </div>
-            <div class="chart-container" style="height: 250px;">
+            <div class="chart-container" style="height: 220px;">
                 <div class="chart-placeholder">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                        <path d="M12 2a10 10 0 0 0 0 20V2z" fill="currentColor" opacity="0.3"/>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 2a10 10 0 0 0 0 20V2z" fill="currentColor" opacity="0.2"/>
                     </svg>
-                    <p>円グラフ（Chart.js などで実装）</p>
+                    <p>円グラフ</p>
                 </div>
             </div>
         </div>
@@ -295,7 +295,7 @@ const dashboardTemplates = {
     name: 'KPIカード',
     category: 'card',
     html: `
-        <div class="kpi-card grid-col-3">
+        <div class="kpi-card grid-col-4">
             <div class="kpi-card-content">
                 <div class="kpi-card-label">今月の目標達成率</div>
                 <div class="kpi-card-value">87%</div>
@@ -314,7 +314,7 @@ const dashboardTemplates = {
     name: '進捗カード',
     category: 'card',
     html: `
-        <div class="progress-card grid-col-3">
+        <div class="progress-card grid-col-4">
             <div class="progress-header">
                 <span class="progress-title">プロジェクト進捗</span>
                 <span class="progress-percentage">68%</span>
@@ -334,45 +334,45 @@ const dashboardTemplates = {
     name: 'アクティビティフィード',
     category: 'card',
     html: `
-        <div class="db-card grid-col-3">
+        <div class="db-card grid-col-4">
             <div class="db-card-header">
                 <h3 class="db-card-title">最近のアクティビティ</h3>
             </div>
             <div class="activity-feed">
                 <div class="activity-item">
                     <div class="activity-icon blue">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="9" cy="7" r="4" stroke-width="2"/>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
                         </svg>
                     </div>
                     <div class="activity-content">
-                        <div class="activity-title">新規ユーザー登録</div>
-                        <div class="activity-time">5分前</div>
+                        <p class="activity-title">新規ユーザー登録</p>
+                        <span class="activity-time">5分前</span>
                     </div>
                 </div>
                 <div class="activity-item">
                     <div class="activity-icon green">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="20 6 9 17 4 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
                         </svg>
                     </div>
                     <div class="activity-content">
-                        <div class="activity-title">支払いが完了しました</div>
-                        <div class="activity-time">23分前</div>
+                        <p class="activity-title">支払いが完了しました</p>
+                        <span class="activity-time">23分前</span>
                     </div>
                 </div>
                 <div class="activity-item">
                     <div class="activity-icon orange">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="12" y1="9" x2="12" y2="13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
                         </svg>
                     </div>
                     <div class="activity-content">
-                        <div class="activity-title">システムアラート</div>
-                        <div class="activity-time">1時間前</div>
+                        <p class="activity-title">システムアラート</p>
+                        <span class="activity-time">1時間前</span>
                     </div>
                 </div>
             </div>
@@ -437,7 +437,13 @@ const dashboardTemplates = {
     html: `
         <div class="grid-col-12">
             <div class="alert-banner info">
-                <span class="alert-icon">ℹ️</span>
+                <span class="alert-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                </span>
                 <span>新しいアップデートが利用可能です。今すぐアップデートして最新機能をお試しください。</span>
             </div>
         </div>
@@ -448,7 +454,7 @@ const dashboardTemplates = {
     name: 'ユーザープロフィール',
     category: 'other',
     html: `
-        <div class="user-profile-card grid-col-3">
+        <div class="user-profile-card grid-col-4">
             <div class="user-avatar-large">田</div>
             <div class="user-name">田中太郎</div>
             <div class="user-role">シニアマネージャー</div>

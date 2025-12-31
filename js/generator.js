@@ -12,12 +12,104 @@ class LandingPageGenerator {
     this.exportedHTML = null;
     this.cssMode = 'custom'; // 'custom' or 'tailwind'
 
+    // Undo/Redo 履歴管理
+    this.history = [];
+    this.historyIndex = -1;
+    this.maxHistorySize = 50;
+
     this.init();
   }
 
   init() {
     this.setupEventListeners();
     this.loadSectionTemplates();
+    this.setupSidebarToggle();
+    this.setupInlineEditing();
+    this.setupHelpPanel();
+    this.setupWelcomeModal();
+    this.draggedItem = null;
+  }
+
+  setupSidebarToggle() {
+    const toggle = document.getElementById('sidebarToggle');
+    const container = document.querySelector('.generator-container');
+
+    if (toggle && container) {
+      toggle.addEventListener('click', () => {
+        container.classList.toggle('sidebar-collapsed');
+        const isCollapsed = container.classList.contains('sidebar-collapsed');
+        localStorage.setItem('lpSidebarCollapsed', isCollapsed);
+      });
+
+      // Restore state from localStorage
+      if (localStorage.getItem('lpSidebarCollapsed') === 'true') {
+        container.classList.add('sidebar-collapsed');
+      }
+    }
+  }
+
+  setupHelpPanel() {
+    const helpToggle = document.getElementById('helpToggle');
+    const helpContent = document.getElementById('helpContent');
+    const helpClose = document.getElementById('helpClose');
+
+    if (helpToggle && helpContent) {
+      helpToggle.addEventListener('click', () => {
+        helpContent.classList.toggle('active');
+      });
+
+      helpClose?.addEventListener('click', () => {
+        helpContent.classList.remove('active');
+      });
+
+      // Close on click outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.help-panel')) {
+          helpContent.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  setupWelcomeModal() {
+    const welcomeModal = document.getElementById('welcomeModal');
+    const welcomeClose = document.getElementById('welcomeClose');
+    const dontShowAgain = document.getElementById('dontShowAgain');
+
+    if (!welcomeModal) return;
+
+    // Check if user has dismissed the welcome modal
+    const hideWelcome = localStorage.getItem('lpHideWelcome');
+
+    if (hideWelcome !== 'true') {
+      // Show welcome modal after a short delay
+      setTimeout(() => {
+        welcomeModal.classList.add('active');
+      }, 500);
+    }
+
+    welcomeClose?.addEventListener('click', () => {
+      welcomeModal.classList.remove('active');
+
+      // Save preference if checkbox is checked
+      if (dontShowAgain?.checked) {
+        localStorage.setItem('lpHideWelcome', 'true');
+      }
+    });
+
+    // Close on backdrop click
+    welcomeModal.addEventListener('click', (e) => {
+      if (e.target === welcomeModal) {
+        welcomeModal.classList.remove('active');
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && welcomeModal.classList.contains('active')) {
+        welcomeModal.classList.remove('active');
+      }
+    });
   }
 
   setupEventListeners() {
@@ -26,10 +118,18 @@ class LandingPageGenerator {
       btn.addEventListener('click', (e) => this.handleThemeChange(e));
     });
 
-    // Component addition
+    // Component addition (click and drag)
     document.querySelectorAll('.component-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => this.handleComponentAdd(e));
+
+      // Make draggable
+      btn.setAttribute('draggable', 'true');
+      btn.addEventListener('dragstart', (e) => this.handleComponentDragStart(e));
+      btn.addEventListener('dragend', (e) => this.handleComponentDragEnd(e));
     });
+
+    // Setup preview area as drop zone
+    this.setupPreviewDropZone();
 
     // Device toggles
     document.querySelectorAll('.device-btn').forEach((btn) => {
@@ -49,6 +149,7 @@ class LandingPageGenerator {
 
     // Actions
     document.getElementById('exportHTML')?.addEventListener('click', () => this.exportHTML());
+    document.getElementById('previewExport')?.addEventListener('click', () => this.previewExport());
     document.getElementById('clearAll')?.addEventListener('click', () => this.clearAll());
 
     // Project management
@@ -56,6 +157,14 @@ class LandingPageGenerator {
     document
       .getElementById('loadProject')
       ?.addEventListener('click', () => this.toggleProjectsList());
+
+    // JSON Export/Import
+    document
+      .getElementById('exportJSON')
+      ?.addEventListener('click', () => this.exportProjectAsJSON());
+    document
+      .getElementById('importJSON')
+      ?.addEventListener('click', () => this.importProjectFromJSON());
 
     // Export modal
     document
@@ -73,13 +182,28 @@ class LandingPageGenerator {
       }
     });
 
-    // Close modal on Escape key
+    // Close modal on Escape key & Undo/Redo shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const modal = document.getElementById('exportModal');
         if (modal && modal.classList.contains('active')) {
           this.closeExportModal();
         }
+      }
+
+      // Undo: Ctrl+Z or Cmd+Z
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        this.undo();
+      }
+
+      // Redo: Ctrl+Shift+Z or Cmd+Shift+Z or Ctrl+Y
+      if (
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z') ||
+        ((e.ctrlKey || e.metaKey) && e.key === 'y')
+      ) {
+        e.preventDefault();
+        this.redo();
       }
     });
 
@@ -138,6 +262,7 @@ class LandingPageGenerator {
         template: sectionTemplates[component],
       });
 
+      this.saveState();
       this.updatePreview();
       this.showNotification(`${sectionTemplates[component].name} を追加しました`);
     }
@@ -169,7 +294,11 @@ class LandingPageGenerator {
                     <div class="empty-state-content">
                         <h2>ランディングページを作成しましょう</h2>
                         <p>左側からカラーテーマを選択し、セクションを追加してください</p>
-                        <div class="empty-state-icon">✨</div>
+                        <div class="empty-state-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             `;
@@ -181,19 +310,42 @@ class LandingPageGenerator {
 
     // Add delete buttons to sections
     this.addSectionControls();
+
+    // Make images editable
+    if (typeof ImageManager !== 'undefined') {
+      ImageManager.makeImagesEditable(previewFrame);
+    }
   }
 
   generatePreviewHTML() {
     const sectionsHTML = this.sections
       .map((section) => {
+        // Apply image changes if any
+        let sectionHtml = section.template.html;
+        if (section.imageChanges && section.imageChanges.length > 0) {
+          sectionHtml = this.applyImageChanges(sectionHtml, section.imageChanges);
+        }
+
         return `
-                <div class="lp-section-wrapper" data-section-id="${section.id}">
+                <div class="lp-section-wrapper" data-section-id="${section.id}" draggable="true">
                     <div class="lp-section-controls">
-                        <button class="lp-control-btn lp-move-up" title="上に移動">↑</button>
-                        <button class="lp-control-btn lp-move-down" title="下に移動">↓</button>
-                        <button class="lp-control-btn lp-delete" title="削除">🗑️</button>
+                        <button class="lp-control-btn lp-drag-handle" title="ドラッグして移動" aria-label="ドラッグして移動">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                        </button>
+                        <button class="lp-control-btn lp-move-up" title="上に移動" aria-label="上に移動">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+                        </button>
+                        <button class="lp-control-btn lp-move-down" title="下に移動" aria-label="下に移動">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <button class="lp-control-btn lp-duplicate" title="複製" aria-label="複製">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                        <button class="lp-control-btn lp-delete" title="削除" aria-label="削除">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
                     </div>
-                    ${section.template.html}
+                    ${sectionHtml}
                 </div>
             `;
       })
@@ -203,6 +355,27 @@ class LandingPageGenerator {
             <style>
                 .lp-section-wrapper {
                     position: relative;
+                    transition: all 0.3s ease;
+                    border: 2px solid transparent;
+                }
+                .lp-section-wrapper.dragging {
+                    opacity: 0.5;
+                    transform: scale(0.98);
+                    border: 2px dashed #3b82f6;
+                }
+                .lp-section-wrapper.drag-over {
+                    border: 2px solid #3b82f6;
+                    background: rgba(59, 130, 246, 0.05);
+                }
+                .lp-section-wrapper.drag-over::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 4px;
+                    background: #3b82f6;
+                    z-index: 1001;
                 }
                 .lp-section-controls {
                     position: absolute;
@@ -228,16 +401,32 @@ class LandingPageGenerator {
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    color: #1e293b;
+                }
+                .lp-control-btn svg {
+                    color: #1e293b;
+                    stroke: #1e293b;
                 }
                 .lp-control-btn:hover {
                     transform: scale(1.1);
                     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+                    background: #f1f5f9;
+                }
+                .lp-control-btn.lp-drag-handle {
+                    cursor: grab;
+                }
+                .lp-control-btn.lp-drag-handle:active {
+                    cursor: grabbing;
                 }
                 .lp-control-btn.lp-delete:hover {
-                    background: #fee;
+                    background: #fee2e2;
+                }
+                .lp-control-btn.lp-delete:hover svg {
+                    color: #dc2626;
+                    stroke: #dc2626;
                 }
             </style>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
             <link rel="stylesheet" href="css/landing-page.css">
             <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
                 ${sectionsHTML}
@@ -249,7 +438,7 @@ class LandingPageGenerator {
     // Delete buttons
     document.querySelectorAll('.lp-delete').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        const wrapper = e.target.closest('.lp-section-wrapper');
+        const wrapper = e.currentTarget.closest('.lp-section-wrapper');
         const sectionId = wrapper.dataset.sectionId;
         this.deleteSection(sectionId);
       });
@@ -258,7 +447,7 @@ class LandingPageGenerator {
     // Move up buttons
     document.querySelectorAll('.lp-move-up').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        const wrapper = e.target.closest('.lp-section-wrapper');
+        const wrapper = e.currentTarget.closest('.lp-section-wrapper');
         const sectionId = wrapper.dataset.sectionId;
         this.moveSectionUp(sectionId);
       });
@@ -267,15 +456,306 @@ class LandingPageGenerator {
     // Move down buttons
     document.querySelectorAll('.lp-move-down').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        const wrapper = e.target.closest('.lp-section-wrapper');
+        const wrapper = e.currentTarget.closest('.lp-section-wrapper');
         const sectionId = wrapper.dataset.sectionId;
         this.moveSectionDown(sectionId);
       });
     });
+
+    // Duplicate buttons
+    document.querySelectorAll('.lp-duplicate').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const wrapper = e.currentTarget.closest('.lp-section-wrapper');
+        const sectionId = wrapper.dataset.sectionId;
+        this.duplicateSection(sectionId);
+      });
+    });
+
+    // Drag and Drop functionality
+    this.setupDragAndDrop();
+  }
+
+  setupDragAndDrop() {
+    const wrappers = document.querySelectorAll('.lp-section-wrapper');
+
+    wrappers.forEach((wrapper) => {
+      // Drag start
+      wrapper.addEventListener('dragstart', (e) => {
+        this.draggedItem = wrapper;
+        wrapper.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', wrapper.dataset.sectionId);
+      });
+
+      // Drag end
+      wrapper.addEventListener('dragend', () => {
+        this.draggedItem = null;
+        wrapper.classList.remove('dragging');
+        document.querySelectorAll('.lp-section-wrapper').forEach((w) => {
+          w.classList.remove('drag-over');
+        });
+      });
+
+      // Drag over
+      wrapper.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+
+        if (this.draggedItem && this.draggedItem !== wrapper) {
+          wrapper.classList.add('drag-over');
+        }
+      });
+
+      // Drag leave
+      wrapper.addEventListener('dragleave', () => {
+        wrapper.classList.remove('drag-over');
+      });
+
+      // Drop
+      wrapper.addEventListener('drop', (e) => {
+        e.preventDefault();
+        wrapper.classList.remove('drag-over');
+
+        if (!this.draggedItem || this.draggedItem === wrapper) return;
+
+        const draggedId = this.draggedItem.dataset.sectionId;
+        const targetId = wrapper.dataset.sectionId;
+
+        this.reorderSections(draggedId, targetId);
+      });
+    });
+  }
+
+  reorderSections(draggedId, targetId) {
+    const draggedIndex = this.sections.findIndex((s) => s.id === draggedId);
+    const targetIndex = this.sections.findIndex((s) => s.id === targetId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    // Remove dragged item and insert at target position
+    const [draggedSection] = this.sections.splice(draggedIndex, 1);
+    this.sections.splice(targetIndex, 0, draggedSection);
+
+    this.saveState();
+    this.updatePreview();
+    this.showNotification('セクションを移動しました');
+  }
+
+  // ==========================================
+  // COMPONENT DRAG FROM SIDEBAR TO PREVIEW
+  // ==========================================
+
+  handleComponentDragStart(e) {
+    const btn = e.currentTarget;
+    const component = btn.dataset.component;
+    e.dataTransfer.setData('component-type', component);
+    e.dataTransfer.effectAllowed = 'copy';
+    btn.classList.add('dragging');
+    this.draggedComponentType = component;
+
+    // Show drop zone indicator
+    const previewFrame = document.getElementById('previewFrame');
+    previewFrame?.classList.add('drop-zone-active');
+  }
+
+  handleComponentDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    this.draggedComponentType = null;
+
+    // Hide drop zone indicator
+    const previewFrame = document.getElementById('previewFrame');
+    previewFrame?.classList.remove('drop-zone-active');
+
+    // Remove all drop indicators
+    document.querySelectorAll('.drop-indicator').forEach((el) => el.remove());
+  }
+
+  setupPreviewDropZone() {
+    const previewFrame = document.getElementById('previewFrame');
+    if (!previewFrame) return;
+
+    previewFrame.addEventListener('dragover', (e) => {
+      if (!this.draggedComponentType) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+
+      // Find drop position
+      this.updateDropIndicator(e);
+    });
+
+    previewFrame.addEventListener('dragleave', (e) => {
+      if (e.target === previewFrame || !previewFrame.contains(e.relatedTarget)) {
+        document.querySelectorAll('.drop-indicator').forEach((el) => el.remove());
+      }
+    });
+
+    previewFrame.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const componentType = e.dataTransfer.getData('component-type');
+
+      if (componentType && sectionTemplates[componentType]) {
+        const dropIndex = this.getDropIndex(e);
+        this.insertComponentAt(componentType, dropIndex);
+      }
+
+      // Cleanup
+      document.querySelectorAll('.drop-indicator').forEach((el) => el.remove());
+      previewFrame.classList.remove('drop-zone-active');
+    });
+  }
+
+  updateDropIndicator(e) {
+    const previewFrame = document.getElementById('previewFrame');
+    const container = previewFrame.querySelector('.lp-container');
+    if (!container) {
+      // Show indicator for empty state
+      this.showEmptyDropIndicator(previewFrame);
+      return;
+    }
+
+    const wrappers = container.querySelectorAll('.lp-section-wrapper');
+    if (wrappers.length === 0) {
+      this.showEmptyDropIndicator(container);
+      return;
+    }
+
+    // Remove existing indicators
+    document.querySelectorAll('.drop-indicator').forEach((el) => el.remove());
+
+    // Find the closest section
+    let closestWrapper = null;
+    let closestOffset = Number.POSITIVE_INFINITY;
+    let insertBefore = true;
+
+    wrappers.forEach((wrapper) => {
+      const rect = wrapper.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      const offset = e.clientY - midY;
+
+      if (Math.abs(offset) < Math.abs(closestOffset)) {
+        closestOffset = offset;
+        closestWrapper = wrapper;
+        insertBefore = offset < 0;
+      }
+    });
+
+    if (closestWrapper) {
+      const indicator = document.createElement('div');
+      indicator.className = 'drop-indicator';
+      indicator.style.cssText = `
+        height: 4px;
+        background: #3b82f6;
+        border-radius: 2px;
+        margin: 8px 0;
+        animation: pulse 1s ease-in-out infinite;
+      `;
+
+      if (insertBefore) {
+        closestWrapper.parentNode.insertBefore(indicator, closestWrapper);
+      } else {
+        closestWrapper.parentNode.insertBefore(indicator, closestWrapper.nextSibling);
+      }
+    }
+  }
+
+  showEmptyDropIndicator(container) {
+    document.querySelectorAll('.drop-indicator').forEach((el) => el.remove());
+
+    const indicator = document.createElement('div');
+    indicator.className = 'drop-indicator';
+    indicator.style.cssText = `
+      height: 100px;
+      border: 2px dashed #3b82f6;
+      border-radius: 12px;
+      background: rgba(59, 130, 246, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px;
+      color: #3b82f6;
+      font-weight: 600;
+    `;
+    indicator.textContent = 'ここにドロップ';
+    container.appendChild(indicator);
+  }
+
+  getDropIndex(e) {
+    const previewFrame = document.getElementById('previewFrame');
+    const container = previewFrame.querySelector('.lp-container');
+    if (!container) return 0;
+
+    const wrappers = container.querySelectorAll('.lp-section-wrapper');
+    if (wrappers.length === 0) return 0;
+
+    let dropIndex = 0;
+    wrappers.forEach((wrapper, index) => {
+      const rect = wrapper.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      if (e.clientY > midY) {
+        dropIndex = index + 1;
+      }
+    });
+
+    return dropIndex;
+  }
+
+  insertComponentAt(componentType, index) {
+    if (!sectionTemplates[componentType]) return;
+
+    // Remove empty state if first section
+    if (this.sections.length === 0) {
+      const emptyState = document.querySelector('.empty-state');
+      if (emptyState) emptyState.remove();
+    }
+
+    const newSection = {
+      type: componentType,
+      id: this.generateId(),
+      template: sectionTemplates[componentType],
+    };
+
+    // Insert at specific index
+    this.sections.splice(index, 0, newSection);
+
+    this.saveState();
+    this.updatePreview();
+    this.showNotification(`${sectionTemplates[componentType].name} を追加しました`);
+  }
+
+  applyImageChanges(html, imageChanges) {
+    // Create a temporary container to parse the HTML
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    imageChanges.forEach((change) => {
+      if (change.index < 1000) {
+        // Regular image
+        const images = temp.querySelectorAll('img');
+        if (images[change.index]) {
+          images[change.index].src = change.src;
+          if (change.alt) images[change.index].alt = change.alt;
+        }
+      } else {
+        // Background image
+        const bgIndex = change.index - 1000;
+        const bgElements = temp.querySelectorAll('[style*="background"]');
+        if (bgElements[bgIndex]) {
+          const currentStyle = bgElements[bgIndex].getAttribute('style') || '';
+          const newStyle = currentStyle.replace(
+            /background(-image)?:\s*url\(['"]?[^'")\s]+['"]?\)/gi,
+            `background-image: url('${change.src}')`
+          );
+          bgElements[bgIndex].setAttribute('style', newStyle);
+        }
+      }
+    });
+
+    return temp.innerHTML;
   }
 
   deleteSection(sectionId) {
     this.sections = this.sections.filter((s) => s.id !== sectionId);
+    this.saveState();
     this.updatePreview();
     this.showNotification('セクションを削除しました');
   }
@@ -287,6 +767,7 @@ class LandingPageGenerator {
         this.sections[index],
         this.sections[index - 1],
       ];
+      this.saveState();
       this.updatePreview();
     }
   }
@@ -298,36 +779,191 @@ class LandingPageGenerator {
         this.sections[index + 1],
         this.sections[index],
       ];
+      this.saveState();
       this.updatePreview();
     }
   }
 
-  exportHTML() {
+  // セクション複製
+  duplicateSection(sectionId) {
+    const index = this.sections.findIndex((s) => s.id === sectionId);
+    if (index === -1) return;
+
+    const original = this.sections[index];
+    const duplicate = {
+      type: original.type,
+      id: this.generateId(),
+      template: original.template,
+    };
+
+    this.sections.splice(index + 1, 0, duplicate);
+    this.saveState();
+    this.updatePreview();
+    this.showNotification(`${original.template.name} を複製しました`);
+  }
+
+  // ==========================================
+  // UNDO/REDO 機能
+  // ==========================================
+
+  saveState() {
+    const state = JSON.parse(JSON.stringify(this.sections));
+
+    // 現在位置より後の履歴を削除
+    this.history = this.history.slice(0, this.historyIndex + 1);
+
+    this.history.push(state);
+    this.historyIndex++;
+
+    // 最大履歴サイズを超えたら古いものを削除
+    if (this.history.length > this.maxHistorySize) {
+      this.history.shift();
+      this.historyIndex--;
+    }
+  }
+
+  undo() {
+    if (this.historyIndex > 0) {
+      this.historyIndex--;
+      this.sections = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+      this.updatePreview();
+      this.showNotification('元に戻しました (Ctrl+Z)');
+    } else if (this.historyIndex === 0 && this.sections.length > 0) {
+      // 最初の状態に戻す
+      this.historyIndex = -1;
+      this.sections = [];
+      this.updatePreview();
+      this.showNotification('元に戻しました (Ctrl+Z)');
+    }
+  }
+
+  redo() {
+    if (this.historyIndex < this.history.length - 1) {
+      this.historyIndex++;
+      this.sections = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+      this.updatePreview();
+      this.showNotification('やり直しました (Ctrl+Shift+Z)');
+    }
+  }
+
+  async exportHTML() {
     if (this.sections.length === 0) {
       this.showNotification('エクスポートするセクションがありません', 'error');
       return;
     }
 
     // Generate HTML and show preview modal
-    const fullHTML = this.generateFullHTML();
+    const fullHTML = await this.generateFullHTML();
     this.showExportModal(fullHTML);
   }
 
-  showExportModal(htmlCode) {
+  async previewExport() {
+    if (this.sections.length === 0) {
+      this.showNotification('エクスポートするセクションがありません', 'error');
+      return;
+    }
+
+    // Get selected export format
+    const formatRadio = document.querySelector('input[name="lpExportFormat"]:checked');
+    const format = formatRadio ? formatRadio.value : 'html';
+
+    let code, filename, formatLabel;
+    this.exportFormat = format;
+    this.exportCSS = null;
+
+    switch (format) {
+      case 'css-only':
+        code = await this.getInlineCSS();
+        filename = `landing-page-${Date.now()}.css`;
+        formatLabel = 'CSS Only';
+        break;
+      case 'html-external':
+        code = await this.generateExternalCSSHTML();
+        filename = `landing-page-${Date.now()}.html`;
+        formatLabel = 'HTML + 外部CSS';
+        this.exportCSS = await this.getInlineCSS();
+        this.exportCSSFilename = `landing-page-${Date.now()}.css`;
+        break;
+      case 'tailwind':
+        code = await this.generateTailwindHTML();
+        filename = `landing-page-tailwind-${Date.now()}.html`;
+        formatLabel = 'Tailwind CSS';
+        break;
+      case 'shadcn':
+        code = this.generateShadcnUI();
+        filename = `LandingPage-${Date.now()}.tsx`;
+        formatLabel = 'shadcn/ui (React)';
+        break;
+      case 'html':
+      default:
+        code = await this.generateCustomCSSHTML();
+        filename = `landing-page-${Date.now()}.html`;
+        formatLabel = 'HTML/CSS (インライン)';
+        break;
+    }
+
+    this.exportFilename = filename;
+    this.showExportModal(code, formatLabel);
+  }
+
+  showExportModal(code, formatLabel = 'HTML/CSS') {
     const modal = document.getElementById('exportModal');
     const codePreview = document.getElementById('exportCodePreview').querySelector('code');
     const linesElement = document.getElementById('exportCodeLines');
     const sizeElement = document.getElementById('exportCodeSize');
+    const modalTitle = modal.querySelector('.export-modal-header h3');
+    const modalToolbar = modal.querySelector('.export-modal-toolbar');
 
-    // Store the HTML for later download
-    this.exportedHTML = htmlCode;
+    // Store the code for later download
+    this.exportedHTML = code;
+    this.currentPreviewTab = 'html';
+
+    // Update modal title with format
+    if (modalTitle) {
+      modalTitle.textContent = `コードプレビュー - ${formatLabel}`;
+    }
+
+    // Remove existing tabs if any
+    const existingTabs = modal.querySelector('.export-file-tabs');
+    if (existingTabs) existingTabs.remove();
+
+    // Add file tabs for html-external format
+    if (this.exportFormat === 'html-external' && this.exportCSS) {
+      const tabsHTML = `
+        <div class="export-file-tabs">
+          <button class="export-tab active" data-tab="html">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            index.html
+          </button>
+          <button class="export-tab" data-tab="css">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            landing-page.css
+          </button>
+        </div>
+      `;
+      modalToolbar.insertAdjacentHTML('beforebegin', tabsHTML);
+
+      // Add tab click handlers
+      modal.querySelectorAll('.export-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          modal.querySelectorAll('.export-tab').forEach((t) => t.classList.remove('active'));
+          tab.classList.add('active');
+          this.currentPreviewTab = tab.dataset.tab;
+          this.updateExportPreview();
+        });
+      });
+    }
 
     // Display the code
-    codePreview.textContent = htmlCode;
+    codePreview.textContent = code;
 
     // Calculate and display stats
-    const lines = htmlCode.split('\n').length;
-    const sizeKB = (new Blob([htmlCode]).size / 1024).toFixed(2);
+    const lines = code.split('\n').length;
+    const sizeKB = (new Blob([code]).size / 1024).toFixed(2);
 
     linesElement.textContent = lines;
     sizeElement.textContent = sizeKB;
@@ -337,19 +973,49 @@ class LandingPageGenerator {
     document.body.style.overflow = 'hidden';
   }
 
+  updateExportPreview() {
+    const codePreview = document.getElementById('exportCodePreview').querySelector('code');
+    const linesElement = document.getElementById('exportCodeLines');
+    const sizeElement = document.getElementById('exportCodeSize');
+
+    const content = this.currentPreviewTab === 'css' ? this.exportCSS : this.exportedHTML;
+
+    codePreview.textContent = content;
+
+    const lines = content.split('\n').length;
+    const sizeKB = (new Blob([content]).size / 1024).toFixed(2);
+
+    linesElement.textContent = lines;
+    sizeElement.textContent = sizeKB;
+  }
+
   closeExportModal() {
     const modal = document.getElementById('exportModal');
     modal.classList.remove('active');
     document.body.style.overflow = '';
     this.exportedHTML = null;
+    this.exportFilename = null;
+    this.exportCSS = null;
+    this.exportCSSFilename = null;
+    this.exportFormat = null;
+    this.currentPreviewTab = 'html';
+
+    // Remove tabs if any
+    const tabs = modal.querySelector('.export-file-tabs');
+    if (tabs) tabs.remove();
   }
 
   async copyCode() {
     if (!this.exportedHTML) return;
 
+    // Copy currently visible content
+    const content =
+      this.currentPreviewTab === 'css' && this.exportCSS ? this.exportCSS : this.exportedHTML;
+
     try {
-      await navigator.clipboard.writeText(this.exportedHTML);
-      this.showNotification('コードをクリップボードにコピーしました');
+      await navigator.clipboard.writeText(content);
+      const fileType = this.currentPreviewTab === 'css' ? 'CSS' : 'コード';
+      this.showNotification(`${fileType}をクリップボードにコピーしました`);
 
       // Update button text temporarily
       const btn = document.getElementById('copyCodeBtn');
@@ -372,29 +1038,50 @@ class LandingPageGenerator {
   downloadFromModal() {
     if (!this.exportedHTML) return;
 
-    const blob = new Blob([this.exportedHTML], { type: 'text/html' });
+    // Determine file type based on filename
+    const filename = this.exportFilename || `landing-page-${Date.now()}.html`;
+    const isReact = filename.endsWith('.tsx') || filename.endsWith('.jsx');
+    const isCSS = filename.endsWith('.css');
+    const mimeType = isReact ? 'text/plain' : isCSS ? 'text/css' : 'text/html';
+
+    // Download main file
+    this.downloadFile(this.exportedHTML, filename, mimeType);
+
+    // If html-external format, also download CSS file
+    if (this.exportFormat === 'html-external' && this.exportCSS) {
+      setTimeout(() => {
+        this.downloadFile(this.exportCSS, 'landing-page.css', 'text/css');
+      }, 500);
+      this.showNotification('HTMLとCSSファイルをダウンロードしました');
+    } else {
+      const formatName = isReact ? 'Reactコンポーネント' : isCSS ? 'CSSファイル' : 'HTMLファイル';
+      this.showNotification(`${formatName}をダウンロードしました`);
+    }
+
+    this.closeExportModal();
+  }
+
+  downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `landing-page-${Date.now()}.html`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-
-    this.showNotification('HTMLファイルをダウンロードしました');
-    this.closeExportModal();
   }
 
-  generateFullHTML() {
+  async generateFullHTML() {
     if (this.cssMode === 'tailwind') {
-      return this.generateTailwindHTML();
+      return await this.generateTailwindHTML();
     } else {
-      return this.generateCustomCSSHTML();
+      return await this.generateCustomCSSHTML();
     }
   }
 
-  generateCustomCSSHTML() {
+  async generateCustomCSSHTML() {
     const sectionsHTML = this.sections.map((section) => section.template.html).join('\n');
 
     // Get SEO meta tags from enhanced generator if available
@@ -406,6 +1093,9 @@ class LandingPageGenerator {
     // Get language setting from enhanced generator if available
     const lang = window.enhancedGenerator?.seoData?.lang || 'ja';
 
+    // Load CSS asynchronously
+    const inlineCSS = await this.getInlineCSS();
+
     return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -414,9 +1104,9 @@ class LandingPageGenerator {
 ${seoMetaTags || '    <title>My Landing Page</title>'}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        ${this.getInlineCSS()}
+        ${inlineCSS}
     </style>
 </head>
 <body>
@@ -459,7 +1149,71 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 </html>`;
   }
 
-  generateTailwindHTML() {
+  async generateExternalCSSHTML() {
+    const sectionsHTML = this.sections.map((section) => section.template.html).join('\n');
+
+    // Get SEO meta tags from enhanced generator if available
+    let seoMetaTags = '';
+    if (window.enhancedGenerator && window.enhancedGenerator.generateSEOMetaTags) {
+      seoMetaTags = window.enhancedGenerator.generateSEOMetaTags();
+    }
+
+    // Get language setting from enhanced generator if available
+    const lang = window.enhancedGenerator?.seoData?.lang || 'ja';
+
+    return `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+${seoMetaTags || '    <title>My Landing Page</title>'}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- External CSS file - download separately -->
+    <link rel="stylesheet" href="landing-page.css">
+</head>
+<body>
+    <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
+        ${sectionsHTML}
+    </div>
+
+    <script>
+        // Smooth scroll animation observer
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.lp-slide-up, .lp-fade-in').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.8s ease-out';
+            observer.observe(el);
+        });
+
+        // Form submission handler
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('フォームが送信されました！（デモ）');
+            });
+        });
+    </script>
+</body>
+</html>`;
+  }
+
+  async generateTailwindHTML() {
     const sectionsHTML = this.sections.map((section) => section.template.html).join('\n');
 
     // Get SEO meta tags from enhanced generator if available
@@ -474,6 +1228,9 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     // Get theme colors
     const themeColors = this.getThemeColors();
 
+    // Load CSS asynchronously
+    const inlineCSS = await this.getInlineCSS();
+
     return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -483,7 +1240,7 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -502,7 +1259,7 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     </script>
     <style>
         /* Custom styles for compatibility */
-        ${this.getInlineCSS()}
+        ${inlineCSS}
     </style>
 </head>
 <body class="font-sans">
@@ -560,6 +1317,682 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     };
 
     return themes[this.currentTheme] || themes['modern-blue'];
+  }
+
+  generateShadcnUI() {
+    const themeColors = this.getThemeColors();
+    const lang = window.enhancedGenerator?.seoData?.lang || 'ja';
+
+    // Convert HTML sections to React components
+    const sectionComponents = this.sections
+      .map((section, index) => {
+        return this.convertToReactComponent(section, index);
+      })
+      .join('\n\n');
+
+    // Generate imports based on used components
+    const imports = this.getShadcnImports();
+
+    return `// Generated by LP Generator - shadcn/ui React Component
+// Install dependencies: npx shadcn-ui@latest init
+// Then add required components: npx shadcn-ui@latest add button card input
+
+'use client';
+
+import React from 'react';
+${imports}
+
+// Theme colors from LP Generator
+const themeColors = {
+  primary: '${themeColors.primary}',
+  secondary: '${themeColors.secondary}',
+};
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-background">
+${sectionComponents}
+    </div>
+  );
+}
+
+// ==========================================
+// Section Components
+// ==========================================
+
+${this.generateShadcnSectionComponents()}
+`;
+  }
+
+  convertToReactComponent(section, index) {
+    const componentName = this.pascalCase(section.type);
+    return `      <${componentName} />`;
+  }
+
+  pascalCase(str) {
+    return str
+      .split('-')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+  }
+
+  getShadcnImports() {
+    const imports = new Set();
+
+    // Always include base components
+    imports.add("import { Button } from '@/components/ui/button';");
+    imports.add(
+      "import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';"
+    );
+
+    // Check for specific sections
+    this.sections.forEach((section) => {
+      if (section.type.includes('contact') || section.type.includes('newsletter')) {
+        imports.add("import { Input } from '@/components/ui/input';");
+        imports.add("import { Label } from '@/components/ui/label';");
+        imports.add("import { Textarea } from '@/components/ui/textarea';");
+      }
+      if (section.type.includes('faq') || section.type.includes('accordion')) {
+        imports.add(
+          "import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';"
+        );
+      }
+      if (section.type.includes('pricing') || section.type.includes('toggle')) {
+        imports.add("import { Badge } from '@/components/ui/badge';");
+      }
+      if (section.type.includes('tabs')) {
+        imports.add(
+          "import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';"
+        );
+      }
+    });
+
+    return Array.from(imports).join('\n');
+  }
+
+  generateShadcnSectionComponents() {
+    const components = [];
+    const generatedTypes = new Set();
+
+    this.sections.forEach((section) => {
+      if (generatedTypes.has(section.type)) return;
+      generatedTypes.add(section.type);
+
+      const componentName = this.pascalCase(section.type);
+      const componentCode = this.generateShadcnComponent(section);
+      components.push(componentCode);
+    });
+
+    return components.join('\n\n');
+  }
+
+  generateShadcnComponent(section) {
+    const componentName = this.pascalCase(section.type);
+    const type = section.type;
+
+    // Generate component based on section type
+    if (type.includes('hero')) {
+      return this.generateHeroComponent(componentName, type);
+    } else if (type.includes('features')) {
+      return this.generateFeaturesComponent(componentName, type);
+    } else if (type.includes('pricing')) {
+      return this.generatePricingComponent(componentName, type);
+    } else if (type.includes('testimonial') || type.includes('carousel')) {
+      return this.generateTestimonialsComponent(componentName, type);
+    } else if (type.includes('cta')) {
+      return this.generateCtaComponent(componentName, type);
+    } else if (type.includes('faq') || type.includes('accordion')) {
+      return this.generateFaqComponent(componentName, type);
+    } else if (type.includes('contact')) {
+      return this.generateContactComponent(componentName, type);
+    } else if (type.includes('newsletter')) {
+      return this.generateNewsletterComponent(componentName, type);
+    } else if (type.includes('stats') || type.includes('metrics')) {
+      return this.generateStatsComponent(componentName, type);
+    } else if (type.includes('team')) {
+      return this.generateTeamComponent(componentName, type);
+    } else if (type.includes('gallery')) {
+      return this.generateGalleryComponent(componentName, type);
+    } else if (type.includes('logo')) {
+      return this.generateLogoCloudComponent(componentName, type);
+    } else {
+      return this.generateGenericComponent(componentName, type);
+    }
+  }
+
+  generateHeroComponent(name, type) {
+    return `function ${name}() {
+  return (
+    <section className="relative py-20 px-4 md:px-8 lg:px-16 bg-gradient-to-br from-primary/10 to-secondary/10">
+      <div className="max-w-6xl mx-auto text-center">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
+          あなたのビジネスを次のレベルへ
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+          革新的なソリューションで、ビジネスの成長を加速させましょう。
+          今すぐ始めて、未来を切り開いてください。
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button size="lg" className="bg-primary hover:bg-primary/90">
+            今すぐ始める
+          </Button>
+          <Button size="lg" variant="outline">
+            詳しく見る
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateFeaturesComponent(name, type) {
+    return `function ${name}() {
+  const features = [
+    {
+      title: '高速パフォーマンス',
+      description: '最新技術により、高速で安定したパフォーマンスを実現します。',
+      icon: '⚡',
+    },
+    {
+      title: 'セキュリティ',
+      description: '業界最高水準のセキュリティで、大切なデータを保護します。',
+      icon: '🔒',
+    },
+    {
+      title: '24時間サポート',
+      description: '専門チームが24時間体制でサポートいたします。',
+      icon: '💬',
+    },
+  ];
+
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            主な機能
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            最高の体験を提供するための機能をご紹介します
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <Card key={index} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="text-4xl mb-4">{feature.icon}</div>
+                <CardTitle>{feature.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>{feature.description}</CardDescription>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generatePricingComponent(name, type) {
+    return `function ${name}() {
+  const plans = [
+    {
+      name: 'スターター',
+      price: '¥980',
+      period: '/月',
+      description: '個人利用に最適',
+      features: ['基本機能', 'メールサポート', '1GB ストレージ'],
+      featured: false,
+    },
+    {
+      name: 'プロ',
+      price: '¥2,980',
+      period: '/月',
+      description: 'チーム利用に最適',
+      features: ['全機能', '優先サポート', '10GB ストレージ', 'API アクセス'],
+      featured: true,
+    },
+    {
+      name: 'エンタープライズ',
+      price: 'お問合せ',
+      period: '',
+      description: '大規模組織向け',
+      features: ['カスタム機能', '専任サポート', '無制限ストレージ', 'SLA保証'],
+      featured: false,
+    },
+  ];
+
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-muted/50">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            料金プラン
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            あなたに最適なプランをお選びください
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          {plans.map((plan, index) => (
+            <Card key={index} className={\`\${plan.featured ? 'border-primary shadow-lg scale-105' : ''} transition-all\`}>
+              <CardHeader className="text-center">
+                {plan.featured && <Badge className="mb-2 mx-auto">人気</Badge>}
+                <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                <CardDescription>{plan.description}</CardDescription>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">{plan.price}</span>
+                  <span className="text-muted-foreground">{plan.period}</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-6">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <span className="text-primary">✓</span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <Button className="w-full" variant={plan.featured ? 'default' : 'outline'}>
+                  選択する
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateTestimonialsComponent(name, type) {
+    return `function ${name}() {
+  const testimonials = [
+    {
+      name: '田中 太郎',
+      role: 'マーケティング部長',
+      company: 'ABC株式会社',
+      content: 'このサービスを導入してから、業務効率が大幅に改善しました。チーム全体の生産性が向上しています。',
+      avatar: '/api/placeholder/64/64',
+    },
+    {
+      name: '佐藤 花子',
+      role: 'CEO',
+      company: 'XYZ Inc.',
+      content: '素晴らしいサポートと機能性。私たちのビジネスに欠かせないツールになりました。',
+      avatar: '/api/placeholder/64/64',
+    },
+    {
+      name: '鈴木 一郎',
+      role: 'エンジニア',
+      company: 'テック株式会社',
+      content: '直感的なUIと強力な機能が魅力です。導入してから3ヶ月で投資回収できました。',
+      avatar: '/api/placeholder/64/64',
+    },
+  ];
+
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            お客様の声
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            実際にご利用いただいているお客様からの声をご紹介します
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, index) => (
+            <Card key={index}>
+              <CardContent className="pt-6">
+                <p className="text-muted-foreground mb-6">"{testimonial.content}"</p>
+                <div className="flex items-center gap-4">
+                  <img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full"
+                  />
+                  <div>
+                    <p className="font-semibold">{testimonial.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {testimonial.role}, {testimonial.company}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateCtaComponent(name, type) {
+    return `function ${name}() {
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-primary text-primary-foreground">
+      <div className="max-w-4xl mx-auto text-center">
+        <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          今すぐ始めましょう
+        </h2>
+        <p className="text-xl opacity-90 mb-8">
+          14日間の無料トライアルで、すべての機能をお試しいただけます。
+          クレジットカード不要で今すぐスタート。
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button size="lg" variant="secondary">
+            無料で始める
+          </Button>
+          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+            お問い合わせ
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateFaqComponent(name, type) {
+    return `function ${name}() {
+  const faqs = [
+    {
+      question: 'サービスの利用に必要なものは？',
+      answer: 'インターネット接続環境とウェブブラウザがあれば、すぐにご利用いただけます。特別なソフトウェアのインストールは不要です。',
+    },
+    {
+      question: '無料トライアル期間はありますか？',
+      answer: 'はい、14日間の無料トライアルをご用意しています。クレジットカードの登録なしでお試しいただけます。',
+    },
+    {
+      question: 'プランの変更はいつでもできますか？',
+      answer: 'はい、いつでもプランの変更が可能です。アップグレードは即座に反映され、ダウングレードは次の請求サイクルから適用されます。',
+    },
+    {
+      question: 'サポート対応時間は？',
+      answer: 'プロプラン以上では24時間365日のサポートを提供しています。スタータープランでは営業時間内（9:00-18:00 JST）のメールサポートとなります。',
+    },
+  ];
+
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            よくある質問
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            お客様からよくいただくご質問にお答えします
+          </p>
+        </div>
+        <Accordion type="single" collapsible className="w-full">
+          {faqs.map((faq, index) => (
+            <AccordionItem key={index} value={\`item-\${index}\`}>
+              <AccordionTrigger className="text-left">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent>
+                {faq.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateContactComponent(name, type) {
+    return `function ${name}() {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert('お問い合わせを受け付けました（デモ）');
+  };
+
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-muted/50">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            お問い合わせ
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            ご質問やご相談がございましたら、お気軽にお問い合わせください
+          </p>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">お名前</Label>
+                  <Input id="name" placeholder="山田 太郎" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">メールアドレス</Label>
+                  <Input id="email" type="email" placeholder="you@example.com" required />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subject">件名</Label>
+                <Input id="subject" placeholder="お問い合わせ内容" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="message">メッセージ</Label>
+                <Textarea id="message" placeholder="詳細をご記入ください..." rows={5} required />
+              </div>
+              <Button type="submit" className="w-full">
+                送信する
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateNewsletterComponent(name, type) {
+    return `function ${name}() {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert('ニュースレターに登録しました（デモ）');
+  };
+
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-primary/5">
+      <div className="max-w-2xl mx-auto text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          ニュースレターに登録
+        </h2>
+        <p className="text-lg text-muted-foreground mb-8">
+          最新情報やお得な情報をメールでお届けします
+        </p>
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Input
+            type="email"
+            placeholder="メールアドレスを入力"
+            className="max-w-sm"
+            required
+          />
+          <Button type="submit">登録する</Button>
+        </form>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateStatsComponent(name, type) {
+    return `function ${name}() {
+  const stats = [
+    { value: '10,000+', label: '利用企業数' },
+    { value: '99.9%', label: '稼働率' },
+    { value: '24/7', label: 'サポート対応' },
+    { value: '50+', label: '連携サービス' },
+  ];
+
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {stats.map((stat, index) => (
+            <div key={index} className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
+                {stat.value}
+              </div>
+              <div className="text-muted-foreground">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateTeamComponent(name, type) {
+    return `function ${name}() {
+  const team = [
+    { name: '山田 太郎', role: 'CEO', avatar: '/api/placeholder/150/150' },
+    { name: '佐藤 花子', role: 'CTO', avatar: '/api/placeholder/150/150' },
+    { name: '鈴木 一郎', role: 'デザインリード', avatar: '/api/placeholder/150/150' },
+    { name: '田中 美咲', role: 'マーケティング', avatar: '/api/placeholder/150/150' },
+  ];
+
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-muted/50">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            チームメンバー
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            私たちのサービスを支えるメンバーをご紹介します
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {team.map((member, index) => (
+            <Card key={index} className="text-center">
+              <CardContent className="pt-6">
+                <img
+                  src={member.avatar}
+                  alt={member.name}
+                  className="w-24 h-24 rounded-full mx-auto mb-4"
+                />
+                <h3 className="font-semibold text-lg">{member.name}</h3>
+                <p className="text-muted-foreground">{member.role}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateGalleryComponent(name, type) {
+    return `function ${name}() {
+  const images = [
+    '/api/placeholder/400/300',
+    '/api/placeholder/400/300',
+    '/api/placeholder/400/300',
+    '/api/placeholder/400/300',
+    '/api/placeholder/400/300',
+    '/api/placeholder/400/300',
+  ];
+
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            ギャラリー
+          </h2>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {images.map((src, index) => (
+            <div key={index} className="relative aspect-video overflow-hidden rounded-lg">
+              <img
+                src={src}
+                alt={\`Gallery image \${index + 1}\`}
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateLogoCloudComponent(name, type) {
+    return `function ${name}() {
+  const logos = [
+    { name: 'Company 1', src: '/api/placeholder/120/40' },
+    { name: 'Company 2', src: '/api/placeholder/120/40' },
+    { name: 'Company 3', src: '/api/placeholder/120/40' },
+    { name: 'Company 4', src: '/api/placeholder/120/40' },
+    { name: 'Company 5', src: '/api/placeholder/120/40' },
+  ];
+
+  return (
+    <section className="py-12 px-4 md:px-8 lg:px-16 bg-muted/50">
+      <div className="max-w-6xl mx-auto">
+        <p className="text-center text-muted-foreground mb-8">
+          多くの企業様にご利用いただいています
+        </p>
+        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+          {logos.map((logo, index) => (
+            <img
+              key={index}
+              src={logo.src}
+              alt={logo.name}
+              className="h-8 opacity-60 hover:opacity-100 transition-opacity"
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  generateGenericComponent(name, type) {
+    return `function ${name}() {
+  return (
+    <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
+      <div className="max-w-6xl mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>${name} Section</CardTitle>
+            <CardDescription>
+              This is a placeholder for the ${type} section.
+              Customize this component to match your needs.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Add your content here.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+}`;
   }
 
   async getInlineCSS() {
@@ -806,6 +2239,209 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     }
 
     return false;
+  }
+
+  // ==========================================
+  // JSON EXPORT/IMPORT
+  // ==========================================
+
+  exportProjectAsJSON() {
+    if (this.sections.length === 0) {
+      this.showNotification('エクスポートするセクションがありません', 'error');
+      return;
+    }
+
+    const projectData = {
+      version: '1.0',
+      type: 'lp-generator-project',
+      exportedAt: new Date().toISOString(),
+      data: {
+        theme: this.currentTheme,
+        sections: this.sections.map((section) => ({
+          type: section.type,
+          id: section.id,
+          customContent: section.customContent || null,
+          template: {
+            name: section.template.name,
+            html: section.template.html,
+          },
+        })),
+        animations: this.animations,
+        glassmorphism: this.glassmorphism,
+      },
+    };
+
+    const jsonString = JSON.stringify(projectData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lp-project-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    this.showNotification('プロジェクトをJSONファイルでエクスポートしました');
+  }
+
+  importProjectFromJSON() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const projectData = JSON.parse(event.target.result);
+
+          // Validate project data
+          if (projectData.type !== 'lp-generator-project') {
+            throw new Error('Invalid project file format');
+          }
+
+          // Restore project
+          this.currentTheme = projectData.data.theme || 'modern-blue';
+          this.animations =
+            projectData.data.animations !== undefined ? projectData.data.animations : true;
+          this.glassmorphism = projectData.data.glassmorphism || false;
+
+          // Restore sections with templates from sectionTemplates
+          this.sections = projectData.data.sections.map((section) => {
+            const originalTemplate = sectionTemplates[section.type];
+            return {
+              type: section.type,
+              id: section.id || this.generateId(),
+              customContent: section.customContent,
+              template: originalTemplate || section.template,
+            };
+          });
+
+          // Update UI
+          document.querySelectorAll('.theme-btn').forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
+          });
+          document.getElementById('animationsToggle').checked = this.animations;
+          document.getElementById('glassmorphismToggle').checked = this.glassmorphism;
+
+          this.saveState();
+          this.updatePreview();
+          this.showNotification('プロジェクトをインポートしました');
+        } catch (error) {
+          console.error('Import error:', error);
+          this.showNotification('ファイルの読み込みに失敗しました', 'error');
+        }
+      };
+
+      reader.readAsText(file);
+    };
+
+    input.click();
+  }
+
+  // ==========================================
+  // INLINE EDITING WITH CONTENT SAVE
+  // ==========================================
+
+  setupInlineEditing() {
+    const previewFrame = document.getElementById('previewFrame');
+    if (!previewFrame) return;
+
+    previewFrame.addEventListener('dblclick', (e) => {
+      const editableSelectors =
+        'h1, h2, h3, h4, h5, h6, p, span:not(.lp-control-btn span), a, button:not(.lp-control-btn), li, label';
+      const target = e.target.closest(editableSelectors);
+
+      if (target && !target.closest('.lp-section-controls')) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.makeElementEditable(target);
+      }
+    });
+  }
+
+  makeElementEditable(element) {
+    if (element.contentEditable === 'true') return;
+
+    const originalContent = element.innerHTML;
+    element.contentEditable = 'true';
+    element.style.outline = '2px solid #3b82f6';
+    element.style.outlineOffset = '2px';
+    element.style.background = 'rgba(59, 130, 246, 0.05)';
+    element.focus();
+
+    // Select all text
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    const finishEditing = () => {
+      element.contentEditable = 'false';
+      element.style.outline = '';
+      element.style.outlineOffset = '';
+      element.style.background = '';
+
+      // Save content change to section
+      const wrapper = element.closest('.lp-section-wrapper');
+      if (wrapper) {
+        const sectionId = wrapper.dataset.sectionId;
+        this.saveContentChange(sectionId, element, originalContent);
+      }
+    };
+
+    element.addEventListener('blur', finishEditing, { once: true });
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        element.blur();
+      }
+      if (e.key === 'Escape') {
+        element.innerHTML = originalContent;
+        element.blur();
+      }
+    });
+  }
+
+  saveContentChange(sectionId, element, originalContent) {
+    const section = this.sections.find((s) => s.id === sectionId);
+    if (!section) return;
+
+    const newContent = element.innerHTML;
+    if (newContent !== originalContent) {
+      // Store custom content modifications
+      if (!section.customContent) {
+        section.customContent = {};
+      }
+
+      // Create a unique identifier for this element
+      const elementPath = this.getElementPath(element);
+      section.customContent[elementPath] = newContent;
+
+      this.saveState();
+      this.autoSave();
+    }
+  }
+
+  getElementPath(element) {
+    const parts = [];
+    let current = element;
+    const wrapper = element.closest('.lp-section-wrapper');
+
+    while (current && current !== wrapper) {
+      const tag = current.tagName.toLowerCase();
+      const siblings = Array.from(current.parentNode?.children || []).filter(
+        (el) => el.tagName === current.tagName
+      );
+      const index = siblings.indexOf(current);
+      parts.unshift(`${tag}[${index}]`);
+      current = current.parentNode;
+    }
+
+    return parts.join(' > ');
   }
 
   showNotification(message, type = 'success') {

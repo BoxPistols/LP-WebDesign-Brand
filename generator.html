@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/design-system.css" />
@@ -17,8 +17,22 @@
   </head>
   <body>
     <div class="generator-container">
+      <!-- Sidebar Toggle Button -->
+      <button class="sidebar-toggle" id="sidebarToggle" title="サイドバーを開閉">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="15 18 9 12 15 6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+
       <!-- Left Sidebar - Controls -->
-      <aside class="controls-panel">
+      <aside class="controls-panel" id="controlsPanel">
         <div class="panel-header">
           <h1 class="panel-title">LP Generator</h1>
           <p class="panel-subtitle">モダンなランディングページを作成</p>
@@ -26,7 +40,13 @@
 
         <!-- Dark/Light Mode Toggle -->
         <div class="mode-toggle-wrapper">
-          <button class="mode-toggle" id="modeToggle" aria-label="Toggle dark mode">
+          <button
+            class="mode-toggle"
+            id="modeToggle"
+            aria-label="ダークモード切り替え"
+            role="switch"
+            aria-checked="false"
+          >
             <svg
               class="mode-icon mode-icon-light"
               width="20"
@@ -64,44 +84,104 @@
         <!-- Theme Selection -->
         <section class="control-section">
           <h3 class="section-title">カラーテーマ</h3>
-          <div class="theme-grid">
-            <button class="theme-btn active" data-theme="modern-blue">
+          <div class="theme-grid" role="radiogroup" aria-label="カラーテーマ選択">
+            <button
+              class="theme-btn active"
+              data-theme="modern-blue"
+              role="radio"
+              aria-checked="true"
+              aria-label="Modern Blueテーマを選択"
+            >
               <span class="theme-preview" style="background: #3b82f6"></span>
               <span class="theme-name">Modern Blue</span>
             </button>
-            <button class="theme-btn" data-theme="sunset">
+            <button
+              class="theme-btn"
+              data-theme="sunset"
+              role="radio"
+              aria-checked="false"
+              aria-label="Sunsetテーマを選択"
+            >
               <span class="theme-preview" style="background: #f5576c"></span>
               <span class="theme-name">Sunset</span>
             </button>
-            <button class="theme-btn" data-theme="ocean">
+            <button
+              class="theme-btn"
+              data-theme="ocean"
+              role="radio"
+              aria-checked="false"
+              aria-label="Oceanテーマを選択"
+            >
               <span class="theme-preview" style="background: #3b82f6"></span>
               <span class="theme-name">Ocean</span>
             </button>
-            <button class="theme-btn" data-theme="forest">
+            <button
+              class="theme-btn"
+              data-theme="forest"
+              role="radio"
+              aria-checked="false"
+              aria-label="Forestテーマを選択"
+            >
               <span class="theme-preview" style="background: #10b981"></span>
               <span class="theme-name">Forest</span>
             </button>
-            <button class="theme-btn" data-theme="dark-mode">
+            <button
+              class="theme-btn"
+              data-theme="dark-mode"
+              role="radio"
+              aria-checked="false"
+              aria-label="Dark Modeテーマを選択"
+            >
               <span class="theme-preview" style="background: #1e3a8a"></span>
               <span class="theme-name">Dark Mode</span>
             </button>
-            <button class="theme-btn" data-theme="vibrant">
+            <button
+              class="theme-btn"
+              data-theme="vibrant"
+              role="radio"
+              aria-checked="false"
+              aria-label="Vibrantテーマを選択"
+            >
               <span class="theme-preview" style="background: #f59e0b"></span>
               <span class="theme-name">Vibrant</span>
             </button>
-            <button class="theme-btn" data-theme="neon">
+            <button
+              class="theme-btn"
+              data-theme="neon"
+              role="radio"
+              aria-checked="false"
+              aria-label="Neonテーマを選択"
+            >
               <span class="theme-preview" style="background: #3b82f6"></span>
               <span class="theme-name">Neon</span>
             </button>
-            <button class="theme-btn" data-theme="nature">
+            <button
+              class="theme-btn"
+              data-theme="nature"
+              role="radio"
+              aria-checked="false"
+              aria-label="Natureテーマを選択"
+            >
               <span class="theme-preview" style="background: #10b981"></span>
               <span class="theme-name">Nature</span>
             </button>
-            <button class="theme-btn" data-theme="monochrome">
+            <button
+              class="theme-btn"
+              data-theme="monochrome"
+              role="radio"
+              aria-checked="false"
+              aria-label="Monochromeテーマを選択"
+            >
               <span class="theme-preview" style="background: #171717"></span>
               <span class="theme-name">Monochrome</span>
             </button>
-            <button class="theme-btn" data-theme="pastel">
+            <button
+              class="theme-btn"
+              data-theme="pastel"
+              role="radio"
+              aria-checked="false"
+              aria-label="Pastelテーマを選択"
+            >
               <span class="theme-preview" style="background: #10b981"></span>
               <span class="theme-name">Pastel</span>
             </button>
@@ -234,7 +314,19 @@
               <span class="component-name">Pricing Simple</span>
             </button>
             <button class="component-btn" data-component="pricing-modern">
-              <span class="component-icon">💎</span>
+              <span class="component-icon"
+                ><svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M6 3h12l4 6-10 13L2 9z" />
+                  <path d="M11 3l1 6h6" />
+                  <path d="M2 9h20" /></svg
+              ></span>
               <span class="component-name">Pricing Modern</span>
             </button>
             <button class="component-btn" data-component="testimonials">
@@ -252,11 +344,33 @@
               <span class="component-name">Testimonials</span>
             </button>
             <button class="component-btn" data-component="testimonials-carousel">
-              <span class="component-icon">🎠</span>
+              <span class="component-icon"
+                ><svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+                  <polyline points="17 2 12 7 7 2" /></svg
+              ></span>
               <span class="component-name">Testimonials Pro</span>
             </button>
             <button class="component-btn" data-component="cta">
-              <span class="component-icon">🚀</span>
+              <span class="component-icon"
+                ><svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M22 2L11 13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" /></svg
+              ></span>
               <span class="component-name">CTA Simple</span>
             </button>
             <button class="component-btn" data-component="cta-split">
@@ -293,7 +407,19 @@
               <span class="component-name">Newsletter</span>
             </button>
             <button class="component-btn" data-component="gallery">
-              <span class="component-icon">🖼️</span>
+              <span class="component-icon"
+                ><svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" /></svg
+              ></span>
               <span class="component-name">Gallery</span>
             </button>
             <button class="component-btn" data-component="stats">
@@ -330,11 +456,36 @@
               <span class="component-name">Team</span>
             </button>
             <button class="component-btn" data-component="faq">
-              <span class="component-icon">❓</span>
+              <span class="component-icon"
+                ><svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" /></svg
+              ></span>
               <span class="component-name">FAQ</span>
             </button>
             <button class="component-btn" data-component="contact">
-              <span class="component-icon">📮</span>
+              <span class="component-icon"
+                ><svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                  />
+                  <polyline points="22,6 12,13 2,6" /></svg
+              ></span>
               <span class="component-name">Contact</span>
             </button>
             <button class="component-btn" data-component="hero-video">
@@ -946,11 +1097,28 @@
           <div class="customize-group">
             <label class="customize-label">フォント</label>
             <select id="fontFamilySelect" class="customize-select">
-              <option value="Inter">Inter (デフォルト)</option>
-              <option value="Poppins">Poppins</option>
-              <option value="Roboto">Roboto</option>
-              <option value="Noto Sans JP">Noto Sans JP</option>
-              <option value="system-ui">System UI</option>
+              <optgroup label="欧文フォント">
+                <option value="Inter">Inter (デフォルト)</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Roboto">Roboto</option>
+              </optgroup>
+              <optgroup label="日本語フォント">
+                <option value="Noto Sans JP">Noto Sans JP</option>
+                <option value="BIZ UDPGothic">BIZ UDPゴシック</option>
+                <option value="M PLUS 1p">M PLUS 1p</option>
+                <option value="Zen Kaku Gothic New">Zen角ゴシック New</option>
+              </optgroup>
+              <optgroup label="システムフォント">
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="Helvetica, Arial, sans-serif">Helvetica</option>
+                <option value="Verdana, sans-serif">Verdana</option>
+                <option value="Trebuchet MS, sans-serif">Trebuchet MS</option>
+                <option value="Georgia, serif">Georgia</option>
+                <option value="Times New Roman, serif">Times New Roman</option>
+                <option value="Impact, sans-serif">Impact</option>
+                <option value="Courier New, monospace">Courier New</option>
+                <option value="system-ui">System UI</option>
+              </optgroup>
             </select>
           </div>
 
@@ -1170,11 +1338,53 @@
           </div>
         </section>
 
+        <!-- Export Format -->
+        <section class="control-section">
+          <h3 class="section-title">エクスポート形式</h3>
+          <div class="export-format-selector">
+            <label class="format-option">
+              <input type="radio" name="lpExportFormat" value="html" checked />
+              <span class="format-label">
+                <strong>HTML/CSS</strong>
+                <small>インラインCSS埋め込み</small>
+              </span>
+            </label>
+            <label class="format-option">
+              <input type="radio" name="lpExportFormat" value="html-external" />
+              <span class="format-label">
+                <strong>HTML + 外部CSS</strong>
+                <small>CSS外部ファイル参照</small>
+              </span>
+            </label>
+            <label class="format-option">
+              <input type="radio" name="lpExportFormat" value="css-only" />
+              <span class="format-label">
+                <strong>CSS Only</strong>
+                <small>CSSファイルのみ</small>
+              </span>
+            </label>
+            <label class="format-option">
+              <input type="radio" name="lpExportFormat" value="tailwind" />
+              <span class="format-label">
+                <strong>Tailwind CSS</strong>
+                <small>Tailwindユーティリティ</small>
+              </span>
+            </label>
+            <label class="format-option">
+              <input type="radio" name="lpExportFormat" value="shadcn" />
+              <span class="format-label">
+                <strong>shadcn/ui</strong>
+                <small>React + shadcn</small>
+              </span>
+            </label>
+          </div>
+        </section>
+
         <!-- Export Actions -->
         <section class="control-section">
           <h3 class="section-title">エクスポート</h3>
           <div class="action-buttons">
-            <button class="action-btn primary" id="exportHTML">
+            <button class="action-btn primary" id="previewExport">
               <svg
                 width="16"
                 height="16"
@@ -1183,11 +1393,39 @@
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <polyline points="16 16 12 12 8 16" />
-                <line x1="12" y1="12" x2="12" y2="21" />
-                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
               </svg>
-              HTMLダウンロード
+              プレビュー＆ダウンロード
+            </button>
+            <button class="action-btn secondary" id="exportJSON">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              JSONエクスポート
+            </button>
+            <button class="action-btn secondary" id="importJSON">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              JSONインポート
             </button>
             <button class="action-btn secondary" id="clearAll">
               <svg
@@ -1212,9 +1450,13 @@
       <!-- Right Side - Preview Area -->
       <main class="preview-area">
         <div class="preview-toolbar">
-          <div class="device-toggles">
-            <button class="device-btn active" data-device="desktop"><span>🖥️</span> Desktop</button>
-            <button class="device-btn" data-device="tablet">
+          <div class="device-toggles" role="group" aria-label="デバイスプレビュー切り替え">
+            <button
+              class="device-btn active"
+              data-device="desktop"
+              aria-label="デスクトップ表示"
+              aria-pressed="true"
+            >
               <span
                 ><svg
                   width="20"
@@ -1223,13 +1465,41 @@
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" /></svg
+              ></span>
+              Desktop
+            </button>
+            <button
+              class="device-btn"
+              data-device="tablet"
+              aria-label="タブレット表示"
+              aria-pressed="false"
+            >
+              <span
+                ><svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
                 >
                   <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
                   <line x1="12" y1="18" x2="12.01" y2="18" /></svg
               ></span>
               Tablet
             </button>
-            <button class="device-btn" data-device="mobile">
+            <button
+              class="device-btn"
+              data-device="mobile"
+              aria-label="モバイル表示"
+              aria-pressed="false"
+            >
               <span
                 ><svg
                   width="20"
@@ -1238,11 +1508,55 @@
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
+                  aria-hidden="true"
                 >
                   <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
                   <line x1="12" y1="18" x2="12.01" y2="18" /></svg
               ></span>
               Mobile
+            </button>
+          </div>
+
+          <!-- Zoom Controls -->
+          <div class="zoom-controls" role="group" aria-label="プレビューズーム">
+            <button class="zoom-btn" id="zoomOut" aria-label="縮小" title="縮小">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <line x1="8" y1="11" x2="14" y2="11"/>
+              </svg>
+            </button>
+            <div class="zoom-slider-wrapper">
+              <input
+                type="range"
+                id="zoomSlider"
+                class="zoom-slider"
+                min="25"
+                max="100"
+                value="100"
+                step="5"
+                aria-label="ズームレベル"
+              />
+              <span class="zoom-value" id="zoomValue">100%</span>
+            </div>
+            <button class="zoom-btn" id="zoomIn" aria-label="拡大" title="拡大">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <line x1="11" y1="8" x2="11" y2="14"/>
+                <line x1="8" y1="11" x2="14" y2="11"/>
+              </svg>
+            </button>
+            <button class="zoom-btn" id="zoomFit" aria-label="フィット" title="画面にフィット">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+              </svg>
+            </button>
+            <button class="zoom-btn" id="zoomReset" aria-label="リセット" title="100%にリセット">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -1334,8 +1648,271 @@
       </div>
     </div>
 
+    <!-- Image Editor Modal -->
+    <div class="image-editor-modal" id="imageEditorModal">
+      <div class="image-editor-content">
+        <div class="image-editor-header">
+          <h3>画像を編集</h3>
+          <button class="image-editor-close" id="imageEditorClose">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="image-editor-body">
+          <!-- Current Image Preview -->
+          <div class="image-editor-preview">
+            <img id="currentImagePreview" src="" alt="現在の画像" />
+          </div>
+
+          <!-- Tabs -->
+          <div class="image-editor-tabs">
+            <button class="image-tab active" data-tab="upload">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              アップロード
+            </button>
+            <button class="image-tab" data-tab="url">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+              URL入力
+            </button>
+            <button class="image-tab" data-tab="gallery">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              ギャラリー
+            </button>
+          </div>
+
+          <!-- Tab Contents -->
+          <div class="image-tab-content active" id="tab-upload">
+            <div class="image-upload-zone" id="imageUploadZone">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <p>ドラッグ＆ドロップ または クリックしてアップロード</p>
+              <p class="upload-hint">Ctrl+V でクリップボードから貼り付け可能</p>
+              <input type="file" id="imageFileInput" accept="image/*" hidden />
+            </div>
+          </div>
+
+          <div class="image-tab-content" id="tab-url">
+            <div class="image-url-input">
+              <label>画像URL</label>
+              <input type="url" id="imageUrlInput" placeholder="https://example.com/image.jpg" />
+              <button class="image-url-load" id="loadImageUrl">読み込み</button>
+            </div>
+          </div>
+
+          <div class="image-tab-content" id="tab-gallery">
+            <div class="image-gallery-grid" id="imageGalleryGrid">
+              <!-- Preset images will be loaded here -->
+            </div>
+          </div>
+
+          <!-- Alt Text -->
+          <div class="image-alt-input">
+            <label>代替テキスト (alt)</label>
+            <input type="text" id="imageAltInput" placeholder="画像の説明" />
+          </div>
+        </div>
+
+        <div class="image-editor-footer">
+          <button class="image-editor-btn secondary" id="imageEditorCancel">キャンセル</button>
+          <button class="image-editor-btn danger" id="imageEditorDelete">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="3 6 5 6 21 6" />
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              />
+            </svg>
+            削除
+          </button>
+          <button class="image-editor-btn primary" id="imageEditorApply">適用</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Panel (Bottom Left) -->
+    <div class="help-panel" id="helpPanel">
+      <button class="help-toggle" id="helpToggle" title="ヘルプを表示">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      </button>
+      <div class="help-content" id="helpContent">
+        <div class="help-header">
+          <h4>クイックヘルプ</h4>
+          <button class="help-close" id="helpClose">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="help-body">
+          <div class="help-section">
+            <h5>基本操作</h5>
+            <ul>
+              <li>左サイドバーからセクションを追加</li>
+              <li>セクションをドラッグ&ドロップで並べ替え</li>
+              <li>テキストをダブルクリックで編集</li>
+              <li>画像をクリックで変更</li>
+            </ul>
+          </div>
+          <div class="help-section">
+            <h5>エクスポート形式</h5>
+            <ul>
+              <li><strong>HTML/CSS</strong> - そのまま使えるHTML</li>
+              <li><strong>Tailwind</strong> - Tailwind CSS対応</li>
+              <li><strong>shadcn/ui</strong> - React + shadcnコンポーネント</li>
+            </ul>
+          </div>
+          <div class="help-section">
+            <h5>ショートカット</h5>
+            <ul>
+              <li><kbd>Ctrl</kbd>+<kbd>Z</kbd> 元に戻す</li>
+              <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> やり直す</li>
+              <li><kbd>Esc</kbd> モーダルを閉じる</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div class="welcome-modal" id="welcomeModal">
+      <div class="welcome-modal-content">
+        <div class="welcome-header">
+          <div class="welcome-icon">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <h2>LP Generator へようこそ</h2>
+          <p>ドラッグ&ドロップで簡単にランディングページを作成できます</p>
+        </div>
+        <div class="welcome-body">
+          <div class="welcome-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>テーマを選択</h4>
+              <p>カラーテーマを選んでデザインの基調を決めましょう</p>
+            </div>
+          </div>
+          <div class="welcome-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>セクションを追加</h4>
+              <p>Hero、Features、Pricingなど40以上のセクションから選択</p>
+            </div>
+          </div>
+          <div class="welcome-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>コンテンツを編集</h4>
+              <p>テキストをダブルクリック、画像をクリックで編集</p>
+            </div>
+          </div>
+          <div class="welcome-step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h4>エクスポート</h4>
+              <p>HTML/CSS、Tailwind、shadcn/ui形式で出力</p>
+            </div>
+          </div>
+        </div>
+        <div class="welcome-footer">
+          <label class="welcome-checkbox">
+            <input type="checkbox" id="dontShowAgain" />
+            <span>次回から表示しない</span>
+          </label>
+          <button class="welcome-btn" id="welcomeClose">始める</button>
+        </div>
+      </div>
+    </div>
+
     <script src="js/templates.js"></script>
     <script src="js/advanced-templates.js"></script>
+    <script src="js/image-manager.js"></script>
     <script src="js/generator.js"></script>
     <script src="js/enhanced-generator.js"></script>
   </body>
