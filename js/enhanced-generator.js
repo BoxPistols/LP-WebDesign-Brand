@@ -685,20 +685,8 @@ export default {
         'accordion-faq',
         'cta-split',
       ],
-      restaurant: [
-        'hero-fullscreen',
-        'gallery',
-        'features-grid',
-        'testimonials',
-        'contact',
-      ],
-      realestate: [
-        'hero-split-image',
-        'features-grid',
-        'gallery',
-        'testimonials',
-        'contact-split',
-      ],
+      restaurant: ['hero-fullscreen', 'gallery', 'features-grid', 'testimonials', 'contact'],
+      realestate: ['hero-split-image', 'features-grid', 'gallery', 'testimonials', 'contact-split'],
       event: [
         'hero-gradient',
         'steps-horizontal',
@@ -1303,7 +1291,7 @@ export default {
     notification.textContent = message;
     notification.style.cssText = `
             position: fixed;
-            top: 20px;
+            bottom: 20px;
             right: 20px;
             padding: 16px 24px;
             background: ${type === 'success' ? '#48bb78' : type === 'error' ? '#f56565' : '#4299e1'};

@@ -22,6 +22,15 @@ class DashboardGenerator {
       shadow: 'md',
     };
 
+    // Grid Design Mode properties
+    this.designMode = 'grid'; // 'grid' | 'component'
+    this.gridRows = 3;
+    this.gridAreas = [];
+    this.isSelectingArea = false;
+    this.selectionStart = null;
+    this.selectionEnd = null;
+    this.areaColors = ['blue', 'green', 'purple', 'orange', 'pink', 'cyan'];
+
     this.init();
   }
 
@@ -29,8 +38,558 @@ class DashboardGenerator {
     this.setupEventListeners();
     this.setupDesignCustomization();
     this.setupSidebarToggles();
+    this.setupInlineEditing();
+    this.setupImageEditing();
     this.renderCanvas(); // Initialize canvas with empty state
+    this.saveState(); // Save initial empty state for undo/redo
+    this.updateUndoRedoButtons(); // Update button states
     console.log('Dashboard Generator initialized');
+  }
+
+  // ==========================================
+  // INLINE EDITING FUNCTIONALITY
+  // ==========================================
+
+  setupInlineEditing() {
+    const canvas = document.getElementById('dashboardCanvas');
+    if (!canvas) {
+      setTimeout(() => this.setupInlineEditing(), 500);
+      return;
+    }
+
+    // Editable elements selector
+    this.editableSelectors =
+      'h1, h2, h3, h4, h5, h6, p, span:not(.component-icon):not(.component-name), a, button:not(.component-control):not(.lp-control-btn), li, label, td, th, .stat-value, .stat-label, .stat-change, .card-title, .card-value';
+
+    // Double-click to edit text
+    canvas.addEventListener('dblclick', (e) => {
+      const target = e.target.closest(this.editableSelectors);
+
+      if (
+        target &&
+        !target.classList.contains('component-control') &&
+        !target.closest('.component-controls') &&
+        !target.closest('.lp-section-controls')
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.makeTextEditable(target);
+      }
+    });
+
+    // Show edit hint on hover
+    canvas.addEventListener('mouseover', (e) => {
+      if (this.isEditing) return;
+
+      const target = e.target.closest(this.editableSelectors);
+      if (
+        target &&
+        !target.classList.contains('component-control') &&
+        !target.closest('.component-controls')
+      ) {
+        target.classList.add('db-editable-hover');
+      }
+    });
+
+    canvas.addEventListener('mouseout', (e) => {
+      const target = e.target.closest(this.editableSelectors);
+      if (target) {
+        target.classList.remove('db-editable-hover');
+      }
+    });
+
+    // Add inline editing styles
+    this.addInlineEditingStyles();
+  }
+
+  makeTextEditable(element) {
+    if (element.contentEditable === 'true') return;
+
+    this.isEditing = true;
+    const originalContent = element.textContent;
+    const originalHTML = element.innerHTML;
+
+    // Find which component this element belongs to
+    const wrapper = element.closest('.dashboard-component-wrapper');
+    const componentId = wrapper?.dataset?.componentId;
+
+    // Make editable
+    element.contentEditable = 'true';
+    element.classList.add('db-inline-editing');
+    element.classList.remove('db-editable-hover');
+    element.focus();
+
+    // Select all text
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    // Show hint
+    this.showEditingHint();
+
+    // Handle blur (save)
+    const handleBlur = () => {
+      element.contentEditable = 'false';
+      element.classList.remove('db-inline-editing');
+      this.hideEditingHint();
+      this.isEditing = false;
+
+      if (element.textContent !== originalContent) {
+        // Update the component's template HTML to persist changes
+        if (componentId) {
+          this.updateComponentContent(componentId, wrapper);
+        }
+        this.saveState();
+        this.showNotification('テキストを更新しました');
+      }
+
+      element.removeEventListener('blur', handleBlur);
+      element.removeEventListener('keydown', handleKeydown);
+    };
+
+    // Handle keyboard
+    const handleKeydown = (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        element.blur();
+      }
+      if (e.key === 'Escape') {
+        element.innerHTML = originalHTML;
+        element.blur();
+      }
+    };
+
+    element.addEventListener('blur', handleBlur);
+    element.addEventListener('keydown', handleKeydown);
+  }
+
+  updateComponentContent(componentId, wrapper) {
+    const component = this.components.find((c) => c.id === componentId);
+    if (!component || !wrapper) return;
+
+    // Get the content element (excluding controls)
+    const clone = wrapper.cloneNode(true);
+    const controls = clone.querySelector('.component-controls');
+    if (controls) controls.remove();
+
+    // Get the inner component (first child after controls)
+    const innerComponent = clone.firstElementChild;
+    if (innerComponent) {
+      // Update the template HTML with the new content
+      component.template = {
+        ...component.template,
+        html: innerComponent.outerHTML,
+      };
+    }
+  }
+
+  showEditingHint() {
+    if (document.querySelector('.db-edit-hint')) return;
+
+    const hint = document.createElement('div');
+    hint.className = 'db-edit-hint';
+    hint.innerHTML = `
+      <span class="hint-key">Enter</span> 保存
+      <span class="hint-sep">|</span>
+      <span class="hint-key">Esc</span> キャンセル
+      <span class="hint-sep">|</span>
+      <span class="hint-key">Shift+Enter</span> 改行
+    `;
+    document.body.appendChild(hint);
+  }
+
+  hideEditingHint() {
+    const hint = document.querySelector('.db-edit-hint');
+    if (hint) hint.remove();
+  }
+
+  addInlineEditingStyles() {
+    if (document.getElementById('db-inline-editing-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'db-inline-editing-styles';
+    style.textContent = `
+      /* Editable hover state */
+      .db-editable-hover {
+        outline: 2px dashed rgba(59, 130, 246, 0.5) !important;
+        outline-offset: 2px;
+        cursor: text !important;
+        border-radius: 4px;
+      }
+
+      /* Active editing state */
+      .db-inline-editing {
+        outline: 2px solid #3b82f6 !important;
+        outline-offset: 2px;
+        background: rgba(59, 130, 246, 0.05) !important;
+        min-width: 50px;
+        cursor: text !important;
+        border-radius: 4px;
+      }
+
+      .db-inline-editing:focus {
+        outline: 2px solid #2563eb !important;
+      }
+
+      /* Edit hint */
+      .db-edit-hint {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e293b;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 10000;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        animation: dbHintFadeIn 0.3s ease-out;
+      }
+
+      .db-edit-hint .hint-key {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+      }
+
+      .db-edit-hint .hint-sep {
+        opacity: 0.5;
+      }
+
+      @keyframes dbHintFadeIn {
+        from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+      }
+
+      /* Image editable indicator */
+      #dashboardCanvas img {
+        cursor: pointer;
+        transition: outline 0.2s ease;
+      }
+
+      #dashboardCanvas img:hover {
+        outline: 2px dashed rgba(59, 130, 246, 0.5);
+        outline-offset: 2px;
+      }
+
+      /* Selected component highlight */
+      .dashboard-component-wrapper.selected {
+        outline: 2px solid #3b82f6;
+        outline-offset: 4px;
+        border-radius: 8px;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // ==========================================
+  // IMAGE EDITING FUNCTIONALITY
+  // ==========================================
+
+  setupImageEditing() {
+    const canvas = document.getElementById('dashboardCanvas');
+    if (!canvas) return;
+
+    // Click on image to edit
+    canvas.addEventListener('click', (e) => {
+      const img = e.target.closest('img');
+      if (img && !this.isEditing) {
+        e.stopPropagation();
+        this.showImageEditor(img);
+      }
+    });
+  }
+
+  showImageEditor(img) {
+    // Find the component this image belongs to
+    const wrapper = img.closest('.dashboard-component-wrapper');
+    const componentId = wrapper?.dataset?.componentId;
+
+    // Create modal for image editing
+    const modal = document.createElement('div');
+    modal.className = 'db-image-modal';
+    modal.innerHTML = `
+      <div class="db-image-modal-overlay"></div>
+      <div class="db-image-modal-content">
+        <div class="db-image-modal-header">
+          <h3>画像を編集</h3>
+          <button class="db-image-modal-close">&times;</button>
+        </div>
+        <div class="db-image-modal-body">
+          <div class="db-image-preview">
+            <img src="${img.src}" alt="${img.alt || ''}" />
+          </div>
+          <div class="db-image-form">
+            <div class="db-form-group">
+              <label>画像URL</label>
+              <input type="url" class="db-input" id="dbImageUrlInput" value="${img.src}" placeholder="https://example.com/image.jpg" />
+            </div>
+            <div class="db-form-group">
+              <label>Alt テキスト</label>
+              <input type="text" class="db-input" id="dbImageAltInput" value="${img.alt || ''}" placeholder="画像の説明" />
+            </div>
+            <div class="db-form-group">
+              <label>または画像をアップロード</label>
+              <input type="file" accept="image/*" id="dbImageFileInput" class="db-input-file" />
+            </div>
+          </div>
+        </div>
+        <div class="db-image-modal-footer">
+          <button class="db-btn db-btn-secondary" id="dbCancelImageEdit">キャンセル</button>
+          <button class="db-btn db-btn-primary" id="dbSaveImageEdit">保存</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+
+    // Add modal styles
+    this.addImageModalStyles();
+
+    const previewImg = modal.querySelector('.db-image-preview img');
+    const urlInput = modal.querySelector('#dbImageUrlInput');
+    const altInput = modal.querySelector('#dbImageAltInput');
+    const fileInput = modal.querySelector('#dbImageFileInput');
+
+    // URL input change - update preview
+    urlInput.addEventListener('input', () => {
+      previewImg.src = urlInput.value;
+    });
+
+    // File upload
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          urlInput.value = ev.target.result;
+          previewImg.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Close modal
+    const closeModal = () => {
+      modal.remove();
+      document.body.style.overflow = '';
+    };
+
+    modal.querySelector('.db-image-modal-close').addEventListener('click', closeModal);
+    modal.querySelector('.db-image-modal-overlay').addEventListener('click', closeModal);
+    modal.querySelector('#dbCancelImageEdit').addEventListener('click', closeModal);
+
+    // Save changes
+    modal.querySelector('#dbSaveImageEdit').addEventListener('click', () => {
+      const originalSrc = img.src;
+      img.src = urlInput.value;
+      img.alt = altInput.value;
+
+      if (img.src !== originalSrc) {
+        // Update component template
+        if (componentId && wrapper) {
+          this.updateComponentContent(componentId, wrapper);
+        }
+        this.saveState();
+        this.showNotification('画像を更新しました');
+      }
+      closeModal();
+    });
+
+    // ESC to close
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        document.removeEventListener('keydown', handleEsc);
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+  }
+
+  addImageModalStyles() {
+    if (document.getElementById('db-image-modal-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'db-image-modal-styles';
+    style.textContent = `
+      .db-image-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .db-image-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+      }
+
+      .db-image-modal-content {
+        position: relative;
+        background: white;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        animation: dbModalSlideIn 0.3s ease-out;
+      }
+
+      @keyframes dbModalSlideIn {
+        from { opacity: 0; transform: scale(0.95) translateY(-20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+
+      .db-image-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .db-image-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .db-image-modal-close {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: #f1f5f9;
+        border-radius: 8px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #64748b;
+        transition: all 0.2s;
+      }
+
+      .db-image-modal-close:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+      }
+
+      .db-image-modal-body {
+        padding: 24px;
+        display: grid;
+        gap: 20px;
+      }
+
+      .db-image-preview {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+        max-height: 300px;
+        overflow: hidden;
+      }
+
+      .db-image-preview img {
+        max-width: 100%;
+        max-height: 250px;
+        object-fit: contain;
+        border-radius: 8px;
+      }
+
+      .db-image-form {
+        display: grid;
+        gap: 16px;
+      }
+
+      .db-form-group {
+        display: grid;
+        gap: 6px;
+      }
+
+      .db-form-group label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #475569;
+      }
+
+      .db-input {
+        padding: 10px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+
+      .db-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .db-input-file {
+        padding: 8px;
+        background: #f8fafc;
+      }
+
+      .db-image-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 24px;
+        border-top: 1px solid #e2e8f0;
+        background: #f8fafc;
+      }
+
+      .db-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .db-btn-primary {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .db-btn-primary:hover {
+        background: #2563eb;
+      }
+
+      .db-btn-secondary {
+        background: #e2e8f0;
+        color: #475569;
+      }
+
+      .db-btn-secondary:hover {
+        background: #cbd5e1;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   setupSidebarToggles() {
@@ -108,15 +667,28 @@ class DashboardGenerator {
     });
 
     // Actions
-    document
-      .getElementById('exportDashboard')
-      ?.addEventListener('click', () => this.exportDashboard());
+    document.getElementById('previewCode')?.addEventListener('click', () => this.openCodePreview());
     document
       .getElementById('clearDashboard')
       ?.addEventListener('click', () => this.clearDashboard());
     document
       .getElementById('previewDashboard')
       ?.addEventListener('click', () => this.previewDashboard());
+
+    // Code Preview Modal
+    document
+      .getElementById('closeCodePreview')
+      ?.addEventListener('click', () => this.closeCodePreview());
+    document
+      .getElementById('codePreviewOverlay')
+      ?.addEventListener('click', () => this.closeCodePreview());
+    document.getElementById('copyCode')?.addEventListener('click', () => this.copyCode());
+    document
+      .getElementById('downloadCode')
+      ?.addEventListener('click', () => this.downloadGeneratedCode());
+    document.querySelectorAll('.code-tab').forEach((tab) => {
+      tab.addEventListener('click', (e) => this.switchCodeTab(e));
+    });
 
     // Canvas controls
     document.querySelectorAll('.canvas-control').forEach((btn) => {
@@ -125,6 +697,25 @@ class DashboardGenerator {
         btn.addEventListener('click', () => this.undo());
       } else if (action === 'redo') {
         btn.addEventListener('click', () => this.redo());
+      }
+    });
+
+    // Keyboard shortcuts for Undo/Redo
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+Z or Cmd+Z for Undo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        this.undo();
+      }
+      // Ctrl+Shift+Z or Cmd+Shift+Z for Redo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+        e.preventDefault();
+        this.redo();
+      }
+      // Ctrl+Y or Cmd+Y for Redo (alternative)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault();
+        this.redo();
       }
     });
 
@@ -146,6 +737,23 @@ class DashboardGenerator {
 
     // Initialize current zoom level
     this.currentZoom = 100;
+
+    // Grid Design Mode - Mode tabs
+    document.querySelectorAll('.mode-tab').forEach((tab) => {
+      tab.addEventListener('click', (e) => this.handleModeChange(e));
+    });
+
+    // Grid Templates
+    document.querySelectorAll('.grid-template-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => this.applyGridTemplate(e));
+    });
+
+    // Grid Row controls
+    document.getElementById('addGridRow')?.addEventListener('click', () => this.addGridRow());
+    document.getElementById('removeGridRow')?.addEventListener('click', () => this.removeGridRow());
+    document
+      .getElementById('clearGridAreas')
+      ?.addEventListener('click', () => this.clearGridAreas());
   }
 
   handleDeviceChange(e) {
@@ -275,6 +883,18 @@ class DashboardGenerator {
   renderCanvas() {
     const canvas = document.getElementById('dashboardCanvas');
 
+    // Grid Design Mode - render grid overlay instead of components
+    if (this.designMode === 'grid') {
+      this.renderGridOverlay();
+      return;
+    }
+
+    // Component Mode with Grid Areas - render areas as drop zones
+    if (this.gridAreas.length > 0) {
+      this.renderComponentModeWithAreas();
+      return;
+    }
+
     if (this.components.length === 0) {
       canvas.innerHTML = `
                 <div class="empty-canvas">
@@ -369,12 +989,17 @@ class DashboardGenerator {
       // Extract the first child (which has grid-col-* class)
       const componentElement = content.firstElementChild;
       if (componentElement) {
+        // Extract grid-col value from template before stripping
+        const templateGridColMatch = componentElement.className.match(/grid-col-(\d+)/);
+        const templateGridCol = templateGridColMatch ? parseInt(templateGridColMatch[1], 10) : null;
+
         // Remove existing grid-col class from component element
         componentElement.className = componentElement.className.replace(/grid-col-\d+/g, '').trim();
         wrapper.appendChild(componentElement);
 
-        // Apply grid-col class from component data or use default
-        const gridCol = component.gridCol || this.getDefaultGridCol(component.type);
+        // Apply grid-col class: component data > template value > default
+        const gridCol =
+          component.gridCol || templateGridCol || this.getDefaultGridCol(component.type);
         wrapper.classList.add(`grid-col-${gridCol}`);
       }
 
@@ -794,7 +1419,8 @@ class DashboardGenerator {
   }
 
   async exportDashboard() {
-    if (this.components.length === 0) {
+    const hasContent = this.hasExportableContent();
+    if (!hasContent) {
       this.showNotification('エクスポートするコンポーネントがありません', 'error');
       return;
     }
@@ -805,8 +1431,236 @@ class DashboardGenerator {
     this.showNotification('ダッシュボードをエクスポートしました');
   }
 
+  hasExportableContent() {
+    // Check old components array
+    if (this.components.length > 0) return true;
+    // Check grid areas with components
+    if (this.gridAreas.some((area) => area.components && area.components.length > 0)) return true;
+    return false;
+  }
+
+  // Code Preview Modal Methods
+  async openCodePreview() {
+    const hasContent = this.hasExportableContent();
+    if (!hasContent) {
+      this.showNotification('プレビューするコンポーネントがありません', 'error');
+      return;
+    }
+
+    const modal = document.getElementById('codePreviewModal');
+    if (!modal) return;
+
+    // Generate code based on mode
+    if (this.gridAreas.length > 0) {
+      this.generatedHTML = this.generateGridAreasHTML();
+    } else {
+      this.generatedHTML = this.components.map((c) => c.template.html).join('\n\n');
+    }
+    this.generatedCSS = await this.fetchCSS();
+    this.generatedFullHTML = await this.generateFullHTML();
+
+    // Show HTML tab by default
+    this.currentCodeTab = 'html';
+    this.updateCodePreview();
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeCodePreview() {
+    const modal = document.getElementById('codePreviewModal');
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  switchCodeTab(e) {
+    const tab = e.currentTarget;
+    const tabType = tab.dataset.tab;
+
+    document.querySelectorAll('.code-tab').forEach((t) => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    this.currentCodeTab = tabType;
+    this.updateCodePreview();
+  }
+
+  updateCodePreview() {
+    const codeElement = document.getElementById('codePreviewContent');
+    if (!codeElement) return;
+
+    let code = '';
+    switch (this.currentCodeTab) {
+      case 'html':
+        code = this.formatHTML(this.generatedHTML);
+        break;
+      case 'css':
+        code = this.generatedCSS;
+        break;
+      case 'full':
+        code = this.generatedFullHTML;
+        break;
+    }
+
+    codeElement.textContent = code;
+  }
+
+  formatHTML(html) {
+    // Simple HTML formatting
+    return html.replace(/></g, '>\n<').replace(/(\s+)/g, ' ').trim();
+  }
+
+  async fetchCSS() {
+    try {
+      const css = await fetch('css/dashboard-components.css').then((r) => r.text());
+      return css;
+    } catch (e) {
+      return '/* CSS could not be loaded */';
+    }
+  }
+
+  async copyCode() {
+    let code = '';
+    switch (this.currentCodeTab) {
+      case 'html':
+        code = this.generatedHTML;
+        break;
+      case 'css':
+        code = this.generatedCSS;
+        break;
+      case 'full':
+        code = this.generatedFullHTML;
+        break;
+    }
+
+    try {
+      await navigator.clipboard.writeText(code);
+      this.showNotification('コードをコピーしました');
+    } catch (e) {
+      this.showNotification('コピーに失敗しました', 'error');
+    }
+  }
+
+  downloadGeneratedCode() {
+    let code = '';
+    let filename = '';
+    let mimeType = 'text/plain';
+
+    switch (this.currentCodeTab) {
+      case 'html':
+        code = this.generatedHTML;
+        filename = `dashboard-components-${Date.now()}.html`;
+        mimeType = 'text/html';
+        break;
+      case 'css':
+        code = this.generatedCSS;
+        filename = `dashboard-styles-${Date.now()}.css`;
+        mimeType = 'text/css';
+        break;
+      case 'full':
+        code = this.generatedFullHTML;
+        filename = `dashboard-${Date.now()}.html`;
+        mimeType = 'text/html';
+        break;
+    }
+
+    this.downloadFile(code, filename, mimeType);
+    this.showNotification('ダウンロードしました');
+  }
+
+  generateGridAreasHTML() {
+    // Generate HTML from grid areas with their components
+    const gridCSS = this.generateGridAreasCSS();
+    let html = `<!-- Grid Layout Generated by Dashboard Generator -->\n`;
+    html += `<style>\n${gridCSS}\n</style>\n\n`;
+    html += `<div class="grid-areas-container">\n`;
+
+    this.gridAreas.forEach((area) => {
+      const areaClass = `grid-area-${area.id}`;
+      html += `  <div class="${areaClass}" style="grid-column: ${area.startCol} / ${area.endCol + 1}; grid-row: ${area.startRow} / ${area.endRow + 1};">\n`;
+
+      if (area.components && area.components.length > 0) {
+        area.components.forEach((comp) => {
+          const template = dashboardTemplates[comp.type];
+          if (template) {
+            html += `    ${template.html.trim()}\n`;
+          }
+        });
+      } else {
+        html += `    <!-- Empty Area: ${area.name} -->\n`;
+      }
+
+      html += `  </div>\n`;
+    });
+
+    html += `</div>`;
+    return html;
+  }
+
+  generateGridAreasCSS() {
+    let css = `.grid-areas-container {\n`;
+    css += `  display: grid;\n`;
+    css += `  grid-template-columns: repeat(12, 1fr);\n`;
+    css += `  grid-template-rows: repeat(${this.gridRows}, minmax(100px, auto));\n`;
+    css += `  gap: var(--grid-gap, 24px);\n`;
+    css += `  padding: var(--grid-padding, 24px);\n`;
+    css += `  background: #f8fafc;\n`;
+    css += `  min-height: 100%;\n`;
+    css += `}\n\n`;
+
+    // Generate area-specific styles
+    this.gridAreas.forEach((area) => {
+      const areaClass = `.grid-area-${area.id}`;
+      css += `${areaClass} {\n`;
+      css += `  background: #ffffff;\n`;
+      css += `  border: 1px solid #e2e8f0;\n`;
+      css += `  border-radius: 12px;\n`;
+      css += `  padding: 16px;\n`;
+      css += `  min-height: 80px;\n`;
+      css += `}\n\n`;
+    });
+
+    return css;
+  }
+
+  generateGridAreasContentHTML() {
+    // Generate HTML content from grid areas (without wrapper styles)
+    let html = '';
+    this.gridAreas.forEach((area) => {
+      const areaClass = `grid-area-${area.id}`;
+      html += `<div class="${areaClass}" style="grid-column: ${area.startCol} / ${area.endCol + 1}; grid-row: ${area.startRow} / ${area.endRow + 1};">\n`;
+
+      if (area.components && area.components.length > 0) {
+        area.components.forEach((comp) => {
+          const template = dashboardTemplates[comp.type];
+          if (template) {
+            html += `  ${template.html.trim()}\n`;
+          }
+        });
+      }
+
+      html += `</div>\n`;
+    });
+    return html;
+  }
+
   async generateFullHTML() {
-    const componentsHTML = this.components.map((c) => c.template.html).join('\n');
+    // Generate components HTML - either from grid areas or legacy components
+    let componentsHTML = '';
+    let gridAreasCSS = '';
+
+    if (
+      this.gridAreas.length > 0 &&
+      this.gridAreas.some((a) => a.components && a.components.length > 0)
+    ) {
+      // Generate from grid areas
+      componentsHTML = this.generateGridAreasContentHTML();
+      gridAreasCSS = this.generateGridAreasCSS();
+    } else if (this.components.length > 0) {
+      // Legacy components
+      componentsHTML = this.components.map((c) => c.template.html).join('\n');
+    }
 
     // Fetch and embed CSS files
     let embeddedCSS = '';
@@ -1005,6 +1859,9 @@ class DashboardGenerator {
 `;
 
       embeddedCSS = designSystemCSS + '\n' + dashboardCSS + '\n' + generatorCSS + '\n' + layoutCSS;
+      if (gridAreasCSS) {
+        embeddedCSS += '\n/* Grid Areas Styles */\n' + gridAreasCSS;
+      }
     } catch (error) {
       console.error('Failed to load CSS:', error);
       // Fallback to minimal CSS with layouts
@@ -1038,7 +1895,12 @@ class DashboardGenerator {
 
     // Generate layout wrapper HTML
     let bodyContent = '';
-    const gridContent = `<div class="dashboard-grid">${componentsHTML}</div>`;
+    const gridContainerClass =
+      this.gridAreas.length > 0 &&
+      this.gridAreas.some((a) => a.components && a.components.length > 0)
+        ? 'grid-areas-container'
+        : 'dashboard-grid';
+    const gridContent = `<div class="${gridContainerClass}">${componentsHTML}</div>`;
 
     if (this.currentLayout === 'sidebar-left') {
       bodyContent = `
@@ -1135,7 +1997,11 @@ ${embeddedCSS}
 
   // History management
   saveState() {
-    const state = JSON.parse(JSON.stringify(this.components));
+    const state = {
+      components: JSON.parse(JSON.stringify(this.components)),
+      gridAreas: JSON.parse(JSON.stringify(this.gridAreas)),
+      gridRows: this.gridRows,
+    };
 
     // Remove future history if we're not at the end
     this.history = this.history.slice(0, this.historyIndex + 1);
@@ -1148,13 +2014,19 @@ ${embeddedCSS}
       this.history.shift();
       this.historyIndex--;
     }
+
+    this.updateUndoRedoButtons();
   }
 
   undo() {
     if (this.historyIndex > 0) {
       this.historyIndex--;
-      this.components = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+      const state = this.history[this.historyIndex];
+      this.components = JSON.parse(JSON.stringify(state.components));
+      this.gridAreas = JSON.parse(JSON.stringify(state.gridAreas || []));
+      this.gridRows = state.gridRows || 3;
       this.renderCanvas();
+      this.updateUndoRedoButtons();
       this.showNotification('元に戻しました');
     }
   }
@@ -1162,9 +2034,27 @@ ${embeddedCSS}
   redo() {
     if (this.historyIndex < this.history.length - 1) {
       this.historyIndex++;
-      this.components = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+      const state = this.history[this.historyIndex];
+      this.components = JSON.parse(JSON.stringify(state.components));
+      this.gridAreas = JSON.parse(JSON.stringify(state.gridAreas || []));
+      this.gridRows = state.gridRows || 3;
       this.renderCanvas();
+      this.updateUndoRedoButtons();
       this.showNotification('やり直しました');
+    }
+  }
+
+  updateUndoRedoButtons() {
+    const undoBtn = document.querySelector('.canvas-control[data-action="undo"]');
+    const redoBtn = document.querySelector('.canvas-control[data-action="redo"]');
+
+    if (undoBtn) {
+      undoBtn.disabled = this.historyIndex <= 0;
+      undoBtn.style.opacity = this.historyIndex <= 0 ? '0.4' : '1';
+    }
+    if (redoBtn) {
+      redoBtn.disabled = this.historyIndex >= this.history.length - 1;
+      redoBtn.style.opacity = this.historyIndex >= this.history.length - 1 ? '0.4' : '1';
     }
   }
 
@@ -1450,7 +2340,8 @@ ${embeddedCSS}
     // Position tooltip to the right of the sidebar
     const rect = item.getBoundingClientRect();
     const tooltipWidth = 280;
-    const sidebarRight = document.querySelector('.db-sidebar')?.getBoundingClientRect().right || 300;
+    const sidebarRight =
+      document.querySelector('.db-sidebar')?.getBoundingClientRect().right || 300;
 
     this.previewTooltip.style.left = `${sidebarRight + 10}px`;
     this.previewTooltip.style.top = `${Math.max(60, rect.top - 20)}px`;
@@ -1468,6 +2359,579 @@ ${embeddedCSS}
     if (this.previewTooltip) {
       this.previewTooltip.classList.remove('visible');
     }
+  }
+
+  // ==========================================
+  // COMPONENT MODE WITH GRID AREAS
+  // ==========================================
+
+  renderComponentModeWithAreas() {
+    const canvas = document.getElementById('dashboardCanvas');
+    if (!canvas) return;
+
+    canvas.innerHTML = '';
+
+    // Create main grid container using CSS Grid
+    const gridContainer = document.createElement('div');
+    gridContainer.className = 'component-grid-container';
+    gridContainer.style.cssText = `
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(${this.gridRows}, minmax(120px, auto));
+      gap: 16px;
+      padding: 24px;
+      min-height: 400px;
+      background: #f8fafc;
+    `;
+
+    // Create drop zones for each area
+    this.gridAreas.forEach((area) => {
+      const dropZone = document.createElement('div');
+      dropZone.className = 'area-drop-zone';
+      dropZone.dataset.areaId = area.id;
+      dropZone.dataset.color = area.color;
+
+      // Position using CSS Grid
+      dropZone.style.cssText = `
+        grid-column: ${area.startCol + 1} / ${area.endCol + 1};
+        grid-row: ${area.startRow + 1} / ${area.endRow + 1};
+        background: ${this.getAreaBackgroundColor(area.color)};
+        border: 2px dashed ${this.getAreaBorderColor(area.color)};
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        min-height: 100px;
+        transition: all 0.2s ease;
+        position: relative;
+      `;
+
+      // Area label
+      const label = document.createElement('div');
+      label.className = 'area-zone-label';
+      label.textContent = area.name;
+      label.style.cssText = `
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        color: ${this.getAreaBorderColor(area.color)};
+        background: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        z-index: 5;
+      `;
+      dropZone.appendChild(label);
+
+      // Content container for components
+      const contentContainer = document.createElement('div');
+      contentContainer.className = 'area-content';
+      contentContainer.style.cssText = `
+        flex: 1;
+        padding: 32px 12px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow: auto;
+      `;
+
+      // Check if area has components
+      const areaComponents = area.components || [];
+      if (areaComponents.length === 0) {
+        // Empty state
+        const emptyState = document.createElement('div');
+        emptyState.className = 'area-empty-state';
+        emptyState.innerHTML = `
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>ドロップしてコンポーネントを追加</span>
+        `;
+        emptyState.style.cssText = `
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          color: ${this.getAreaBorderColor(area.color)};
+          opacity: 0.6;
+          font-size: 12px;
+          gap: 8px;
+        `;
+        contentContainer.appendChild(emptyState);
+      } else {
+        // Render components in area
+        areaComponents.forEach((comp, index) => {
+          const compWrapper = document.createElement('div');
+          compWrapper.className = 'area-component-wrapper';
+          compWrapper.dataset.componentId = comp.id;
+          compWrapper.dataset.areaId = area.id;
+          compWrapper.dataset.index = index;
+          compWrapper.draggable = true;
+
+          // Apply spacing styles
+          const spacing = comp.spacing || {};
+          compWrapper.style.marginTop = spacing.marginTop ? `${spacing.marginTop}px` : '';
+          compWrapper.style.marginBottom = spacing.marginBottom ? `${spacing.marginBottom}px` : '';
+          compWrapper.style.marginLeft = spacing.marginLeft ? `${spacing.marginLeft}px` : '';
+          compWrapper.style.marginRight = spacing.marginRight ? `${spacing.marginRight}px` : '';
+          compWrapper.style.paddingTop = spacing.paddingTop ? `${spacing.paddingTop}px` : '';
+          compWrapper.style.paddingBottom = spacing.paddingBottom
+            ? `${spacing.paddingBottom}px`
+            : '';
+          compWrapper.style.paddingLeft = spacing.paddingLeft ? `${spacing.paddingLeft}px` : '';
+          compWrapper.style.paddingRight = spacing.paddingRight ? `${spacing.paddingRight}px` : '';
+
+          // Apply responsive data attributes
+          const responsive = comp.responsive || {};
+          if (responsive.hideOnMobile) compWrapper.dataset.hideMobile = 'true';
+          if (responsive.hideOnTablet) compWrapper.dataset.hideTablet = 'true';
+          if (responsive.mobileFullWidth) compWrapper.dataset.mobileFull = 'true';
+
+          compWrapper.innerHTML = comp.template.html;
+
+          // Add controls container
+          const controls = document.createElement('div');
+          controls.className = 'area-component-controls';
+
+          // Drag handle
+          const dragHandle = document.createElement('button');
+          dragHandle.className = 'area-component-drag';
+          dragHandle.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg>`;
+          dragHandle.title = 'ドラッグして移動';
+          controls.appendChild(dragHandle);
+
+          // Settings button
+          const settingsBtn = document.createElement('button');
+          settingsBtn.className = 'area-component-settings';
+          settingsBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+          settingsBtn.title = '設定';
+          settingsBtn.onclick = (e) => {
+            e.stopPropagation();
+            this.showComponentSettings(area.id, comp.id);
+          };
+          controls.appendChild(settingsBtn);
+
+          // Delete button
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'area-component-delete';
+          deleteBtn.innerHTML = '×';
+          deleteBtn.title = '削除';
+          deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            this.removeComponentFromArea(area.id, comp.id);
+          };
+          controls.appendChild(deleteBtn);
+
+          compWrapper.appendChild(controls);
+
+          // Drag events for reordering
+          compWrapper.addEventListener('dragstart', (e) => {
+            e.stopPropagation();
+            compWrapper.classList.add('dragging');
+            e.dataTransfer.setData(
+              'text/plain',
+              JSON.stringify({
+                type: 'reorder',
+                areaId: area.id,
+                componentId: comp.id,
+                fromIndex: index,
+              })
+            );
+            e.dataTransfer.effectAllowed = 'move';
+          });
+
+          compWrapper.addEventListener('dragend', () => {
+            compWrapper.classList.remove('dragging');
+            document.querySelectorAll('.area-component-wrapper').forEach((el) => {
+              el.classList.remove('drag-over-top', 'drag-over-bottom');
+            });
+          });
+
+          compWrapper.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const dragging = document.querySelector('.area-component-wrapper.dragging');
+            if (dragging && dragging !== compWrapper) {
+              const rect = compWrapper.getBoundingClientRect();
+              const midY = rect.top + rect.height / 2;
+              compWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+              if (e.clientY < midY) {
+                compWrapper.classList.add('drag-over-top');
+              } else {
+                compWrapper.classList.add('drag-over-bottom');
+              }
+            }
+          });
+
+          compWrapper.addEventListener('dragleave', () => {
+            compWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+          });
+
+          compWrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            if (data.type === 'reorder') {
+              const rect = compWrapper.getBoundingClientRect();
+              const midY = rect.top + rect.height / 2;
+              const insertBefore = e.clientY < midY;
+              this.reorderComponentInArea(
+                data.areaId,
+                data.componentId,
+                area.id,
+                comp.id,
+                insertBefore
+              );
+            }
+            compWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+          });
+
+          contentContainer.appendChild(compWrapper);
+        });
+      }
+
+      dropZone.appendChild(contentContainer);
+
+      // Drag events for drop zone
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('drag-over');
+      });
+
+      dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('drag-over');
+        this.handleAreaDrop(area.id);
+      });
+
+      gridContainer.appendChild(dropZone);
+    });
+
+    // Apply layout wrapper if needed
+    if (this.currentLayout === 'sidebar-left' || this.currentLayout === 'sidebar-top') {
+      const layoutContainer = document.createElement('div');
+      layoutContainer.className = `db-layout-${this.currentLayout} component-layout sidebar-collapsed`;
+
+      if (this.currentLayout === 'sidebar-left') {
+        layoutContainer.innerHTML = `
+          <aside class="db-sidebar component-sidebar">
+            <div class="db-sidebar-header">
+              <h2>Dashboard</h2>
+              <button class="sidebar-toggle-btn" title="Toggle Sidebar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+            <nav class="db-sidebar-nav">
+              <a href="#" class="db-nav-item active">Overview</a>
+              <a href="#" class="db-nav-item">Analytics</a>
+            </nav>
+          </aside>
+          <main class="db-main"></main>
+        `;
+      } else {
+        layoutContainer.innerHTML = `
+          <aside class="db-sidebar component-sidebar">
+            <div class="db-sidebar-header">
+              <h2>Dashboard</h2>
+              <button class="sidebar-toggle-btn" title="Toggle Sidebar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+          </aside>
+          <div class="db-content-area">
+            <header class="db-topbar"><span>Navigation</span></header>
+            <main class="db-main"></main>
+          </div>
+        `;
+      }
+
+      // Add toggle handler
+      layoutContainer.querySelector('.sidebar-toggle-btn')?.addEventListener('click', () => {
+        layoutContainer.classList.toggle('sidebar-collapsed');
+      });
+
+      layoutContainer.querySelector('.db-main').appendChild(gridContainer);
+      canvas.appendChild(layoutContainer);
+    } else if (this.currentLayout === 'topbar') {
+      const layoutContainer = document.createElement('div');
+      layoutContainer.className = 'db-layout-topbar component-layout';
+      layoutContainer.innerHTML = `
+        <header class="db-topbar"><span>Navigation</span></header>
+        <main class="db-main"></main>
+      `;
+      layoutContainer.querySelector('.db-main').appendChild(gridContainer);
+      canvas.appendChild(layoutContainer);
+    } else {
+      canvas.appendChild(gridContainer);
+    }
+  }
+
+  getAreaBackgroundColor(colorName) {
+    const colors = {
+      blue: 'rgba(59, 130, 246, 0.08)',
+      green: 'rgba(34, 197, 94, 0.08)',
+      purple: 'rgba(168, 85, 247, 0.08)',
+      orange: 'rgba(249, 115, 22, 0.08)',
+      pink: 'rgba(236, 72, 153, 0.08)',
+      cyan: 'rgba(6, 182, 212, 0.08)',
+    };
+    return colors[colorName] || colors.blue;
+  }
+
+  handleAreaDrop(areaId) {
+    if (!this.draggedComponent) return;
+
+    const template = dashboardTemplates[this.draggedComponent];
+    if (!template) return;
+
+    const area = this.gridAreas.find((a) => a.id === areaId);
+    if (!area) return;
+
+    // Initialize components array if not exists
+    if (!area.components) area.components = [];
+
+    // Add component to area
+    const component = {
+      id: this.generateId(),
+      type: this.draggedComponent,
+      template: template,
+      timestamp: Date.now(),
+    };
+
+    area.components.push(component);
+    this.draggedComponent = null;
+    this.renderCanvas();
+    this.showNotification(`${template.name}を${area.name}に追加しました`);
+  }
+
+  removeComponentFromArea(areaId, componentId) {
+    const area = this.gridAreas.find((a) => a.id === areaId);
+    if (!area || !area.components) return;
+
+    area.components = area.components.filter((c) => c.id !== componentId);
+    this.saveState();
+    this.renderCanvas();
+    this.showNotification('コンポーネントを削除しました', 'info');
+  }
+
+  reorderComponentInArea(fromAreaId, componentId, toAreaId, targetComponentId, insertBefore) {
+    const fromArea = this.gridAreas.find((a) => a.id === fromAreaId);
+    const toArea = this.gridAreas.find((a) => a.id === toAreaId);
+    if (!fromArea || !toArea) return;
+
+    // Find and remove component from source
+    const compIndex = fromArea.components.findIndex((c) => c.id === componentId);
+    if (compIndex === -1) return;
+    const [component] = fromArea.components.splice(compIndex, 1);
+
+    // Find target index in destination
+    let targetIndex = toArea.components.findIndex((c) => c.id === targetComponentId);
+    if (!insertBefore) targetIndex++;
+
+    // If moving within same area, adjust index if needed
+    if (fromAreaId === toAreaId && compIndex < targetIndex) {
+      targetIndex--;
+    }
+
+    // Insert at new position
+    toArea.components.splice(targetIndex, 0, component);
+
+    this.saveState();
+    this.renderCanvas();
+    this.showNotification('コンポーネントを移動しました', 'success');
+  }
+
+  showComponentSettings(areaId, componentId) {
+    const area = this.gridAreas.find((a) => a.id === areaId);
+    if (!area) return;
+    const component = area.components.find((c) => c.id === componentId);
+    if (!component) return;
+
+    // Initialize spacing if not exists
+    if (!component.spacing) {
+      component.spacing = {
+        marginTop: 0,
+        marginBottom: 0,
+        marginLeft: 0,
+        marginRight: 0,
+        paddingTop: 0,
+        paddingBottom: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+      };
+    }
+    // Ensure all properties exist for older components
+    component.spacing.marginLeft = component.spacing.marginLeft || 0;
+    component.spacing.marginRight = component.spacing.marginRight || 0;
+    component.spacing.paddingLeft = component.spacing.paddingLeft || 0;
+    component.spacing.paddingRight = component.spacing.paddingRight || 0;
+
+    if (!component.responsive) {
+      component.responsive = { hideOnMobile: false, hideOnTablet: false, mobileFullWidth: true };
+    }
+
+    const modal = document.createElement('div');
+    modal.className = 'component-settings-modal';
+    modal.innerHTML = `
+      <div class="settings-modal-overlay"></div>
+      <div class="settings-modal-content">
+        <div class="settings-modal-header">
+          <h3>コンポーネント設定</h3>
+          <button class="settings-modal-close">×</button>
+        </div>
+        <div class="settings-modal-body">
+          <div class="settings-section">
+            <h4>マージン（外側余白）</h4>
+            <div class="spacing-controls spacing-grid">
+              <div class="spacing-group">
+                <label>上</label>
+                <div class="spacing-input-row">
+                  <input type="range" min="0" max="48" step="4" value="${component.spacing.marginTop}"
+                    data-prop="marginTop" class="spacing-slider">
+                  <span class="spacing-value">${component.spacing.marginTop}px</span>
+                </div>
+              </div>
+              <div class="spacing-group">
+                <label>下</label>
+                <div class="spacing-input-row">
+                  <input type="range" min="0" max="48" step="4" value="${component.spacing.marginBottom}"
+                    data-prop="marginBottom" class="spacing-slider">
+                  <span class="spacing-value">${component.spacing.marginBottom}px</span>
+                </div>
+              </div>
+              <div class="spacing-group">
+                <label>左</label>
+                <div class="spacing-input-row">
+                  <input type="range" min="0" max="48" step="4" value="${component.spacing.marginLeft}"
+                    data-prop="marginLeft" class="spacing-slider">
+                  <span class="spacing-value">${component.spacing.marginLeft}px</span>
+                </div>
+              </div>
+              <div class="spacing-group">
+                <label>右</label>
+                <div class="spacing-input-row">
+                  <input type="range" min="0" max="48" step="4" value="${component.spacing.marginRight}"
+                    data-prop="marginRight" class="spacing-slider">
+                  <span class="spacing-value">${component.spacing.marginRight}px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h4>パディング（内側余白）</h4>
+            <div class="spacing-controls spacing-grid">
+              <div class="spacing-group">
+                <label>上</label>
+                <div class="spacing-input-row">
+                  <input type="range" min="0" max="32" step="4" value="${component.spacing.paddingTop}"
+                    data-prop="paddingTop" class="spacing-slider">
+                  <span class="spacing-value">${component.spacing.paddingTop}px</span>
+                </div>
+              </div>
+              <div class="spacing-group">
+                <label>下</label>
+                <div class="spacing-input-row">
+                  <input type="range" min="0" max="32" step="4" value="${component.spacing.paddingBottom}"
+                    data-prop="paddingBottom" class="spacing-slider">
+                  <span class="spacing-value">${component.spacing.paddingBottom}px</span>
+                </div>
+              </div>
+              <div class="spacing-group">
+                <label>左</label>
+                <div class="spacing-input-row">
+                  <input type="range" min="0" max="32" step="4" value="${component.spacing.paddingLeft}"
+                    data-prop="paddingLeft" class="spacing-slider">
+                  <span class="spacing-value">${component.spacing.paddingLeft}px</span>
+                </div>
+              </div>
+              <div class="spacing-group">
+                <label>右</label>
+                <div class="spacing-input-row">
+                  <input type="range" min="0" max="32" step="4" value="${component.spacing.paddingRight}"
+                    data-prop="paddingRight" class="spacing-slider">
+                  <span class="spacing-value">${component.spacing.paddingRight}px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h4>レスポンシブ設定</h4>
+            <div class="responsive-controls">
+              <label class="responsive-checkbox">
+                <input type="checkbox" data-resp="hideOnMobile" ${component.responsive.hideOnMobile ? 'checked' : ''}>
+                <span>モバイルで非表示</span>
+              </label>
+              <label class="responsive-checkbox">
+                <input type="checkbox" data-resp="hideOnTablet" ${component.responsive.hideOnTablet ? 'checked' : ''}>
+                <span>タブレットで非表示</span>
+              </label>
+              <label class="responsive-checkbox">
+                <input type="checkbox" data-resp="mobileFullWidth" ${component.responsive.mobileFullWidth ? 'checked' : ''}>
+                <span>モバイルで全幅表示</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="settings-modal-footer">
+          <button class="settings-btn-cancel">キャンセル</button>
+          <button class="settings-btn-apply">適用</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Event listeners
+    const closeModal = () => {
+      modal.remove();
+    };
+
+    modal.querySelector('.settings-modal-overlay').addEventListener('click', closeModal);
+    modal.querySelector('.settings-modal-close').addEventListener('click', closeModal);
+    modal.querySelector('.settings-btn-cancel').addEventListener('click', closeModal);
+
+    // Spacing sliders
+    modal.querySelectorAll('.spacing-slider').forEach((slider) => {
+      slider.addEventListener('input', (e) => {
+        const value = e.target.value;
+        e.target.nextElementSibling.textContent = `${value}px`;
+      });
+    });
+
+    // Apply button
+    modal.querySelector('.settings-btn-apply').addEventListener('click', () => {
+      // Save spacing
+      modal.querySelectorAll('.spacing-slider').forEach((slider) => {
+        const prop = slider.dataset.prop;
+        component.spacing[prop] = parseInt(slider.value);
+      });
+
+      // Save responsive
+      modal.querySelectorAll('[data-resp]').forEach((checkbox) => {
+        const prop = checkbox.dataset.resp;
+        component.responsive[prop] = checkbox.checked;
+      });
+
+      this.saveState();
+      this.renderCanvas();
+      closeModal();
+      this.showNotification('設定を適用しました', 'success');
+    });
   }
 
   // Utilities
@@ -1521,6 +2985,459 @@ ${embeddedCSS}
       notification.style.animation = 'slideOutRight 0.3s ease-out';
       setTimeout(() => notification.remove(), 300);
     }, 3000);
+  }
+
+  // ==========================================
+  // GRID DESIGN MODE METHODS
+  // ==========================================
+
+  handleModeChange(e) {
+    const tab = e.currentTarget;
+    const mode = tab.dataset.mode;
+
+    document.querySelectorAll('.mode-tab').forEach((t) => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    this.designMode = mode;
+
+    // Toggle body class for CSS visibility
+    if (mode === 'component') {
+      document.body.classList.add('component-mode');
+    } else {
+      document.body.classList.remove('component-mode');
+    }
+
+    this.renderCanvas();
+  }
+
+  renderGridOverlay() {
+    const canvas = document.getElementById('dashboardCanvas');
+    if (!canvas) return;
+
+    canvas.innerHTML = '';
+
+    // Create grid content container
+    const gridContent = document.createElement('div');
+    gridContent.className = 'grid-design-container';
+    gridContent.style.position = 'relative';
+
+    // Column headers
+    const headers = document.createElement('div');
+    headers.className = 'grid-column-headers';
+    for (let i = 1; i <= 12; i++) {
+      const header = document.createElement('div');
+      header.className = 'column-header';
+      header.textContent = i;
+      headers.appendChild(header);
+    }
+    gridContent.appendChild(headers);
+
+    // Grid overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'grid-overlay';
+    overlay.id = 'gridOverlay';
+
+    for (let row = 0; row < this.gridRows; row++) {
+      for (let col = 0; col < 12; col++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        cell.dataset.row = row;
+        cell.dataset.col = col;
+        cell.textContent = `${col + 1}`;
+
+        // Check if cell is occupied by an area
+        const occupiedArea = this.gridAreas.find(
+          (area) =>
+            col >= area.startCol && col < area.endCol && row >= area.startRow && row < area.endRow
+        );
+        if (occupiedArea) {
+          cell.classList.add('occupied');
+        }
+
+        // Mouse events for selection
+        cell.addEventListener('mousedown', (e) => this.handleGridCellMouseDown(e, col, row));
+        cell.addEventListener('mouseenter', (e) => this.handleGridCellMouseEnter(e, col, row));
+        cell.addEventListener('mouseup', () => this.handleGridCellMouseUp());
+
+        overlay.appendChild(cell);
+      }
+    }
+
+    gridContent.appendChild(overlay);
+
+    // Render defined areas (will be positioned after layout is applied)
+    this.pendingAreas = [...this.gridAreas];
+
+    // Apply layout wrapper based on currentLayout
+    if (this.currentLayout === 'sidebar-left') {
+      const layoutContainer = document.createElement('div');
+      layoutContainer.className = 'db-layout-sidebar-left grid-design-layout';
+      layoutContainer.innerHTML = `
+        <aside class="db-sidebar grid-design-sidebar">
+          <div class="db-sidebar-header">
+            <h2>Sidebar</h2>
+            <button class="sidebar-collapse-btn" id="collapseSidebarPreview" title="Toggle Sidebar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+          </div>
+          <div class="sidebar-placeholder">
+            <span>Sidebar Area</span>
+          </div>
+        </aside>
+        <main class="db-main"></main>
+      `;
+      layoutContainer.querySelector('.db-main').appendChild(gridContent);
+      canvas.appendChild(layoutContainer);
+
+      // Add collapse toggle
+      layoutContainer.querySelector('#collapseSidebarPreview')?.addEventListener('click', () => {
+        layoutContainer.classList.toggle('sidebar-collapsed');
+      });
+    } else if (this.currentLayout === 'topbar') {
+      const layoutContainer = document.createElement('div');
+      layoutContainer.className = 'db-layout-topbar grid-design-layout';
+      layoutContainer.innerHTML = `
+        <header class="db-topbar grid-design-topbar">
+          <div class="topbar-placeholder">
+            <span>Top Navigation Area</span>
+          </div>
+        </header>
+        <main class="db-main"></main>
+      `;
+      layoutContainer.querySelector('.db-main').appendChild(gridContent);
+      canvas.appendChild(layoutContainer);
+    } else if (this.currentLayout === 'sidebar-top') {
+      const layoutContainer = document.createElement('div');
+      layoutContainer.className = 'db-layout-sidebar-top grid-design-layout';
+      layoutContainer.innerHTML = `
+        <aside class="db-sidebar grid-design-sidebar">
+          <div class="db-sidebar-header">
+            <h2>Sidebar</h2>
+            <button class="sidebar-collapse-btn" id="collapseSidebarPreview" title="Toggle Sidebar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+          </div>
+          <div class="sidebar-placeholder">
+            <span>Sidebar Area</span>
+          </div>
+        </aside>
+        <div class="db-content-area">
+          <header class="db-topbar grid-design-topbar">
+            <div class="topbar-placeholder">
+              <span>Top Navigation Area</span>
+            </div>
+          </header>
+          <main class="db-main"></main>
+        </div>
+      `;
+      layoutContainer.querySelector('.db-main').appendChild(gridContent);
+      canvas.appendChild(layoutContainer);
+
+      // Add collapse toggle
+      layoutContainer.querySelector('#collapseSidebarPreview')?.addEventListener('click', () => {
+        layoutContainer.classList.toggle('sidebar-collapsed');
+      });
+    } else {
+      canvas.appendChild(gridContent);
+    }
+
+    // Render defined areas after a short delay to ensure DOM is ready
+    requestAnimationFrame(() => {
+      const overlayEl = document.getElementById('gridOverlay');
+      if (overlayEl && this.pendingAreas) {
+        this.pendingAreas.forEach((area, index) => {
+          const areaEl = this.createAreaElement(area, index);
+          overlayEl.parentElement.appendChild(areaEl);
+        });
+      }
+    });
+
+    // Global mouseup handler
+    document.addEventListener('mouseup', () => this.handleGridCellMouseUp(), { once: true });
+  }
+
+  handleGridCellMouseDown(e, col, row) {
+    // Check if cell is occupied
+    const occupiedArea = this.gridAreas.find(
+      (area) =>
+        col >= area.startCol && col < area.endCol && row >= area.startRow && row < area.endRow
+    );
+    if (occupiedArea) return;
+
+    this.isSelectingArea = true;
+    this.selectionStart = { col, row };
+    this.selectionEnd = { col, row };
+    e.currentTarget.classList.add('selecting');
+    this.updateSelectionPreview();
+  }
+
+  handleGridCellMouseEnter(e, col, row) {
+    if (!this.isSelectingArea) return;
+    this.selectionEnd = { col, row };
+    this.updateSelectionPreview();
+  }
+
+  handleGridCellMouseUp() {
+    if (!this.isSelectingArea) return;
+    this.isSelectingArea = false;
+
+    if (this.selectionStart && this.selectionEnd) {
+      this.defineArea(this.selectionStart, this.selectionEnd);
+    }
+
+    this.selectionStart = null;
+    this.selectionEnd = null;
+  }
+
+  updateSelectionPreview() {
+    const overlay = document.getElementById('gridOverlay');
+    if (!overlay) return;
+
+    const cells = overlay.querySelectorAll('.grid-cell');
+    const minCol = Math.min(this.selectionStart.col, this.selectionEnd.col);
+    const maxCol = Math.max(this.selectionStart.col, this.selectionEnd.col);
+    const minRow = Math.min(this.selectionStart.row, this.selectionEnd.row);
+    const maxRow = Math.max(this.selectionStart.row, this.selectionEnd.row);
+
+    cells.forEach((cell) => {
+      const col = parseInt(cell.dataset.col);
+      const row = parseInt(cell.dataset.row);
+      cell.classList.remove('selecting', 'in-selection');
+
+      if (col >= minCol && col <= maxCol && row >= minRow && row <= maxRow) {
+        cell.classList.add('in-selection');
+        if (col === this.selectionStart.col && row === this.selectionStart.row) {
+          cell.classList.add('selecting');
+        }
+      }
+    });
+  }
+
+  defineArea(start, end) {
+    const area = {
+      id: Date.now(),
+      name: `Area ${this.gridAreas.length + 1}`,
+      startCol: Math.min(start.col, end.col),
+      endCol: Math.max(start.col, end.col) + 1,
+      startRow: Math.min(start.row, end.row),
+      endRow: Math.max(start.row, end.row) + 1,
+      color: this.areaColors[this.gridAreas.length % this.areaColors.length],
+      components: [],
+    };
+
+    // Check for overlap with existing areas
+    const hasOverlap = this.gridAreas.some(
+      (existing) =>
+        !(
+          area.endCol <= existing.startCol ||
+          area.startCol >= existing.endCol ||
+          area.endRow <= existing.startRow ||
+          area.startRow >= existing.endRow
+        )
+    );
+
+    if (hasOverlap) {
+      this.showNotification('エリアが重複しています', 'error');
+      this.renderGridOverlay();
+      return;
+    }
+
+    this.gridAreas.push(area);
+    this.saveState(); // Save state for undo/redo
+    this.renderGridOverlay();
+    this.showNotification(`${area.name} を作成しました`, 'success');
+  }
+
+  createAreaElement(area, index) {
+    const overlay = document.getElementById('gridOverlay');
+    if (!overlay) return document.createElement('div');
+
+    const cells = overlay.querySelectorAll('.grid-cell');
+    const firstCell = overlay.querySelector(
+      `[data-row="${area.startRow}"][data-col="${area.startCol}"]`
+    );
+    const lastCell = overlay.querySelector(
+      `[data-row="${area.endRow - 1}"][data-col="${area.endCol - 1}"]`
+    );
+
+    if (!firstCell || !lastCell) return document.createElement('div');
+
+    const overlayRect = overlay.getBoundingClientRect();
+    const firstRect = firstCell.getBoundingClientRect();
+    const lastRect = lastCell.getBoundingClientRect();
+
+    const areaEl = document.createElement('div');
+    areaEl.className = 'grid-area-defined';
+    areaEl.dataset.areaId = area.id;
+    areaEl.dataset.color = area.color;
+
+    // Position relative to overlay
+    areaEl.style.left = `${firstRect.left - overlayRect.left}px`;
+    areaEl.style.top = `${firstRect.top - overlayRect.top}px`;
+    areaEl.style.width = `${lastRect.right - firstRect.left}px`;
+    areaEl.style.height = `${lastRect.bottom - firstRect.top}px`;
+
+    // Label
+    const label = document.createElement('span');
+    label.className = 'grid-area-label';
+    label.textContent = area.name;
+    label.style.borderLeftColor = this.getAreaBorderColor(area.color);
+    areaEl.appendChild(label);
+
+    // Delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'grid-area-delete';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.deleteArea(area.id);
+    });
+    areaEl.appendChild(deleteBtn);
+
+    // Click to rename
+    areaEl.addEventListener('dblclick', () => this.renameArea(area.id));
+
+    return areaEl;
+  }
+
+  getAreaBorderColor(colorName) {
+    const colors = {
+      blue: '#3b82f6',
+      green: '#22c55e',
+      purple: '#a855f7',
+      orange: '#f97316',
+      pink: '#ec4899',
+      cyan: '#06b6d4',
+    };
+    return colors[colorName] || colors.blue;
+  }
+
+  deleteArea(areaId) {
+    this.gridAreas = this.gridAreas.filter((a) => a.id !== areaId);
+    this.saveState(); // Save state for undo/redo
+    this.renderGridOverlay();
+    this.showNotification('エリアを削除しました', 'info');
+  }
+
+  renameArea(areaId) {
+    const area = this.gridAreas.find((a) => a.id === areaId);
+    if (!area) return;
+
+    const newName = prompt('エリア名を入力:', area.name);
+    if (newName && newName.trim()) {
+      area.name = newName.trim();
+      this.saveState(); // Save state for undo/redo
+      this.renderGridOverlay();
+    }
+  }
+
+  addGridRow() {
+    if (this.gridRows < 10) {
+      this.gridRows++;
+      document.getElementById('gridRowCount').textContent = this.gridRows;
+      this.saveState(); // Save state for undo/redo
+      this.renderGridOverlay();
+    }
+  }
+
+  removeGridRow() {
+    if (this.gridRows > 1) {
+      // Check if any areas use the last row
+      const hasAreasInLastRow = this.gridAreas.some((area) => area.endRow > this.gridRows - 1);
+      if (hasAreasInLastRow) {
+        this.showNotification('最後の行にエリアがあるため削除できません', 'error');
+        return;
+      }
+      this.gridRows--;
+      document.getElementById('gridRowCount').textContent = this.gridRows;
+      this.saveState(); // Save state for undo/redo
+      this.renderGridOverlay();
+    }
+  }
+
+  clearGridAreas() {
+    if (this.gridAreas.length === 0) return;
+    if (confirm('すべてのエリアを削除しますか？')) {
+      this.gridAreas = [];
+      this.saveState(); // Save state for undo/redo
+      this.renderGridOverlay();
+      this.showNotification('すべてのエリアを削除しました', 'info');
+    }
+  }
+
+  applyGridTemplate(e) {
+    const btn = e.currentTarget;
+    const template = btn.dataset.template;
+
+    // Clear existing areas
+    this.gridAreas = [];
+
+    // Grid templates definition
+    const templates = {
+      'full-width': [{ name: 'Content', startCol: 0, endCol: 12, startRow: 0, endRow: 1 }],
+      'two-column': [
+        { name: 'Left', startCol: 0, endCol: 6, startRow: 0, endRow: 1 },
+        { name: 'Right', startCol: 6, endCol: 12, startRow: 0, endRow: 1 },
+      ],
+      'three-column': [
+        { name: 'Col 1', startCol: 0, endCol: 4, startRow: 0, endRow: 1 },
+        { name: 'Col 2', startCol: 4, endCol: 8, startRow: 0, endRow: 1 },
+        { name: 'Col 3', startCol: 8, endCol: 12, startRow: 0, endRow: 1 },
+      ],
+      'sidebar-main': [
+        { name: 'Sidebar', startCol: 0, endCol: 3, startRow: 0, endRow: 2 },
+        { name: 'Main', startCol: 3, endCol: 12, startRow: 0, endRow: 2 },
+      ],
+      'dashboard-classic': [
+        { name: 'Stats', startCol: 0, endCol: 12, startRow: 0, endRow: 1 },
+        { name: 'Card 1', startCol: 0, endCol: 4, startRow: 1, endRow: 2 },
+        { name: 'Card 2', startCol: 4, endCol: 8, startRow: 1, endRow: 2 },
+        { name: 'Card 3', startCol: 8, endCol: 12, startRow: 1, endRow: 2 },
+        { name: 'Chart 1', startCol: 0, endCol: 6, startRow: 2, endRow: 3 },
+        { name: 'Chart 2', startCol: 6, endCol: 12, startRow: 2, endRow: 3 },
+      ],
+      'holy-grail': [
+        { name: 'Header', startCol: 0, endCol: 12, startRow: 0, endRow: 1 },
+        { name: 'Left Nav', startCol: 0, endCol: 3, startRow: 1, endRow: 2 },
+        { name: 'Content', startCol: 3, endCol: 9, startRow: 1, endRow: 2 },
+        { name: 'Right Sidebar', startCol: 9, endCol: 12, startRow: 1, endRow: 2 },
+        { name: 'Footer', startCol: 0, endCol: 12, startRow: 2, endRow: 3 },
+      ],
+    };
+
+    const templateAreas = templates[template];
+    if (!templateAreas) return;
+
+    // Calculate required rows
+    const maxRow = Math.max(...templateAreas.map((a) => a.endRow));
+    this.gridRows = maxRow;
+    document.getElementById('gridRowCount').textContent = this.gridRows;
+
+    // Create areas
+    templateAreas.forEach((areaData, index) => {
+      this.gridAreas.push({
+        id: Date.now() + index,
+        name: areaData.name,
+        startCol: areaData.startCol,
+        endCol: areaData.endCol,
+        startRow: areaData.startRow,
+        endRow: areaData.endRow,
+        color: this.areaColors[index % this.areaColors.length],
+        components: [],
+      });
+    });
+
+    // Update active state
+    document.querySelectorAll('.grid-template-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    this.saveState(); // Save state for undo/redo
+    this.renderGridOverlay();
+    this.showNotification(`${template} テンプレートを適用しました`, 'success');
   }
 }
 
