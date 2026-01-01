@@ -2036,10 +2036,10 @@ body {
 .lp-hero .lp-btn-outline,
 .lp-hero-modern .lp-btn-secondary,
 .lp-hero-modern .lp-btn-outline,
-section[style*="linear-gradient"] .lp-btn-secondary,
-section[style*="linear-gradient"] .lp-btn-outline,
-section[style*="background:"][style*="color: white"] .lp-btn-secondary,
-section[style*="background:"][style*="color: white"] .lp-btn-outline {
+section[style*='linear-gradient'] .lp-btn-secondary,
+section[style*='linear-gradient'] .lp-btn-outline,
+section[style*='background:'][style*='color: white'] .lp-btn-secondary,
+section[style*='background:'][style*='color: white'] .lp-btn-outline {
   background: transparent;
   color: white;
   border-color: rgba(255, 255, 255, 0.8);
@@ -2049,8 +2049,8 @@ section[style*="background:"][style*="color: white"] .lp-btn-outline {
 .lp-hero .lp-btn-outline:hover,
 .lp-hero-modern .lp-btn-secondary:hover,
 .lp-hero-modern .lp-btn-outline:hover,
-section[style*="linear-gradient"] .lp-btn-secondary:hover,
-section[style*="linear-gradient"] .lp-btn-outline:hover {
+section[style*='linear-gradient'] .lp-btn-secondary:hover,
+section[style*='linear-gradient'] .lp-btn-outline:hover {
   background: white;
   color: var(--lp-primary, #3b82f6);
   border-color: white;

@@ -297,7 +297,7 @@ class LandingPageGenerator {
       btn.addEventListener('click', (e) => this.handleThemeChange(e));
     });
 
-    // Component addition (click and drag)
+    // Component addition (click and drag) with preview tooltip
     document.querySelectorAll('.component-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => this.handleComponentAdd(e));
 
@@ -305,7 +305,14 @@ class LandingPageGenerator {
       btn.setAttribute('draggable', 'true');
       btn.addEventListener('dragstart', (e) => this.handleComponentDragStart(e));
       btn.addEventListener('dragend', (e) => this.handleComponentDragEnd(e));
+
+      // Preview tooltip on hover
+      btn.addEventListener('mouseenter', (e) => this.showSectionPreview(e));
+      btn.addEventListener('mouseleave', () => this.hideSectionPreview());
     });
+
+    // Create preview tooltip
+    this.createSectionPreviewTooltip();
 
     // Setup preview area as drop zone
     this.setupPreviewDropZone();
@@ -1522,7 +1529,8 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
       'lp-section-alt': 'bg-gray-50',
       'lp-section': 'py-20 px-4 md:px-8 lg:px-16',
       'lp-hero-modern': 'relative overflow-hidden',
-      'lp-hero': 'min-h-screen flex items-center bg-gradient-to-br from-primary to-secondary text-white py-20 px-4',
+      'lp-hero':
+        'min-h-screen flex items-center bg-gradient-to-br from-primary to-secondary text-white py-20 px-4',
 
       // Layout
       'lp-container': 'max-w-7xl mx-auto px-4',
@@ -1534,7 +1542,8 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
       'lp-hero-subtitle': 'text-xl md:text-2xl opacity-90 mb-8',
       'lp-section-title': 'text-3xl md:text-4xl font-bold text-gray-900 mb-4',
       'lp-section-subtitle': 'text-lg text-gray-600 max-w-2xl mx-auto',
-      'lp-gradient-text': 'bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent',
+      'lp-gradient-text':
+        'bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent',
       'lp-feature-title': 'text-xl font-semibold text-gray-900 mb-3',
       'lp-feature-description': 'text-gray-600 leading-relaxed',
       'lp-pricing-price': 'text-4xl font-bold text-gray-900 mb-2',
@@ -1551,11 +1560,13 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
       'lp-btn-ghost': 'border-2 border-white/30 text-white hover:bg-white/10',
       'lp-btn-outline': 'border-2 border-primary text-primary hover:bg-primary hover:text-white',
       'lp-btn-lg': 'px-8 py-4 text-lg',
-      'lp-btn': 'inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-all duration-300',
+      'lp-btn':
+        'inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-all duration-300',
       'lp-hero-buttons': 'flex flex-col sm:flex-row gap-4',
 
       // Cards
-      'lp-feature-card': 'bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300',
+      'lp-feature-card':
+        'bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300',
       'lp-pricing-card-popular': 'ring-2 ring-primary scale-105',
       'lp-pricing-card': 'bg-white rounded-2xl p-8 shadow-lg border border-gray-100',
       'lp-testimonial-card': 'bg-white rounded-2xl p-6 shadow-lg',
@@ -1574,12 +1585,15 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
       'lp-hero-stat': 'text-center',
 
       // Badges
-      'lp-hero-badge': 'inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6',
+      'lp-hero-badge':
+        'inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6',
       'lp-badge-dot': 'w-2 h-2 bg-white rounded-full animate-pulse',
-      'lp-pricing-badge': 'absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-sm font-medium rounded-full',
+      'lp-pricing-badge':
+        'absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-sm font-medium rounded-full',
 
       // Icons
-      'lp-feature-icon-wrapper': 'w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white mb-6',
+      'lp-feature-icon-wrapper':
+        'w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white mb-6',
       'lp-feature-icon': 'w-8 h-8',
 
       // CTA
@@ -1591,9 +1605,12 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
       'lp-contact-form': 'bg-white rounded-2xl p-8 shadow-xl',
       'lp-form-group': 'mb-6',
       'lp-form-label': 'block text-sm font-medium text-gray-700 mb-2',
-      'lp-input': 'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition',
-      'lp-textarea': 'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none',
-      'lp-select': 'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition appearance-none bg-white',
+      'lp-input':
+        'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition',
+      'lp-textarea':
+        'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none',
+      'lp-select':
+        'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition appearance-none bg-white',
 
       // Lists
       'lp-pricing-features': 'space-y-3 mb-8',
@@ -1621,18 +1638,21 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
       'lp-footer-title': 'font-semibold mb-4',
       'lp-footer-bottom': 'border-t border-gray-800 mt-12 pt-8 text-center text-gray-400',
       'lp-social-links': 'flex gap-4',
-      'lp-social-link': 'w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-colors',
+      'lp-social-link':
+        'w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-colors',
 
       // FAQ
       'lp-faq-list': 'max-w-3xl mx-auto space-y-4',
       'lp-faq-item': 'bg-white rounded-xl shadow-md overflow-hidden',
-      'lp-faq-question': 'w-full px-6 py-4 text-left font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors',
+      'lp-faq-question':
+        'w-full px-6 py-4 text-left font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors',
       'lp-faq-answer': 'px-6 py-4 text-gray-600 border-t border-gray-100',
 
       // Gallery
       'lp-gallery-grid': 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4',
       'lp-gallery-item': 'aspect-square rounded-xl overflow-hidden',
-      'lp-gallery-image': 'w-full h-full object-cover hover:scale-110 transition-transform duration-300',
+      'lp-gallery-image':
+        'w-full h-full object-cover hover:scale-110 transition-transform duration-300',
 
       // Timeline
       'lp-timeline': 'relative max-w-3xl mx-auto',
@@ -1669,7 +1689,10 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     result = result.replace(/\s*class=""\s*/g, ' ');
 
     // Add data-animate to elements with animation classes
-    result = result.replace(/class="([^"]*(?:opacity-0[^"]*translate-y-8|transition-all duration-700)[^"]*)"/g, 'class="$1" data-animate');
+    result = result.replace(
+      /class="([^"]*(?:opacity-0[^"]*translate-y-8|transition-all duration-700)[^"]*)"/g,
+      'class="$1" data-animate'
+    );
 
     return result;
   }
@@ -1767,7 +1790,11 @@ ${this.generateShadcnSectionComponents()}
     const components = new Set(['button']);
 
     this.sections.forEach((section) => {
-      if (section.type.includes('features') || section.type.includes('pricing') || section.type.includes('testimonial')) {
+      if (
+        section.type.includes('features') ||
+        section.type.includes('pricing') ||
+        section.type.includes('testimonial')
+      ) {
         components.add('card');
       }
       if (section.type.includes('contact') || section.type.includes('newsletter')) {
@@ -1794,7 +1821,9 @@ ${this.generateShadcnSectionComponents()}
 
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
-    let h, s, l = (max + min) / 2;
+    let h,
+      s,
+      l = (max + min) / 2;
 
     if (max === min) {
       h = s = 0;
@@ -1802,9 +1831,15 @@ ${this.generateShadcnSectionComponents()}
       const d = max - min;
       s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
       switch (max) {
-        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-        case g: h = ((b - r) / d + 2) / 6; break;
-        case b: h = ((r - g) / d + 4) / 6; break;
+        case r:
+          h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+          break;
+        case g:
+          h = ((b - r) / d + 2) / 6;
+          break;
+        case b:
+          h = ((r - g) / d + 4) / 6;
+          break;
       }
     }
 
@@ -2523,7 +2558,11 @@ ${this.generateMUISectionComponents()}
     const iconComponents = new Set();
 
     this.sections.forEach((section) => {
-      if (section.type.includes('features') || section.type.includes('pricing') || section.type.includes('testimonial')) {
+      if (
+        section.type.includes('features') ||
+        section.type.includes('pricing') ||
+        section.type.includes('testimonial')
+      ) {
         materialComponents.add('Card');
         materialComponents.add('CardContent');
       }
@@ -2568,7 +2607,9 @@ ${this.generateMUISectionComponents()}
 
     // Icons (if any)
     if (iconComponents.size > 0) {
-      const iconList = Array.from(iconComponents).sort().map(name => `${name} as ${name}Icon`);
+      const iconList = Array.from(iconComponents)
+        .sort()
+        .map((name) => `${name} as ${name}Icon`);
       imports.push(`import { ${iconList.join(', ')} } from '@mui/icons-material';`);
     }
 
@@ -2876,8 +2917,8 @@ ${this.generateMUISectionComponents()}
     // Load both landing-page.css and advanced-components.css
     try {
       const [landingPageCSS, advancedComponentsCSS] = await Promise.all([
-        fetch('css/landing-page.css').then(r => r.text()),
-        fetch('css/advanced-components.css').then(r => r.text())
+        fetch('css/landing-page.css').then((r) => r.text()),
+        fetch('css/advanced-components.css').then((r) => r.text()),
       ]);
       return `/* Landing Page Styles */\n${landingPageCSS}\n\n/* Advanced Components */\n${advancedComponentsCSS}`;
     } catch (error) {
@@ -3353,6 +3394,66 @@ ${this.generateMUISectionComponents()}
       notification.style.animation = 'slideOutRight 0.3s ease-out';
       setTimeout(() => notification.remove(), 300);
     }, 3000);
+  }
+
+  // Section Preview Tooltip
+  createSectionPreviewTooltip() {
+    if (document.getElementById('sectionPreviewTooltip')) return;
+
+    const tooltip = document.createElement('div');
+    tooltip.id = 'sectionPreviewTooltip';
+    tooltip.className = 'section-preview-tooltip';
+    tooltip.innerHTML = `
+      <div class="preview-tooltip-header"></div>
+      <div class="preview-tooltip-content">
+        <div class="preview-scale"></div>
+      </div>
+    `;
+    document.body.appendChild(tooltip);
+    this.sectionPreviewTooltip = tooltip;
+  }
+
+  showSectionPreview(e) {
+    const btn = e.currentTarget;
+    const componentType = btn.dataset.component;
+    const template = sectionTemplates[componentType];
+
+    if (!template || !this.sectionPreviewTooltip) return;
+
+    const header = this.sectionPreviewTooltip.querySelector('.preview-tooltip-header');
+    const content = this.sectionPreviewTooltip.querySelector('.preview-scale');
+
+    header.textContent = template.name;
+
+    // Create a mini version of the section with inline styles for preview
+    const previewHTML = `
+      <div style="background: white; padding: 10px; border-radius: 8px; font-family: 'Inter', sans-serif;">
+        ${template.html}
+      </div>
+    `;
+    content.innerHTML = previewHTML;
+
+    // Position tooltip
+    const rect = btn.getBoundingClientRect();
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarRight = sidebar ? sidebar.getBoundingClientRect().right : 320;
+
+    this.sectionPreviewTooltip.style.left = `${sidebarRight + 12}px`;
+    this.sectionPreviewTooltip.style.top = `${Math.max(80, rect.top - 40)}px`;
+
+    // Ensure tooltip doesn't go off screen
+    const maxTop = window.innerHeight - 320;
+    if (parseInt(this.sectionPreviewTooltip.style.top) > maxTop) {
+      this.sectionPreviewTooltip.style.top = `${maxTop}px`;
+    }
+
+    this.sectionPreviewTooltip.classList.add('visible');
+  }
+
+  hideSectionPreview() {
+    if (this.sectionPreviewTooltip) {
+      this.sectionPreviewTooltip.classList.remove('visible');
+    }
   }
 }
 

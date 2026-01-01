@@ -829,7 +829,9 @@
   background: var(--bg-light);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .input:focus {
@@ -917,10 +919,10 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
-[role="button"]:focus-visible,
-[role="radio"]:focus-visible,
-[role="checkbox"]:focus-visible,
-[role="switch"]:focus-visible {
+[role='button']:focus-visible,
+[role='radio']:focus-visible,
+[role='checkbox']:focus-visible,
+[role='switch']:focus-visible {
   outline: 2px solid var(--color-primary-500);
   outline-offset: 2px;
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);

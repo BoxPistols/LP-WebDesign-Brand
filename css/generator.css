@@ -266,7 +266,9 @@ body.dark-mode .sidebar-toggle svg {
 .accordion-content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease;
+  transition:
+    max-height 0.3s ease,
+    padding 0.3s ease;
 }
 
 .accordion-content.open {
@@ -3030,4 +3032,71 @@ body.dark-mode .export-tab.active {
     width: 22px;
     height: 22px;
   }
+}
+
+/* ==========================================
+   SECTION PREVIEW TOOLTIP
+   ========================================== */
+
+.section-preview-tooltip {
+  position: fixed;
+  z-index: 10001;
+  width: 360px;
+  background: white;
+  border-radius: 12px;
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.95) translateY(5px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.section-preview-tooltip.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.section-preview-tooltip .preview-tooltip-header {
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.section-preview-tooltip .preview-tooltip-content {
+  padding: 12px;
+  background: #f8fafc;
+  max-height: 280px;
+  overflow: hidden;
+}
+
+.section-preview-tooltip .preview-scale {
+  transform: scale(0.28);
+  transform-origin: top left;
+  width: 357%;
+  pointer-events: none;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.section-preview-tooltip .preview-scale * {
+  pointer-events: none !important;
+}
+
+/* Ensure LP styles are applied in preview */
+.section-preview-tooltip .lp-section {
+  margin: 0 !important;
+  padding: 40px 20px !important;
+}
+
+.section-preview-tooltip .lp-hero,
+.section-preview-tooltip .lp-hero-modern {
+  min-height: auto !important;
+  padding: 60px 20px !important;
 }
