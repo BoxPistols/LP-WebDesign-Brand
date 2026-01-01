@@ -555,6 +555,30 @@ export default {
                     <span class="preset-name">Eコマース</span>
                     <span class="preset-desc">オンラインストア</span>
                 </button>
+                <button class="preset-btn" data-preset="agency">
+                    <span class="preset-name">エージェンシー</span>
+                    <span class="preset-desc">制作会社・代理店向け</span>
+                </button>
+                <button class="preset-btn" data-preset="consulting">
+                    <span class="preset-name">コンサルティング</span>
+                    <span class="preset-desc">専門サービス向け</span>
+                </button>
+                <button class="preset-btn" data-preset="education">
+                    <span class="preset-name">教育・スクール</span>
+                    <span class="preset-desc">オンライン講座向け</span>
+                </button>
+                <button class="preset-btn" data-preset="restaurant">
+                    <span class="preset-name">レストラン</span>
+                    <span class="preset-desc">飲食店向け</span>
+                </button>
+                <button class="preset-btn" data-preset="realestate">
+                    <span class="preset-name">不動産</span>
+                    <span class="preset-desc">物件紹介向け</span>
+                </button>
+                <button class="preset-btn" data-preset="event">
+                    <span class="preset-name">イベント</span>
+                    <span class="preset-desc">セミナー・展示会向け</span>
+                </button>
             </div>
         `;
 
@@ -636,6 +660,53 @@ export default {
       ],
       portfolio: ['hero-1', 'gallery', 'features-grid', 'team', 'testimonials', 'contact'],
       ecommerce: ['hero-split', 'features-grid', 'gallery', 'pricing', 'testimonials', 'cta'],
+      agency: [
+        'hero-gradient',
+        'logo-cloud',
+        'features-grid',
+        'gallery',
+        'testimonials-carousel',
+        'team',
+        'cta-banner',
+      ],
+      consulting: [
+        'hero-minimal',
+        'features-list',
+        'benefits-grid',
+        'testimonials',
+        'steps-horizontal',
+        'contact',
+      ],
+      education: [
+        'hero-video',
+        'features-cards-hover',
+        'pricing-modern',
+        'testimonials-carousel',
+        'accordion-faq',
+        'cta-split',
+      ],
+      restaurant: [
+        'hero-fullscreen',
+        'gallery',
+        'features-grid',
+        'testimonials',
+        'contact',
+      ],
+      realestate: [
+        'hero-split-image',
+        'features-grid',
+        'gallery',
+        'testimonials',
+        'contact-split',
+      ],
+      event: [
+        'hero-gradient',
+        'steps-horizontal',
+        'features-grid',
+        'pricing-modern',
+        'testimonials',
+        'cta-banner',
+      ],
     };
 
     const sections = presets[presetName] || [];
