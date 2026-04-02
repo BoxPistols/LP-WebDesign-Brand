@@ -1,11 +1,121 @@
 // Dashboard Generator
 // Drag & Drop Dashboard Builder
+// CommonEditor を活用し、インライン編集・画像編集・XSSサニタイズを委譲
 
 class DashboardGenerator {
+  // === 定数 ===
+  static get CONFIG() {
+    return {
+      ...CommonEditor.CONFIG,
+      GRID_COLUMNS: 12,
+      DEFAULT_GRID_ROWS: 3,
+      MIN_GRID_ROWS: 1,
+      MAX_GRID_ROWS: 12,
+      DEFAULT_LAYOUT: 'sidebar-left',
+      DEFAULT_THEME: 'blue',
+      ZOOM_MIN: 25,
+      ZOOM_MAX: 150,
+      ZOOM_STEP: 10,
+      DEFAULT_ZOOM: 100,
+      CANVAS_BASE_HEIGHT: 800,
+      AREA_COLORS: ['blue', 'green', 'purple', 'orange', 'pink', 'cyan'],
+      DEFAULT_GRID_COL: 6,
+      GRID_COL_DEFAULTS: {
+        'stats-cards': 12,
+        'chart-line': 6,
+        'chart-bar': 4,
+        'chart-pie': 4,
+        'data-table': 12,
+        'user-list': 4,
+        'kpi-card': 4,
+        'progress-card': 4,
+        'activity-feed': 4,
+        'form-basic': 4,
+        'search-bar': 6,
+        'alert-banner': 12,
+        'user-profile': 4,
+        'calendar-widget': 4,
+        'file-upload': 6,
+        'timeline': 4,
+        'metric-comparison': 6,
+        'mini-chart': 4,
+        'dashboard-overview': 12,
+        'analytics-section': 12,
+        'user-management': 12,
+        'settings-panel': 8,
+        'notification-center': 6,
+      },
+      THEME_COLORS: {
+        blue: '#3b82f6',
+        purple: '#8b5cf6',
+        green: '#10b981',
+        dark: '#1f2937',
+      },
+      SHADOW_MAP: {
+        none: 'none',
+        sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+        md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+        lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+      },
+      AREA_BG_COLORS: {
+        blue: 'rgba(59, 130, 246, 0.08)',
+        green: 'rgba(34, 197, 94, 0.08)',
+        purple: 'rgba(168, 85, 247, 0.08)',
+        orange: 'rgba(249, 115, 22, 0.08)',
+        pink: 'rgba(236, 72, 153, 0.08)',
+        cyan: 'rgba(6, 182, 212, 0.08)',
+      },
+      AREA_BORDER_COLORS: {
+        blue: '#3b82f6',
+        green: '#22c55e',
+        purple: '#a855f7',
+        orange: '#f97316',
+        pink: '#ec4899',
+        cyan: '#06b6d4',
+      },
+      QUICK_START_TEMPLATES: {
+        analytics: ['stats-cards', 'chart-line', 'data-table', 'activity-feed'],
+        crm: ['stats-cards', 'user-list', 'activity-feed', 'form-basic'],
+        ecommerce: ['stats-cards', 'chart-bar', 'data-table', 'chart-pie'],
+      },
+      GRID_TEMPLATES: {
+        'full-width': [{ name: 'Content', startCol: 0, endCol: 12, startRow: 0, endRow: 1 }],
+        'two-column': [
+          { name: 'Left', startCol: 0, endCol: 6, startRow: 0, endRow: 1 },
+          { name: 'Right', startCol: 6, endCol: 12, startRow: 0, endRow: 1 },
+        ],
+        'three-column': [
+          { name: 'Col 1', startCol: 0, endCol: 4, startRow: 0, endRow: 1 },
+          { name: 'Col 2', startCol: 4, endCol: 8, startRow: 0, endRow: 1 },
+          { name: 'Col 3', startCol: 8, endCol: 12, startRow: 0, endRow: 1 },
+        ],
+        'sidebar-main': [
+          { name: 'Sidebar', startCol: 0, endCol: 3, startRow: 0, endRow: 2 },
+          { name: 'Main', startCol: 3, endCol: 12, startRow: 0, endRow: 2 },
+        ],
+        'dashboard-classic': [
+          { name: 'Stats', startCol: 0, endCol: 12, startRow: 0, endRow: 1 },
+          { name: 'Card 1', startCol: 0, endCol: 4, startRow: 1, endRow: 2 },
+          { name: 'Card 2', startCol: 4, endCol: 8, startRow: 1, endRow: 2 },
+          { name: 'Card 3', startCol: 8, endCol: 12, startRow: 1, endRow: 2 },
+          { name: 'Chart 1', startCol: 0, endCol: 6, startRow: 2, endRow: 3 },
+          { name: 'Chart 2', startCol: 6, endCol: 12, startRow: 2, endRow: 3 },
+        ],
+        'holy-grail': [
+          { name: 'Header', startCol: 0, endCol: 12, startRow: 0, endRow: 1 },
+          { name: 'Left Nav', startCol: 0, endCol: 3, startRow: 1, endRow: 2 },
+          { name: 'Content', startCol: 3, endCol: 9, startRow: 1, endRow: 2 },
+          { name: 'Right Sidebar', startCol: 9, endCol: 12, startRow: 1, endRow: 2 },
+          { name: 'Footer', startCol: 0, endCol: 12, startRow: 2, endRow: 3 },
+        ],
+      },
+    };
+  }
+
   constructor() {
     this.components = [];
-    this.currentLayout = 'sidebar-left';
-    this.currentTheme = 'blue';
+    this.currentLayout = DashboardGenerator.CONFIG.DEFAULT_LAYOUT;
+    this.currentTheme = DashboardGenerator.CONFIG.DEFAULT_THEME;
     this.draggedComponent = null;
     this.selectedComponentId = null;
     this.history = [];
@@ -24,12 +134,40 @@ class DashboardGenerator {
 
     // Grid Design Mode properties
     this.designMode = 'grid'; // 'grid' | 'component'
-    this.gridRows = 3;
+    this.gridRows = DashboardGenerator.CONFIG.DEFAULT_GRID_ROWS;
     this.gridAreas = [];
     this.isSelectingArea = false;
     this.selectionStart = null;
     this.selectionEnd = null;
-    this.areaColors = ['blue', 'green', 'purple', 'orange', 'pink', 'cyan'];
+
+    // イベントリスナーの参照を保持（destroy用）
+    this._boundListeners = [];
+
+    // CommonEditor インスタンス（インライン編集・画像編集を委譲）
+    this.editor = new CommonEditor({
+      previewSelector: '#dashboardCanvas',
+      sectionWrapperClass: 'dashboard-component-wrapper',
+      controlsClass: 'component-controls',
+      editableSelectors:
+        'h1, h2, h3, h4, h5, h6, p, span:not(.component-icon):not(.component-name), a, button:not(.component-control):not(.lp-control-btn), li, label, td, th, .stat-value, .stat-label, .stat-change, .card-title, .card-value',
+      onContentChange: (el, _oldVal, _newVal) => {
+        const wrapper = el.closest('.dashboard-component-wrapper');
+        const componentId = wrapper?.dataset?.componentId;
+        if (componentId) {
+          this.updateComponentContent(componentId, wrapper);
+        }
+      },
+      onSaveState: () => this.saveState(),
+      onImageChange: (img, _originalSrc, _newUrl) => {
+        const wrapper = img.closest('.dashboard-component-wrapper');
+        const componentId = wrapper?.dataset?.componentId;
+        if (componentId && wrapper) {
+          this.updateComponentContent(componentId, wrapper);
+        }
+      },
+      notificationFn: (msg, type) => this.showNotification(msg, type),
+      cssPrefix: 'db',
+    });
 
     this.init();
   }
@@ -38,146 +176,111 @@ class DashboardGenerator {
     this.setupEventListeners();
     this.setupDesignCustomization();
     this.setupSidebarToggles();
-    this.setupInlineEditing();
-    this.setupImageEditing();
-    this.renderCanvas(); // Initialize canvas with empty state
-    this.saveState(); // Save initial empty state for undo/redo
-    this.updateUndoRedoButtons(); // Update button states
-    console.log('Dashboard Generator initialized');
+    this._setupCanvasEditing();
+    this.renderCanvas();
+    this.saveState();
+    this.updateUndoRedoButtons();
+    this.renderProjectsList();
+    this.setupAI();
   }
 
   // ==========================================
-  // INLINE EDITING FUNCTIONALITY
+  // AI INTEGRATION
   // ==========================================
 
-  setupInlineEditing() {
-    const canvas = document.getElementById('dashboardCanvas');
-    if (!canvas) {
-      setTimeout(() => this.setupInlineEditing(), 500);
-      return;
+  setupAI() {
+    if (typeof AIUIController === 'undefined') return;
+    this.aiController = new AIUIController(this, 'dashboard');
+    this.aiController.init();
+  }
+
+  /**
+   * AI生成されたHTMLをコンポーネントとして挿入
+   * @param {string} html - 挿入するHTML
+   * @param {string} [afterComponentId] - この後に挿入（省略時は末尾）
+   */
+  insertAIGeneratedSection(html, afterComponentId) {
+    const newComponent = {
+      id: 'ai-' + Date.now(),
+      template: {
+        name: 'AI生成コンポーネント',
+        html: html,
+        category: 'ai',
+      },
+      gridCol: DashboardGenerator.CONFIG.DEFAULT_GRID_COL,
+    };
+
+    if (afterComponentId) {
+      const idx = this.components.findIndex(c => c.id === afterComponentId);
+      if (idx !== -1) {
+        this.components.splice(idx + 1, 0, newComponent);
+      } else {
+        this.components.push(newComponent);
+      }
+    } else {
+      this.components.push(newComponent);
     }
 
-    // Editable elements selector
-    this.editableSelectors =
-      'h1, h2, h3, h4, h5, h6, p, span:not(.component-icon):not(.component-name), a, button:not(.component-control):not(.lp-control-btn), li, label, td, th, .stat-value, .stat-label, .stat-change, .card-title, .card-value';
-
-    // Double-click to edit text
-    canvas.addEventListener('dblclick', (e) => {
-      const target = e.target.closest(this.editableSelectors);
-
-      if (
-        target &&
-        !target.classList.contains('component-control') &&
-        !target.closest('.component-controls') &&
-        !target.closest('.lp-section-controls')
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.makeTextEditable(target);
-      }
-    });
-
-    // Show edit hint on hover
-    canvas.addEventListener('mouseover', (e) => {
-      if (this.isEditing) return;
-
-      const target = e.target.closest(this.editableSelectors);
-      if (
-        target &&
-        !target.classList.contains('component-control') &&
-        !target.closest('.component-controls')
-      ) {
-        target.classList.add('db-editable-hover');
-      }
-    });
-
-    canvas.addEventListener('mouseout', (e) => {
-      const target = e.target.closest(this.editableSelectors);
-      if (target) {
-        target.classList.remove('db-editable-hover');
-      }
-    });
-
-    // Add inline editing styles
-    this.addInlineEditingStyles();
+    this.saveState();
+    this.renderCanvas();
+    this.showNotification('AI生成コンポーネントを追加しました');
   }
 
-  makeTextEditable(element) {
-    if (element.contentEditable === 'true') return;
+  /**
+   * リソースの解放・イベントリスナーの削除
+   */
+  destroy() {
+    this._boundListeners.forEach(({ target, event, handler, options }) => {
+      target.removeEventListener(event, handler, options);
+    });
+    this._boundListeners = [];
 
-    this.isEditing = true;
-    const originalContent = element.textContent;
-    const originalHTML = element.innerHTML;
+    // テーマCSSを除去
+    const themeStyle = document.getElementById('dash-theme-css');
+    if (themeStyle) themeStyle.remove();
 
-    // Find which component this element belongs to
-    const wrapper = element.closest('.dashboard-component-wrapper');
-    const componentId = wrapper?.dataset?.componentId;
+    // プレビューツールチップを除去
+    const tooltip = document.getElementById('componentPreviewTooltip');
+    if (tooltip) tooltip.remove();
 
-    // Make editable
-    element.contentEditable = 'true';
-    element.classList.add('db-inline-editing');
-    element.classList.remove('db-editable-hover');
-    element.focus();
+    // 通知を除去
+    const notification = document.querySelector('.db-notification');
+    if (notification) notification.remove();
+  }
 
-    // Select all text
-    const range = document.createRange();
-    range.selectNodeContents(element);
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
+  /**
+   * イベントリスナーを登録し、参照を保持する（destroyで一括解除）
+   */
+  _addListener(target, event, handler, options) {
+    target.addEventListener(event, handler, options);
+    this._boundListeners.push({ target, event, handler, options });
+  }
 
-    // Show hint
-    this.showEditingHint();
+  // ==========================================
+  // CommonEditor によるインライン編集セットアップ
+  // ==========================================
 
-    // Handle blur (save)
-    const handleBlur = () => {
-      element.contentEditable = 'false';
-      element.classList.remove('db-inline-editing');
-      this.hideEditingHint();
-      this.isEditing = false;
-
-      if (element.textContent !== originalContent) {
-        // Update the component's template HTML to persist changes
-        if (componentId) {
-          this.updateComponentContent(componentId, wrapper);
-        }
-        this.saveState();
-        this.showNotification('テキストを更新しました');
-      }
-
-      element.removeEventListener('blur', handleBlur);
-      element.removeEventListener('keydown', handleKeydown);
-    };
-
-    // Handle keyboard
-    const handleKeydown = (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        element.blur();
-      }
-      if (e.key === 'Escape') {
-        element.innerHTML = originalHTML;
-        element.blur();
-      }
-    };
-
-    element.addEventListener('blur', handleBlur);
-    element.addEventListener('keydown', handleKeydown);
+  _setupCanvasEditing() {
+    const canvas = document.getElementById('dashboardCanvas');
+    if (!canvas) {
+      setTimeout(() => this._setupCanvasEditing(), 500);
+      return;
+    }
+    this.editor.setupInlineEditing(canvas);
+    this.editor.setupImageEditing(canvas);
   }
 
   updateComponentContent(componentId, wrapper) {
     const component = this.components.find((c) => c.id === componentId);
     if (!component || !wrapper) return;
 
-    // Get the content element (excluding controls)
+    // コントロールを除外したクローンからHTMLを取得
     const clone = wrapper.cloneNode(true);
     const controls = clone.querySelector('.component-controls');
     if (controls) controls.remove();
 
-    // Get the inner component (first child after controls)
     const innerComponent = clone.firstElementChild;
     if (innerComponent) {
-      // Update the template HTML with the new content
       component.template = {
         ...component.template,
         html: innerComponent.outerHTML,
@@ -185,412 +288,9 @@ class DashboardGenerator {
     }
   }
 
-  showEditingHint() {
-    if (document.querySelector('.db-edit-hint')) return;
-
-    const hint = document.createElement('div');
-    hint.className = 'db-edit-hint';
-    hint.innerHTML = `
-      <span class="hint-key">Enter</span> 保存
-      <span class="hint-sep">|</span>
-      <span class="hint-key">Esc</span> キャンセル
-      <span class="hint-sep">|</span>
-      <span class="hint-key">Shift+Enter</span> 改行
-    `;
-    document.body.appendChild(hint);
-  }
-
-  hideEditingHint() {
-    const hint = document.querySelector('.db-edit-hint');
-    if (hint) hint.remove();
-  }
-
-  addInlineEditingStyles() {
-    if (document.getElementById('db-inline-editing-styles')) return;
-
-    const style = document.createElement('style');
-    style.id = 'db-inline-editing-styles';
-    style.textContent = `
-      /* Editable hover state */
-      .db-editable-hover {
-        outline: 2px dashed rgba(59, 130, 246, 0.5) !important;
-        outline-offset: 2px;
-        cursor: text !important;
-        border-radius: 4px;
-      }
-
-      /* Active editing state */
-      .db-inline-editing {
-        outline: 2px solid #3b82f6 !important;
-        outline-offset: 2px;
-        background: rgba(59, 130, 246, 0.05) !important;
-        min-width: 50px;
-        cursor: text !important;
-        border-radius: 4px;
-      }
-
-      .db-inline-editing:focus {
-        outline: 2px solid #2563eb !important;
-      }
-
-      /* Edit hint */
-      .db-edit-hint {
-        position: fixed;
-        bottom: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #1e293b;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        z-index: 10000;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        animation: dbHintFadeIn 0.3s ease-out;
-      }
-
-      .db-edit-hint .hint-key {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-family: monospace;
-      }
-
-      .db-edit-hint .hint-sep {
-        opacity: 0.5;
-      }
-
-      @keyframes dbHintFadeIn {
-        from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-        to { opacity: 1; transform: translateX(-50%) translateY(0); }
-      }
-
-      /* Image editable indicator */
-      #dashboardCanvas img {
-        cursor: pointer;
-        transition: outline 0.2s ease;
-      }
-
-      #dashboardCanvas img:hover {
-        outline: 2px dashed rgba(59, 130, 246, 0.5);
-        outline-offset: 2px;
-      }
-
-      /* Selected component highlight */
-      .dashboard-component-wrapper.selected {
-        outline: 2px solid #3b82f6;
-        outline-offset: 4px;
-        border-radius: 8px;
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
   // ==========================================
-  // IMAGE EDITING FUNCTIONALITY
+  // SIDEBAR TOGGLES
   // ==========================================
-
-  setupImageEditing() {
-    const canvas = document.getElementById('dashboardCanvas');
-    if (!canvas) return;
-
-    // Click on image to edit
-    canvas.addEventListener('click', (e) => {
-      const img = e.target.closest('img');
-      if (img && !this.isEditing) {
-        e.stopPropagation();
-        this.showImageEditor(img);
-      }
-    });
-  }
-
-  showImageEditor(img) {
-    // Find the component this image belongs to
-    const wrapper = img.closest('.dashboard-component-wrapper');
-    const componentId = wrapper?.dataset?.componentId;
-
-    // Create modal for image editing
-    const modal = document.createElement('div');
-    modal.className = 'db-image-modal';
-    modal.innerHTML = `
-      <div class="db-image-modal-overlay"></div>
-      <div class="db-image-modal-content">
-        <div class="db-image-modal-header">
-          <h3>画像を編集</h3>
-          <button class="db-image-modal-close">&times;</button>
-        </div>
-        <div class="db-image-modal-body">
-          <div class="db-image-preview">
-            <img src="${img.src}" alt="${img.alt || ''}" />
-          </div>
-          <div class="db-image-form">
-            <div class="db-form-group">
-              <label>画像URL</label>
-              <input type="url" class="db-input" id="dbImageUrlInput" value="${img.src}" placeholder="https://example.com/image.jpg" />
-            </div>
-            <div class="db-form-group">
-              <label>Alt テキスト</label>
-              <input type="text" class="db-input" id="dbImageAltInput" value="${img.alt || ''}" placeholder="画像の説明" />
-            </div>
-            <div class="db-form-group">
-              <label>または画像をアップロード</label>
-              <input type="file" accept="image/*" id="dbImageFileInput" class="db-input-file" />
-            </div>
-          </div>
-        </div>
-        <div class="db-image-modal-footer">
-          <button class="db-btn db-btn-secondary" id="dbCancelImageEdit">キャンセル</button>
-          <button class="db-btn db-btn-primary" id="dbSaveImageEdit">保存</button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
-
-    // Add modal styles
-    this.addImageModalStyles();
-
-    const previewImg = modal.querySelector('.db-image-preview img');
-    const urlInput = modal.querySelector('#dbImageUrlInput');
-    const altInput = modal.querySelector('#dbImageAltInput');
-    const fileInput = modal.querySelector('#dbImageFileInput');
-
-    // URL input change - update preview
-    urlInput.addEventListener('input', () => {
-      previewImg.src = urlInput.value;
-    });
-
-    // File upload
-    fileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          urlInput.value = ev.target.result;
-          previewImg.src = ev.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Close modal
-    const closeModal = () => {
-      modal.remove();
-      document.body.style.overflow = '';
-    };
-
-    modal.querySelector('.db-image-modal-close').addEventListener('click', closeModal);
-    modal.querySelector('.db-image-modal-overlay').addEventListener('click', closeModal);
-    modal.querySelector('#dbCancelImageEdit').addEventListener('click', closeModal);
-
-    // Save changes
-    modal.querySelector('#dbSaveImageEdit').addEventListener('click', () => {
-      const originalSrc = img.src;
-      img.src = urlInput.value;
-      img.alt = altInput.value;
-
-      if (img.src !== originalSrc) {
-        // Update component template
-        if (componentId && wrapper) {
-          this.updateComponentContent(componentId, wrapper);
-        }
-        this.saveState();
-        this.showNotification('画像を更新しました');
-      }
-      closeModal();
-    });
-
-    // ESC to close
-    const handleEsc = (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
-        document.removeEventListener('keydown', handleEsc);
-      }
-    };
-    document.addEventListener('keydown', handleEsc);
-  }
-
-  addImageModalStyles() {
-    if (document.getElementById('db-image-modal-styles')) return;
-
-    const style = document.createElement('style');
-    style.id = 'db-image-modal-styles';
-    style.textContent = `
-      .db-image-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 10001;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .db-image-modal-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-      }
-
-      .db-image-modal-content {
-        position: relative;
-        background: white;
-        border-radius: 16px;
-        width: 90%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow: hidden;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        animation: dbModalSlideIn 0.3s ease-out;
-      }
-
-      @keyframes dbModalSlideIn {
-        from { opacity: 0; transform: scale(0.95) translateY(-20px); }
-        to { opacity: 1; transform: scale(1) translateY(0); }
-      }
-
-      .db-image-modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 24px;
-        border-bottom: 1px solid #e2e8f0;
-      }
-
-      .db-image-modal-header h3 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 600;
-        color: #1e293b;
-      }
-
-      .db-image-modal-close {
-        width: 32px;
-        height: 32px;
-        border: none;
-        background: #f1f5f9;
-        border-radius: 8px;
-        font-size: 20px;
-        cursor: pointer;
-        color: #64748b;
-        transition: all 0.2s;
-      }
-
-      .db-image-modal-close:hover {
-        background: #e2e8f0;
-        color: #1e293b;
-      }
-
-      .db-image-modal-body {
-        padding: 24px;
-        display: grid;
-        gap: 20px;
-      }
-
-      .db-image-preview {
-        background: #f8fafc;
-        border-radius: 12px;
-        padding: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 200px;
-        max-height: 300px;
-        overflow: hidden;
-      }
-
-      .db-image-preview img {
-        max-width: 100%;
-        max-height: 250px;
-        object-fit: contain;
-        border-radius: 8px;
-      }
-
-      .db-image-form {
-        display: grid;
-        gap: 16px;
-      }
-
-      .db-form-group {
-        display: grid;
-        gap: 6px;
-      }
-
-      .db-form-group label {
-        font-size: 14px;
-        font-weight: 500;
-        color: #475569;
-      }
-
-      .db-input {
-        padding: 10px 14px;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: all 0.2s;
-      }
-
-      .db-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      }
-
-      .db-input-file {
-        padding: 8px;
-        background: #f8fafc;
-      }
-
-      .db-image-modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        padding: 16px 24px;
-        border-top: 1px solid #e2e8f0;
-        background: #f8fafc;
-      }
-
-      .db-btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      .db-btn-primary {
-        background: #3b82f6;
-        color: white;
-      }
-
-      .db-btn-primary:hover {
-        background: #2563eb;
-      }
-
-      .db-btn-secondary {
-        background: #e2e8f0;
-        color: #475569;
-      }
-
-      .db-btn-secondary:hover {
-        background: #cbd5e1;
-      }
-    `;
-    document.head.appendChild(style);
-  }
 
   setupSidebarToggles() {
     const toggleLeft = document.getElementById('toggleLeftSidebar');
@@ -598,121 +298,130 @@ class DashboardGenerator {
     const builder = document.querySelector('.dashboard-builder');
 
     if (toggleLeft) {
-      toggleLeft.addEventListener('click', () => {
+      this._addListener(toggleLeft, 'click', () => {
         builder.classList.toggle('left-collapsed');
-        const isCollapsed = builder.classList.contains('left-collapsed');
-        localStorage.setItem('leftSidebarCollapsed', isCollapsed);
+        CommonEditor.saveToStorage(
+          'leftSidebarCollapsed',
+          builder.classList.contains('left-collapsed')
+        );
       });
     }
 
     if (toggleRight) {
-      toggleRight.addEventListener('click', () => {
+      this._addListener(toggleRight, 'click', () => {
         builder.classList.toggle('right-collapsed');
-        const isCollapsed = builder.classList.contains('right-collapsed');
-        localStorage.setItem('rightSidebarCollapsed', isCollapsed);
+        CommonEditor.saveToStorage(
+          'rightSidebarCollapsed',
+          builder.classList.contains('right-collapsed')
+        );
       });
     }
 
-    // Restore state from localStorage
-    if (localStorage.getItem('leftSidebarCollapsed') === 'true') {
-      builder.classList.add('left-collapsed');
+    // 前回の状態を復元
+    if (CommonEditor.loadFromStorage('leftSidebarCollapsed', false)) {
+      builder?.classList.add('left-collapsed');
     }
-    if (localStorage.getItem('rightSidebarCollapsed') === 'true') {
-      builder.classList.add('right-collapsed');
+    if (CommonEditor.loadFromStorage('rightSidebarCollapsed', false)) {
+      builder?.classList.add('right-collapsed');
     }
   }
+
+  // ==========================================
+  // EVENT LISTENERS
+  // ==========================================
 
   setupEventListeners() {
     // Layout selection
     document.querySelectorAll('.layout-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => this.handleLayoutChange(e));
+      this._addListener(btn, 'click', (e) => this.handleLayoutChange(e));
     });
 
     // Theme selection
     document.querySelectorAll('.theme-option').forEach((btn) => {
-      btn.addEventListener('click', (e) => this.handleThemeChange(e));
+      this._addListener(btn, 'click', (e) => this.handleThemeChange(e));
     });
 
     // Component drag and preview
     document.querySelectorAll('.component-item').forEach((item) => {
       item.setAttribute('draggable', 'true');
-      item.addEventListener('dragstart', (e) => this.handleComponentDragStart(e));
-      item.addEventListener('dragend', (e) => this.handleComponentDragEnd(e));
-      item.addEventListener('mouseenter', (e) => this.showComponentPreview(e));
-      item.addEventListener('mouseleave', () => this.hideComponentPreview());
+      this._addListener(item, 'dragstart', (e) => this.handleComponentDragStart(e));
+      this._addListener(item, 'dragend', (e) => this.handleComponentDragEnd(e));
+      this._addListener(item, 'mouseenter', (e) => this.showComponentPreview(e));
+      this._addListener(item, 'mouseleave', () => this.hideComponentPreview());
     });
 
-    // Create preview tooltip container
+    // プレビューツールチップ
     this.createPreviewTooltip();
 
-    // Canvas drop - Add to both workspace and canvas for better coverage
+    // Canvas drop
     const workspace = document.getElementById('canvasWorkspace');
     const canvas = document.getElementById('dashboardCanvas');
 
     if (workspace) {
-      workspace.addEventListener('dragover', (e) => this.handleCanvasDragOver(e));
-      workspace.addEventListener('drop', (e) => this.handleCanvasDrop(e));
+      this._addListener(workspace, 'dragover', (e) => this.handleCanvasDragOver(e));
+      this._addListener(workspace, 'drop', (e) => this.handleCanvasDrop(e));
     }
 
     if (canvas) {
-      canvas.addEventListener('dragover', (e) => this.handleCanvasDragOver(e));
-      canvas.addEventListener('drop', (e) => this.handleCanvasDrop(e));
+      this._addListener(canvas, 'dragover', (e) => this.handleCanvasDragOver(e));
+      this._addListener(canvas, 'drop', (e) => this.handleCanvasDrop(e));
     }
 
-    // Quick start templates - Use event delegation
-    document.addEventListener('click', (e) => {
+    // Quick start templates - イベント委譲
+    this._addListener(document, 'click', (e) => {
       if (e.target.closest('.quick-start-btn')) {
         this.handleQuickStart(e);
       }
     });
 
     // Actions
-    document.getElementById('previewCode')?.addEventListener('click', () => this.openCodePreview());
-    document
-      .getElementById('clearDashboard')
-      ?.addEventListener('click', () => this.clearDashboard());
-    document
-      .getElementById('previewDashboard')
-      ?.addEventListener('click', () => this.previewDashboard());
+    const previewCodeBtn = document.getElementById('previewCode');
+    if (previewCodeBtn) this._addListener(previewCodeBtn, 'click', () => this.openCodePreview());
+
+    const clearBtn = document.getElementById('clearDashboard');
+    if (clearBtn) this._addListener(clearBtn, 'click', () => this.clearDashboard());
+
+    const previewBtn = document.getElementById('previewDashboard');
+    if (previewBtn) this._addListener(previewBtn, 'click', () => this.previewDashboard());
 
     // Code Preview Modal
-    document
-      .getElementById('closeCodePreview')
-      ?.addEventListener('click', () => this.closeCodePreview());
-    document
-      .getElementById('codePreviewOverlay')
-      ?.addEventListener('click', () => this.closeCodePreview());
-    document.getElementById('copyCode')?.addEventListener('click', () => this.copyCode());
-    document
-      .getElementById('downloadCode')
-      ?.addEventListener('click', () => this.downloadGeneratedCode());
+    const closePreviewBtn = document.getElementById('closeCodePreview');
+    if (closePreviewBtn)
+      this._addListener(closePreviewBtn, 'click', () => this.closeCodePreview());
+
+    const overlayEl = document.getElementById('codePreviewOverlay');
+    if (overlayEl) this._addListener(overlayEl, 'click', () => this.closeCodePreview());
+
+    const copyBtn = document.getElementById('copyCode');
+    if (copyBtn) this._addListener(copyBtn, 'click', () => this.copyCode());
+
+    const downloadBtn = document.getElementById('downloadCode');
+    if (downloadBtn) this._addListener(downloadBtn, 'click', () => this.downloadGeneratedCode());
+
     document.querySelectorAll('.code-tab').forEach((tab) => {
-      tab.addEventListener('click', (e) => this.switchCodeTab(e));
+      this._addListener(tab, 'click', (e) => this.switchCodeTab(e));
     });
 
     // Canvas controls
     document.querySelectorAll('.canvas-control').forEach((btn) => {
       const action = btn.dataset.action;
       if (action === 'undo') {
-        btn.addEventListener('click', () => this.undo());
+        this._addListener(btn, 'click', () => this.undo());
       } else if (action === 'redo') {
-        btn.addEventListener('click', () => this.redo());
+        this._addListener(btn, 'click', () => this.redo());
       }
     });
 
-    // Keyboard shortcuts for Undo/Redo
-    document.addEventListener('keydown', (e) => {
-      // Ctrl+Z or Cmd+Z for Undo
+    // Keyboard shortcuts
+    this._addListener(document, 'keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
         this.undo();
       }
-      // Ctrl+Shift+Z or Cmd+Shift+Z for Redo
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
         e.preventDefault();
         this.redo();
       }
-      // Ctrl+Y or Cmd+Y for Redo (alternative)
       if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
         e.preventDefault();
         this.redo();
@@ -721,40 +430,124 @@ class DashboardGenerator {
 
     // Zoom controls
     document.querySelectorAll('.zoom-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => this.handleZoom(e));
+      this._addListener(btn, 'click', (e) => this.handleZoom(e));
     });
 
-    // Zoom slider
     const zoomSlider = document.getElementById('zoomSlider');
     if (zoomSlider) {
-      zoomSlider.addEventListener('input', (e) => this.handleZoomSlider(e));
+      this._addListener(zoomSlider, 'input', (e) => this.handleZoomSlider(e));
     }
 
     // Device preview toggles
     document.querySelectorAll('.device-preview-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => this.handleDeviceChange(e));
+      this._addListener(btn, 'click', (e) => this.handleDeviceChange(e));
     });
 
     // Initialize current zoom level
-    this.currentZoom = 100;
+    this.currentZoom = DashboardGenerator.CONFIG.DEFAULT_ZOOM;
 
     // Grid Design Mode - Mode tabs
     document.querySelectorAll('.mode-tab').forEach((tab) => {
-      tab.addEventListener('click', (e) => this.handleModeChange(e));
+      this._addListener(tab, 'click', (e) => this.handleModeChange(e));
     });
 
     // Grid Templates
     document.querySelectorAll('.grid-template-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => this.applyGridTemplate(e));
+      this._addListener(btn, 'click', (e) => this.applyGridTemplate(e));
     });
 
     // Grid Row controls
-    document.getElementById('addGridRow')?.addEventListener('click', () => this.addGridRow());
-    document.getElementById('removeGridRow')?.addEventListener('click', () => this.removeGridRow());
-    document
-      .getElementById('clearGridAreas')
-      ?.addEventListener('click', () => this.clearGridAreas());
+    const addRowBtn = document.getElementById('addGridRow');
+    if (addRowBtn) this._addListener(addRowBtn, 'click', () => this.addGridRow());
+
+    const removeRowBtn = document.getElementById('removeGridRow');
+    if (removeRowBtn) this._addListener(removeRowBtn, 'click', () => this.removeGridRow());
+
+    const clearAreasBtn = document.getElementById('clearGridAreas');
+    if (clearAreasBtn) this._addListener(clearAreasBtn, 'click', () => this.clearGridAreas());
+
+    // プロジェクト管理ボタン
+    const saveProjectBtn = document.getElementById('dbSaveProject');
+    if (saveProjectBtn) this._addListener(saveProjectBtn, 'click', () => this.saveProject());
+
+    const exportJSONBtn = document.getElementById('dbExportJSON');
+    if (exportJSONBtn)
+      this._addListener(exportJSONBtn, 'click', () => this.exportProjectAsJSON());
+
+    const importJSONBtn = document.getElementById('dbImportJSON');
+    if (importJSONBtn)
+      this._addListener(importJSONBtn, 'click', () => this.importProjectFromJSON());
+
+    // プロジェクト一覧のクリック（イベント委譲）
+    const projectsList = document.getElementById('dbProjectsList');
+    if (projectsList) {
+      this._addListener(projectsList, 'click', (e) => {
+        const deleteBtn = e.target.closest('[data-delete-project]');
+        if (deleteBtn) {
+          e.stopPropagation();
+          this.deleteProject(deleteBtn.dataset.deleteProject);
+          return;
+        }
+        const projectInfo = e.target.closest('.db-project-info');
+        if (projectInfo) {
+          const projectItem = projectInfo.closest('.db-project-item');
+          if (projectItem) {
+            this.loadProject(projectItem.dataset.projectId);
+          }
+        }
+      });
+    }
+
+    // プロパティパネルのイベント委譲
+    this._setupPropertiesPanelDelegation();
   }
+
+  /**
+   * プロパティパネルのonclickをイベント委譲に置き換え
+   */
+  _setupPropertiesPanelDelegation() {
+    const propertiesPanel = document.getElementById('propertiesPanel');
+    if (!propertiesPanel) return;
+
+    this._addListener(propertiesPanel, 'click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+
+      const action = btn.dataset.action;
+      const componentId = btn.dataset.componentId;
+
+      switch (action) {
+        case 'close-properties':
+          this.closePropertiesPanel();
+          break;
+        case 'duplicate':
+          if (componentId) this.duplicateComponent(componentId);
+          break;
+        case 'delete':
+          if (componentId) this.deleteComponent(componentId);
+          break;
+        case 'grid-quick':
+          if (componentId && btn.dataset.gridCol) {
+            this.changeGridColumn(componentId, parseInt(btn.dataset.gridCol));
+          }
+          break;
+      }
+    });
+
+    this._addListener(propertiesPanel, 'change', (e) => {
+      const select = e.target.closest('[data-action="grid-column-change"]');
+      if (select) {
+        const componentId = select.dataset.componentId;
+        if (componentId) {
+          this.changeGridColumn(componentId, parseInt(select.value));
+        }
+      }
+    });
+  }
+
+  // ==========================================
+  // DEVICE / LAYOUT / THEME
+  // ==========================================
 
   handleDeviceChange(e) {
     const btn = e.currentTarget;
@@ -772,12 +565,10 @@ class DashboardGenerator {
       workspace.classList.add('device-tablet');
     }
 
-    // Reapply current zoom to maintain canvas dimensions
-    this.applyZoom(this.currentZoom || 100);
+    this.applyZoom(this.currentZoom || DashboardGenerator.CONFIG.DEFAULT_ZOOM);
 
-    this.showNotification(
-      `プレビュー: ${device === 'desktop' ? 'デスクトップ' : device === 'tablet' ? 'タブレット' : 'モバイル'}`
-    );
+    const deviceLabels = { desktop: 'デスクトップ', tablet: 'タブレット', mobile: 'モバイル' };
+    this.showNotification(`プレビュー: ${deviceLabels[device] || device}`);
   }
 
   handleLayoutChange(e) {
@@ -788,7 +579,7 @@ class DashboardGenerator {
     btn.classList.add('active');
 
     this.currentLayout = layout;
-    this.renderCanvas(); // Re-render with new layout
+    this.renderCanvas();
     this.showNotification(`レイアウトを変更しました: ${layout}`);
   }
 
@@ -805,16 +596,15 @@ class DashboardGenerator {
   }
 
   applyTheme(theme) {
-    const themeColors = {
-      blue: '#3b82f6',
-      purple: '#8b5cf6',
-      green: '#10b981',
-      dark: '#1f2937',
-    };
-
-    const color = themeColors[theme];
-    document.documentElement.style.setProperty('--db-primary', color);
+    const color = DashboardGenerator.CONFIG.THEME_COLORS[theme];
+    if (color) {
+      document.documentElement.style.setProperty('--db-primary', color);
+    }
   }
+
+  // ==========================================
+  // DRAG & DROP
+  // ==========================================
 
   handleComponentDragStart(e) {
     const componentType = e.currentTarget.dataset.component;
@@ -827,7 +617,6 @@ class DashboardGenerator {
   handleComponentDragEnd(e) {
     e.currentTarget.style.opacity = '1';
 
-    // Remove visual feedback when drag ends
     const workspace = document.getElementById('canvasWorkspace');
     if (workspace) {
       workspace.classList.remove('drag-over');
@@ -838,7 +627,6 @@ class DashboardGenerator {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
 
-    // Add visual feedback
     const workspace = document.getElementById('canvasWorkspace');
     if (workspace && !workspace.classList.contains('drag-over')) {
       workspace.classList.add('drag-over');
@@ -848,7 +636,6 @@ class DashboardGenerator {
   handleCanvasDrop(e) {
     e.preventDefault();
 
-    // Remove visual feedback
     const workspace = document.getElementById('canvasWorkspace');
     if (workspace) {
       workspace.classList.remove('drag-over');
@@ -856,9 +643,9 @@ class DashboardGenerator {
 
     if (!this.draggedComponent) return;
 
-    const template = dashboardTemplates[this.draggedComponent];
+    const template = this._getTemplate(this.draggedComponent);
     if (!template) {
-      console.error('Template not found:', this.draggedComponent);
+      this.showNotification('テンプレートが見つかりません', 'error');
       return;
     }
 
@@ -866,11 +653,31 @@ class DashboardGenerator {
     this.draggedComponent = null;
   }
 
+  /**
+   * テンプレートを安全に取得する（ガード付き）
+   */
+  _getTemplate(type) {
+    if (typeof dashboardTemplates === 'undefined') {
+      console.error('dashboardTemplates が定義されていません');
+      return null;
+    }
+    const template = dashboardTemplates[type];
+    if (!template) {
+      console.error('テンプレートが見つかりません:', type);
+      return null;
+    }
+    return template;
+  }
+
+  // ==========================================
+  // COMPONENT OPERATIONS
+  // ==========================================
+
   addComponent(template, type) {
     const component = {
-      id: this.generateId(),
+      id: CommonEditor.generateId('comp'),
       type: type,
-      template: template,
+      template: JSON.parse(JSON.stringify(template)),
       timestamp: Date.now(),
     };
 
@@ -880,16 +687,89 @@ class DashboardGenerator {
     this.showNotification(`${template.name}を追加しました`);
   }
 
+  addComponentSilent(template, type) {
+    const component = {
+      id: CommonEditor.generateId('comp'),
+      type: type,
+      template: JSON.parse(JSON.stringify(template)),
+      timestamp: Date.now(),
+    };
+
+    this.components.push(component);
+  }
+
+  duplicateComponent(componentId) {
+    const component = this.components.find((c) => c.id === componentId);
+    if (!component) return;
+
+    const newComponent = {
+      id: CommonEditor.generateId('comp'),
+      type: component.type,
+      template: JSON.parse(JSON.stringify(component.template)),
+      timestamp: Date.now(),
+    };
+
+    const index = this.components.findIndex((c) => c.id === componentId);
+    this.components.splice(index + 1, 0, newComponent);
+
+    this.saveState();
+    this.renderCanvas();
+    this.closePropertiesPanel();
+    this.showNotification(`${component.template.name}を複製しました`);
+  }
+
+  moveComponent(componentId, direction) {
+    const index = this.components.findIndex((c) => c.id === componentId);
+    if (index === -1) return;
+
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= this.components.length) return;
+
+    [this.components[index], this.components[newIndex]] = [
+      this.components[newIndex],
+      this.components[index],
+    ];
+
+    this.saveState();
+    this.renderCanvas();
+    this.showNotification('コンポーネントを移動しました');
+  }
+
+  deleteComponent(componentId) {
+    this.components = this.components.filter((c) => c.id !== componentId);
+    this.saveState();
+    this.renderCanvas();
+    this.showNotification('コンポーネントを削除しました');
+  }
+
+  selectComponent(componentId) {
+    document.querySelectorAll('.dashboard-component-wrapper').forEach((el) => {
+      el.classList.remove('selected');
+    });
+
+    const componentEl = document.querySelector(`[data-component-id="${CSS.escape(componentId)}"]`);
+    if (componentEl) {
+      componentEl.classList.add('selected');
+    }
+
+    this.selectedComponentId = componentId;
+    this.showPropertiesPanel(componentId);
+  }
+
+  // ==========================================
+  // RENDER CANVAS
+  // ==========================================
+
   renderCanvas() {
     const canvas = document.getElementById('dashboardCanvas');
 
-    // Grid Design Mode - render grid overlay instead of components
+    // Grid Design Mode
     if (this.designMode === 'grid') {
       this.renderGridOverlay();
       return;
     }
 
-    // Component Mode with Grid Areas - render areas as drop zones
+    // Component Mode with Grid Areas
     if (this.gridAreas.length > 0) {
       this.renderComponentModeWithAreas();
       return;
@@ -897,107 +777,96 @@ class DashboardGenerator {
 
     if (this.components.length === 0) {
       canvas.innerHTML = `
-                <div class="empty-canvas">
-                    <div class="empty-canvas-content">
-                        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                            <rect x="3" y="3" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
-                            <rect x="14" y="3" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
-                            <rect x="14" y="14" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
-                            <rect x="3" y="14" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <h3>ダッシュボードを作成しましょう</h3>
-                        <p>左側のコンポーネントをドラッグ&ドロップしてください</p>
-                        <div class="quick-start">
-                            <button class="quick-start-btn" data-template="analytics">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M18 17V9" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M13 17V5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M8 17v-3" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                アナリティクス
-                            </button>
-                            <button class="quick-start-btn" data-template="crm">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <circle cx="9" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                CRM
-                            </button>
-                            <button class="quick-start-btn" data-template="ecommerce">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="9" cy="21" r="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <circle cx="20" cy="21" r="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                Eコマース
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-      // Re-attach quick start listeners
-      document.querySelectorAll('.quick-start-btn').forEach((btn) => {
-        btn.addEventListener('click', (e) => this.handleQuickStart(e));
-      });
+        <div class="empty-canvas">
+          <div class="empty-canvas-content">
+            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <rect x="3" y="3" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="14" y="3" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="14" y="14" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="3" y="14" width="7" height="7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3>ダッシュボードを作成しましょう</h3>
+            <p>左側のコンポーネントをドラッグ&ドロップしてください</p>
+            <div class="quick-start">
+              <button class="quick-start-btn" data-template="analytics">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18 17V9" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M13 17V5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M8 17v-3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                アナリティクス
+              </button>
+              <button class="quick-start-btn" data-template="crm">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="9" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                CRM
+              </button>
+              <button class="quick-start-btn" data-template="ecommerce">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="9" cy="21" r="1" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="20" cy="21" r="1" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Eコマース
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
       return;
     }
 
-    // Create dashboard grid container
+    // コンポーネントグリッド生成
     const grid = document.createElement('div');
     grid.className = 'dashboard-grid';
 
-    // Add each component to the grid
     this.components.forEach((component) => {
-      // Create a wrapper div for controls
       const wrapper = document.createElement('div');
       wrapper.className = 'dashboard-component-wrapper';
       wrapper.dataset.componentId = component.id;
       wrapper.setAttribute('draggable', 'true');
 
-      // Add controls
+      // コントロールボタン
       const controls = document.createElement('div');
       controls.className = 'component-controls';
       controls.innerHTML = `
-                <button class="component-control" data-action="move-up" title="上へ移動">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="18 15 12 9 6 15" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-                <button class="component-control" data-action="move-down" title="下へ移動">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-                <button class="component-control" data-action="delete" title="削除">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-            `;
+        <button class="component-control" data-action="move-up" title="上へ移動">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="component-control" data-action="move-down" title="下へ移動">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="component-control" data-action="delete" title="削除">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      `;
 
       wrapper.appendChild(controls);
 
-      // Create a div to hold the component content
+      // テンプレートHTML挿入
       const content = document.createElement('div');
       content.innerHTML = component.template.html;
 
-      // Extract the first child (which has grid-col-* class)
       const componentElement = content.firstElementChild;
       if (componentElement) {
-        // Extract grid-col value from template before stripping
         const templateGridColMatch = componentElement.className.match(/grid-col-(\d+)/);
         const templateGridCol = templateGridColMatch ? parseInt(templateGridColMatch[1], 10) : null;
 
-        // Remove existing grid-col class from component element
         componentElement.className = componentElement.className.replace(/grid-col-\d+/g, '').trim();
         wrapper.appendChild(componentElement);
 
-        // Apply grid-col class: component data > template value > default
         const gridCol =
           component.gridCol || templateGridCol || this.getDefaultGridCol(component.type);
         wrapper.classList.add(`grid-col-${gridCol}`);
@@ -1006,72 +875,72 @@ class DashboardGenerator {
       grid.appendChild(wrapper);
     });
 
-    // Apply layout wrapper based on currentLayout
+    // レイアウトラッパー適用
     canvas.innerHTML = '';
 
     if (this.currentLayout === 'sidebar-left') {
       const layoutContainer = document.createElement('div');
       layoutContainer.className = 'db-layout-sidebar-left';
       layoutContainer.innerHTML = `
-                <aside class="db-sidebar">
-                    <div class="db-sidebar-header">
-                        <h2>Dashboard</h2>
-                    </div>
-                    <nav class="db-sidebar-nav">
-                        <a href="#" class="db-nav-item active">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                            <span>Overview</span>
-                        </a>
-                        <a href="#" class="db-nav-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-                            <span>Analytics</span>
-                        </a>
-                    </nav>
-                </aside>
-                <main class="db-main"></main>
-            `;
+        <aside class="db-sidebar">
+          <div class="db-sidebar-header">
+            <h2>Dashboard</h2>
+          </div>
+          <nav class="db-sidebar-nav">
+            <a href="#" class="db-nav-item active">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span>Overview</span>
+            </a>
+            <a href="#" class="db-nav-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+              <span>Analytics</span>
+            </a>
+          </nav>
+        </aside>
+        <main class="db-main"></main>
+      `;
       layoutContainer.querySelector('.db-main').appendChild(grid);
       canvas.appendChild(layoutContainer);
     } else if (this.currentLayout === 'topbar') {
       const layoutContainer = document.createElement('div');
       layoutContainer.className = 'db-layout-topbar';
       layoutContainer.innerHTML = `
-                <header class="db-topbar">
-                    <div class="db-topbar-brand">Dashboard</div>
-                    <nav class="db-topbar-nav">
-                        <a href="#" class="db-topbar-link active">Overview</a>
-                        <a href="#" class="db-topbar-link">Analytics</a>
-                        <a href="#" class="db-topbar-link">Reports</a>
-                    </nav>
-                </header>
-                <main class="db-main-topbar"></main>
-            `;
+        <header class="db-topbar">
+          <div class="db-topbar-brand">Dashboard</div>
+          <nav class="db-topbar-nav">
+            <a href="#" class="db-topbar-link active">Overview</a>
+            <a href="#" class="db-topbar-link">Analytics</a>
+            <a href="#" class="db-topbar-link">Reports</a>
+          </nav>
+        </header>
+        <main class="db-main-topbar"></main>
+      `;
       layoutContainer.querySelector('.db-main-topbar').appendChild(grid);
       canvas.appendChild(layoutContainer);
     } else if (this.currentLayout === 'sidebar-top') {
       const layoutContainer = document.createElement('div');
       layoutContainer.className = 'db-layout-sidebar-top';
       layoutContainer.innerHTML = `
-                <header class="db-header-bar">
-                    <div class="db-header-brand">Dashboard</div>
-                    <div class="db-header-actions">
-                        <button class="db-header-btn">Settings</button>
-                    </div>
-                </header>
-                <div class="db-sidebar-content-wrapper">
-                    <aside class="db-sidebar-mini">
-                        <nav class="db-sidebar-nav-mini">
-                            <a href="#" class="db-nav-icon active">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                            </a>
-                            <a href="#" class="db-nav-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-                            </a>
-                        </nav>
-                    </aside>
-                    <main class="db-main-sidebar-top"></main>
-                </div>
-            `;
+        <header class="db-header-bar">
+          <div class="db-header-brand">Dashboard</div>
+          <div class="db-header-actions">
+            <button class="db-header-btn">Settings</button>
+          </div>
+        </header>
+        <div class="db-sidebar-content-wrapper">
+          <aside class="db-sidebar-mini">
+            <nav class="db-sidebar-nav-mini">
+              <a href="#" class="db-nav-icon active">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </a>
+              <a href="#" class="db-nav-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+              </a>
+            </nav>
+          </aside>
+          <main class="db-main-sidebar-top"></main>
+        </div>
+      `;
       layoutContainer.querySelector('.db-main-sidebar-top').appendChild(grid);
       canvas.appendChild(layoutContainer);
     } else {
@@ -1079,10 +948,21 @@ class DashboardGenerator {
       canvas.appendChild(grid);
     }
 
-    // Add component controls
+    // コンポーネントコントロール・ドラッグリスナー
     this.attachComponentControls();
     this.attachDragListeners();
+
+    // AIカスタマイズボタンをコンポーネントコントロールに追加
+    if (this.aiController) {
+      document.querySelectorAll('.dashboard-component-wrapper').forEach(wrapper => {
+        this.aiController.addAIButtonToSectionControls(wrapper);
+      });
+    }
   }
+
+  // ==========================================
+  // COMPONENT CONTROLS & DRAG
+  // ==========================================
 
   attachComponentControls() {
     document.querySelectorAll('.component-control').forEach((btn) => {
@@ -1102,225 +982,14 @@ class DashboardGenerator {
       });
     });
 
-    // Click on component to select and show properties
+    // Click on component to select
     document.querySelectorAll('.dashboard-component-wrapper').forEach((wrapper) => {
       wrapper.addEventListener('click', (e) => {
-        // Don't trigger if clicking on controls
-        if (e.target.closest('.component-controls')) {
-          return;
-        }
-
+        if (e.target.closest('.component-controls')) return;
         const componentId = wrapper.dataset.componentId;
         this.selectComponent(componentId);
       });
     });
-  }
-
-  selectComponent(componentId) {
-    // Remove previous selection
-    document.querySelectorAll('.dashboard-component-wrapper').forEach((el) => {
-      el.classList.remove('selected');
-    });
-
-    // Add selection to clicked component
-    const componentEl = document.querySelector(`[data-component-id="${componentId}"]`);
-    if (componentEl) {
-      componentEl.classList.add('selected');
-    }
-
-    this.selectedComponentId = componentId;
-    this.showPropertiesPanel(componentId);
-  }
-
-  showPropertiesPanel(componentId) {
-    const component = this.components.find((c) => c.id === componentId);
-    if (!component) return;
-
-    const propertiesPanel = document.getElementById('propertiesPanel');
-    if (!propertiesPanel) return;
-
-    // Get current grid column
-    const currentGridCol = component.gridCol || this.getDefaultGridCol(component.type);
-
-    // Build properties UI
-    propertiesPanel.innerHTML = `
-            <div class="properties-header">
-                <h4>${component.template.name}</h4>
-                <button class="properties-close" onclick="dashboardGenerator.closePropertiesPanel()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="properties-body">
-                <div class="property-group">
-                    <label class="property-label">グリッド幅</label>
-                    <div class="grid-column-selector">
-                        <div class="grid-column-visual">
-                            ${this.generateGridVisual(currentGridCol)}
-                        </div>
-                        <div class="grid-column-controls">
-                            <select id="gridColumnSelect" class="property-select" onchange="dashboardGenerator.changeGridColumn('${component.id}', this.value)">
-                                <option value="3" ${currentGridCol === 3 ? 'selected' : ''}>3/12 (25%)</option>
-                                <option value="4" ${currentGridCol === 4 ? 'selected' : ''}>4/12 (33%)</option>
-                                <option value="5" ${currentGridCol === 5 ? 'selected' : ''}>5/12 (42%)</option>
-                                <option value="6" ${currentGridCol === 6 ? 'selected' : ''}>6/12 (50%)</option>
-                                <option value="7" ${currentGridCol === 7 ? 'selected' : ''}>7/12 (58%)</option>
-                                <option value="8" ${currentGridCol === 8 ? 'selected' : ''}>8/12 (67%)</option>
-                                <option value="9" ${currentGridCol === 9 ? 'selected' : ''}>9/12 (75%)</option>
-                                <option value="10" ${currentGridCol === 10 ? 'selected' : ''}>10/12 (83%)</option>
-                                <option value="12" ${currentGridCol === 12 ? 'selected' : ''}>12/12 (100%)</option>
-                            </select>
-                            <div class="grid-quick-buttons">
-                                <button class="grid-quick-btn ${currentGridCol === 4 ? 'active' : ''}" onclick="dashboardGenerator.changeGridColumn('${component.id}', 4)">1/3</button>
-                                <button class="grid-quick-btn ${currentGridCol === 6 ? 'active' : ''}" onclick="dashboardGenerator.changeGridColumn('${component.id}', 6)">1/2</button>
-                                <button class="grid-quick-btn ${currentGridCol === 12 ? 'active' : ''}" onclick="dashboardGenerator.changeGridColumn('${component.id}', 12)">Full</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="property-divider"></div>
-
-                <div class="property-group">
-                    <label class="property-label">カテゴリー</label>
-                    <div class="property-value">${component.template.category || 'data'}</div>
-                </div>
-
-                <div class="property-group">
-                    <label class="property-label">コンポーネントID</label>
-                    <div class="property-value property-id">${component.id}</div>
-                </div>
-
-                <div class="property-divider"></div>
-
-                <div class="property-actions">
-                    <button class="property-btn property-btn-primary" onclick="dashboardGenerator.duplicateComponent('${component.id}')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                        </svg>
-                        複製
-                    </button>
-                    <button class="property-btn property-btn-danger" onclick="dashboardGenerator.deleteComponent('${component.id}')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        </svg>
-                        削除
-                    </button>
-                </div>
-            </div>
-        `;
-
-    propertiesPanel.style.display = 'block';
-  }
-
-  generateGridVisual(cols) {
-    let html = '';
-    for (let i = 1; i <= 12; i++) {
-      const isActive = i <= cols;
-      html += `<div class="grid-col-block ${isActive ? 'active' : ''}"></div>`;
-    }
-    return html;
-  }
-
-  getDefaultGridCol(type) {
-    const defaults = {
-      'stats-cards': 12,
-      'chart-line': 6,
-      'chart-bar': 4,
-      'chart-pie': 4,
-      'data-table': 12,
-      'user-list': 4,
-      'kpi-card': 4,
-      'progress-card': 4,
-      'activity-feed': 4,
-      'form-basic': 4,
-      'search-bar': 6,
-      'alert-banner': 12,
-      'user-profile': 4,
-    };
-    return defaults[type] || 6;
-  }
-
-  changeGridColumn(componentId, newCol) {
-    const component = this.components.find((c) => c.id === componentId);
-    if (!component) return;
-
-    component.gridCol = parseInt(newCol);
-    this.saveState();
-    this.renderCanvas();
-
-    // Re-select the component to update properties panel
-    setTimeout(() => {
-      this.selectComponent(componentId);
-    }, 50);
-
-    this.showNotification(`グリッド幅を ${newCol}/12 に変更しました`);
-  }
-
-  closePropertiesPanel() {
-    const propertiesPanel = document.getElementById('propertiesPanel');
-    if (propertiesPanel) {
-      propertiesPanel.style.display = 'none';
-    }
-
-    // Remove selection
-    document.querySelectorAll('.dashboard-component-wrapper').forEach((el) => {
-      el.classList.remove('selected');
-    });
-
-    this.selectedComponentId = null;
-  }
-
-  duplicateComponent(componentId) {
-    const component = this.components.find((c) => c.id === componentId);
-    if (!component) return;
-
-    // Create a copy with new ID
-    const newComponent = {
-      id: this.generateId(),
-      type: component.type,
-      template: component.template,
-      timestamp: Date.now(),
-    };
-
-    // Insert after the original component
-    const index = this.components.findIndex((c) => c.id === componentId);
-    this.components.splice(index + 1, 0, newComponent);
-
-    this.saveState();
-    this.renderCanvas();
-    this.closePropertiesPanel();
-    this.showNotification(`${component.template.name}を複製しました`);
-  }
-
-  moveComponent(componentId, direction) {
-    const index = this.components.findIndex((c) => c.id === componentId);
-    if (index === -1) return;
-
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= this.components.length) return;
-
-    // Swap components
-    [this.components[index], this.components[newIndex]] = [
-      this.components[newIndex],
-      this.components[index],
-    ];
-
-    this.saveState();
-    this.renderCanvas();
-    this.showNotification('コンポーネントを移動しました');
-  }
-
-  deleteComponent(componentId) {
-    this.components = this.components.filter((c) => c.id !== componentId);
-    this.saveState();
-    this.renderCanvas();
-    this.showNotification('コンポーネントを削除しました');
   }
 
   attachDragListeners() {
@@ -1333,7 +1002,7 @@ class DashboardGenerator {
         e.dataTransfer.setData('text/html', wrapper.dataset.componentId);
       });
 
-      wrapper.addEventListener('dragend', (_e) => {
+      wrapper.addEventListener('dragend', () => {
         wrapper.classList.remove('dragging');
       });
 
@@ -1378,6 +1047,147 @@ class DashboardGenerator {
     this.showNotification('コンポーネントを並べ替えました');
   }
 
+  // ==========================================
+  // PROPERTIES PANEL
+  // ==========================================
+
+  showPropertiesPanel(componentId) {
+    const component = this.components.find((c) => c.id === componentId);
+    if (!component) return;
+
+    const propertiesPanel = document.getElementById('propertiesPanel');
+    if (!propertiesPanel) return;
+
+    const currentGridCol = component.gridCol || this.getDefaultGridCol(component.type);
+    const safeName = CommonEditor.sanitizeHTML(component.template.name);
+    const safeCategory = CommonEditor.sanitizeHTML(component.template.category || 'data');
+    const safeId = CommonEditor.sanitizeHTML(component.id);
+    const escapedId = CommonEditor.sanitizeAttribute(component.id);
+
+    const gridOptions = [3, 4, 5, 6, 7, 8, 9, 10, 12];
+    const gridPercents = { 3: '25%', 4: '33%', 5: '42%', 6: '50%', 7: '58%', 8: '67%', 9: '75%', 10: '83%', 12: '100%' };
+    const optionsHTML = gridOptions
+      .map(
+        (val) =>
+          `<option value="${val}" ${currentGridCol === val ? 'selected' : ''}>${val}/12 (${gridPercents[val]})</option>`
+      )
+      .join('');
+
+    propertiesPanel.innerHTML = `
+      <div class="properties-header">
+        <h4>${safeName}</h4>
+        <button class="properties-close" data-action="close-properties">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="properties-body">
+        <div class="property-group">
+          <label class="property-label">グリッド幅</label>
+          <div class="grid-column-selector">
+            <div class="grid-column-visual">
+              ${this.generateGridVisual(currentGridCol)}
+            </div>
+            <div class="grid-column-controls">
+              <select class="property-select" data-action="grid-column-change" data-component-id="${escapedId}">
+                ${optionsHTML}
+              </select>
+              <div class="grid-quick-buttons">
+                <button class="grid-quick-btn ${currentGridCol === 4 ? 'active' : ''}" data-action="grid-quick" data-component-id="${escapedId}" data-grid-col="4">1/3</button>
+                <button class="grid-quick-btn ${currentGridCol === 6 ? 'active' : ''}" data-action="grid-quick" data-component-id="${escapedId}" data-grid-col="6">1/2</button>
+                <button class="grid-quick-btn ${currentGridCol === 12 ? 'active' : ''}" data-action="grid-quick" data-component-id="${escapedId}" data-grid-col="12">Full</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="property-divider"></div>
+
+        <div class="property-group">
+          <label class="property-label">カテゴリー</label>
+          <div class="property-value">${safeCategory}</div>
+        </div>
+
+        <div class="property-group">
+          <label class="property-label">コンポーネントID</label>
+          <div class="property-value property-id">${safeId}</div>
+        </div>
+
+        <div class="property-divider"></div>
+
+        <div class="property-actions">
+          <button class="property-btn property-btn-primary" data-action="duplicate" data-component-id="${escapedId}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            複製
+          </button>
+          <button class="property-btn property-btn-danger" data-action="delete" data-component-id="${escapedId}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            削除
+          </button>
+        </div>
+      </div>
+    `;
+
+    propertiesPanel.style.display = 'block';
+  }
+
+  generateGridVisual(cols) {
+    let html = '';
+    for (let i = 1; i <= DashboardGenerator.CONFIG.GRID_COLUMNS; i++) {
+      const isActive = i <= cols;
+      html += `<div class="grid-col-block ${isActive ? 'active' : ''}"></div>`;
+    }
+    return html;
+  }
+
+  getDefaultGridCol(type) {
+    return (
+      DashboardGenerator.CONFIG.GRID_COL_DEFAULTS[type] ||
+      DashboardGenerator.CONFIG.DEFAULT_GRID_COL
+    );
+  }
+
+  changeGridColumn(componentId, newCol) {
+    const component = this.components.find((c) => c.id === componentId);
+    if (!component) return;
+
+    component.gridCol = parseInt(newCol);
+    this.saveState();
+    this.renderCanvas();
+
+    setTimeout(() => {
+      this.selectComponent(componentId);
+    }, 50);
+
+    this.showNotification(`グリッド幅を ${newCol}/${DashboardGenerator.CONFIG.GRID_COLUMNS} に変更しました`);
+  }
+
+  closePropertiesPanel() {
+    const propertiesPanel = document.getElementById('propertiesPanel');
+    if (propertiesPanel) {
+      propertiesPanel.style.display = 'none';
+    }
+
+    document.querySelectorAll('.dashboard-component-wrapper').forEach((el) => {
+      el.classList.remove('selected');
+    });
+
+    this.selectedComponentId = null;
+  }
+
+  // ==========================================
+  // QUICK START & TEMPLATES
+  // ==========================================
+
   handleQuickStart(e) {
     const btn = e.target.closest('.quick-start-btn');
     if (!btn) return;
@@ -1387,17 +1197,12 @@ class DashboardGenerator {
   }
 
   applyTemplate(templateName) {
-    const templates = {
-      analytics: ['stats-cards', 'chart-line', 'data-table', 'activity-feed'],
-      crm: ['stats-cards', 'user-list', 'activity-feed', 'form-basic'],
-      ecommerce: ['stats-cards', 'chart-bar', 'data-table', 'chart-pie'],
-    };
-
-    const componentTypes = templates[templateName] || [];
+    const componentTypes =
+      DashboardGenerator.CONFIG.QUICK_START_TEMPLATES[templateName] || [];
 
     this.components = [];
     componentTypes.forEach((type) => {
-      const template = dashboardTemplates[type];
+      const template = this._getTemplate(type);
       if (template) {
         this.addComponentSilent(template, type);
       }
@@ -1407,16 +1212,9 @@ class DashboardGenerator {
     this.showNotification(`${templateName}テンプレートを適用しました`);
   }
 
-  addComponentSilent(template, type) {
-    const component = {
-      id: this.generateId(),
-      type: type,
-      template: template,
-      timestamp: Date.now(),
-    };
-
-    this.components.push(component);
-  }
+  // ==========================================
+  // EXPORT & CODE PREVIEW
+  // ==========================================
 
   async exportDashboard() {
     const hasContent = this.hasExportableContent();
@@ -1432,14 +1230,11 @@ class DashboardGenerator {
   }
 
   hasExportableContent() {
-    // Check old components array
     if (this.components.length > 0) return true;
-    // Check grid areas with components
     if (this.gridAreas.some((area) => area.components && area.components.length > 0)) return true;
     return false;
   }
 
-  // Code Preview Modal Methods
   async openCodePreview() {
     const hasContent = this.hasExportableContent();
     if (!hasContent) {
@@ -1450,7 +1245,6 @@ class DashboardGenerator {
     const modal = document.getElementById('codePreviewModal');
     if (!modal) return;
 
-    // Generate code based on mode
     if (this.gridAreas.length > 0) {
       this.generatedHTML = this.generateGridAreasHTML();
     } else {
@@ -1459,7 +1253,6 @@ class DashboardGenerator {
     this.generatedCSS = await this.fetchCSS();
     this.generatedFullHTML = await this.generateFullHTML();
 
-    // Show HTML tab by default
     this.currentCodeTab = 'html';
     this.updateCodePreview();
 
@@ -1507,15 +1300,19 @@ class DashboardGenerator {
   }
 
   formatHTML(html) {
-    // Simple HTML formatting
     return html.replace(/></g, '>\n<').replace(/(\s+)/g, ' ').trim();
   }
 
   async fetchCSS() {
     try {
-      const css = await fetch('css/dashboard-components.css').then((r) => r.text());
+      const css = await fetch('css/dashboard-components.css').then((r) => {
+        if (!r.ok) throw new Error(`CSS取得失敗: ${r.status}`);
+        return r.text();
+      });
       return css;
     } catch (e) {
+      console.warn('CSS読み込みエラー:', e.message);
+      this.showNotification('CSSの読み込みに失敗しました', 'error');
       return '/* CSS could not be loaded */';
     }
   }
@@ -1569,8 +1366,11 @@ class DashboardGenerator {
     this.showNotification('ダウンロードしました');
   }
 
+  // ==========================================
+  // GRID AREAS HTML/CSS GENERATION
+  // ==========================================
+
   generateGridAreasHTML() {
-    // Generate HTML from grid areas with their components
     const gridCSS = this.generateGridAreasCSS();
     let html = `<!-- Grid Layout Generated by Dashboard Generator -->\n`;
     html += `<style>\n${gridCSS}\n</style>\n\n`;
@@ -1582,13 +1382,13 @@ class DashboardGenerator {
 
       if (area.components && area.components.length > 0) {
         area.components.forEach((comp) => {
-          const template = dashboardTemplates[comp.type];
+          const template = this._getTemplate(comp.type);
           if (template) {
             html += `    ${template.html.trim()}\n`;
           }
         });
       } else {
-        html += `    <!-- Empty Area: ${area.name} -->\n`;
+        html += `    <!-- Empty Area: ${CommonEditor.sanitizeHTML(area.name)} -->\n`;
       }
 
       html += `  </div>\n`;
@@ -1601,7 +1401,7 @@ class DashboardGenerator {
   generateGridAreasCSS() {
     let css = `.grid-areas-container {\n`;
     css += `  display: grid;\n`;
-    css += `  grid-template-columns: repeat(12, 1fr);\n`;
+    css += `  grid-template-columns: repeat(${DashboardGenerator.CONFIG.GRID_COLUMNS}, 1fr);\n`;
     css += `  grid-template-rows: repeat(${this.gridRows}, minmax(100px, auto));\n`;
     css += `  gap: var(--grid-gap, 24px);\n`;
     css += `  padding: var(--grid-padding, 24px);\n`;
@@ -1609,7 +1409,6 @@ class DashboardGenerator {
     css += `  min-height: 100%;\n`;
     css += `}\n\n`;
 
-    // Generate area-specific styles
     this.gridAreas.forEach((area) => {
       const areaClass = `.grid-area-${area.id}`;
       css += `${areaClass} {\n`;
@@ -1625,7 +1424,6 @@ class DashboardGenerator {
   }
 
   generateGridAreasContentHTML() {
-    // Generate HTML content from grid areas (without wrapper styles)
     let html = '';
     this.gridAreas.forEach((area) => {
       const areaClass = `grid-area-${area.id}`;
@@ -1633,7 +1431,7 @@ class DashboardGenerator {
 
       if (area.components && area.components.length > 0) {
         area.components.forEach((comp) => {
-          const template = dashboardTemplates[comp.type];
+          const template = this._getTemplate(comp.type);
           if (template) {
             html += `  ${template.html.trim()}\n`;
           }
@@ -1646,7 +1444,6 @@ class DashboardGenerator {
   }
 
   async generateFullHTML() {
-    // Generate components HTML - either from grid areas or legacy components
     let componentsHTML = '';
     let gridAreasCSS = '';
 
@@ -1654,24 +1451,30 @@ class DashboardGenerator {
       this.gridAreas.length > 0 &&
       this.gridAreas.some((a) => a.components && a.components.length > 0)
     ) {
-      // Generate from grid areas
       componentsHTML = this.generateGridAreasContentHTML();
       gridAreasCSS = this.generateGridAreasCSS();
     } else if (this.components.length > 0) {
-      // Legacy components
       componentsHTML = this.components.map((c) => c.template.html).join('\n');
     }
 
-    // Fetch and embed CSS files
+    // CSS取得
     let embeddedCSS = '';
     try {
       const [designSystemCSS, dashboardCSS, generatorCSS] = await Promise.all([
-        fetch('css/design-system.css').then((r) => r.text()),
-        fetch('css/dashboard-components.css').then((r) => r.text()),
-        fetch('css/dashboard-generator.css').then((r) => r.text()),
+        fetch('css/design-system.css').then((r) => {
+          if (!r.ok) throw new Error(`design-system.css: ${r.status}`);
+          return r.text();
+        }),
+        fetch('css/dashboard-components.css').then((r) => {
+          if (!r.ok) throw new Error(`dashboard-components.css: ${r.status}`);
+          return r.text();
+        }),
+        fetch('css/dashboard-generator.css').then((r) => {
+          if (!r.ok) throw new Error(`dashboard-generator.css: ${r.status}`);
+          return r.text();
+        }),
       ]);
 
-      // Add layout-specific CSS
       const layoutCSS = `
 /* Dashboard Layout Styles */
 .db-layout-sidebar-left {
@@ -1863,37 +1666,37 @@ class DashboardGenerator {
         embeddedCSS += '\n/* Grid Areas Styles */\n' + gridAreasCSS;
       }
     } catch (error) {
-      console.error('Failed to load CSS:', error);
-      // Fallback to minimal CSS with layouts
+      console.warn('CSS取得エラー:', error.message);
+      this.showNotification('一部のCSSの読み込みに失敗しました', 'error');
       embeddedCSS = `
-                :root {
-                    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
-                    --space-5: 20px; --space-6: 24px; --text-sm: 14px; --text-base: 16px;
-                    --text-lg: 18px; --text-xl: 20px; --text-4xl: 36px; --font-normal: 400;
-                    --font-medium: 500; --font-semibold: 600; --font-bold: 700;
-                    --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
-                }
-                * { box-sizing: border-box; }
-                body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #f8fafc; }
-                .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; padding: 24px; }
-                .grid-col-1 { grid-column: span 1; } .grid-col-2 { grid-column: span 2; }
-                .grid-col-3 { grid-column: span 3; } .grid-col-4 { grid-column: span 4; }
-                .grid-col-5 { grid-column: span 5; } .grid-col-6 { grid-column: span 6; }
-                .grid-col-7 { grid-column: span 7; } .grid-col-8 { grid-column: span 8; }
-                .grid-col-9 { grid-column: span 9; } .grid-col-10 { grid-column: span 10; }
-                .grid-col-11 { grid-column: span 11; } .grid-col-12 { grid-column: span 12; }
-                .db-layout-sidebar-left { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; gap: 0; }
-                .db-sidebar { background: #1e293b; color: white; padding: 20px; }
-                .db-sidebar-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-                .db-sidebar-header h2 { font-size: 20px; font-weight: 700; margin: 0; }
-                .db-sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
-                .db-nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 14px; }
-                .db-nav-item.active { background: #3b82f6; color: white; }
-                .db-main { padding: 0; overflow: auto; }
-            `;
+        :root {
+            --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+            --space-5: 20px; --space-6: 24px; --text-sm: 14px; --text-base: 16px;
+            --text-lg: 18px; --text-xl: 20px; --text-4xl: 36px; --font-normal: 400;
+            --font-medium: 500; --font-semibold: 600; --font-bold: 700;
+            --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; padding: 24px; }
+        .grid-col-1 { grid-column: span 1; } .grid-col-2 { grid-column: span 2; }
+        .grid-col-3 { grid-column: span 3; } .grid-col-4 { grid-column: span 4; }
+        .grid-col-5 { grid-column: span 5; } .grid-col-6 { grid-column: span 6; }
+        .grid-col-7 { grid-column: span 7; } .grid-col-8 { grid-column: span 8; }
+        .grid-col-9 { grid-column: span 9; } .grid-col-10 { grid-column: span 10; }
+        .grid-col-11 { grid-column: span 11; } .grid-col-12 { grid-column: span 12; }
+        .db-layout-sidebar-left { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; gap: 0; }
+        .db-sidebar { background: #1e293b; color: white; padding: 20px; }
+        .db-sidebar-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .db-sidebar-header h2 { font-size: 20px; font-weight: 700; margin: 0; }
+        .db-sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
+        .db-nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 14px; }
+        .db-nav-item.active { background: #3b82f6; color: white; }
+        .db-main { padding: 0; overflow: auto; }
+      `;
     }
 
-    // Generate layout wrapper HTML
+    // レイアウトラッパーHTML
     let bodyContent = '';
     const gridContainerClass =
       this.gridAreas.length > 0 &&
@@ -1904,50 +1707,50 @@ class DashboardGenerator {
 
     if (this.currentLayout === 'sidebar-left') {
       bodyContent = `
-                <div class="db-layout-sidebar-left">
-                    <aside class="db-sidebar">
-                        <div class="db-sidebar-header"><h2>Dashboard</h2></div>
-                        <nav class="db-sidebar-nav">
-                            <a href="#" class="db-nav-item active">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                                <span>Overview</span>
-                            </a>
-                        </nav>
-                    </aside>
-                    <main class="db-main">${gridContent}</main>
-                </div>
-            `;
+        <div class="db-layout-sidebar-left">
+          <aside class="db-sidebar">
+            <div class="db-sidebar-header"><h2>Dashboard</h2></div>
+            <nav class="db-sidebar-nav">
+              <a href="#" class="db-nav-item active">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Overview</span>
+              </a>
+            </nav>
+          </aside>
+          <main class="db-main">${gridContent}</main>
+        </div>
+      `;
     } else if (this.currentLayout === 'topbar') {
       bodyContent = `
-                <div class="db-layout-topbar">
-                    <header class="db-topbar">
-                        <div class="db-topbar-brand">Dashboard</div>
-                        <nav class="db-topbar-nav">
-                            <a href="#" class="db-topbar-link active">Overview</a>
-                            <a href="#" class="db-topbar-link">Analytics</a>
-                        </nav>
-                    </header>
-                    <main class="db-main-topbar">${gridContent}</main>
-                </div>
-            `;
+        <div class="db-layout-topbar">
+          <header class="db-topbar">
+            <div class="db-topbar-brand">Dashboard</div>
+            <nav class="db-topbar-nav">
+              <a href="#" class="db-topbar-link active">Overview</a>
+              <a href="#" class="db-topbar-link">Analytics</a>
+            </nav>
+          </header>
+          <main class="db-main-topbar">${gridContent}</main>
+        </div>
+      `;
     } else if (this.currentLayout === 'sidebar-top') {
       bodyContent = `
-                <div class="db-layout-sidebar-top">
-                    <header class="db-header-bar">
-                        <div class="db-header-brand">Dashboard</div>
-                    </header>
-                    <div class="db-sidebar-content-wrapper">
-                        <aside class="db-sidebar-mini">
-                            <nav class="db-sidebar-nav-mini">
-                                <a href="#" class="db-nav-icon active">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                                </a>
-                            </nav>
-                        </aside>
-                        <main class="db-main-sidebar-top">${gridContent}</main>
-                    </div>
-                </div>
-            `;
+        <div class="db-layout-sidebar-top">
+          <header class="db-header-bar">
+            <div class="db-header-brand">Dashboard</div>
+          </header>
+          <div class="db-sidebar-content-wrapper">
+            <aside class="db-sidebar-mini">
+              <nav class="db-sidebar-nav-mini">
+                <a href="#" class="db-nav-icon active">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </a>
+              </nav>
+            </aside>
+            <main class="db-main-sidebar-top">${gridContent}</main>
+          </div>
+        </div>
+      `;
     } else {
       bodyContent = `<div class="dashboard-container">${gridContent}</div>`;
     }
@@ -1969,6 +1772,10 @@ ${embeddedCSS}
 </html>`;
   }
 
+  // ==========================================
+  // DASHBOARD OPERATIONS
+  // ==========================================
+
   clearDashboard() {
     if (this.components.length === 0) return;
 
@@ -1979,6 +1786,215 @@ ${embeddedCSS}
       this.renderCanvas();
       this.showNotification('ダッシュボードをクリアしました');
     }
+  }
+
+  // ==========================================
+  // プロジェクト管理（保存/読込/削除/エクスポート/インポート）
+  // ==========================================
+
+  /**
+   * プロジェクト名を入力させる
+   */
+  _promptProjectName(defaultName = '') {
+    const name = prompt('プロジェクト名を入力してください:', defaultName);
+    if (!name || !name.trim()) return null;
+    return name.trim();
+  }
+
+  /**
+   * 現在のダッシュボード状態をプロジェクトとして保存
+   */
+  saveProject() {
+    const name = this._promptProjectName();
+    if (!name) return;
+
+    const project = {
+      id: CommonEditor.generateId('proj'),
+      name: name,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      components: JSON.parse(JSON.stringify(this.components)),
+      gridAreas: JSON.parse(JSON.stringify(this.gridAreas)),
+      gridRows: this.gridRows,
+      currentLayout: this.currentLayout,
+      currentTheme: this.currentTheme,
+      designSettings: { ...this.designSettings },
+    };
+
+    const projects = CommonEditor.loadFromStorage('db-generator-projects', []);
+    projects.unshift(project);
+    CommonEditor.saveToStorage('db-generator-projects', projects);
+    this.showNotification('プロジェクトを保存しました', 'success');
+    this.renderProjectsList();
+  }
+
+  /**
+   * プロジェクトを読み込む
+   */
+  loadProject(projectId) {
+    const projects = CommonEditor.loadFromStorage('db-generator-projects', []);
+    const project = projects.find((p) => p.id === projectId);
+    if (!project) {
+      this.showNotification('プロジェクトが見つかりません', 'error');
+      return;
+    }
+
+    if (
+      this.components.length > 0 &&
+      !confirm('現在のダッシュボードは破棄されます。よろしいですか？')
+    ) {
+      return;
+    }
+
+    this.components = JSON.parse(JSON.stringify(project.components || []));
+    this.gridAreas = JSON.parse(JSON.stringify(project.gridAreas || []));
+    this.gridRows = project.gridRows || DashboardGenerator.CONFIG.DEFAULT_GRID_ROWS;
+    this.currentLayout = project.currentLayout || DashboardGenerator.CONFIG.DEFAULT_LAYOUT;
+    this.currentTheme = project.currentTheme || DashboardGenerator.CONFIG.DEFAULT_THEME;
+
+    if (project.designSettings) {
+      this.designSettings = { ...this.designSettings, ...project.designSettings };
+    }
+
+    // レイアウト・テーマUIを同期
+    document.querySelectorAll('.layout-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.layout === this.currentLayout);
+    });
+    document.querySelectorAll('.theme-option').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
+    });
+    this.applyTheme(this.currentTheme);
+
+    this.history = [];
+    this.historyIndex = -1;
+    this.saveState();
+    this.renderCanvas();
+    this.showNotification(`「${CommonEditor.sanitizeHTML(project.name)}」を読み込みました`, 'success');
+  }
+
+  /**
+   * プロジェクトを削除
+   */
+  deleteProject(projectId) {
+    if (!confirm('このプロジェクトを削除してもよろしいですか？')) return;
+
+    let projects = CommonEditor.loadFromStorage('db-generator-projects', []);
+    projects = projects.filter((p) => p.id !== projectId);
+    CommonEditor.saveToStorage('db-generator-projects', projects);
+    this.showNotification('プロジェクトを削除しました', 'info');
+    this.renderProjectsList();
+  }
+
+  /**
+   * プロジェクト一覧をサイドバーにレンダリング
+   */
+  renderProjectsList() {
+    const container = document.getElementById('dbProjectsList');
+    if (!container) return;
+
+    const projects = CommonEditor.loadFromStorage('db-generator-projects', []);
+
+    if (projects.length === 0) {
+      container.innerHTML = '<p class="db-projects-empty">保存されたプロジェクトはありません</p>';
+      return;
+    }
+
+    container.innerHTML = projects
+      .map((project) => {
+        const safeName = CommonEditor.sanitizeHTML(project.name);
+        const safeId = CommonEditor.sanitizeAttribute(project.id);
+        const date = new Date(project.updatedAt || project.createdAt);
+        const dateStr = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+        const componentCount = (project.components || []).length;
+        return `
+          <div class="db-project-item" data-project-id="${safeId}">
+            <div class="db-project-info" role="button" tabindex="0" aria-label="${safeName}を読み込む">
+              <span class="db-project-name">${safeName}</span>
+              <span class="db-project-meta">${dateStr} - ${componentCount}個のコンポーネント</span>
+            </div>
+            <button class="db-project-delete db-icon-btn" data-delete-project="${safeId}" aria-label="${safeName}を削除">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>`;
+      })
+      .join('');
+  }
+
+  /**
+   * 現在のダッシュボード状態をJSONエクスポート
+   */
+  exportProjectAsJSON() {
+    const project = {
+      name: 'Dashboard Export',
+      exportedAt: new Date().toISOString(),
+      components: JSON.parse(JSON.stringify(this.components)),
+      gridAreas: JSON.parse(JSON.stringify(this.gridAreas)),
+      gridRows: this.gridRows,
+      currentLayout: this.currentLayout,
+      currentTheme: this.currentTheme,
+      designSettings: { ...this.designSettings },
+    };
+
+    const json = JSON.stringify(project, null, 2);
+    this.downloadFile(json, `dashboard-project-${Date.now()}.json`, 'application/json');
+    this.showNotification('JSONをエクスポートしました', 'success');
+  }
+
+  /**
+   * JSONファイルからプロジェクトをインポート
+   */
+  importProjectFromJSON() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const project = JSON.parse(ev.target.result);
+
+          // 基本的なバリデーション
+          if (!project.components || !Array.isArray(project.components)) {
+            throw new Error('無効なプロジェクトデータです');
+          }
+
+          if (
+            this.components.length > 0 &&
+            !confirm('現在のダッシュボードは破棄されます。よろしいですか？')
+          ) {
+            return;
+          }
+
+          this.components = JSON.parse(JSON.stringify(project.components));
+          this.gridAreas = JSON.parse(JSON.stringify(project.gridAreas || []));
+          this.gridRows = project.gridRows || DashboardGenerator.CONFIG.DEFAULT_GRID_ROWS;
+          this.currentLayout = project.currentLayout || DashboardGenerator.CONFIG.DEFAULT_LAYOUT;
+          this.currentTheme = project.currentTheme || DashboardGenerator.CONFIG.DEFAULT_THEME;
+
+          if (project.designSettings) {
+            this.designSettings = { ...this.designSettings, ...project.designSettings };
+          }
+
+          this.applyTheme(this.currentTheme);
+
+          this.history = [];
+          this.historyIndex = -1;
+          this.saveState();
+          this.renderCanvas();
+          this.showNotification('プロジェクトをインポートしました', 'success');
+        } catch (err) {
+          console.error('JSONインポートエラー:', err);
+          this.showNotification('JSONファイルの読み込みに失敗しました', 'error');
+        }
+      };
+      reader.readAsText(file);
+    });
+    input.click();
   }
 
   async previewDashboard() {
@@ -1995,7 +2011,10 @@ ${embeddedCSS}
     this.showNotification('プレビューを開きました');
   }
 
-  // History management
+  // ==========================================
+  // HISTORY (UNDO/REDO)
+  // ==========================================
+
   saveState() {
     const state = {
       components: JSON.parse(JSON.stringify(this.components)),
@@ -2003,14 +2022,12 @@ ${embeddedCSS}
       gridRows: this.gridRows,
     };
 
-    // Remove future history if we're not at the end
     this.history = this.history.slice(0, this.historyIndex + 1);
-
     this.history.push(state);
     this.historyIndex++;
 
-    // Limit history to 50 states
-    if (this.history.length > 50) {
+    const maxHistory = DashboardGenerator.CONFIG.MAX_HISTORY_SIZE;
+    if (this.history.length > maxHistory) {
       this.history.shift();
       this.historyIndex--;
     }
@@ -2024,7 +2041,7 @@ ${embeddedCSS}
       const state = this.history[this.historyIndex];
       this.components = JSON.parse(JSON.stringify(state.components));
       this.gridAreas = JSON.parse(JSON.stringify(state.gridAreas || []));
-      this.gridRows = state.gridRows || 3;
+      this.gridRows = state.gridRows || DashboardGenerator.CONFIG.DEFAULT_GRID_ROWS;
       this.renderCanvas();
       this.updateUndoRedoButtons();
       this.showNotification('元に戻しました');
@@ -2037,7 +2054,7 @@ ${embeddedCSS}
       const state = this.history[this.historyIndex];
       this.components = JSON.parse(JSON.stringify(state.components));
       this.gridAreas = JSON.parse(JSON.stringify(state.gridAreas || []));
-      this.gridRows = state.gridRows || 3;
+      this.gridRows = state.gridRows || DashboardGenerator.CONFIG.DEFAULT_GRID_ROWS;
       this.renderCanvas();
       this.updateUndoRedoButtons();
       this.showNotification('やり直しました');
@@ -2058,19 +2075,23 @@ ${embeddedCSS}
     }
   }
 
+  // ==========================================
+  // ZOOM
+  // ==========================================
+
   handleZoom(e) {
     const action = e.currentTarget.dataset.action;
-    let currentZoom = this.currentZoom || 100;
+    let currentZoom = this.currentZoom || DashboardGenerator.CONFIG.DEFAULT_ZOOM;
+    const { ZOOM_MIN, ZOOM_MAX, ZOOM_STEP } = DashboardGenerator.CONFIG;
 
-    if (action === 'zoom-in' && currentZoom < 150) {
-      currentZoom += 10;
-    } else if (action === 'zoom-out' && currentZoom > 25) {
-      currentZoom -= 10;
+    if (action === 'zoom-in' && currentZoom < ZOOM_MAX) {
+      currentZoom += ZOOM_STEP;
+    } else if (action === 'zoom-out' && currentZoom > ZOOM_MIN) {
+      currentZoom -= ZOOM_STEP;
     }
 
     this.applyZoom(currentZoom);
 
-    // Update slider
     const slider = document.getElementById('zoomSlider');
     if (slider) {
       slider.value = currentZoom;
@@ -2095,100 +2116,59 @@ ${embeddedCSS}
     canvas.style.transform = `scale(${scale})`;
     canvas.style.transformOrigin = 'top center';
 
-    // Adjust canvas height to maintain visual size when zoomed out
-    const baseHeight = 800;
+    const baseHeight = DashboardGenerator.CONFIG.CANVAS_BASE_HEIGHT;
     const adjustedHeight = Math.max(baseHeight, baseHeight / scale);
     canvas.style.minHeight = `${adjustedHeight}px`;
 
-    // Update slider
     const slider = document.getElementById('zoomSlider');
     if (slider && slider.value !== zoomPercent.toString()) {
       slider.value = zoomPercent;
     }
   }
 
-  // Design Customization
+  // ==========================================
+  // DESIGN CUSTOMIZATION
+  // ==========================================
+
   setupDesignCustomization() {
-    // Font Family
-    const fontFamilySelect = document.getElementById('dashFontFamily');
-    if (fontFamilySelect) {
-      fontFamilySelect.addEventListener('change', (e) => {
-        this.designSettings.fontFamily = e.target.value;
-        this.applyDesignSettings();
-      });
-    }
+    const controls = {
+      dashFontFamily: { prop: 'fontFamily', parse: (v) => v },
+      dashFontSize: { prop: 'fontSize', parse: (v) => parseFloat(v) },
+      dashSpacing: { prop: 'spacing', parse: (v) => parseFloat(v) },
+      dashBorderRadius: { prop: 'borderRadius', parse: (v) => parseInt(v) },
+      dashShadow: { prop: 'shadow', parse: (v) => v },
+    };
 
-    // Font Size
-    const fontSizeSelect = document.getElementById('dashFontSize');
-    if (fontSizeSelect) {
-      fontSizeSelect.addEventListener('change', (e) => {
-        this.designSettings.fontSize = parseFloat(e.target.value);
-        this.applyDesignSettings();
-      });
-    }
+    Object.entries(controls).forEach(([id, config]) => {
+      const el = document.getElementById(id);
+      if (el) {
+        this._addListener(el, 'change', (e) => {
+          this.designSettings[config.prop] = config.parse(e.target.value);
+          this.applyDesignSettings();
+        });
+      }
+    });
 
-    // Spacing
-    const spacingSelect = document.getElementById('dashSpacing');
-    if (spacingSelect) {
-      spacingSelect.addEventListener('change', (e) => {
-        this.designSettings.spacing = parseFloat(e.target.value);
-        this.applyDesignSettings();
-      });
-    }
+    const colorControls = {
+      dashPrimaryColor: 'primaryColor',
+      dashSecondaryColor: 'secondaryColor',
+      dashAccentColor: 'accentColor',
+      dashBgColor: 'bgColor',
+    };
 
-    // Border Radius
-    const borderRadiusSelect = document.getElementById('dashBorderRadius');
-    if (borderRadiusSelect) {
-      borderRadiusSelect.addEventListener('change', (e) => {
-        this.designSettings.borderRadius = parseInt(e.target.value);
-        this.applyDesignSettings();
-      });
-    }
+    Object.entries(colorControls).forEach(([id, prop]) => {
+      const el = document.getElementById(id);
+      if (el) {
+        this._addListener(el, 'input', (e) => {
+          this.designSettings[prop] = e.target.value;
+          this.applyDesignSettings();
+        });
+      }
+    });
 
-    // Shadow
-    const shadowSelect = document.getElementById('dashShadow');
-    if (shadowSelect) {
-      shadowSelect.addEventListener('change', (e) => {
-        this.designSettings.shadow = e.target.value;
-        this.applyDesignSettings();
-      });
-    }
-
-    // Custom Colors
-    const primaryColor = document.getElementById('dashPrimaryColor');
-    const secondaryColor = document.getElementById('dashSecondaryColor');
-    const accentColor = document.getElementById('dashAccentColor');
-    const bgColor = document.getElementById('dashBgColor');
-
-    if (primaryColor) {
-      primaryColor.addEventListener('input', (e) => {
-        this.designSettings.primaryColor = e.target.value;
-        this.applyDesignSettings();
-      });
-    }
-    if (secondaryColor) {
-      secondaryColor.addEventListener('input', (e) => {
-        this.designSettings.secondaryColor = e.target.value;
-        this.applyDesignSettings();
-      });
-    }
-    if (accentColor) {
-      accentColor.addEventListener('input', (e) => {
-        this.designSettings.accentColor = e.target.value;
-        this.applyDesignSettings();
-      });
-    }
-    if (bgColor) {
-      bgColor.addEventListener('input', (e) => {
-        this.designSettings.bgColor = e.target.value;
-        this.applyDesignSettings();
-      });
-    }
-
-    // Reset Colors
     const resetColors = document.getElementById('dashResetColors');
     if (resetColors) {
-      resetColors.addEventListener('click', () => this.resetDesignColors());
+      this._addListener(resetColors, 'click', () => this.resetDesignColors());
     }
   }
 
@@ -2196,7 +2176,6 @@ ${embeddedCSS}
     const canvas = document.getElementById('dashboardCanvas');
     if (!canvas) return;
 
-    // Apply CSS custom properties
     canvas.style.setProperty(
       '--dash-font-family',
       `'${this.designSettings.fontFamily}', sans-serif`
@@ -2209,44 +2188,29 @@ ${embeddedCSS}
     canvas.style.setProperty('--dash-accent', this.designSettings.accentColor);
     canvas.style.setProperty('--dash-bg', this.designSettings.bgColor);
 
-    // Apply font
     canvas.style.fontFamily = `'${this.designSettings.fontFamily}', sans-serif`;
     canvas.style.fontSize = `${this.designSettings.fontSize * 100}%`;
-
-    // Apply background
     canvas.style.background = this.designSettings.bgColor;
 
-    // Shadow mapping
-    const shadowMap = {
-      none: 'none',
-      sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
-      md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-      lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-    };
-
-    // Apply to cards
     const cards = canvas.querySelectorAll(
       '.dashboard-card, .stat-card, .data-table, .chart-card, .component-wrapper'
     );
     cards.forEach((card) => {
       card.style.borderRadius = `${this.designSettings.borderRadius}px`;
-      card.style.boxShadow = shadowMap[this.designSettings.shadow];
+      card.style.boxShadow = DashboardGenerator.CONFIG.SHADOW_MAP[this.designSettings.shadow];
     });
 
-    // Apply spacing
     const grid = canvas.querySelector('.dashboard-grid');
     if (grid) {
       grid.style.gap = `${20 * this.designSettings.spacing}px`;
       grid.style.padding = `${24 * this.designSettings.spacing}px`;
     }
 
-    // Apply primary color to buttons and accents
     const buttons = canvas.querySelectorAll('.btn-primary, .primary-btn');
     buttons.forEach((btn) => {
       btn.style.background = this.designSettings.primaryColor;
     });
 
-    // Apply accent color to stats
     const statValues = canvas.querySelectorAll('.stat-value, .stat-change.positive');
     statValues.forEach((el) => {
       if (el.classList.contains('positive')) {
@@ -2254,7 +2218,6 @@ ${embeddedCSS}
       }
     });
 
-    // Inject theme CSS
     this.injectThemeCSS();
   }
 
@@ -2297,17 +2260,26 @@ ${embeddedCSS}
     this.designSettings.accentColor = '#10b981';
     this.designSettings.bgColor = '#f8fafc';
 
-    // Update inputs
-    document.getElementById('dashPrimaryColor').value = this.designSettings.primaryColor;
-    document.getElementById('dashSecondaryColor').value = this.designSettings.secondaryColor;
-    document.getElementById('dashAccentColor').value = this.designSettings.accentColor;
-    document.getElementById('dashBgColor').value = this.designSettings.bgColor;
+    const updates = {
+      dashPrimaryColor: this.designSettings.primaryColor,
+      dashSecondaryColor: this.designSettings.secondaryColor,
+      dashAccentColor: this.designSettings.accentColor,
+      dashBgColor: this.designSettings.bgColor,
+    };
+
+    Object.entries(updates).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = value;
+    });
 
     this.applyDesignSettings();
     this.showNotification('カラーをリセットしました');
   }
 
-  // Component Preview Tooltip
+  // ==========================================
+  // COMPONENT PREVIEW TOOLTIP
+  // ==========================================
+
   createPreviewTooltip() {
     if (document.getElementById('componentPreviewTooltip')) return;
 
@@ -2327,8 +2299,9 @@ ${embeddedCSS}
   showComponentPreview(e) {
     const item = e.currentTarget;
     const componentType = item.dataset.component;
-    const template = dashboardTemplates[componentType];
 
+    if (typeof dashboardTemplates === 'undefined') return;
+    const template = dashboardTemplates[componentType];
     if (!template || !this.previewTooltip) return;
 
     const header = this.previewTooltip.querySelector('.preview-tooltip-header');
@@ -2337,16 +2310,13 @@ ${embeddedCSS}
     header.textContent = template.name;
     content.innerHTML = template.html;
 
-    // Position tooltip to the right of the sidebar
     const rect = item.getBoundingClientRect();
-    const tooltipWidth = 280;
     const sidebarRight =
       document.querySelector('.db-sidebar')?.getBoundingClientRect().right || 300;
 
     this.previewTooltip.style.left = `${sidebarRight + 10}px`;
     this.previewTooltip.style.top = `${Math.max(60, rect.top - 20)}px`;
 
-    // Ensure tooltip doesn't go off screen
     const maxTop = window.innerHeight - 260;
     if (parseInt(this.previewTooltip.style.top) > maxTop) {
       this.previewTooltip.style.top = `${maxTop}px`;
@@ -2371,12 +2341,11 @@ ${embeddedCSS}
 
     canvas.innerHTML = '';
 
-    // Create main grid container using CSS Grid
     const gridContainer = document.createElement('div');
     gridContainer.className = 'component-grid-container';
     gridContainer.style.cssText = `
       display: grid;
-      grid-template-columns: repeat(12, 1fr);
+      grid-template-columns: repeat(${DashboardGenerator.CONFIG.GRID_COLUMNS}, 1fr);
       grid-template-rows: repeat(${this.gridRows}, minmax(120px, auto));
       gap: 16px;
       padding: 24px;
@@ -2384,14 +2353,12 @@ ${embeddedCSS}
       background: #f8fafc;
     `;
 
-    // Create drop zones for each area
     this.gridAreas.forEach((area) => {
       const dropZone = document.createElement('div');
       dropZone.className = 'area-drop-zone';
       dropZone.dataset.areaId = area.id;
       dropZone.dataset.color = area.color;
 
-      // Position using CSS Grid
       dropZone.style.cssText = `
         grid-column: ${area.startCol + 1} / ${area.endCol + 1};
         grid-row: ${area.startRow + 1} / ${area.endRow + 1};
@@ -2405,7 +2372,7 @@ ${embeddedCSS}
         position: relative;
       `;
 
-      // Area label
+      // エリアラベル
       const label = document.createElement('div');
       label.className = 'area-zone-label';
       label.textContent = area.name;
@@ -2423,7 +2390,7 @@ ${embeddedCSS}
       `;
       dropZone.appendChild(label);
 
-      // Content container for components
+      // コンテンツコンテナ
       const contentContainer = document.createElement('div');
       contentContainer.className = 'area-content';
       contentContainer.style.cssText = `
@@ -2435,10 +2402,8 @@ ${embeddedCSS}
         overflow: auto;
       `;
 
-      // Check if area has components
       const areaComponents = area.components || [];
       if (areaComponents.length === 0) {
-        // Empty state
         const emptyState = document.createElement('div');
         emptyState.className = 'area-empty-state';
         emptyState.innerHTML = `
@@ -2461,140 +2426,15 @@ ${embeddedCSS}
         `;
         contentContainer.appendChild(emptyState);
       } else {
-        // Render components in area
         areaComponents.forEach((comp, index) => {
-          const compWrapper = document.createElement('div');
-          compWrapper.className = 'area-component-wrapper';
-          compWrapper.dataset.componentId = comp.id;
-          compWrapper.dataset.areaId = area.id;
-          compWrapper.dataset.index = index;
-          compWrapper.draggable = true;
-
-          // Apply spacing styles
-          const spacing = comp.spacing || {};
-          compWrapper.style.marginTop = spacing.marginTop ? `${spacing.marginTop}px` : '';
-          compWrapper.style.marginBottom = spacing.marginBottom ? `${spacing.marginBottom}px` : '';
-          compWrapper.style.marginLeft = spacing.marginLeft ? `${spacing.marginLeft}px` : '';
-          compWrapper.style.marginRight = spacing.marginRight ? `${spacing.marginRight}px` : '';
-          compWrapper.style.paddingTop = spacing.paddingTop ? `${spacing.paddingTop}px` : '';
-          compWrapper.style.paddingBottom = spacing.paddingBottom
-            ? `${spacing.paddingBottom}px`
-            : '';
-          compWrapper.style.paddingLeft = spacing.paddingLeft ? `${spacing.paddingLeft}px` : '';
-          compWrapper.style.paddingRight = spacing.paddingRight ? `${spacing.paddingRight}px` : '';
-
-          // Apply responsive data attributes
-          const responsive = comp.responsive || {};
-          if (responsive.hideOnMobile) compWrapper.dataset.hideMobile = 'true';
-          if (responsive.hideOnTablet) compWrapper.dataset.hideTablet = 'true';
-          if (responsive.mobileFullWidth) compWrapper.dataset.mobileFull = 'true';
-
-          compWrapper.innerHTML = comp.template.html;
-
-          // Add controls container
-          const controls = document.createElement('div');
-          controls.className = 'area-component-controls';
-
-          // Drag handle
-          const dragHandle = document.createElement('button');
-          dragHandle.className = 'area-component-drag';
-          dragHandle.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg>`;
-          dragHandle.title = 'ドラッグして移動';
-          controls.appendChild(dragHandle);
-
-          // Settings button
-          const settingsBtn = document.createElement('button');
-          settingsBtn.className = 'area-component-settings';
-          settingsBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
-          settingsBtn.title = '設定';
-          settingsBtn.onclick = (e) => {
-            e.stopPropagation();
-            this.showComponentSettings(area.id, comp.id);
-          };
-          controls.appendChild(settingsBtn);
-
-          // Delete button
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'area-component-delete';
-          deleteBtn.innerHTML = '×';
-          deleteBtn.title = '削除';
-          deleteBtn.onclick = (e) => {
-            e.stopPropagation();
-            this.removeComponentFromArea(area.id, comp.id);
-          };
-          controls.appendChild(deleteBtn);
-
-          compWrapper.appendChild(controls);
-
-          // Drag events for reordering
-          compWrapper.addEventListener('dragstart', (e) => {
-            e.stopPropagation();
-            compWrapper.classList.add('dragging');
-            e.dataTransfer.setData(
-              'text/plain',
-              JSON.stringify({
-                type: 'reorder',
-                areaId: area.id,
-                componentId: comp.id,
-                fromIndex: index,
-              })
-            );
-            e.dataTransfer.effectAllowed = 'move';
-          });
-
-          compWrapper.addEventListener('dragend', () => {
-            compWrapper.classList.remove('dragging');
-            document.querySelectorAll('.area-component-wrapper').forEach((el) => {
-              el.classList.remove('drag-over-top', 'drag-over-bottom');
-            });
-          });
-
-          compWrapper.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const dragging = document.querySelector('.area-component-wrapper.dragging');
-            if (dragging && dragging !== compWrapper) {
-              const rect = compWrapper.getBoundingClientRect();
-              const midY = rect.top + rect.height / 2;
-              compWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
-              if (e.clientY < midY) {
-                compWrapper.classList.add('drag-over-top');
-              } else {
-                compWrapper.classList.add('drag-over-bottom');
-              }
-            }
-          });
-
-          compWrapper.addEventListener('dragleave', () => {
-            compWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
-          });
-
-          compWrapper.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-            if (data.type === 'reorder') {
-              const rect = compWrapper.getBoundingClientRect();
-              const midY = rect.top + rect.height / 2;
-              const insertBefore = e.clientY < midY;
-              this.reorderComponentInArea(
-                data.areaId,
-                data.componentId,
-                area.id,
-                comp.id,
-                insertBefore
-              );
-            }
-            compWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
-          });
-
+          const compWrapper = this._createAreaComponentWrapper(area, comp, index);
           contentContainer.appendChild(compWrapper);
         });
       }
 
       dropZone.appendChild(contentContainer);
 
-      // Drag events for drop zone
+      // ドロップゾーンのドラッグイベント
       dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -2616,7 +2456,7 @@ ${embeddedCSS}
       gridContainer.appendChild(dropZone);
     });
 
-    // Apply layout wrapper if needed
+    // レイアウトラッパー
     if (this.currentLayout === 'sidebar-left' || this.currentLayout === 'sidebar-top') {
       const layoutContainer = document.createElement('div');
       layoutContainer.className = `db-layout-${this.currentLayout} component-layout sidebar-collapsed`;
@@ -2658,7 +2498,6 @@ ${embeddedCSS}
         `;
       }
 
-      // Add toggle handler
       layoutContainer.querySelector('.sidebar-toggle-btn')?.addEventListener('click', () => {
         layoutContainer.classList.toggle('sidebar-collapsed');
       });
@@ -2679,35 +2518,173 @@ ${embeddedCSS}
     }
   }
 
+  /**
+   * エリア内コンポーネントラッパーを生成する
+   */
+  _createAreaComponentWrapper(area, comp, index) {
+    const compWrapper = document.createElement('div');
+    compWrapper.className = 'area-component-wrapper';
+    compWrapper.dataset.componentId = comp.id;
+    compWrapper.dataset.areaId = area.id;
+    compWrapper.dataset.index = index;
+    compWrapper.draggable = true;
+
+    // スペーシング適用
+    const spacing = comp.spacing || {};
+    const spacingProps = [
+      'marginTop',
+      'marginBottom',
+      'marginLeft',
+      'marginRight',
+      'paddingTop',
+      'paddingBottom',
+      'paddingLeft',
+      'paddingRight',
+    ];
+    spacingProps.forEach((prop) => {
+      if (spacing[prop]) {
+        compWrapper.style[prop] = `${spacing[prop]}px`;
+      }
+    });
+
+    // レスポンシブデータ属性
+    const responsive = comp.responsive || {};
+    if (responsive.hideOnMobile) compWrapper.dataset.hideMobile = 'true';
+    if (responsive.hideOnTablet) compWrapper.dataset.hideTablet = 'true';
+    if (responsive.mobileFullWidth) compWrapper.dataset.mobileFull = 'true';
+
+    compWrapper.innerHTML = comp.template.html;
+
+    // コントロール
+    const controls = document.createElement('div');
+    controls.className = 'area-component-controls';
+
+    const dragHandle = document.createElement('button');
+    dragHandle.className = 'area-component-drag';
+    dragHandle.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg>`;
+    dragHandle.title = 'ドラッグして移動';
+    controls.appendChild(dragHandle);
+
+    const settingsBtn = document.createElement('button');
+    settingsBtn.className = 'area-component-settings';
+    settingsBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+    settingsBtn.title = '設定';
+    settingsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.showComponentSettings(area.id, comp.id);
+    });
+    controls.appendChild(settingsBtn);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'area-component-delete';
+    deleteBtn.innerHTML = '&times;';
+    deleteBtn.title = '削除';
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.removeComponentFromArea(area.id, comp.id);
+    });
+    controls.appendChild(deleteBtn);
+
+    compWrapper.appendChild(controls);
+
+    // ドラッグイベント（並べ替え用）
+    compWrapper.addEventListener('dragstart', (e) => {
+      e.stopPropagation();
+      compWrapper.classList.add('dragging');
+      e.dataTransfer.setData(
+        'text/plain',
+        JSON.stringify({
+          type: 'reorder',
+          areaId: area.id,
+          componentId: comp.id,
+          fromIndex: index,
+        })
+      );
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    compWrapper.addEventListener('dragend', () => {
+      compWrapper.classList.remove('dragging');
+      document.querySelectorAll('.area-component-wrapper').forEach((el) => {
+        el.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+    });
+
+    compWrapper.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const dragging = document.querySelector('.area-component-wrapper.dragging');
+      if (dragging && dragging !== compWrapper) {
+        const rect = compWrapper.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        compWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+        if (e.clientY < midY) {
+          compWrapper.classList.add('drag-over-top');
+        } else {
+          compWrapper.classList.add('drag-over-bottom');
+        }
+      }
+    });
+
+    compWrapper.addEventListener('dragleave', () => {
+      compWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+
+    compWrapper.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        if (data.type === 'reorder') {
+          const rect = compWrapper.getBoundingClientRect();
+          const midY = rect.top + rect.height / 2;
+          const insertBefore = e.clientY < midY;
+          this.reorderComponentInArea(
+            data.areaId,
+            data.componentId,
+            area.id,
+            comp.id,
+            insertBefore
+          );
+        }
+      } catch (err) {
+        console.warn('ドロップデータの解析に失敗:', err.message);
+      }
+      compWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+
+    return compWrapper;
+  }
+
   getAreaBackgroundColor(colorName) {
-    const colors = {
-      blue: 'rgba(59, 130, 246, 0.08)',
-      green: 'rgba(34, 197, 94, 0.08)',
-      purple: 'rgba(168, 85, 247, 0.08)',
-      orange: 'rgba(249, 115, 22, 0.08)',
-      pink: 'rgba(236, 72, 153, 0.08)',
-      cyan: 'rgba(6, 182, 212, 0.08)',
-    };
-    return colors[colorName] || colors.blue;
+    return (
+      DashboardGenerator.CONFIG.AREA_BG_COLORS[colorName] ||
+      DashboardGenerator.CONFIG.AREA_BG_COLORS.blue
+    );
+  }
+
+  getAreaBorderColor(colorName) {
+    return (
+      DashboardGenerator.CONFIG.AREA_BORDER_COLORS[colorName] ||
+      DashboardGenerator.CONFIG.AREA_BORDER_COLORS.blue
+    );
   }
 
   handleAreaDrop(areaId) {
     if (!this.draggedComponent) return;
 
-    const template = dashboardTemplates[this.draggedComponent];
+    const template = this._getTemplate(this.draggedComponent);
     if (!template) return;
 
     const area = this.gridAreas.find((a) => a.id === areaId);
     if (!area) return;
 
-    // Initialize components array if not exists
     if (!area.components) area.components = [];
 
-    // Add component to area
     const component = {
-      id: this.generateId(),
+      id: CommonEditor.generateId('area-comp'),
       type: this.draggedComponent,
-      template: template,
+      template: JSON.parse(JSON.stringify(template)),
       timestamp: Date.now(),
     };
 
@@ -2732,21 +2709,17 @@ ${embeddedCSS}
     const toArea = this.gridAreas.find((a) => a.id === toAreaId);
     if (!fromArea || !toArea) return;
 
-    // Find and remove component from source
     const compIndex = fromArea.components.findIndex((c) => c.id === componentId);
     if (compIndex === -1) return;
     const [component] = fromArea.components.splice(compIndex, 1);
 
-    // Find target index in destination
     let targetIndex = toArea.components.findIndex((c) => c.id === targetComponentId);
     if (!insertBefore) targetIndex++;
 
-    // If moving within same area, adjust index if needed
     if (fromAreaId === toAreaId && compIndex < targetIndex) {
       targetIndex--;
     }
 
-    // Insert at new position
     toArea.components.splice(targetIndex, 0, component);
 
     this.saveState();
@@ -2754,30 +2727,28 @@ ${embeddedCSS}
     this.showNotification('コンポーネントを移動しました', 'success');
   }
 
+  // ==========================================
+  // COMPONENT SETTINGS MODAL
+  // ==========================================
+
   showComponentSettings(areaId, componentId) {
     const area = this.gridAreas.find((a) => a.id === areaId);
     if (!area) return;
     const component = area.components.find((c) => c.id === componentId);
     if (!component) return;
 
-    // Initialize spacing if not exists
+    // デフォルト値初期化
     if (!component.spacing) {
       component.spacing = {
-        marginTop: 0,
-        marginBottom: 0,
-        marginLeft: 0,
-        marginRight: 0,
-        paddingTop: 0,
-        paddingBottom: 0,
-        paddingLeft: 0,
-        paddingRight: 0,
+        marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0,
+        paddingTop: 0, paddingBottom: 0, paddingLeft: 0, paddingRight: 0,
       };
     }
-    // Ensure all properties exist for older components
-    component.spacing.marginLeft = component.spacing.marginLeft || 0;
-    component.spacing.marginRight = component.spacing.marginRight || 0;
-    component.spacing.paddingLeft = component.spacing.paddingLeft || 0;
-    component.spacing.paddingRight = component.spacing.paddingRight || 0;
+    const sp = component.spacing;
+    sp.marginLeft = sp.marginLeft || 0;
+    sp.marginRight = sp.marginRight || 0;
+    sp.paddingLeft = sp.paddingLeft || 0;
+    sp.paddingRight = sp.paddingRight || 0;
 
     if (!component.responsive) {
       component.responsive = { hideOnMobile: false, hideOnTablet: false, mobileFullWidth: true };
@@ -2785,87 +2756,43 @@ ${embeddedCSS}
 
     const modal = document.createElement('div');
     modal.className = 'component-settings-modal';
+
+    const spacingGroupHTML = (label, prop, max, value) => `
+      <div class="spacing-group">
+        <label>${CommonEditor.sanitizeHTML(label)}</label>
+        <div class="spacing-input-row">
+          <input type="range" min="0" max="${max}" step="4" value="${value}"
+            data-prop="${prop}" class="spacing-slider">
+          <span class="spacing-value">${value}px</span>
+        </div>
+      </div>
+    `;
+
     modal.innerHTML = `
       <div class="settings-modal-overlay"></div>
       <div class="settings-modal-content">
         <div class="settings-modal-header">
           <h3>コンポーネント設定</h3>
-          <button class="settings-modal-close">×</button>
+          <button class="settings-modal-close">&times;</button>
         </div>
         <div class="settings-modal-body">
           <div class="settings-section">
             <h4>マージン（外側余白）</h4>
             <div class="spacing-controls spacing-grid">
-              <div class="spacing-group">
-                <label>上</label>
-                <div class="spacing-input-row">
-                  <input type="range" min="0" max="48" step="4" value="${component.spacing.marginTop}"
-                    data-prop="marginTop" class="spacing-slider">
-                  <span class="spacing-value">${component.spacing.marginTop}px</span>
-                </div>
-              </div>
-              <div class="spacing-group">
-                <label>下</label>
-                <div class="spacing-input-row">
-                  <input type="range" min="0" max="48" step="4" value="${component.spacing.marginBottom}"
-                    data-prop="marginBottom" class="spacing-slider">
-                  <span class="spacing-value">${component.spacing.marginBottom}px</span>
-                </div>
-              </div>
-              <div class="spacing-group">
-                <label>左</label>
-                <div class="spacing-input-row">
-                  <input type="range" min="0" max="48" step="4" value="${component.spacing.marginLeft}"
-                    data-prop="marginLeft" class="spacing-slider">
-                  <span class="spacing-value">${component.spacing.marginLeft}px</span>
-                </div>
-              </div>
-              <div class="spacing-group">
-                <label>右</label>
-                <div class="spacing-input-row">
-                  <input type="range" min="0" max="48" step="4" value="${component.spacing.marginRight}"
-                    data-prop="marginRight" class="spacing-slider">
-                  <span class="spacing-value">${component.spacing.marginRight}px</span>
-                </div>
-              </div>
+              ${spacingGroupHTML('上', 'marginTop', 48, sp.marginTop)}
+              ${spacingGroupHTML('下', 'marginBottom', 48, sp.marginBottom)}
+              ${spacingGroupHTML('左', 'marginLeft', 48, sp.marginLeft)}
+              ${spacingGroupHTML('右', 'marginRight', 48, sp.marginRight)}
             </div>
           </div>
 
           <div class="settings-section">
             <h4>パディング（内側余白）</h4>
             <div class="spacing-controls spacing-grid">
-              <div class="spacing-group">
-                <label>上</label>
-                <div class="spacing-input-row">
-                  <input type="range" min="0" max="32" step="4" value="${component.spacing.paddingTop}"
-                    data-prop="paddingTop" class="spacing-slider">
-                  <span class="spacing-value">${component.spacing.paddingTop}px</span>
-                </div>
-              </div>
-              <div class="spacing-group">
-                <label>下</label>
-                <div class="spacing-input-row">
-                  <input type="range" min="0" max="32" step="4" value="${component.spacing.paddingBottom}"
-                    data-prop="paddingBottom" class="spacing-slider">
-                  <span class="spacing-value">${component.spacing.paddingBottom}px</span>
-                </div>
-              </div>
-              <div class="spacing-group">
-                <label>左</label>
-                <div class="spacing-input-row">
-                  <input type="range" min="0" max="32" step="4" value="${component.spacing.paddingLeft}"
-                    data-prop="paddingLeft" class="spacing-slider">
-                  <span class="spacing-value">${component.spacing.paddingLeft}px</span>
-                </div>
-              </div>
-              <div class="spacing-group">
-                <label>右</label>
-                <div class="spacing-input-row">
-                  <input type="range" min="0" max="32" step="4" value="${component.spacing.paddingRight}"
-                    data-prop="paddingRight" class="spacing-slider">
-                  <span class="spacing-value">${component.spacing.paddingRight}px</span>
-                </div>
-              </div>
+              ${spacingGroupHTML('上', 'paddingTop', 32, sp.paddingTop)}
+              ${spacingGroupHTML('下', 'paddingBottom', 32, sp.paddingBottom)}
+              ${spacingGroupHTML('左', 'paddingLeft', 32, sp.paddingLeft)}
+              ${spacingGroupHTML('右', 'paddingRight', 32, sp.paddingRight)}
             </div>
           </div>
 
@@ -2896,7 +2823,6 @@ ${embeddedCSS}
 
     document.body.appendChild(modal);
 
-    // Event listeners
     const closeModal = () => {
       modal.remove();
     };
@@ -2905,26 +2831,21 @@ ${embeddedCSS}
     modal.querySelector('.settings-modal-close').addEventListener('click', closeModal);
     modal.querySelector('.settings-btn-cancel').addEventListener('click', closeModal);
 
-    // Spacing sliders
+    // スライダー値表示の更新
     modal.querySelectorAll('.spacing-slider').forEach((slider) => {
       slider.addEventListener('input', (e) => {
-        const value = e.target.value;
-        e.target.nextElementSibling.textContent = `${value}px`;
+        e.target.nextElementSibling.textContent = `${e.target.value}px`;
       });
     });
 
-    // Apply button
+    // 適用
     modal.querySelector('.settings-btn-apply').addEventListener('click', () => {
-      // Save spacing
       modal.querySelectorAll('.spacing-slider').forEach((slider) => {
-        const prop = slider.dataset.prop;
-        component.spacing[prop] = parseInt(slider.value);
+        component.spacing[slider.dataset.prop] = parseInt(slider.value);
       });
 
-      // Save responsive
       modal.querySelectorAll('[data-resp]').forEach((checkbox) => {
-        const prop = checkbox.dataset.resp;
-        component.responsive[prop] = checkbox.checked;
+        component.responsive[checkbox.dataset.resp] = checkbox.checked;
       });
 
       this.saveState();
@@ -2934,10 +2855,9 @@ ${embeddedCSS}
     });
   }
 
-  // Utilities
-  generateId() {
-    return `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
+  // ==========================================
+  // UTILITIES
+  // ==========================================
 
   downloadFile(content, filename, mimeType) {
     const blob = new Blob([content], { type: mimeType });
@@ -2955,36 +2875,39 @@ ${embeddedCSS}
     const existing = document.querySelector('.db-notification');
     if (existing) existing.remove();
 
+    const safeMessage = CommonEditor.sanitizeHTML(message);
+
     const notification = document.createElement('div');
     notification.className = `db-notification db-notification-${type}`;
     notification.textContent = message;
     notification.style.cssText = `
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            padding: 12px 20px;
-            max-width: 320px;
-            max-height: 60px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-            color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            z-index: 10000;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            animation: slideInRight 0.3s ease-out;
-        `;
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      padding: 12px 20px;
+      max-width: 320px;
+      max-height: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      animation: slideInRight 0.3s ease-out;
+    `;
 
     document.body.appendChild(notification);
 
+    const duration = DashboardGenerator.CONFIG.NOTIFICATION_DURATION;
     setTimeout(() => {
       notification.style.animation = 'slideOutRight 0.3s ease-out';
       setTimeout(() => notification.remove(), 300);
-    }, 3000);
+    }, duration);
   }
 
   // ==========================================
@@ -3000,7 +2923,6 @@ ${embeddedCSS}
 
     this.designMode = mode;
 
-    // Toggle body class for CSS visibility
     if (mode === 'component') {
       document.body.classList.add('component-mode');
     } else {
@@ -3016,15 +2938,14 @@ ${embeddedCSS}
 
     canvas.innerHTML = '';
 
-    // Create grid content container
     const gridContent = document.createElement('div');
     gridContent.className = 'grid-design-container';
     gridContent.style.position = 'relative';
 
-    // Column headers
+    // カラムヘッダー
     const headers = document.createElement('div');
     headers.className = 'grid-column-headers';
-    for (let i = 1; i <= 12; i++) {
+    for (let i = 1; i <= DashboardGenerator.CONFIG.GRID_COLUMNS; i++) {
       const header = document.createElement('div');
       header.className = 'column-header';
       header.textContent = i;
@@ -3032,20 +2953,19 @@ ${embeddedCSS}
     }
     gridContent.appendChild(headers);
 
-    // Grid overlay
+    // グリッドオーバーレイ
     const overlay = document.createElement('div');
     overlay.className = 'grid-overlay';
     overlay.id = 'gridOverlay';
 
     for (let row = 0; row < this.gridRows; row++) {
-      for (let col = 0; col < 12; col++) {
+      for (let col = 0; col < DashboardGenerator.CONFIG.GRID_COLUMNS; col++) {
         const cell = document.createElement('div');
         cell.className = 'grid-cell';
         cell.dataset.row = row;
         cell.dataset.col = col;
         cell.textContent = `${col + 1}`;
 
-        // Check if cell is occupied by an area
         const occupiedArea = this.gridAreas.find(
           (area) =>
             col >= area.startCol && col < area.endCol && row >= area.startRow && row < area.endRow
@@ -3054,7 +2974,6 @@ ${embeddedCSS}
           cell.classList.add('occupied');
         }
 
-        // Mouse events for selection
         cell.addEventListener('mousedown', (e) => this.handleGridCellMouseDown(e, col, row));
         cell.addEventListener('mouseenter', (e) => this.handleGridCellMouseEnter(e, col, row));
         cell.addEventListener('mouseup', () => this.handleGridCellMouseUp());
@@ -3065,10 +2984,9 @@ ${embeddedCSS}
 
     gridContent.appendChild(overlay);
 
-    // Render defined areas (will be positioned after layout is applied)
     this.pendingAreas = [...this.gridAreas];
 
-    // Apply layout wrapper based on currentLayout
+    // レイアウトラッパー
     if (this.currentLayout === 'sidebar-left') {
       const layoutContainer = document.createElement('div');
       layoutContainer.className = 'db-layout-sidebar-left grid-design-layout';
@@ -3076,7 +2994,7 @@ ${embeddedCSS}
         <aside class="db-sidebar grid-design-sidebar">
           <div class="db-sidebar-header">
             <h2>Sidebar</h2>
-            <button class="sidebar-collapse-btn" id="collapseSidebarPreview" title="Toggle Sidebar">
+            <button class="sidebar-collapse-btn" title="Toggle Sidebar">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="15 18 9 12 15 6"/>
               </svg>
@@ -3091,8 +3009,7 @@ ${embeddedCSS}
       layoutContainer.querySelector('.db-main').appendChild(gridContent);
       canvas.appendChild(layoutContainer);
 
-      // Add collapse toggle
-      layoutContainer.querySelector('#collapseSidebarPreview')?.addEventListener('click', () => {
+      layoutContainer.querySelector('.sidebar-collapse-btn')?.addEventListener('click', () => {
         layoutContainer.classList.toggle('sidebar-collapsed');
       });
     } else if (this.currentLayout === 'topbar') {
@@ -3115,7 +3032,7 @@ ${embeddedCSS}
         <aside class="db-sidebar grid-design-sidebar">
           <div class="db-sidebar-header">
             <h2>Sidebar</h2>
-            <button class="sidebar-collapse-btn" id="collapseSidebarPreview" title="Toggle Sidebar">
+            <button class="sidebar-collapse-btn" title="Toggle Sidebar">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="15 18 9 12 15 6"/>
               </svg>
@@ -3137,15 +3054,14 @@ ${embeddedCSS}
       layoutContainer.querySelector('.db-main').appendChild(gridContent);
       canvas.appendChild(layoutContainer);
 
-      // Add collapse toggle
-      layoutContainer.querySelector('#collapseSidebarPreview')?.addEventListener('click', () => {
+      layoutContainer.querySelector('.sidebar-collapse-btn')?.addEventListener('click', () => {
         layoutContainer.classList.toggle('sidebar-collapsed');
       });
     } else {
       canvas.appendChild(gridContent);
     }
 
-    // Render defined areas after a short delay to ensure DOM is ready
+    // エリア要素を描画
     requestAnimationFrame(() => {
       const overlayEl = document.getElementById('gridOverlay');
       if (overlayEl && this.pendingAreas) {
@@ -3156,12 +3072,15 @@ ${embeddedCSS}
       }
     });
 
-    // Global mouseup handler
+    // グローバルmouseupハンドラー
     document.addEventListener('mouseup', () => this.handleGridCellMouseUp(), { once: true });
   }
 
+  // ==========================================
+  // GRID CELL SELECTION
+  // ==========================================
+
   handleGridCellMouseDown(e, col, row) {
-    // Check if cell is occupied
     const occupiedArea = this.gridAreas.find(
       (area) =>
         col >= area.startCol && col < area.endCol && row >= area.startRow && row < area.endRow
@@ -3175,7 +3094,7 @@ ${embeddedCSS}
     this.updateSelectionPreview();
   }
 
-  handleGridCellMouseEnter(e, col, row) {
+  handleGridCellMouseEnter(_e, col, row) {
     if (!this.isSelectingArea) return;
     this.selectionEnd = { col, row };
     this.updateSelectionPreview();
@@ -3218,18 +3137,20 @@ ${embeddedCSS}
   }
 
   defineArea(start, end) {
+    const { AREA_COLORS } = DashboardGenerator.CONFIG;
+
     const area = {
-      id: Date.now(),
+      id: CommonEditor.generateId('area'),
       name: `Area ${this.gridAreas.length + 1}`,
       startCol: Math.min(start.col, end.col),
       endCol: Math.max(start.col, end.col) + 1,
       startRow: Math.min(start.row, end.row),
       endRow: Math.max(start.row, end.row) + 1,
-      color: this.areaColors[this.gridAreas.length % this.areaColors.length],
+      color: AREA_COLORS[this.gridAreas.length % AREA_COLORS.length],
       components: [],
     };
 
-    // Check for overlap with existing areas
+    // 重複チェック
     const hasOverlap = this.gridAreas.some(
       (existing) =>
         !(
@@ -3247,16 +3168,15 @@ ${embeddedCSS}
     }
 
     this.gridAreas.push(area);
-    this.saveState(); // Save state for undo/redo
+    this.saveState();
     this.renderGridOverlay();
     this.showNotification(`${area.name} を作成しました`, 'success');
   }
 
-  createAreaElement(area, index) {
+  createAreaElement(area, _index) {
     const overlay = document.getElementById('gridOverlay');
     if (!overlay) return document.createElement('div');
 
-    const cells = overlay.querySelectorAll('.grid-cell');
     const firstCell = overlay.querySelector(
       `[data-row="${area.startRow}"][data-col="${area.startCol}"]`
     );
@@ -3275,50 +3195,34 @@ ${embeddedCSS}
     areaEl.dataset.areaId = area.id;
     areaEl.dataset.color = area.color;
 
-    // Position relative to overlay
     areaEl.style.left = `${firstRect.left - overlayRect.left}px`;
     areaEl.style.top = `${firstRect.top - overlayRect.top}px`;
     areaEl.style.width = `${lastRect.right - firstRect.left}px`;
     areaEl.style.height = `${lastRect.bottom - firstRect.top}px`;
 
-    // Label
     const label = document.createElement('span');
     label.className = 'grid-area-label';
     label.textContent = area.name;
     label.style.borderLeftColor = this.getAreaBorderColor(area.color);
     areaEl.appendChild(label);
 
-    // Delete button
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'grid-area-delete';
-    deleteBtn.innerHTML = '×';
+    deleteBtn.innerHTML = '&times;';
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       this.deleteArea(area.id);
     });
     areaEl.appendChild(deleteBtn);
 
-    // Click to rename
     areaEl.addEventListener('dblclick', () => this.renameArea(area.id));
 
     return areaEl;
   }
 
-  getAreaBorderColor(colorName) {
-    const colors = {
-      blue: '#3b82f6',
-      green: '#22c55e',
-      purple: '#a855f7',
-      orange: '#f97316',
-      pink: '#ec4899',
-      cyan: '#06b6d4',
-    };
-    return colors[colorName] || colors.blue;
-  }
-
   deleteArea(areaId) {
     this.gridAreas = this.gridAreas.filter((a) => a.id !== areaId);
-    this.saveState(); // Save state for undo/redo
+    this.saveState();
     this.renderGridOverlay();
     this.showNotification('エリアを削除しました', 'info');
   }
@@ -3330,31 +3234,32 @@ ${embeddedCSS}
     const newName = prompt('エリア名を入力:', area.name);
     if (newName && newName.trim()) {
       area.name = newName.trim();
-      this.saveState(); // Save state for undo/redo
+      this.saveState();
       this.renderGridOverlay();
     }
   }
 
   addGridRow() {
-    if (this.gridRows < 10) {
+    if (this.gridRows < DashboardGenerator.CONFIG.MAX_GRID_ROWS) {
       this.gridRows++;
-      document.getElementById('gridRowCount').textContent = this.gridRows;
-      this.saveState(); // Save state for undo/redo
+      const rowCountEl = document.getElementById('gridRowCount');
+      if (rowCountEl) rowCountEl.textContent = this.gridRows;
+      this.saveState();
       this.renderGridOverlay();
     }
   }
 
   removeGridRow() {
-    if (this.gridRows > 1) {
-      // Check if any areas use the last row
+    if (this.gridRows > DashboardGenerator.CONFIG.MIN_GRID_ROWS) {
       const hasAreasInLastRow = this.gridAreas.some((area) => area.endRow > this.gridRows - 1);
       if (hasAreasInLastRow) {
         this.showNotification('最後の行にエリアがあるため削除できません', 'error');
         return;
       }
       this.gridRows--;
-      document.getElementById('gridRowCount').textContent = this.gridRows;
-      this.saveState(); // Save state for undo/redo
+      const rowCountEl = document.getElementById('gridRowCount');
+      if (rowCountEl) rowCountEl.textContent = this.gridRows;
+      this.saveState();
       this.renderGridOverlay();
     }
   }
@@ -3363,7 +3268,7 @@ ${embeddedCSS}
     if (this.gridAreas.length === 0) return;
     if (confirm('すべてのエリアを削除しますか？')) {
       this.gridAreas = [];
-      this.saveState(); // Save state for undo/redo
+      this.saveState();
       this.renderGridOverlay();
       this.showNotification('すべてのエリアを削除しました', 'info');
     }
@@ -3371,79 +3276,45 @@ ${embeddedCSS}
 
   applyGridTemplate(e) {
     const btn = e.currentTarget;
-    const template = btn.dataset.template;
+    const templateName = btn.dataset.template;
+    const { GRID_TEMPLATES, AREA_COLORS } = DashboardGenerator.CONFIG;
 
-    // Clear existing areas
-    this.gridAreas = [];
-
-    // Grid templates definition
-    const templates = {
-      'full-width': [{ name: 'Content', startCol: 0, endCol: 12, startRow: 0, endRow: 1 }],
-      'two-column': [
-        { name: 'Left', startCol: 0, endCol: 6, startRow: 0, endRow: 1 },
-        { name: 'Right', startCol: 6, endCol: 12, startRow: 0, endRow: 1 },
-      ],
-      'three-column': [
-        { name: 'Col 1', startCol: 0, endCol: 4, startRow: 0, endRow: 1 },
-        { name: 'Col 2', startCol: 4, endCol: 8, startRow: 0, endRow: 1 },
-        { name: 'Col 3', startCol: 8, endCol: 12, startRow: 0, endRow: 1 },
-      ],
-      'sidebar-main': [
-        { name: 'Sidebar', startCol: 0, endCol: 3, startRow: 0, endRow: 2 },
-        { name: 'Main', startCol: 3, endCol: 12, startRow: 0, endRow: 2 },
-      ],
-      'dashboard-classic': [
-        { name: 'Stats', startCol: 0, endCol: 12, startRow: 0, endRow: 1 },
-        { name: 'Card 1', startCol: 0, endCol: 4, startRow: 1, endRow: 2 },
-        { name: 'Card 2', startCol: 4, endCol: 8, startRow: 1, endRow: 2 },
-        { name: 'Card 3', startCol: 8, endCol: 12, startRow: 1, endRow: 2 },
-        { name: 'Chart 1', startCol: 0, endCol: 6, startRow: 2, endRow: 3 },
-        { name: 'Chart 2', startCol: 6, endCol: 12, startRow: 2, endRow: 3 },
-      ],
-      'holy-grail': [
-        { name: 'Header', startCol: 0, endCol: 12, startRow: 0, endRow: 1 },
-        { name: 'Left Nav', startCol: 0, endCol: 3, startRow: 1, endRow: 2 },
-        { name: 'Content', startCol: 3, endCol: 9, startRow: 1, endRow: 2 },
-        { name: 'Right Sidebar', startCol: 9, endCol: 12, startRow: 1, endRow: 2 },
-        { name: 'Footer', startCol: 0, endCol: 12, startRow: 2, endRow: 3 },
-      ],
-    };
-
-    const templateAreas = templates[template];
+    const templateAreas = GRID_TEMPLATES[templateName];
     if (!templateAreas) return;
 
-    // Calculate required rows
+    this.gridAreas = [];
+
     const maxRow = Math.max(...templateAreas.map((a) => a.endRow));
     this.gridRows = maxRow;
-    document.getElementById('gridRowCount').textContent = this.gridRows;
+    const rowCountEl = document.getElementById('gridRowCount');
+    if (rowCountEl) rowCountEl.textContent = this.gridRows;
 
-    // Create areas
     templateAreas.forEach((areaData, index) => {
       this.gridAreas.push({
-        id: Date.now() + index,
+        id: CommonEditor.generateId('area'),
         name: areaData.name,
         startCol: areaData.startCol,
         endCol: areaData.endCol,
         startRow: areaData.startRow,
         endRow: areaData.endRow,
-        color: this.areaColors[index % this.areaColors.length],
+        color: AREA_COLORS[index % AREA_COLORS.length],
         components: [],
       });
     });
 
-    // Update active state
     document.querySelectorAll('.grid-template-btn').forEach((b) => b.classList.remove('active'));
     btn.classList.add('active');
 
-    this.saveState(); // Save state for undo/redo
+    this.saveState();
     this.renderGridOverlay();
-    this.showNotification(`${template} テンプレートを適用しました`, 'success');
+    this.showNotification(`${templateName} テンプレートを適用しました`, 'success');
   }
 }
 
-// Add notification animations
-const style = document.createElement('style');
-style.textContent = `
+// 通知アニメーション
+const dbNotificationStyle = document.createElement('style');
+dbNotificationStyle.id = 'db-notification-animations';
+dbNotificationStyle.textContent = `
     @keyframes slideInRight {
         from {
             transform: translateX(400px);
@@ -3502,10 +3373,11 @@ style.textContent = `
         background: #fee;
     }
 `;
-document.head.appendChild(style);
+if (!document.getElementById('db-notification-animations')) {
+  document.head.appendChild(dbNotificationStyle);
+}
 
-// Initialize dashboard generator
+// 初期化
 document.addEventListener('DOMContentLoaded', () => {
   window.dashboardGenerator = new DashboardGenerator();
-  console.log('Dashboard Generator ready');
 });

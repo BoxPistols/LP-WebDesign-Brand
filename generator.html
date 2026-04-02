@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Universal Landing Page Generator</title>
+    <!-- SEOメタタグ -->
+    <meta name="description" content="ドラッグ＆ドロップで高品質なランディングページを作成。10種類のテーマ、153テンプレート、HTML/Tailwind/React/Vue形式でエクスポート。" />
+    <meta name="keywords" content="ランディングページ,ジェネレーター,LP作成,ウェブデザイン,テンプレート" />
+    <meta property="og:title" content="Universal Landing Page Generator" />
+    <meta property="og:description" content="プロ品質のランディングページを簡単作成" />
+    <meta property="og:type" content="website" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,13 +18,17 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/design-system.css" />
+    <link rel="stylesheet" href="css/grid-system.css" />
     <link rel="stylesheet" href="css/generator.css" />
     <link rel="stylesheet" href="css/landing-page.css" />
     <link rel="stylesheet" href="css/advanced-components.css" />
+    <link rel="stylesheet" href="css/ai-panel.css" />
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
+    <!-- スキップリンク: キーボードナビゲーション用 -->
+    <a href="#previewFrame" class="skip-link">メインコンテンツへスキップ</a>
     <div class="generator-container">
       <!-- Sidebar Toggle Button -->
       <button class="sidebar-toggle" id="sidebarToggle" title="サイドバーを開閉">
@@ -1546,10 +1556,11 @@
           </div>
         </section>
 
-        <!-- Layout Options -->
+        <!-- レイアウト設定 -->
         <section class="control-section">
           <h3 class="section-title">レイアウト設定</h3>
-          <div class="layout-options">
+          <fieldset class="layout-options">
+            <legend class="sr-only">レイアウトオプション</legend>
             <label class="option-item">
               <input type="checkbox" id="fullWidthToggle" checked />
               <span>フルワイドレイアウト</span>
@@ -1562,16 +1573,16 @@
               <input type="checkbox" id="glassmorphismToggle" />
               <span>ガラスモーフィズム</span>
             </label>
-          </div>
+          </fieldset>
         </section>
 
         <!-- Design Customization -->
         <section class="control-section">
           <h3 class="section-title">デザインカスタマイズ</h3>
 
-          <!-- Typography -->
+          <!-- フォント選択 -->
           <div class="customize-group">
-            <label class="customize-label">フォント</label>
+            <label class="customize-label" for="fontFamilySelect">フォント</label>
             <select id="fontFamilySelect" class="customize-select">
               <optgroup label="欧文フォント">
                 <option value="Inter">Inter (デフォルト)</option>
@@ -1599,7 +1610,7 @@
           </div>
 
           <div class="customize-group">
-            <label class="customize-label">フォントサイズ</label>
+            <label class="customize-label" for="fontSizeScale">フォントサイズ</label>
             <select id="fontSizeScale" class="customize-select">
               <option value="0.9">小 (90%)</option>
               <option value="1.0" selected>標準 (100%)</option>
@@ -1608,9 +1619,9 @@
             </select>
           </div>
 
-          <!-- Spacing -->
+          <!-- 余白スケール -->
           <div class="customize-group">
-            <label class="customize-label">余白スケール</label>
+            <label class="customize-label" for="spacingScale">余白スケール</label>
             <select id="spacingScale" class="customize-select">
               <option value="0.75">コンパクト (75%)</option>
               <option value="1.0" selected>標準 (100%)</option>
@@ -1619,9 +1630,9 @@
             </select>
           </div>
 
-          <!-- Border Radius -->
+          <!-- 角丸 -->
           <div class="customize-group">
-            <label class="customize-label">角丸</label>
+            <label class="customize-label" for="borderRadiusStyle">角丸</label>
             <select id="borderRadiusStyle" class="customize-select">
               <option value="0">なし (0px)</option>
               <option value="4">小 (4px)</option>
@@ -1637,15 +1648,15 @@
             <label class="customize-label">カスタムカラー</label>
             <div class="color-inputs">
               <div class="color-input-row">
-                <label>プライマリ</label>
+                <label for="primaryColor">プライマリ</label>
                 <input type="color" id="primaryColor" value="#667eea" />
               </div>
               <div class="color-input-row">
-                <label>セカンダリ</label>
+                <label for="secondaryColor">セカンダリ</label>
                 <input type="color" id="secondaryColor" value="#764ba2" />
               </div>
               <div class="color-input-row">
-                <label>アクセント</label>
+                <label for="accentColor">アクセント</label>
                 <input type="color" id="accentColor" value="#f093fb" />
               </div>
             </div>
@@ -1658,7 +1669,7 @@
           <h3 class="section-title">SEO設定</h3>
 
           <div class="seo-group">
-            <label class="seo-label">ページタイトル</label>
+            <label class="seo-label" for="seoTitle">ページタイトル</label>
             <input
               type="text"
               id="seoTitle"
@@ -1670,7 +1681,7 @@
           </div>
 
           <div class="seo-group">
-            <label class="seo-label">ディスクリプション</label>
+            <label class="seo-label" for="seoDescription">ディスクリプション</label>
             <textarea
               id="seoDescription"
               class="seo-textarea"
@@ -1682,7 +1693,7 @@
           </div>
 
           <div class="seo-group">
-            <label class="seo-label">キーワード</label>
+            <label class="seo-label" for="seoKeywords">キーワード</label>
             <input
               type="text"
               id="seoKeywords"
@@ -1692,7 +1703,7 @@
           </div>
 
           <div class="seo-group">
-            <label class="seo-label">OGP画像URL</label>
+            <label class="seo-label" for="ogImage">OGP画像URL</label>
             <input
               type="url"
               id="ogImage"
@@ -1703,7 +1714,7 @@
           </div>
 
           <div class="seo-group">
-            <label class="seo-label">Canonical URL</label>
+            <label class="seo-label" for="canonicalUrl">Canonical URL</label>
             <input
               type="url"
               id="canonicalUrl"
@@ -1713,7 +1724,7 @@
           </div>
 
           <div class="seo-group">
-            <label class="seo-label">言語</label>
+            <label class="seo-label" for="seoLang">言語</label>
             <select id="seoLang" class="seo-select">
               <option value="ja" selected>日本語 (ja)</option>
               <option value="en">English (en)</option>
@@ -1768,10 +1779,11 @@
           <div id="savedProjectsList" class="saved-projects-list"></div>
         </section>
 
-        <!-- CSS Framework Selection -->
+        <!-- CSSフレームワーク選択 -->
         <section class="control-section">
           <h3 class="section-title">CSSフレームワーク</h3>
-          <div class="css-mode-selector">
+          <fieldset class="css-mode-selector">
+            <legend class="sr-only">CSSフレームワークを選択</legend>
             <label class="css-mode-option">
               <input type="radio" name="cssMode" value="custom" checked />
               <span class="css-mode-label">
@@ -1782,6 +1794,7 @@
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
+                  aria-hidden="true"
                 >
                   <path d="M12 2L2 7l10 5 10-5-10-5z" />
                   <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
@@ -1802,6 +1815,7 @@
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
+                  aria-hidden="true"
                 >
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                 </svg>
@@ -1811,13 +1825,14 @@
                 </div>
               </span>
             </label>
-          </div>
+          </fieldset>
         </section>
 
-        <!-- Export Format -->
+        <!-- エクスポート形式 -->
         <section class="control-section">
           <h3 class="section-title">エクスポート形式</h3>
-          <div class="export-format-selector">
+          <fieldset class="export-format-selector">
+            <legend class="sr-only">エクスポート形式を選択</legend>
             <label class="format-option">
               <input type="radio" name="lpExportFormat" value="html" checked />
               <span class="format-label">
@@ -1860,7 +1875,7 @@
                 <small>React + Material UI</small>
               </span>
             </label>
-          </div>
+          </fieldset>
         </section>
 
         <!-- Export Actions -->
@@ -2274,7 +2289,7 @@
 
           <div class="image-tab-content" id="tab-url">
             <div class="image-url-input">
-              <label>画像URL</label>
+              <label for="imageUrlInput">画像URL</label>
               <input type="url" id="imageUrlInput" placeholder="https://example.com/image.jpg" />
               <button class="image-url-load" id="loadImageUrl">読み込み</button>
             </div>
@@ -2286,9 +2301,9 @@
             </div>
           </div>
 
-          <!-- Alt Text -->
+          <!-- 代替テキスト -->
           <div class="image-alt-input">
-            <label>代替テキスト (alt)</label>
+            <label for="imageAltInput">代替テキスト (alt)</label>
             <input type="text" id="imageAltInput" placeholder="画像の説明" />
           </div>
         </div>
@@ -2358,8 +2373,8 @@
       </div>
     </div>
 
-    <!-- Welcome Modal -->
-    <div class="welcome-modal" id="welcomeModal">
+    <!-- ウェルカムモーダル -->
+    <div class="welcome-modal" id="welcomeModal" role="dialog" aria-modal="true" aria-labelledby="welcomeModalTitle">
       <div class="welcome-modal-content">
         <div class="welcome-header">
           <div class="welcome-icon">
@@ -2370,12 +2385,13 @@
               fill="none"
               stroke="currentColor"
               stroke-width="1.5"
+              aria-hidden="true"
             >
               <path d="M12 2L2 7l10 5 10-5-10-5z" />
               <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           </div>
-          <h2>LP Generator へようこそ</h2>
+          <h2 id="welcomeModalTitle">LP Generator へようこそ</h2>
           <p>ドラッグ&ドロップで簡単にランディングページを作成できます</p>
         </div>
         <div class="welcome-body">
@@ -2442,6 +2458,10 @@
     <script src="js/image-manager.js"></script>
     <script src="js/generator.js"></script>
     <script src="js/enhanced-generator.js"></script>
+    <script src="js/ai/ai-service.js"></script>
+    <script src="js/ai/ai-prompt-engine.js"></script>
+    <script src="js/ai/ai-stream-handler.js"></script>
+    <script src="js/ai/ai-ui-controller.js"></script>
     <script>
       // Initialize Lucide icons
       document.addEventListener('DOMContentLoaded', () => {

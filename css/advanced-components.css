@@ -1,18 +1,18 @@
 /* ============================================
-   ADVANCED COMPONENTS STYLES
-   Universal Landing Page Generator
+   拡張コンポーネント スタイル
+   design-system.css のトークンを参照
    ============================================ */
 
 /* ==========================================
-   HERO VARIATIONS
+   ヒーローバリエーション
    ========================================== */
 
-/* Hero Split Layout */
+/* ヒーロー分割レイアウト */
 .lp-hero-split {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  background: #f8f9fa;
+  background: var(--color-neutral-50);
   padding: var(--space-20) var(--space-4);
 }
 
@@ -70,13 +70,18 @@
   border-radius: var(--radius-xl);
   font-weight: var(--font-semibold);
   font-size: var(--text-base);
-  transition: var(--transition-base);
+  transition: all var(--transition-base);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   border: none;
   text-decoration: none;
+}
+
+.lp-btn:focus-visible {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: 2px;
 }
 
 .lp-btn-lg {
@@ -166,7 +171,7 @@
   opacity: 0.1;
 }
 
-/* Animated Hero */
+/* アニメーションヒーロー */
 .lp-hero-animated {
   min-height: 100vh;
   display: flex;
@@ -189,7 +194,7 @@
 .lp-floating-shape {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgb(255 255 255 / 0.1);
   backdrop-filter: blur(var(--blur-lg));
 }
 
@@ -198,7 +203,7 @@
   height: 400px;
   top: -200px;
   left: -200px;
-  animation: float 20s infinite ease-in-out;
+  animation: adv-float 20s infinite ease-in-out;
 }
 
 .lp-shape-2 {
@@ -206,7 +211,7 @@
   height: 300px;
   bottom: -150px;
   right: -150px;
-  animation: float 25s infinite ease-in-out reverse;
+  animation: adv-float 25s infinite ease-in-out reverse;
 }
 
 .lp-shape-3 {
@@ -214,10 +219,10 @@
   height: 200px;
   top: 50%;
   left: 50%;
-  animation: float 15s infinite ease-in-out;
+  animation: adv-float 15s infinite ease-in-out;
 }
 
-@keyframes float {
+@keyframes adv-float {
   0%,
   100% {
     transform: translate(0, 0) rotate(0deg);
@@ -245,12 +250,12 @@
   line-height: var(--leading-tight);
   color: white;
   margin-bottom: var(--space-6);
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 4px 20px rgb(0 0 0 / 0.2);
 }
 
 .lp-hero-subtitle {
   font-size: var(--text-2xl);
-  color: rgba(255, 255, 255, 0.95);
+  color: rgb(255 255 255 / 0.95);
   margin-bottom: var(--space-12);
   line-height: var(--leading-relaxed);
 }
@@ -265,21 +270,21 @@
 .lp-btn-gradient {
   background: white;
   color: var(--theme-primary);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.3);
 }
 
 .lp-btn-gradient:hover {
   transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 30px 80px rgb(0 0 0 / 0.4);
 }
 
 .lp-cta-note {
   font-size: var(--text-sm);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgb(255 255 255 / 0.8);
 }
 
 /* ==========================================
-   FEATURE VARIATIONS
+   フィーチャーバリエーション
    ========================================== */
 
 .lp-features-modern {
@@ -309,7 +314,7 @@
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: var(--font-extrabold);
   margin-bottom: var(--space-4);
-  color: var(--theme-primary); /* Fallback color */
+  color: var(--theme-primary);
   background: var(--theme-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -394,16 +399,21 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  transition: var(--transition-base);
+  transition: gap var(--transition-base);
 }
 
 .lp-feature-link:hover {
   gap: var(--space-3);
 }
 
-/* Timeline */
+.lp-feature-link:focus-visible {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: 2px;
+}
+
+/* タイムライン */
 .lp-features-timeline {
-  background: #f8f9fa;
+  background: var(--color-neutral-50);
   padding: var(--space-24) var(--space-4);
 }
 
@@ -452,7 +462,7 @@
   padding: var(--space-8);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-md);
-  transition: var(--transition-base);
+  transition: all var(--transition-base);
 }
 
 .lp-timeline-content:hover {
@@ -474,7 +484,7 @@
 }
 
 /* ==========================================
-   SOCIAL PROOF
+   ソーシャルプルーフ
    ========================================== */
 
 .lp-social-proof {
@@ -515,11 +525,11 @@
 }
 
 /* ==========================================
-   TESTIMONIALS
+   テスティモニアル
    ========================================== */
 
 .lp-testimonials-carousel {
-  background: #f8f9fa;
+  background: var(--color-neutral-50);
   padding: var(--space-24) var(--space-4);
 }
 
@@ -615,7 +625,7 @@
 }
 
 /* ==========================================
-   PRICING
+   プライシング
    ========================================== */
 
 .lp-pricing-modern {
@@ -653,7 +663,7 @@
   bottom: 0;
   background-color: var(--color-neutral-300);
   border-radius: 34px;
-  transition: var(--transition-base);
+  transition: background var(--transition-base);
 }
 
 .lp-toggle-slider:before {
@@ -665,7 +675,7 @@
   bottom: 4px;
   background-color: white;
   border-radius: 50%;
-  transition: var(--transition-base);
+  transition: transform var(--transition-base);
 }
 
 .lp-toggle-switch input:checked + .lp-toggle-slider {
@@ -674,6 +684,10 @@
 
 .lp-toggle-switch input:checked + .lp-toggle-slider:before {
   transform: translateX(26px);
+}
+
+.lp-toggle-switch:focus-within .lp-toggle-slider {
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.3);
 }
 
 .lp-discount-badge {
@@ -699,7 +713,7 @@
   border: 2px solid var(--color-neutral-200);
   border-radius: var(--radius-3xl);
   padding: var(--space-10);
-  transition: var(--transition-base);
+  transition: all var(--transition-base);
   position: relative;
 }
 
@@ -711,7 +725,7 @@
 
 .lp-pricing-featured {
   border-color: var(--theme-primary);
-  background: rgba(59, 130, 246, 0.05);
+  background: rgb(59 130 246 / 0.05);
   transform: scale(1.05);
 }
 
@@ -788,7 +802,7 @@
 }
 
 /* ==========================================
-   CTA SECTIONS
+   CTAセクション
    ========================================== */
 
 .lp-cta-split {
@@ -864,9 +878,9 @@
   display: block;
 }
 
-/* Newsletter */
+/* ニュースレター */
 .lp-newsletter {
-  background: #3b82f6;
+  background: var(--color-primary-500);
   padding: var(--space-20) var(--space-4);
 }
 
@@ -881,7 +895,7 @@
   width: 80px;
   height: 80px;
   margin: 0 auto var(--space-6);
-  background: rgba(255, 255, 255, 0.2);
+  background: rgb(255 255 255 / 0.2);
   border-radius: var(--radius-2xl);
   display: flex;
   align-items: center;
@@ -917,16 +931,20 @@
   outline: none;
 }
 
+.lp-newsletter-form input:focus-visible {
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.4);
+}
+
 .lp-newsletter-note {
   font-size: var(--text-sm);
   opacity: 0.8;
 }
 
 /* ==========================================
-   RESPONSIVE DESIGN - MOBILE FIRST
+   レスポンシブ - モバイルファースト
    ========================================== */
 
-/* Mobile Styles (Base) */
+/* モバイルスタイル（ベース） */
 .lp-hero-buttons {
   flex-direction: column;
   width: 100%;
@@ -974,7 +992,7 @@
   transform: none;
 }
 
-/* Tablet and Up (768px+) */
+/* タブレット以上 (768px+) */
 @media (min-width: 768px) {
   .lp-hero-buttons {
     flex-direction: row;
@@ -1009,7 +1027,7 @@
   }
 }
 
-/* Desktop and Up (1024px+) */
+/* デスクトップ以上 (1024px+) */
 @media (min-width: 1024px) {
   .lp-split-container,
   .lp-cta-container {
@@ -1023,5 +1041,528 @@
 
   .lp-pricing-featured {
     transform: scale(1.05);
+  }
+}
+
+/* ============================================
+   視覚品質改善 - 拡張コンポーネント強化
+   既存クラスのオーバーライド＋新規ユーティリティ
+   ============================================ */
+
+/* ------------------------------------------
+   ヒーロー分割レイアウト改善
+   ------------------------------------------ */
+
+.lp-hero-split {
+  min-height: 90vh;
+  background:
+    radial-gradient(ellipse 600px 400px at 10% 80%, rgb(59 130 246 / 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 500px 400px at 90% 20%, rgb(139 92 246 / 0.03) 0%, transparent 50%),
+    var(--color-neutral-50);
+}
+
+/* バッジ改善 */
+.lp-badge {
+  background: linear-gradient(135deg, var(--color-primary-500), #6366f1);
+  box-shadow: 0 2px 8px rgb(59 130 246 / 0.25);
+  letter-spacing: var(--tracking-wider);
+}
+
+/* ヒーローXLタイトル改善 */
+.lp-hero-title-xl {
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-shadow:
+    0 2px 10px rgb(0 0 0 / 0.15),
+    0 8px 30px rgb(0 0 0 / 0.1);
+}
+
+/* サブタイトル改善 */
+.lp-hero-subtitle {
+  font-size: clamp(1.125rem, 2.2vw, 1.5rem);
+  color: rgb(255 255 255 / 0.75);
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+/* 統計改善 */
+.lp-hero-stats .lp-stat-item strong {
+  font-size: var(--text-3xl);
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--theme-primary), #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ビジュアルカード改善 */
+.lp-visual-card {
+  box-shadow:
+    0 8px 24px rgb(0 0 0 / 0.1),
+    0 24px 60px rgb(0 0 0 / 0.08);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lp-visual-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 12px 32px rgb(0 0 0 / 0.12),
+    0 32px 72px rgb(0 0 0 / 0.1);
+}
+
+/* アニメーションヒーロー改善 */
+.lp-hero-animated {
+  background:
+    radial-gradient(ellipse 800px 600px at 20% 80%, rgb(99 102 241 / 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse 600px 600px at 80% 20%, rgb(236 72 153 / 0.15) 0%, transparent 50%),
+    var(--theme-gradient);
+}
+
+/* フローティングシェイプ改善 */
+.lp-floating-shape {
+  background: rgb(255 255 255 / 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  box-shadow: inset 0 0 40px rgb(255 255 255 / 0.03);
+}
+
+/* グラデーションボタン改善 */
+.lp-btn-gradient {
+  box-shadow:
+    0 10px 30px rgb(0 0 0 / 0.2),
+    0 4px 12px rgb(0 0 0 / 0.1);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lp-btn-gradient:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 15px 40px rgb(0 0 0 / 0.3),
+    0 8px 20px rgb(0 0 0 / 0.1);
+}
+
+/* ------------------------------------------
+   フィーチャーバリエーション改善
+   ------------------------------------------ */
+
+/* ホバーカード改善 */
+.lp-feature-card-hover {
+  background: rgb(255 255 255 / 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgb(0 0 0 / 0.06);
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 0.04),
+    0 4px 16px rgb(0 0 0 / 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lp-feature-card-hover::before {
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary-500, var(--theme-primary)), #8b5cf6, #ec4899);
+}
+
+.lp-feature-card-hover:hover {
+  transform: translateY(-6px);
+  border-color: rgb(99 102 241 / 0.12);
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 0.06),
+    0 16px 40px rgb(0 0 0 / 0.1);
+}
+
+/* アイコン改善 */
+.lp-feature-icon-modern {
+  box-shadow: 0 4px 12px rgb(59 130 246 / 0.25);
+  transition: all 0.3s ease;
+}
+
+.lp-feature-card-hover:hover .lp-feature-icon-modern {
+  transform: scale(1.08) rotate(3deg);
+  box-shadow: 0 6px 18px rgb(59 130 246 / 0.35);
+}
+
+/* セクションタイトルグラデーション改善 */
+.lp-section-title-modern {
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  background: linear-gradient(135deg, var(--theme-primary, var(--color-primary-500)), #8b5cf6, #ec4899);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* セクションバッジ改善 */
+.lp-section-badge {
+  background: linear-gradient(135deg, rgb(59 130 246 / 0.06), rgb(139 92 246 / 0.08));
+  border: 1px solid rgb(99 102 241 / 0.12);
+  backdrop-filter: blur(4px);
+}
+
+/* タイムライン改善 */
+.lp-timeline::before {
+  width: 2px;
+  background: linear-gradient(180deg, var(--theme-primary, var(--color-primary-500)), #8b5cf6, #ec4899);
+}
+
+.lp-timeline-marker {
+  box-shadow:
+    0 4px 16px rgb(59 130 246 / 0.3),
+    0 0 0 4px rgb(255 255 255 / 1);
+}
+
+.lp-timeline-content {
+  background: rgb(255 255 255 / 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgb(0 0 0 / 0.04);
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 0.04),
+    0 4px 16px rgb(0 0 0 / 0.06);
+}
+
+.lp-timeline-content:hover {
+  transform: translateX(6px);
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 0.06),
+    0 12px 32px rgb(0 0 0 / 0.08);
+  border-color: rgb(99 102 241 / 0.12);
+}
+
+/* ------------------------------------------
+   テスティモニアル改善
+   ------------------------------------------ */
+
+/* フィーチャードカード改善 */
+.lp-testimonial-card-featured {
+  position: relative;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 0.06),
+    0 20px 48px rgb(0 0 0 / 0.08);
+}
+
+.lp-testimonial-card-featured::before {
+  content: '\201C';
+  position: absolute;
+  top: 12px;
+  left: 20px;
+  font-size: 8rem;
+  font-family: Georgia, serif;
+  line-height: 1;
+  color: rgb(99 102 241 / 0.06);
+  pointer-events: none;
+}
+
+/* 引用テキスト改善 */
+.lp-testimonial-quote-large {
+  font-size: var(--text-2xl);
+  line-height: 1.65;
+  color: var(--theme-text, var(--color-neutral-900));
+  position: relative;
+  z-index: 1;
+}
+
+/* アバター改善 - グラデーションリング */
+.lp-author-avatar img {
+  border: 3px solid transparent;
+  background:
+    linear-gradient(white, white) padding-box,
+    linear-gradient(135deg, var(--theme-primary, var(--color-primary-500)), #8b5cf6) border-box;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+}
+
+/* コンパクトカード改善 */
+.lp-testimonial-card-small {
+  background: rgb(255 255 255 / 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgb(0 0 0 / 0.06);
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 0.04),
+    0 4px 12px rgb(0 0 0 / 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lp-testimonial-card-small:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 0.06),
+    0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+/* ------------------------------------------
+   プライシング改善
+   ------------------------------------------ */
+
+/* プライシングカード改善 */
+.lp-pricing-card-modern {
+  background: rgb(255 255 255 / 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgb(0 0 0 / 0.06);
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 0.04),
+    0 4px 16px rgb(0 0 0 / 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lp-pricing-card-modern:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 0.06),
+    0 20px 48px rgb(0 0 0 / 0.1);
+  border-color: rgb(99 102 241 / 0.15);
+}
+
+/* フィーチャードプラン - グラデーションボーダー */
+.lp-pricing-featured {
+  background:
+    linear-gradient(rgb(59 130 246 / 0.03), rgb(59 130 246 / 0.03)) padding-box,
+    linear-gradient(135deg, var(--theme-primary, var(--color-primary-500)), #8b5cf6) border-box;
+  border: 2px solid transparent;
+  box-shadow:
+    0 8px 24px rgb(0 0 0 / 0.08),
+    0 0 0 1px rgb(59 130 246 / 0.05);
+}
+
+.lp-pricing-featured::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--theme-primary, var(--color-primary-500)), #8b5cf6, #ec4899);
+  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+}
+
+/* バッジ改善 */
+.lp-pricing-badge-modern {
+  box-shadow: 0 4px 12px rgb(59 130 246 / 0.35);
+}
+
+/* 価格表示の改善 */
+.lp-price-amount {
+  letter-spacing: -0.03em;
+}
+
+/* トグルスイッチ改善 */
+.lp-toggle-switch input:checked + .lp-toggle-slider {
+  box-shadow: 0 0 12px rgb(59 130 246 / 0.3);
+}
+
+/* ------------------------------------------
+   CTAセクション改善
+   ------------------------------------------ */
+
+.lp-cta-split {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 80%, rgb(255 255 255 / 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 500px 400px at 80% 20%, rgb(255 255 255 / 0.06) 0%, transparent 50%),
+    var(--theme-gradient, var(--color-primary-500));
+}
+
+/* ノイズテクスチャ追加 */
+.lp-cta-split::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.02;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.lp-cta-content h2 {
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+/* CTAイメージ改善 */
+.lp-cta-image-wrapper {
+  box-shadow:
+    0 8px 24px rgb(0 0 0 / 0.15),
+    0 24px 60px rgb(0 0 0 / 0.2);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lp-cta-image-wrapper:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 12px 32px rgb(0 0 0 / 0.18),
+    0 32px 72px rgb(0 0 0 / 0.25);
+}
+
+/* ニュースレター改善 */
+.lp-newsletter {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 500px 300px at 20% 80%, rgb(255 255 255 / 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 400px 300px at 80% 20%, rgb(255 255 255 / 0.06) 0%, transparent 50%),
+    var(--color-primary-500);
+}
+
+.lp-newsletter-icon {
+  background: rgb(255 255 255 / 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.1);
+}
+
+.lp-newsletter-form input {
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+  transition: all 0.3s ease;
+}
+
+.lp-newsletter-form input:focus {
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.12);
+  transform: translateY(-1px);
+}
+
+/* アウトラインホワイトボタン改善 */
+.lp-btn-outline-white {
+  border-width: 1.5px;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lp-btn-outline-white:hover {
+  box-shadow: 0 4px 16px rgb(255 255 255 / 0.2);
+}
+
+/* ソーシャルプルーフ改善 */
+.lp-social-proof {
+  border-top: 1px solid rgb(0 0 0 / 0.04);
+  border-bottom: 1px solid rgb(0 0 0 / 0.04);
+}
+
+.lp-logo-placeholder {
+  transition: all 0.3s ease;
+}
+
+.lp-logo-placeholder:hover {
+  color: var(--color-neutral-500);
+  transform: scale(1.05);
+}
+
+/* ------------------------------------------
+   ダークモード対応
+   ------------------------------------------ */
+
+[data-theme='dark-mode'] .lp-hero-split,
+[data-theme='neon'] .lp-hero-split {
+  background:
+    radial-gradient(ellipse 600px 400px at 10% 80%, rgb(59 130 246 / 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 500px 400px at 90% 20%, rgb(139 92 246 / 0.04) 0%, transparent 50%),
+    var(--theme-bg, #0f172a);
+}
+
+[data-theme='dark-mode'] .lp-feature-card-hover,
+[data-theme='neon'] .lp-feature-card-hover {
+  background: rgb(30 41 59 / 0.8);
+  backdrop-filter: blur(12px);
+  border-color: rgb(255 255 255 / 0.08);
+}
+
+[data-theme='dark-mode'] .lp-feature-card-hover:hover,
+[data-theme='neon'] .lp-feature-card-hover:hover {
+  border-color: rgb(99 102 241 / 0.25);
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 0.2),
+    0 16px 40px rgb(0 0 0 / 0.3);
+}
+
+[data-theme='dark-mode'] .lp-timeline-content,
+[data-theme='neon'] .lp-timeline-content {
+  background: rgb(30 41 59 / 0.8);
+  backdrop-filter: blur(12px);
+  border-color: rgb(255 255 255 / 0.08);
+}
+
+[data-theme='dark-mode'] .lp-testimonial-card-featured,
+[data-theme='dark-mode'] .lp-testimonial-card-small,
+[data-theme='neon'] .lp-testimonial-card-featured,
+[data-theme='neon'] .lp-testimonial-card-small {
+  background: rgb(30 41 59 / 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 0.08);
+}
+
+[data-theme='dark-mode'] .lp-pricing-card-modern,
+[data-theme='neon'] .lp-pricing-card-modern {
+  background: rgb(30 41 59 / 0.8);
+  backdrop-filter: blur(12px);
+  border-color: rgb(255 255 255 / 0.08);
+}
+
+[data-theme='dark-mode'] .lp-social-proof,
+[data-theme='neon'] .lp-social-proof {
+  background: var(--theme-surface, #1e293b);
+  border-color: rgb(255 255 255 / 0.06);
+}
+
+[data-theme='dark-mode'] .lp-features-timeline,
+[data-theme='dark-mode'] .lp-testimonials-carousel,
+[data-theme='neon'] .lp-features-timeline,
+[data-theme='neon'] .lp-testimonials-carousel {
+  background: var(--theme-bg, #0f172a);
+}
+
+[data-theme='dark-mode'] .lp-features-modern,
+[data-theme='dark-mode'] .lp-pricing-modern,
+[data-theme='neon'] .lp-features-modern,
+[data-theme='neon'] .lp-pricing-modern {
+  background: var(--theme-surface, #1e293b);
+}
+
+/* ネオンモード - グロー効果 */
+[data-theme='neon'] .lp-timeline-marker {
+  box-shadow:
+    0 4px 16px rgb(131 56 236 / 0.4),
+    0 0 0 4px rgb(10 10 10 / 1),
+    0 0 30px rgb(131 56 236 / 0.15);
+}
+
+[data-theme='neon'] .lp-feature-icon-modern {
+  box-shadow: 0 4px 16px rgb(131 56 236 / 0.4);
+}
+
+[data-theme='neon'] .lp-pricing-featured {
+  box-shadow:
+    0 8px 24px rgb(0 0 0 / 0.3),
+    0 0 40px rgb(131 56 236 / 0.1);
+}
+
+/* ------------------------------------------
+   prefers-reduced-motion 対応
+   ------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-floating-shape,
+  .lp-shape-1,
+  .lp-shape-2,
+  .lp-shape-3 {
+    animation: none;
+  }
+
+  .lp-visual-card,
+  .lp-cta-image-wrapper,
+  .lp-feature-card-hover,
+  .lp-testimonial-card-featured,
+  .lp-testimonial-card-small,
+  .lp-pricing-card-modern,
+  .lp-timeline-content {
+    transition: none;
+  }
+
+  .lp-btn-gradient,
+  .lp-btn-outline-white,
+  .lp-newsletter-form input {
+    transition: none;
   }
 }

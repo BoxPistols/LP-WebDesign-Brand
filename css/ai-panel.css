@@ -1,0 +1,765 @@
+/* ============================================
+   AIパネル スタイル
+   design-system.css のトークンを参照
+   ============================================ */
+
+/* === AIカスタムプロパティ === */
+:root {
+  --ai-purple-50: #f5f3ff;
+  --ai-purple-100: #ede9fe;
+  --ai-purple-200: #ddd6fe;
+  --ai-purple-300: #c4b5fd;
+  --ai-purple-400: #a78bfa;
+  --ai-purple-500: #8b5cf6;
+  --ai-purple-600: #7c3aed;
+  --ai-purple-700: #6d28d9;
+  --ai-purple-800: #5b21b6;
+  --ai-purple-900: #4c1d95;
+}
+
+/* === AIパネルセクション（サイドバー内） === */
+.ai-section {
+  padding: var(--gen-space-lg);
+  border-bottom: 1px solid var(--gen-border);
+}
+
+.ai-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--gen-space-md);
+}
+
+.ai-section-header .ai-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--ai-purple-500);
+  flex-shrink: 0;
+}
+
+.ai-section-title {
+  font-family: var(--gen-font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--gen-text);
+  margin: 0;
+}
+
+.ai-badge {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--ai-purple-600);
+  background: var(--ai-purple-50);
+  border: 1px solid var(--ai-purple-200);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  margin-left: auto;
+}
+
+/* === API未設定バナー === */
+.ai-setup-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--ai-purple-50);
+  border: 1px dashed var(--ai-purple-300);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.ai-setup-banner p {
+  font-size: var(--text-sm);
+  color: var(--gen-text-muted);
+  margin: 0;
+}
+
+.ai-settings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: #ffffff;
+  background: var(--ai-purple-500);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ai-settings-btn:hover {
+  background: var(--ai-purple-600);
+}
+
+.ai-settings-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* === タスク選択 === */
+.ai-task-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-bottom: var(--gen-space-md);
+}
+
+.ai-task-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--gen-text-muted);
+  background: var(--gen-surface);
+  border: 1.5px solid var(--gen-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-task-btn svg {
+  width: 20px;
+  height: 20px;
+  color: var(--ai-purple-400);
+  transition: color 0.2s ease;
+}
+
+.ai-task-btn:hover {
+  border-color: var(--ai-purple-300);
+  background: var(--ai-purple-50);
+}
+
+.ai-task-btn.active {
+  border-color: var(--ai-purple-500);
+  background: var(--ai-purple-50);
+  color: var(--ai-purple-700);
+}
+
+.ai-task-btn.active svg {
+  color: var(--ai-purple-500);
+}
+
+/* === 対象セクション選択 === */
+.ai-target-select {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--gen-text);
+  background: var(--gen-surface);
+  border: 1.5px solid var(--gen-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--gen-space-sm);
+  appearance: none;
+  cursor: pointer;
+}
+
+.ai-target-select:focus {
+  outline: none;
+  border-color: var(--ai-purple-400);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+/* === プロンプト入力 === */
+.ai-prompt-area {
+  position: relative;
+  margin-bottom: var(--gen-space-sm);
+}
+
+.ai-prompt-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: var(--space-3);
+  font-family: var(--gen-font-primary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--gen-text);
+  background: var(--gen-surface);
+  border: 1.5px solid var(--gen-border);
+  border-radius: var(--radius-lg);
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ai-prompt-textarea::placeholder {
+  color: var(--gen-text-muted);
+}
+
+.ai-prompt-textarea:focus {
+  outline: none;
+  border-color: var(--ai-purple-400);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.ai-prompt-char-count {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-size: var(--text-xs);
+  color: var(--gen-text-muted);
+  pointer-events: none;
+}
+
+/* === プリセットプロンプト（ピル型チップ） === */
+.ai-presets-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
+  margin-bottom: var(--gen-space-sm);
+}
+
+.ai-preset-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--ai-purple-600);
+  background: var(--ai-purple-50);
+  border: 1px solid var(--ai-purple-200);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.ai-preset-chip:hover {
+  background: var(--ai-purple-100);
+  border-color: var(--ai-purple-300);
+}
+
+.ai-preset-chip.active {
+  background: var(--ai-purple-500);
+  border-color: var(--ai-purple-500);
+  color: #ffffff;
+}
+
+/* === 生成ボタン === */
+.ai-generate-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--ai-purple-500), var(--ai-purple-600));
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-generate-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--ai-purple-600), var(--ai-purple-700));
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+}
+
+.ai-generate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-generate-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* === ストリーミング進捗表示 === */
+.ai-progress {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--gen-surface);
+  border: 1px solid var(--gen-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--gen-space-sm);
+}
+
+.ai-progress.active {
+  display: flex;
+}
+
+.ai-progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ai-progress-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--ai-purple-600);
+}
+
+.ai-progress-cancel {
+  padding: 2px 8px;
+  font-size: var(--text-xs);
+  color: var(--color-error);
+  background: none;
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ai-progress-cancel:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* シマーアニメーション */
+.ai-progress-bar {
+  height: 4px;
+  background: var(--ai-purple-100);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+}
+
+.ai-progress-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--ai-purple-400), transparent);
+  animation: ai-shimmer 1.5s infinite;
+}
+
+@keyframes ai-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* パルスアニメーション（ストリーミング中のドットインジケータ） */
+.ai-pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--ai-purple-500);
+  border-radius: 50%;
+  animation: ai-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes ai-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.ai-progress-text {
+  font-size: var(--text-xs);
+  color: var(--gen-text-muted);
+  min-height: 1.2em;
+}
+
+/* === 生成結果の承認UI === */
+.ai-result-actions {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--ai-purple-50);
+  border: 1px solid var(--ai-purple-200);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--gen-space-sm);
+}
+
+.ai-result-actions.active {
+  display: flex;
+}
+
+.ai-result-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--ai-purple-700);
+}
+
+.ai-result-buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.ai-result-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-result-btn.approve {
+  color: #ffffff;
+  background: var(--color-success);
+}
+
+.ai-result-btn.approve:hover {
+  background: #059669;
+}
+
+.ai-result-btn.retry {
+  color: var(--ai-purple-700);
+  background: var(--ai-purple-100);
+  border: 1px solid var(--ai-purple-200);
+}
+
+.ai-result-btn.retry:hover {
+  background: var(--ai-purple-200);
+}
+
+.ai-result-btn.insert {
+  color: var(--color-info);
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.ai-result-btn.insert:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.ai-result-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* === セクションコントロール内のAIボタン === */
+.lp-control-btn.ai-customize-btn,
+.component-control.ai-customize-btn {
+  background: rgba(139, 92, 246, 0.95);
+  color: #ffffff;
+}
+
+.lp-control-btn.ai-customize-btn:hover,
+.component-control.ai-customize-btn:hover {
+  background: var(--ai-purple-600);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+}
+
+/* === API設定モーダル === */
+.ai-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-modal-overlay.open {
+  display: flex;
+}
+
+.ai-modal {
+  width: 90%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  padding: var(--space-8);
+}
+
+.ai-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.ai-modal-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--gen-text);
+  margin: 0;
+}
+
+.ai-modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--gen-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--gen-text-muted);
+  transition: all 0.15s ease;
+}
+
+.ai-modal-close:hover {
+  background: var(--color-neutral-100);
+  color: var(--gen-text);
+}
+
+/* モーダル内フォーム */
+.ai-form-group {
+  margin-bottom: var(--space-4);
+}
+
+.ai-form-label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--gen-text);
+  margin-bottom: var(--space-1-5);
+}
+
+.ai-form-select,
+.ai-form-input {
+  width: 100%;
+  padding: var(--space-2-5) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--gen-text);
+  background: var(--gen-surface);
+  border: 1.5px solid var(--gen-border);
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ai-form-select:focus,
+.ai-form-input:focus {
+  outline: none;
+  border-color: var(--ai-purple-400);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.ai-form-hint {
+  font-size: var(--text-xs);
+  color: var(--gen-text-muted);
+  margin-top: var(--space-1);
+}
+
+/* 接続テストボタン */
+.ai-test-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--ai-purple-600);
+  background: var(--ai-purple-50);
+  border: 1px solid var(--ai-purple-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-test-btn:hover {
+  background: var(--ai-purple-100);
+}
+
+.ai-test-result {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  margin-left: var(--space-2);
+}
+
+.ai-test-result.success { color: var(--color-success); }
+.ai-test-result.error { color: var(--color-error); }
+
+/* 保存方法 */
+.ai-storage-options {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.ai-storage-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: var(--text-sm);
+  color: var(--gen-text);
+  cursor: pointer;
+}
+
+.ai-storage-option input[type="radio"] {
+  accent-color: var(--ai-purple-500);
+}
+
+/* モーダルフッター */
+.ai-modal-footer {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--gen-border);
+}
+
+.ai-modal-save {
+  padding: var(--space-2) var(--space-6);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: #ffffff;
+  background: var(--ai-purple-500);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ai-modal-save:hover {
+  background: var(--ai-purple-600);
+}
+
+.ai-modal-cancel {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--gen-text-muted);
+  background: none;
+  border: 1px solid var(--gen-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-modal-cancel:hover {
+  background: var(--color-neutral-100);
+}
+
+/* === ステータスインジケータ === */
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--gen-text-muted);
+  margin-bottom: var(--gen-space-sm);
+}
+
+.ai-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-neutral-300);
+}
+
+.ai-status-dot.connected {
+  background: var(--color-success);
+}
+
+/* === ダークモード対応 === */
+body.dark-mode .ai-section {
+  border-bottom-color: var(--color-secondary-700);
+}
+
+body.dark-mode .ai-setup-banner {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: var(--ai-purple-800);
+}
+
+body.dark-mode .ai-task-btn {
+  background: var(--color-secondary-800);
+  border-color: var(--color-secondary-700);
+  color: var(--color-secondary-300);
+}
+
+body.dark-mode .ai-task-btn:hover {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: var(--ai-purple-700);
+}
+
+body.dark-mode .ai-task-btn.active {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: var(--ai-purple-600);
+  color: var(--ai-purple-300);
+}
+
+body.dark-mode .ai-prompt-textarea,
+body.dark-mode .ai-target-select {
+  background: var(--color-secondary-800);
+  border-color: var(--color-secondary-700);
+  color: var(--color-secondary-100);
+}
+
+body.dark-mode .ai-preset-chip {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: var(--ai-purple-700);
+  color: var(--ai-purple-300);
+}
+
+body.dark-mode .ai-preset-chip:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+body.dark-mode .ai-progress {
+  background: var(--color-secondary-800);
+  border-color: var(--color-secondary-700);
+}
+
+body.dark-mode .ai-result-actions {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: var(--ai-purple-800);
+}
+
+body.dark-mode .ai-modal {
+  background: var(--color-secondary-800);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .ai-modal-title {
+  color: var(--color-secondary-100);
+}
+
+body.dark-mode .ai-form-select,
+body.dark-mode .ai-form-input {
+  background: var(--color-secondary-900);
+  border-color: var(--color-secondary-700);
+  color: var(--color-secondary-100);
+}
+
+body.dark-mode .ai-modal-footer {
+  border-top-color: var(--color-secondary-700);
+}
+
+body.dark-mode .ai-badge {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: var(--ai-purple-700);
+  color: var(--ai-purple-300);
+}
+
+/* === レスポンシブ === */
+@media (max-width: 768px) {
+  .ai-section {
+    padding: var(--gen-space-md);
+  }
+
+  .ai-task-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-1-5);
+  }
+
+  .ai-task-btn {
+    padding: var(--space-2);
+    font-size: 10px;
+  }
+
+  .ai-modal {
+    width: 95%;
+    padding: var(--space-5);
+  }
+}

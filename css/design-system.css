@@ -1,40 +1,40 @@
 /* ============================================
-   ADVANCED DESIGN SYSTEM
-   Universal Landing Page Generator
+   統合デザインシステム
+   LP生成 / ダッシュボード共通
    ============================================ */
 
 /* ==========================================
-   1. DESIGN TOKENS
+   1. デザイントークン
    ========================================== */
 
 :root {
-  /* === Color Palette === */
+  /* === カラーパレット === */
 
-  /* Primary Colors */
-  --color-primary-50: #f0f4ff;
-  --color-primary-100: #e0e7ff;
-  --color-primary-200: #c7d2fe;
-  --color-primary-300: #a5b4fc;
-  --color-primary-400: #818cf8;
-  --color-primary-500: #6366f1;
-  --color-primary-600: #4f46e5;
-  --color-primary-700: #4338ca;
-  --color-primary-800: #3730a3;
-  --color-primary-900: #312e81;
+  /* Primary - Trust Blue系 */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
 
-  /* Secondary Colors */
-  --color-secondary-50: #fdf4ff;
-  --color-secondary-100: #fae8ff;
-  --color-secondary-200: #f5d0fe;
-  --color-secondary-300: #f0abfc;
-  --color-secondary-400: #e879f9;
-  --color-secondary-500: #d946ef;
-  --color-secondary-600: #c026d3;
-  --color-secondary-700: #a21caf;
-  --color-secondary-800: #86198f;
-  --color-secondary-900: #701a75;
+  /* Secondary - Slate系 */
+  --color-secondary-50: #f8fafc;
+  --color-secondary-100: #f1f5f9;
+  --color-secondary-200: #e2e8f0;
+  --color-secondary-300: #cbd5e1;
+  --color-secondary-400: #94a3b8;
+  --color-secondary-500: #64748b;
+  --color-secondary-600: #475569;
+  --color-secondary-700: #334155;
+  --color-secondary-800: #1e293b;
+  --color-secondary-900: #0f172a;
 
-  /* Accent Colors */
+  /* Accent - オレンジ系（CTA向け） */
   --color-accent-50: #fff7ed;
   --color-accent-100: #ffedd5;
   --color-accent-200: #fed7aa;
@@ -46,7 +46,7 @@
   --color-accent-800: #9a3412;
   --color-accent-900: #7c2d12;
 
-  /* Neutral Colors */
+  /* Neutral - グレースケール */
   --color-neutral-50: #fafafa;
   --color-neutral-100: #f5f5f5;
   --color-neutral-200: #e5e5e5;
@@ -58,20 +58,50 @@
   --color-neutral-800: #262626;
   --color-neutral-900: #171717;
 
-  /* Semantic Colors */
+  /* セマンティックカラー */
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
   --color-info: #3b82f6;
 
-  /* === Typography Scale === */
+  /* === テーマサーフェス === */
+  --theme-surface: #ffffff;
+  --theme-surface-variant: var(--color-neutral-50);
+  --theme-on-surface: var(--color-neutral-900);
 
-  /* Font Families */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* === LP用セマンティックトークン === */
+  --lp-primary: var(--color-primary-600);
+  --lp-primary-light: var(--color-primary-100);
+  --lp-text: var(--color-neutral-900);
+  --lp-text-muted: var(--color-neutral-500);
+  --lp-bg: #ffffff;
+  --lp-bg-alt: var(--color-neutral-50);
+  --lp-border: var(--color-neutral-200);
+  --lp-shadow: var(--shadow-sm);
+
+  /* === ダッシュボード用セマンティックトークン === */
+  --db-primary: var(--color-primary-600);
+  --db-sidebar-bg: var(--color-neutral-900);
+  --db-card-bg: #ffffff;
+  --db-border: var(--color-neutral-200);
+
+  /* === 後方互換トークン（generator.css等が参照） === */
+  --primary-color: var(--color-primary-500);
+  --bg-light: #ffffff;
+  --bg-dark: var(--color-secondary-900);
+  --text-dark: var(--color-neutral-800);
+  --text-light: var(--color-neutral-100);
+  --border-color: var(--color-neutral-200);
+
+  /* === タイポグラフィスケール === */
+
+  /* フォントファミリー */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Hiragino Sans, Hiragino Kaku Gothic ProN, BIZ UDPGothic, Meiryo, sans-serif;
   --font-display: 'Poppins', 'Inter', sans-serif;
   --font-mono: 'Fira Code', 'Consolas', monospace;
 
-  /* Font Sizes */
+  /* フォントサイズ */
   --text-xs: 0.75rem; /* 12px */
   --text-sm: 0.875rem; /* 14px */
   --text-base: 1rem; /* 16px */
@@ -86,7 +116,7 @@
   --text-8xl: 6rem; /* 96px */
   --text-9xl: 8rem; /* 128px */
 
-  /* Font Weights */
+  /* フォントウェイト */
   --font-thin: 100;
   --font-extralight: 200;
   --font-light: 300;
@@ -97,7 +127,7 @@
   --font-extrabold: 800;
   --font-black: 900;
 
-  /* Line Heights */
+  /* 行の高さ */
   --leading-none: 1;
   --leading-tight: 1.25;
   --leading-snug: 1.375;
@@ -105,7 +135,7 @@
   --leading-relaxed: 1.625;
   --leading-loose: 2;
 
-  /* Letter Spacing */
+  /* 文字間隔 */
   --tracking-tighter: -0.05em;
   --tracking-tight: -0.025em;
   --tracking-normal: 0;
@@ -113,7 +143,7 @@
   --tracking-wider: 0.05em;
   --tracking-widest: 0.1em;
 
-  /* === Spacing Scale === */
+  /* === スペーシングスケール === */
 
   --space-0: 0;
   --space-px: 1px;
@@ -151,7 +181,7 @@
   --space-80: 20rem; /* 320px */
   --space-96: 24rem; /* 384px */
 
-  /* === Border Radius === */
+  /* === ボーダー半径 === */
 
   --radius-none: 0;
   --radius-sm: 0.125rem; /* 2px */
@@ -164,7 +194,7 @@
   --radius-4xl: 2rem; /* 32px */
   --radius-full: 9999px;
 
-  /* === Shadows (Elevation) === */
+  /* === シャドウ（エレベーション） === */
 
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -175,24 +205,24 @@
   --shadow-2xl: 0 35px 60px -15px rgb(0 0 0 / 0.3);
   --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
 
-  /* Colored Shadows */
+  /* カラーシャドウ */
   --shadow-primary: 0 10px 40px -10px var(--color-primary-500);
   --shadow-secondary: 0 10px 40px -10px var(--color-secondary-500);
   --shadow-accent: 0 10px 40px -10px var(--color-accent-500);
 
-  /* === Transitions === */
+  /* === トランジション === */
 
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-bounce: 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-  /* Easing Functions */
+  /* イージング関数 */
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* === Z-Index Scale === */
+  /* === Zインデックス === */
 
   --z-0: 0;
   --z-10: 10;
@@ -208,7 +238,7 @@
   --z-popover: 1060;
   --z-tooltip: 1070;
 
-  /* === Gradients === */
+  /* === グラデーション === */
 
   --gradient-primary: var(--color-primary-500);
   --gradient-secondary: var(--color-secondary-500);
@@ -219,7 +249,7 @@
   --gradient-fire: #ef4444;
   --gradient-ice: #3b82f6;
 
-  /* Mesh Gradients */
+  /* メッシュグラデーション */
   --gradient-mesh-1:
     radial-gradient(at 40% 20%, hsla(28, 100%, 74%, 1) 0px, transparent 50%),
     radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 1) 0px, transparent 50%),
@@ -229,7 +259,7 @@
     radial-gradient(at 80% 100%, hsla(242, 100%, 70%, 1) 0px, transparent 50%),
     radial-gradient(at 0% 0%, hsla(343, 100%, 76%, 1) 0px, transparent 50%);
 
-  /* === Blur Values === */
+  /* === ブラー値 === */
 
   --blur-none: 0;
   --blur-sm: 4px;
@@ -240,7 +270,7 @@
   --blur-2xl: 40px;
   --blur-3xl: 64px;
 
-  /* === Container Sizes === */
+  /* === コンテナサイズ === */
 
   --container-xs: 20rem; /* 320px */
   --container-sm: 24rem; /* 384px */
@@ -257,20 +287,23 @@
 }
 
 /* ==========================================
-   2. ENHANCED THEME SYSTEM
+   2. テーマシステム
    ========================================== */
 
-/* Modern Blue Theme */
+/* モダンブルーテーマ */
 [data-theme='modern-blue'] {
   --theme-primary: var(--color-primary-600);
   --theme-secondary: var(--color-secondary-600);
   --theme-accent: var(--color-accent-500);
-  --theme-gradient: #3b82f6;
+  --theme-gradient: var(--color-primary-500);
   --theme-text: var(--color-neutral-900);
   --theme-bg: var(--color-neutral-50);
+  --theme-surface: #ffffff;
+  --theme-surface-variant: var(--color-primary-50);
+  --theme-on-surface: var(--color-neutral-900);
 }
 
-/* Sunset Theme */
+/* サンセットテーマ */
 [data-theme='sunset'] {
   --theme-primary: #10b981;
   --theme-secondary: #f5576c;
@@ -278,19 +311,25 @@
   --theme-gradient: #10b981;
   --theme-text: var(--color-neutral-900);
   --theme-bg: #fff5f7;
+  --theme-surface: #ffffff;
+  --theme-surface-variant: #fff0f3;
+  --theme-on-surface: var(--color-neutral-900);
 }
 
-/* Ocean Theme */
+/* オーシャンテーマ */
 [data-theme='ocean'] {
   --theme-primary: #4facfe;
   --theme-secondary: #00f2fe;
   --theme-accent: #43e97b;
-  --theme-gradient: #3b82f6;
+  --theme-gradient: #4facfe;
   --theme-text: var(--color-neutral-900);
   --theme-bg: #f0f9ff;
+  --theme-surface: #ffffff;
+  --theme-surface-variant: #e0f2fe;
+  --theme-on-surface: var(--color-neutral-900);
 }
 
-/* Forest Theme */
+/* フォレストテーマ */
 [data-theme='forest'] {
   --theme-primary: #43e97b;
   --theme-secondary: #38f9d7;
@@ -298,19 +337,25 @@
   --theme-gradient: #10b981;
   --theme-text: var(--color-neutral-900);
   --theme-bg: #f0fdf4;
+  --theme-surface: #ffffff;
+  --theme-surface-variant: #dcfce7;
+  --theme-on-surface: var(--color-neutral-900);
 }
 
-/* Dark Mode Theme */
+/* ダークモードテーマ */
 [data-theme='dark-mode'] {
-  --theme-primary: #6366f1;
+  --theme-primary: var(--color-primary-400);
   --theme-secondary: #10b981;
   --theme-accent: #ec4899;
-  --theme-gradient: #1e3a8a;
+  --theme-gradient: var(--color-primary-900);
   --theme-text: var(--color-neutral-100);
   --theme-bg: #0f172a;
+  --theme-surface: #1e293b;
+  --theme-surface-variant: #334155;
+  --theme-on-surface: var(--color-neutral-100);
 }
 
-/* Vibrant Theme */
+/* ビビッドテーマ */
 [data-theme='vibrant'] {
   --theme-primary: #fa709a;
   --theme-secondary: #fee140;
@@ -318,31 +363,38 @@
   --theme-gradient: #f59e0b;
   --theme-text: var(--color-neutral-900);
   --theme-bg: #fffbeb;
+  --theme-surface: #ffffff;
+  --theme-surface-variant: #fef3c7;
+  --theme-on-surface: var(--color-neutral-900);
 }
 
-/* NEW THEMES */
-
-/* Neon Theme */
+/* ネオンテーマ */
 [data-theme='neon'] {
   --theme-primary: #ff006e;
   --theme-secondary: #8338ec;
   --theme-accent: #3a86ff;
-  --theme-gradient: #3b82f6;
+  --theme-gradient: #8338ec;
   --theme-text: var(--color-neutral-100);
   --theme-bg: #0a0a0a;
+  --theme-surface: #1a1a1a;
+  --theme-surface-variant: #2a2a2a;
+  --theme-on-surface: var(--color-neutral-100);
 }
 
-/* Nature Theme */
+/* ネイチャーテーマ */
 [data-theme='nature'] {
   --theme-primary: #2d6a4f;
   --theme-secondary: #52b788;
   --theme-accent: #95d5b2;
-  --theme-gradient: #10b981;
+  --theme-gradient: #2d6a4f;
   --theme-text: var(--color-neutral-900);
   --theme-bg: #f7f9f7;
+  --theme-surface: #ffffff;
+  --theme-surface-variant: #ecfdf5;
+  --theme-on-surface: var(--color-neutral-900);
 }
 
-/* Monochrome Theme */
+/* モノクロテーマ */
 [data-theme='monochrome'] {
   --theme-primary: #404040;
   --theme-secondary: #737373;
@@ -350,23 +402,29 @@
   --theme-gradient: #171717;
   --theme-text: var(--color-neutral-900);
   --theme-bg: #fafafa;
+  --theme-surface: #ffffff;
+  --theme-surface-variant: var(--color-neutral-100);
+  --theme-on-surface: var(--color-neutral-900);
 }
 
-/* Pastel Theme */
+/* パステルテーマ */
 [data-theme='pastel'] {
   --theme-primary: #ffadad;
   --theme-secondary: #ffd6a5;
   --theme-accent: #caffbf;
-  --theme-gradient: #10b981;
+  --theme-gradient: #bdb2ff;
   --theme-text: var(--color-neutral-900);
   --theme-bg: #fff8f8;
+  --theme-surface: #ffffff;
+  --theme-surface-variant: #fef2f2;
+  --theme-on-surface: var(--color-neutral-900);
 }
 
 /* ==========================================
-   3. UTILITY CLASSES
+   3. ユーティリティクラス
    ========================================== */
 
-/* Display */
+/* 表示 */
 .ds-block {
   display: block;
 }
@@ -389,7 +447,7 @@
   display: none;
 }
 
-/* Flex Utilities */
+/* Flexユーティリティ */
 .ds-flex-row {
   flex-direction: row;
 }
@@ -424,7 +482,7 @@
   justify-content: space-around;
 }
 
-/* Grid Utilities */
+/* Gridユーティリティ */
 .ds-grid-cols-1 {
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
@@ -444,7 +502,7 @@
   grid-template-columns: repeat(12, minmax(0, 1fr));
 }
 
-/* Gap Utilities */
+/* Gapユーティリティ */
 .ds-gap-1 {
   gap: var(--space-1);
 }
@@ -470,7 +528,7 @@
   gap: var(--space-16);
 }
 
-/* Text Alignment */
+/* テキスト配置 */
 .ds-text-left {
   text-align: left;
 }
@@ -481,7 +539,7 @@
   text-align: right;
 }
 
-/* Text Transform */
+/* テキスト変換 */
 .ds-uppercase {
   text-transform: uppercase;
 }
@@ -492,7 +550,7 @@
   text-transform: capitalize;
 }
 
-/* Overflow */
+/* オーバーフロー */
 .ds-overflow-auto {
   overflow: auto;
 }
@@ -506,7 +564,7 @@
   overflow: scroll;
 }
 
-/* Position */
+/* ポジション */
 .ds-relative {
   position: relative;
 }
@@ -521,7 +579,7 @@
 }
 
 /* ==========================================
-   4. ANIMATION PRESETS
+   4. アニメーションプリセット
    ========================================== */
 
 @keyframes ds-fade-in {
@@ -637,7 +695,7 @@
   }
 }
 
-/* Animation Classes */
+/* アニメーションクラス */
 .ds-animate-fade-in {
   animation: ds-fade-in var(--transition-base) ease-out;
 }
@@ -667,7 +725,7 @@
 }
 
 /* ==========================================
-   5. GLASSMORPHISM & MODERN EFFECTS
+   5. グラスモーフィズム・モダンエフェクト
    ========================================== */
 
 .ds-glass {
@@ -699,11 +757,11 @@
 }
 
 /* ==========================================
-   6. RESPONSIVE BREAKPOINTS
+   6. レスポンシブブレークポイント
    ========================================== */
 
-/* Mobile First Approach */
-/* xs: 0-639px (default) */
+/* モバイルファーストアプローチ */
+/* xs: 0-639px（デフォルト） */
 /* sm: 640px+ */
 /* md: 768px+ */
 /* lg: 1024px+ */
@@ -711,10 +769,10 @@
 /* 2xl: 1536px+ */
 
 /* ==========================================
-   7. COMMON COMPONENTS
+   7. 共通コンポーネント
    ========================================== */
 
-/* === Button Base === */
+/* === ボタンベース === */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -737,7 +795,7 @@
   cursor: not-allowed;
 }
 
-/* Button Variants */
+/* ボタンバリアント */
 .btn--primary {
   background: var(--color-primary-600);
   color: white;
@@ -775,7 +833,7 @@
   background: #dc2626;
 }
 
-/* Button Sizes */
+/* ボタンサイズ */
 .btn--sm {
   padding: var(--space-1-5) var(--space-3);
   font-size: var(--text-xs);
@@ -786,7 +844,7 @@
   font-size: var(--text-base);
 }
 
-/* === Card Base === */
+/* === カードベース === */
 .card {
   background: var(--bg-light);
   border-radius: var(--radius-xl);
@@ -818,7 +876,7 @@
   background: var(--color-neutral-50);
 }
 
-/* === Form Elements === */
+/* === フォーム要素 === */
 .input {
   width: 100%;
   padding: var(--space-2-5) var(--space-3);
@@ -837,7 +895,7 @@
 .input:focus {
   outline: none;
   border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .input::placeholder {
@@ -865,10 +923,10 @@
 .select:focus {
   outline: none;
   border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* === Badge === */
+/* === バッジ === */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -899,21 +957,21 @@
 }
 
 /* ==========================================
-   8. ACCESSIBILITY STYLES
+   8. アクセシビリティ
    ========================================== */
 
-/* Focus visible styles for keyboard navigation */
+/* キーボードナビゲーション用フォーカス表示 */
 :focus-visible {
   outline: 2px solid var(--color-primary-500);
   outline-offset: 2px;
 }
 
-/* Remove default focus for mouse users */
+/* マウス操作時のデフォルトフォーカスを非表示 */
 :focus:not(:focus-visible) {
   outline: none;
 }
 
-/* High contrast focus for buttons and interactive elements */
+/* ボタン・インタラクティブ要素のハイコントラストフォーカス */
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
@@ -925,10 +983,10 @@ textarea:focus-visible,
 [role='switch']:focus-visible {
   outline: 2px solid var(--color-primary-500);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
 }
 
-/* Skip link for screen readers */
+/* スクリーンリーダー用スキップリンク */
 .skip-link {
   position: absolute;
   top: -100%;
@@ -945,7 +1003,7 @@ textarea:focus-visible,
   top: 0;
 }
 
-/* Screen reader only text */
+/* スクリーンリーダー専用テキスト */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -958,7 +1016,14 @@ textarea:focus-visible,
   border: 0;
 }
 
-/* Reduced motion preference */
+/* フォームグループ用 fieldset リセット */
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* モーション軽減設定 */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -971,25 +1036,42 @@ textarea:focus-visible,
 }
 
 /* ==========================================
-   9. DARK MODE
+   9. ダークモード
    ========================================== */
 
-/* Dark mode using body.dark-mode class */
+/* body.dark-modeクラスによるダークモード */
 body.dark-mode {
-  /* Override semantic colors */
+  /* セマンティックカラーの上書き */
   --bg-light: #1e293b;
   --bg-dark: #0f172a;
   --text-dark: #f1f5f9;
   --text-light: #e2e8f0;
   --border-color: #334155;
-  --primary-color: #60a5fa;
+  --primary-color: var(--color-primary-400);
 
-  /* Background and text */
+  /* テーマサーフェスの上書き */
+  --theme-surface: #1e293b;
+  --theme-surface-variant: #334155;
+  --theme-on-surface: #f1f5f9;
+
+  /* LP・ダッシュボードトークンの上書き */
+  --lp-primary: var(--color-primary-400);
+  --lp-text: #f1f5f9;
+  --lp-text-muted: var(--color-neutral-400);
+  --lp-bg: #0f172a;
+  --lp-bg-alt: #1e293b;
+  --lp-border: #334155;
+  --db-primary: var(--color-primary-400);
+  --db-sidebar-bg: #0f172a;
+  --db-card-bg: #1e293b;
+  --db-border: #334155;
+
+  /* 背景・テキスト */
   background-color: var(--bg-dark);
   color: var(--text-dark);
 }
 
-/* Dark mode component overrides */
+/* ダークモード コンポーネント上書き */
 body.dark-mode .card {
   background: var(--bg-light);
   border-color: var(--border-color);
@@ -1029,14 +1111,14 @@ body.dark-mode .badge--primary {
   color: #93c5fd;
 }
 
-/* Dark mode glass effect */
+/* ダークモード グラスエフェクト */
 body.dark-mode .ds-glass {
   background: rgba(30, 41, 59, 0.8);
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* System preference dark mode - only applies when no explicit mode is set */
-/* Disabled to prevent conflicts with manual dark mode toggle */
+/* システム設定によるダークモード - 明示的なモード指定がない場合のみ適用 */
+/* 手動ダークモードトグルとの競合防止のため無効化 */
 /*
 @media (prefers-color-scheme: dark) {
   body:not(.light-mode):not(.dark-mode) {

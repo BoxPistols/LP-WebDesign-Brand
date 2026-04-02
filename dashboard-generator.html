@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Generator | Admin Panel Builder</title>
+    <!-- SEOメタタグ -->
+    <meta name="description" content="ドラッグ＆ドロップでダッシュボードUIを構築。Atomic Designベースのコンポーネント、HTML/Tailwind/shadcn形式でエクスポート。" />
+    <meta name="keywords" content="ダッシュボード,ジェネレーター,管理画面,UIビルダー,コンポーネント" />
+    <meta property="og:title" content="Dashboard Generator | Admin Panel Builder" />
+    <meta property="og:description" content="ドラッグ＆ドロップでダッシュボードUIを簡単構築" />
+    <meta property="og:type" content="website" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,10 +18,14 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/design-system.css" />
+    <link rel="stylesheet" href="css/grid-system.css" />
     <link rel="stylesheet" href="css/dashboard-generator.css" />
     <link rel="stylesheet" href="css/dashboard-components.css" />
+    <link rel="stylesheet" href="css/ai-panel.css" />
   </head>
   <body>
+    <!-- スキップリンク: キーボードナビゲーション用 -->
+    <a href="#dashboardCanvas" class="skip-link">メインコンテンツへスキップ</a>
     <div class="dashboard-builder">
       <!-- Left Sidebar Toggle Button -->
       <button
@@ -107,7 +117,7 @@
               </div>
               <span>トップバー</span>
             </button>
-            <button class="layout-btn" data-layout="sidebar-top">
+            <button class="layout-btn" data-layout="sidebar-top" role="radio" aria-checked="false">
               <div class="layout-preview">
                 <div class="preview-sidebar"></div>
                 <div class="preview-top"></div>
@@ -997,6 +1007,90 @@
                 ></span>
                 <span class="component-name">Tooltip</span>
               </button>
+              <button class="component-item" data-component="calendar-widget">
+                <span class="component-icon"
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" /></svg
+                ></span>
+                <span class="component-name">カレンダー</span>
+              </button>
+              <button class="component-item" data-component="file-upload">
+                <span class="component-icon"
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" /></svg
+                ></span>
+                <span class="component-name">ファイルアップロード</span>
+              </button>
+              <button class="component-item" data-component="timeline">
+                <span class="component-icon"
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="2" x2="12" y2="22" />
+                    <circle cx="12" cy="6" r="2" />
+                    <circle cx="12" cy="12" r="2" />
+                    <circle cx="12" cy="18" r="2" />
+                    <line x1="14" y1="6" x2="20" y2="6" />
+                    <line x1="14" y1="12" x2="20" y2="12" />
+                    <line x1="14" y1="18" x2="20" y2="18" /></svg
+                ></span>
+                <span class="component-name">タイムライン</span>
+              </button>
+              <button class="component-item" data-component="metric-comparison">
+                <span class="component-icon"
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="4" width="18" height="16" rx="2" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <polyline points="8 12 12 8 16 12" /></svg
+                ></span>
+                <span class="component-name">メトリクス比較</span>
+              </button>
+              <button class="component-item" data-component="mini-chart">
+                <span class="component-icon"
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="3 17 8 11 13 15 21 7" />
+                    <line x1="3" y1="20" x2="21" y2="20" /></svg
+                ></span>
+                <span class="component-name">ミニチャート</span>
+              </button>
             </div>
           </div>
 
@@ -1227,6 +1321,88 @@
               </svg>
               Organisms <span class="atomic-badge">完成パーツ</span>
             </h4>
+            <div class="component-list atomic-list">
+              <button class="component-item" data-component="dashboard-overview">
+                <span class="component-icon"
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="18" height="7" rx="1" /></svg
+                ></span>
+                <span class="component-name">ダッシュボード概要</span>
+              </button>
+              <button class="component-item" data-component="analytics-section">
+                <span class="component-icon"
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    <line x1="2" y1="20" x2="22" y2="20" /></svg
+                ></span>
+                <span class="component-name">アナリティクス</span>
+              </button>
+              <button class="component-item" data-component="user-management">
+                <span class="component-icon"
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <rect x="15" y="11" width="8" height="8" rx="1" /></svg
+                ></span>
+                <span class="component-name">ユーザー管理</span>
+              </button>
+              <button class="component-item" data-component="settings-panel">
+                <span class="component-icon"
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.26.6.86 1 1.51 1H21a2 2 0 0 1 0 4h-.09c-.65 0-1.25.4-1.51 1z"
+                    /></svg
+                ></span>
+                <span class="component-name">設定パネル</span>
+              </button>
+              <button class="component-item" data-component="notification-center">
+                <span class="component-icon"
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    <line x1="3" y1="3" x2="21" y2="3" /></svg
+                ></span>
+                <span class="component-name">通知センター</span>
+              </button>
+            </div>
           </div>
 
           <div class="component-category">
@@ -1578,7 +1754,7 @@
           <h3 class="section-title">デザインカスタマイズ</h3>
 
           <div class="customize-group">
-            <label class="customize-label">フォント</label>
+            <label class="customize-label" for="dashFontFamily">フォント</label>
             <select id="dashFontFamily" class="customize-select">
               <optgroup label="欧文フォント">
                 <option value="Inter">Inter (デフォルト)</option>
@@ -1606,7 +1782,7 @@
           </div>
 
           <div class="customize-group">
-            <label class="customize-label">フォントサイズ</label>
+            <label class="customize-label" for="dashFontSize">フォントサイズ</label>
             <select id="dashFontSize" class="customize-select">
               <option value="0.875">小 (87.5%)</option>
               <option value="1.0" selected>標準 (100%)</option>
@@ -1615,7 +1791,7 @@
           </div>
 
           <div class="customize-group">
-            <label class="customize-label">余白スケール</label>
+            <label class="customize-label" for="dashSpacing">余白スケール</label>
             <select id="dashSpacing" class="customize-select">
               <option value="0.75">コンパクト (75%)</option>
               <option value="1.0" selected>標準 (100%)</option>
@@ -1624,7 +1800,7 @@
           </div>
 
           <div class="customize-group">
-            <label class="customize-label">角丸</label>
+            <label class="customize-label" for="dashBorderRadius">角丸</label>
             <select id="dashBorderRadius" class="customize-select">
               <option value="0">なし (0px)</option>
               <option value="4">小 (4px)</option>
@@ -1638,19 +1814,19 @@
             <label class="customize-label">カスタムカラー</label>
             <div class="color-inputs">
               <div class="color-row">
-                <span>プライマリ</span>
+                <label for="dashPrimaryColor">プライマリ</label>
                 <input type="color" id="dashPrimaryColor" value="#3b82f6" />
               </div>
               <div class="color-row">
-                <span>セカンダリ</span>
+                <label for="dashSecondaryColor">セカンダリ</label>
                 <input type="color" id="dashSecondaryColor" value="#64748b" />
               </div>
               <div class="color-row">
-                <span>アクセント</span>
+                <label for="dashAccentColor">アクセント</label>
                 <input type="color" id="dashAccentColor" value="#10b981" />
               </div>
               <div class="color-row">
-                <span>背景</span>
+                <label for="dashBgColor">背景</label>
                 <input type="color" id="dashBgColor" value="#f8fafc" />
               </div>
             </div>
@@ -1658,7 +1834,7 @@
           </div>
 
           <div class="customize-group">
-            <label class="customize-label">シャドウ</label>
+            <label class="customize-label" for="dashShadow">シャドウ</label>
             <select id="dashShadow" class="customize-select">
               <option value="none">なし</option>
               <option value="sm">小</option>
@@ -1668,10 +1844,11 @@
           </div>
         </section>
 
-        <!-- Export Options -->
+        <!-- エクスポート形式 -->
         <section class="builder-section">
           <h3 class="section-title">エクスポート形式</h3>
-          <div class="export-format-selector">
+          <fieldset class="export-format-selector">
+            <legend class="sr-only">エクスポート形式を選択</legend>
             <label class="format-option">
               <input type="radio" name="exportFormat" value="html" checked />
               <span class="format-label">
@@ -1693,7 +1870,60 @@
                 <small>React + shadcn/uiコンポーネント</small>
               </span>
             </label>
+          </fieldset>
+        </section>
+
+        <!-- プロジェクト管理 -->
+        <section class="builder-section">
+          <h3 class="section-title">プロジェクト</h3>
+          <div class="project-controls">
+            <button id="dbSaveProject" class="db-btn db-btn-primary db-btn-block">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+              </svg>
+              保存
+            </button>
+            <button id="dbExportJSON" class="db-btn db-btn-secondary db-btn-block">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              JSONエクスポート
+            </button>
+            <button id="dbImportJSON" class="db-btn db-btn-secondary db-btn-block">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              JSONインポート
+            </button>
           </div>
+          <div id="dbProjectsList" class="projects-list"></div>
         </section>
 
         <!-- Actions -->
@@ -2029,18 +2259,18 @@
       </div>
     </footer>
 
-    <!-- Code Preview Modal -->
-    <div class="code-preview-modal" id="codePreviewModal">
+    <!-- コードプレビューモーダル -->
+    <div class="code-preview-modal" id="codePreviewModal" role="dialog" aria-modal="true" aria-labelledby="codePreviewModalTitle">
       <div class="code-preview-overlay" id="codePreviewOverlay"></div>
       <div class="code-preview-container">
         <div class="code-preview-header">
-          <h3>コードプレビュー</h3>
+          <h3 id="codePreviewModalTitle">コードプレビュー</h3>
           <div class="code-preview-tabs">
             <button class="code-tab active" data-tab="html">HTML</button>
             <button class="code-tab" data-tab="css">CSS</button>
             <button class="code-tab" data-tab="full">完全版</button>
           </div>
-          <button class="code-preview-close" id="closeCodePreview">
+          <button class="code-preview-close" id="closeCodePreview" aria-label="モーダルを閉じる">
             <svg
               width="24"
               height="24"
@@ -2048,6 +2278,7 @@
               fill="none"
               stroke="currentColor"
               stroke-width="2"
+              aria-hidden="true"
             >
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -2094,5 +2325,9 @@
     <script src="js/common-editor.js"></script>
     <script src="js/dashboard-templates.js"></script>
     <script src="js/dashboard-generator.js"></script>
+    <script src="js/ai/ai-service.js"></script>
+    <script src="js/ai/ai-prompt-engine.js"></script>
+    <script src="js/ai/ai-stream-handler.js"></script>
+    <script src="js/ai/ai-ui-controller.js"></script>
   </body>
 </html>

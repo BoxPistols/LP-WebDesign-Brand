@@ -1,0 +1,525 @@
+/* ============================================
+   24カラム グリッドシステム
+   LP / ダッシュボード共通の堅牢なレイアウト基盤
+   ============================================ */
+
+/* ==========================================
+   1. グリッド変数
+   ========================================== */
+
+:root {
+  /* グリッド設定 */
+  --grid-columns: 24;
+  --grid-gutter: var(--space-6);      /* 24px - カラム間 */
+  --grid-margin: var(--space-6);      /* 24px - 外側余白 */
+  --grid-max-width: 1280px;           /* コンテンツ最大幅 */
+
+  /* セクション垂直リズム */
+  --section-py-sm: var(--space-12);   /* 48px - コンパクト */
+  --section-py-md: var(--space-20);   /* 80px - 標準 */
+  --section-py-lg: var(--space-28);   /* 112px - ゆったり */
+
+  /* コンポーネント間隔 */
+  --component-gap-sm: var(--space-4); /* 16px */
+  --component-gap-md: var(--space-6); /* 24px */
+  --component-gap-lg: var(--space-8); /* 32px */
+
+  /* カード標準 */
+  --card-padding: var(--space-8);     /* 32px */
+  --card-radius: var(--radius-2xl);   /* 16px */
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.06), 0 16px 40px rgba(0, 0, 0, 0.08);
+  --card-border: 1px solid var(--color-neutral-100);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --grid-gutter: var(--space-8);    /* 32px */
+    --grid-margin: var(--space-8);    /* 32px */
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --grid-gutter: var(--space-8);    /* 32px */
+    --grid-margin: var(--space-12);   /* 48px */
+  }
+}
+
+/* ==========================================
+   2. コンテナ
+   ========================================== */
+
+/* メインコンテナ - 最大幅 + 中央揃え + 余白 */
+.g-container {
+  width: 100%;
+  max-width: var(--grid-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+}
+
+/* ワイドコンテナ (1400px) */
+.g-container-wide {
+  width: 100%;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+}
+
+/* ナローコンテナ (768px) - テキスト中心 */
+.g-container-narrow {
+  width: 100%;
+  max-width: 768px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+}
+
+/* フルブリードセクション */
+.g-full-bleed {
+  width: 100%;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+}
+
+/* ==========================================
+   3. 24カラムグリッド
+   ========================================== */
+
+.g-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), 1fr);
+  gap: var(--grid-gutter);
+}
+
+/* カラムスパン（24カラム） */
+.g-col-1  { grid-column: span 1; }
+.g-col-2  { grid-column: span 2; }
+.g-col-3  { grid-column: span 3; }
+.g-col-4  { grid-column: span 4; }
+.g-col-5  { grid-column: span 5; }
+.g-col-6  { grid-column: span 6; }
+.g-col-7  { grid-column: span 7; }
+.g-col-8  { grid-column: span 8; }
+.g-col-9  { grid-column: span 9; }
+.g-col-10 { grid-column: span 10; }
+.g-col-11 { grid-column: span 11; }
+.g-col-12 { grid-column: span 12; }
+.g-col-13 { grid-column: span 13; }
+.g-col-14 { grid-column: span 14; }
+.g-col-15 { grid-column: span 15; }
+.g-col-16 { grid-column: span 16; }
+.g-col-17 { grid-column: span 17; }
+.g-col-18 { grid-column: span 18; }
+.g-col-19 { grid-column: span 19; }
+.g-col-20 { grid-column: span 20; }
+.g-col-21 { grid-column: span 21; }
+.g-col-22 { grid-column: span 22; }
+.g-col-23 { grid-column: span 23; }
+.g-col-24 { grid-column: span 24; }
+
+/* モバイルデフォルト: 全幅 */
+@media (max-width: 767px) {
+  .g-col-1, .g-col-2, .g-col-3, .g-col-4, .g-col-5, .g-col-6,
+  .g-col-7, .g-col-8, .g-col-9, .g-col-10, .g-col-11, .g-col-12,
+  .g-col-13, .g-col-14, .g-col-15, .g-col-16, .g-col-17, .g-col-18,
+  .g-col-19, .g-col-20, .g-col-21, .g-col-22, .g-col-23, .g-col-24 {
+    grid-column: span 24;
+  }
+}
+
+/* タブレット (md:) レスポンシブカラム */
+@media (min-width: 768px) {
+  .g-md-col-1  { grid-column: span 1; }
+  .g-md-col-2  { grid-column: span 2; }
+  .g-md-col-3  { grid-column: span 3; }
+  .g-md-col-4  { grid-column: span 4; }
+  .g-md-col-6  { grid-column: span 6; }
+  .g-md-col-8  { grid-column: span 8; }
+  .g-md-col-10 { grid-column: span 10; }
+  .g-md-col-12 { grid-column: span 12; }
+  .g-md-col-14 { grid-column: span 14; }
+  .g-md-col-16 { grid-column: span 16; }
+  .g-md-col-18 { grid-column: span 18; }
+  .g-md-col-20 { grid-column: span 20; }
+  .g-md-col-24 { grid-column: span 24; }
+}
+
+/* デスクトップ (lg:) レスポンシブカラム */
+@media (min-width: 1024px) {
+  .g-lg-col-1  { grid-column: span 1; }
+  .g-lg-col-2  { grid-column: span 2; }
+  .g-lg-col-3  { grid-column: span 3; }
+  .g-lg-col-4  { grid-column: span 4; }
+  .g-lg-col-5  { grid-column: span 5; }
+  .g-lg-col-6  { grid-column: span 6; }
+  .g-lg-col-7  { grid-column: span 7; }
+  .g-lg-col-8  { grid-column: span 8; }
+  .g-lg-col-9  { grid-column: span 9; }
+  .g-lg-col-10 { grid-column: span 10; }
+  .g-lg-col-11 { grid-column: span 11; }
+  .g-lg-col-12 { grid-column: span 12; }
+  .g-lg-col-13 { grid-column: span 13; }
+  .g-lg-col-14 { grid-column: span 14; }
+  .g-lg-col-15 { grid-column: span 15; }
+  .g-lg-col-16 { grid-column: span 16; }
+  .g-lg-col-17 { grid-column: span 17; }
+  .g-lg-col-18 { grid-column: span 18; }
+  .g-lg-col-19 { grid-column: span 19; }
+  .g-lg-col-20 { grid-column: span 20; }
+  .g-lg-col-21 { grid-column: span 21; }
+  .g-lg-col-22 { grid-column: span 22; }
+  .g-lg-col-23 { grid-column: span 23; }
+  .g-lg-col-24 { grid-column: span 24; }
+}
+
+/* カラムオフセット */
+.g-start-1  { grid-column-start: 1; }
+.g-start-2  { grid-column-start: 2; }
+.g-start-3  { grid-column-start: 3; }
+.g-start-4  { grid-column-start: 4; }
+.g-start-5  { grid-column-start: 5; }
+.g-start-7  { grid-column-start: 7; }
+.g-start-9  { grid-column-start: 9; }
+.g-start-13 { grid-column-start: 13; }
+
+/* ==========================================
+   4. よく使うレイアウトパターン（ショートハンド）
+   ========================================== */
+
+/* 2カラム均等 (12+12) */
+.g-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--grid-gutter);
+}
+
+/* 3カラム均等 (8+8+8) */
+.g-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--grid-gutter);
+}
+
+/* 4カラム均等 (6+6+6+6) */
+.g-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--grid-gutter);
+}
+
+/* サイドバー + メイン (8+16) */
+.g-sidebar-main {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--grid-gutter);
+}
+
+/* メイン + サイドバー (16+8) */
+.g-main-sidebar {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--grid-gutter);
+}
+
+/* 非対称2カラム (10+14) - ヒーロー・フィーチャー向け */
+.g-asymmetric {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: var(--grid-gutter);
+}
+
+/* 非対称逆 (14+10) */
+.g-asymmetric-reverse {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: var(--grid-gutter);
+}
+
+/* auto-fitカード（最小300px） */
+.g-auto-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--grid-gutter);
+}
+
+/* auto-fitカード（最小240px - コンパクト） */
+.g-auto-cards-sm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--grid-gutter);
+}
+
+/* レスポンシブ: モバイルで1カラムに */
+@media (max-width: 767px) {
+  .g-2col, .g-3col, .g-4col,
+  .g-sidebar-main, .g-main-sidebar,
+  .g-asymmetric, .g-asymmetric-reverse {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* レスポンシブ: タブレットで2カラムに */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .g-3col { grid-template-columns: repeat(2, 1fr); }
+  .g-4col { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ==========================================
+   5. gap ユーティリティ
+   ========================================== */
+
+.g-gap-0  { gap: 0; }
+.g-gap-xs { gap: var(--space-2); }   /* 8px */
+.g-gap-sm { gap: var(--space-4); }   /* 16px */
+.g-gap-md { gap: var(--space-6); }   /* 24px */
+.g-gap-lg { gap: var(--space-8); }   /* 32px */
+.g-gap-xl { gap: var(--space-12); }  /* 48px */
+
+/* 行/列 個別gap */
+.g-row-gap-sm { row-gap: var(--space-4); }
+.g-row-gap-md { row-gap: var(--space-6); }
+.g-row-gap-lg { row-gap: var(--space-8); }
+.g-col-gap-sm { column-gap: var(--space-4); }
+.g-col-gap-md { column-gap: var(--space-6); }
+.g-col-gap-lg { column-gap: var(--space-8); }
+
+/* ==========================================
+   6. セクション（垂直リズム）
+   ========================================== */
+
+/* 標準セクション */
+.g-section {
+  padding-top: var(--section-py-md);
+  padding-bottom: var(--section-py-md);
+}
+
+/* コンパクトセクション */
+.g-section-sm {
+  padding-top: var(--section-py-sm);
+  padding-bottom: var(--section-py-sm);
+}
+
+/* ゆったりセクション（ヒーロー等） */
+.g-section-lg {
+  padding-top: var(--section-py-lg);
+  padding-bottom: var(--section-py-lg);
+}
+
+/* セクションヘッダー統一 */
+.g-section-header {
+  text-align: center;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--space-12);  /* 48px - 統一 */
+}
+
+/* ==========================================
+   7. カード基盤
+   ========================================== */
+
+.g-card {
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  background: white;
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.g-card:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* カードバリエーション */
+.g-card-flat {
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  background: var(--color-neutral-50);
+  border: none;
+  box-shadow: none;
+}
+
+.g-card-glass {
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--card-shadow);
+}
+
+.g-card-bordered {
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  background: white;
+  border: 2px solid var(--color-neutral-200);
+  box-shadow: none;
+  transition: border-color 0.3s ease;
+}
+
+.g-card-bordered:hover {
+  border-color: var(--color-primary-300);
+}
+
+/* ==========================================
+   8. Flexユーティリティ
+   ========================================== */
+
+.g-flex { display: flex; }
+.g-flex-col { flex-direction: column; }
+.g-flex-wrap { flex-wrap: wrap; }
+.g-flex-center { align-items: center; justify-content: center; }
+.g-flex-between { justify-content: space-between; align-items: center; }
+.g-items-start { align-items: flex-start; }
+.g-items-center { align-items: center; }
+.g-items-end { align-items: flex-end; }
+.g-justify-center { justify-content: center; }
+.g-justify-between { justify-content: space-between; }
+
+/* ==========================================
+   9. 配置ユーティリティ
+   ========================================== */
+
+.g-text-center { text-align: center; }
+.g-text-left { text-align: left; }
+.g-text-right { text-align: right; }
+.g-mx-auto { margin-left: auto; margin-right: auto; }
+
+/* ==========================================
+   10. ダークモード対応
+   ========================================== */
+
+[data-theme='dark-mode'] {
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.2);
+  --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.3);
+  --card-border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark-mode'] .g-card,
+[data-theme='neon'] .g-card {
+  background: rgba(30, 41, 59, 0.8);
+  color: var(--color-neutral-100);
+}
+
+[data-theme='dark-mode'] .g-card-flat,
+[data-theme='neon'] .g-card-flat {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+[data-theme='dark-mode'] .g-card-glass,
+[data-theme='neon'] .g-card-glass {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================
+   11. 既存lp-*クラスとの統合レイヤー
+   テンプレートで使われる既存クラスに統一的な基盤を適用
+   ========================================== */
+
+/* lp-sectionに統一的な垂直リズムを強制 */
+.lp-section {
+  padding-top: var(--section-py-md);
+  padding-bottom: var(--section-py-md);
+}
+
+/* lp-content-wrapperに統一的なコンテナ制約を強制 */
+.lp-content-wrapper {
+  width: 100%;
+  max-width: var(--grid-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+}
+
+/* lp-hero-contentにもコンテナ制約を適用 */
+.lp-hero-content {
+  width: 100%;
+  max-width: var(--grid-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+}
+
+/* lp-section-headerの統一 */
+.lp-section-header {
+  text-align: center;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--space-12);
+}
+
+/* 全カードコンポーネントに統一基盤を適用 */
+.lp-feature-card,
+.lp-feature-card-modern,
+.lp-pricing-card,
+.lp-pricing-card-modern,
+.lp-pricing-card-simple,
+.lp-testimonial-card,
+.lp-testimonial-card-modern {
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.lp-feature-card:hover,
+.lp-feature-card-modern:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* グリッドコンポーネントのgap統一 */
+.lp-features-grid-3,
+.lp-pricing-grid-modern,
+.lp-pricing-grid-3,
+.lp-testimonials-grid-modern,
+.lp-team-grid,
+.lp-benefits-grid,
+.lp-security-grid,
+.lp-awards-grid,
+.lp-integrations-grid,
+.lp-metrics-grid,
+.lp-steps-grid {
+  gap: var(--component-gap-lg);  /* 32px統一 */
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 767px) {
+  .lp-section {
+    padding-top: var(--section-py-sm);
+    padding-bottom: var(--section-py-sm);
+  }
+
+  .lp-section-header {
+    margin-bottom: var(--space-8);
+  }
+
+  .lp-features-grid-3,
+  .lp-pricing-grid-modern,
+  .lp-pricing-grid-3,
+  .lp-testimonials-grid-modern,
+  .lp-team-grid {
+    grid-template-columns: 1fr;
+    gap: var(--component-gap-md);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lp-features-grid-3,
+  .lp-pricing-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

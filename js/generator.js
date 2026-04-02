@@ -1,22 +1,71 @@
 // Universal Landing Page Generator
 // Main Application Logic
+// enhanced-generator.js の機能を統合済み
 
 class LandingPageGenerator {
+  // 定数: CommonEditor.CONFIG を拡張
+  static get CONFIG() {
+    return {
+      ...CommonEditor.CONFIG,
+      ZOOM_MIN: 25,
+      ZOOM_MAX: 100,
+      ZOOM_DEFAULT: 100,
+      AUTOSAVE_INTERVAL: 30000,
+      AUTOSAVE_RETENTION_HOURS: 24,
+      CDN_BASE_URL: 'https://cdn.jsdelivr.net/gh/BoxPistols/LP-WebDesign-Brand@main/css',
+      DEFAULT_THEME: 'modern-blue',
+      DEFAULT_CSS_MODE: 'custom',
+      NOTIFICATION_FADE_MS: 300,
+    };
+  }
+
   constructor() {
-    this.currentTheme = 'modern-blue';
+    this.currentTheme = LandingPageGenerator.CONFIG.DEFAULT_THEME;
     this.sections = [];
     this.animations = true;
     this.glassmorphism = false;
     this.deviceMode = 'desktop';
     this.autoSaveInterval = null;
     this.exportedHTML = null;
-    this.cssMode = 'custom'; // 'custom' or 'tailwind'
-    this.zoomLevel = 100; // Zoom level percentage
+    this.cssMode = LandingPageGenerator.CONFIG.DEFAULT_CSS_MODE;
+    this.zoomLevel = LandingPageGenerator.CONFIG.ZOOM_DEFAULT;
 
     // Undo/Redo 履歴管理
     this.history = [];
     this.historyIndex = -1;
-    this.maxHistorySize = 50;
+    this.maxHistorySize = CommonEditor.CONFIG.MAX_HISTORY_SIZE;
+
+    // EnhancedGenerator から統合: SEOデータ
+    this.seoData = {
+      title: '',
+      description: '',
+      keywords: '',
+      ogImage: '',
+      canonicalUrl: '',
+      lang: 'ja',
+      includeTwitterCard: true,
+      includeSchema: true,
+    };
+
+    // EnhancedGenerator から統合: デザイン設定
+    this.designSettings = {
+      fontFamily: 'Inter',
+      fontSizeScale: 1.0,
+      spacingScale: 1.0,
+      borderRadius: 8,
+      primaryColor: '#667eea',
+      secondaryColor: '#764ba2',
+      accentColor: '#f093fb',
+    };
+
+    // CommonEditor インスタンス（インライン編集の委譲先）
+    this.commonEditor = null;
+
+    // イベントリスナーの参照（destroy用）
+    this._boundListeners = [];
+
+    // IntersectionObserver参照
+    this.animationObserver = null;
 
     this.init();
   }
@@ -31,7 +80,94 @@ class LandingPageGenerator {
     this.setupZoomControls();
     this.setupSectionAccordion();
     this.draggedItem = null;
+
+    // EnhancedGenerator から統合
+    this.setupAdvancedExport();
+    this.setupPresets();
+    this.setupEnhancedKeyboardShortcuts();
+    this.setupDesignCustomization();
+    this.setupSEOEditor();
+    this.setupScrollAnimations();
+    this.setupHoverEffects();
+    this.setupParallaxEffects();
+    this.setupAI();
   }
+
+  // ==========================================
+  // AI INTEGRATION
+  // ==========================================
+
+  setupAI() {
+    if (typeof AIUIController === 'undefined') return;
+    this.aiController = new AIUIController(this, 'lp');
+    this.aiController.init();
+  }
+
+  /**
+   * AI生成されたHTMLをセクションとして挿入
+   * @param {string} html - 挿入するHTML
+   * @param {string} [afterSectionId] - この後に挿入（省略時は末尾）
+   */
+  insertAIGeneratedSection(html, afterSectionId) {
+    const newSection = {
+      id: 'ai-' + Date.now(),
+      template: {
+        name: 'AI生成セクション',
+        html: html,
+      },
+      imageChanges: [],
+    };
+
+    if (afterSectionId) {
+      const idx = this.sections.findIndex(s => s.id === afterSectionId);
+      if (idx !== -1) {
+        this.sections.splice(idx + 1, 0, newSection);
+      } else {
+        this.sections.push(newSection);
+      }
+    } else {
+      this.sections.push(newSection);
+    }
+
+    this.saveState();
+    this.updatePreview();
+    this.showNotification('AI生成セクションを追加しました');
+  }
+
+  // ==========================================
+  // DESTROY / CLEANUP
+  // ==========================================
+
+  /**
+   * リソース解放: setInterval、イベントリスナー、Observerをクリーンアップ
+   */
+  destroy() {
+    this.stopAutoSave();
+
+    // IntersectionObserver の切断
+    if (this.animationObserver) {
+      this.animationObserver.disconnect();
+      this.animationObserver = null;
+    }
+
+    // 登録済みイベントリスナーを解除
+    this._boundListeners.forEach(({ target, event, handler, options }) => {
+      target.removeEventListener(event, handler, options);
+    });
+    this._boundListeners = [];
+  }
+
+  /**
+   * イベントリスナー登録のヘルパー（destroyで自動解除）
+   */
+  _addListener(target, event, handler, options) {
+    target.addEventListener(event, handler, options);
+    this._boundListeners.push({ target, event, handler, options });
+  }
+
+  // ==========================================
+  // SECTION ACCORDION
+  // ==========================================
 
   setupSectionAccordion() {
     const accordionHeaders = document.querySelectorAll('.accordion-header');
@@ -42,16 +178,13 @@ class LandingPageGenerator {
         const content = accordionItem.querySelector('.accordion-content');
         const isExpanded = header.getAttribute('aria-expanded') === 'true';
 
-        // Toggle current accordion
         header.setAttribute('aria-expanded', !isExpanded);
         content.classList.toggle('open', !isExpanded);
 
-        // Save accordion state to localStorage
         this.saveAccordionState();
       });
     });
 
-    // Restore accordion state from localStorage
     this.restoreAccordionState();
   }
 
@@ -66,15 +199,14 @@ class LandingPageGenerator {
       state[accordionId] = isExpanded;
     });
 
-    localStorage.setItem('lpAccordionState', JSON.stringify(state));
+    CommonEditor.saveToStorage('lpAccordionState', state);
   }
 
   restoreAccordionState() {
-    const savedState = localStorage.getItem('lpAccordionState');
-    if (!savedState) return;
+    const state = CommonEditor.loadFromStorage('lpAccordionState');
+    if (!state) return;
 
     try {
-      const state = JSON.parse(savedState);
       const accordionItems = document.querySelectorAll('.accordion-item');
 
       accordionItems.forEach((item) => {
@@ -93,6 +225,10 @@ class LandingPageGenerator {
     }
   }
 
+  // ==========================================
+  // SIDEBAR TOGGLE
+  // ==========================================
+
   setupSidebarToggle() {
     const toggle = document.getElementById('sidebarToggle');
     const container = document.querySelector('.generator-container');
@@ -101,15 +237,18 @@ class LandingPageGenerator {
       toggle.addEventListener('click', () => {
         container.classList.toggle('sidebar-collapsed');
         const isCollapsed = container.classList.contains('sidebar-collapsed');
-        localStorage.setItem('lpSidebarCollapsed', isCollapsed);
+        CommonEditor.saveToStorage('lpSidebarCollapsed', isCollapsed);
       });
 
-      // Restore state from localStorage
-      if (localStorage.getItem('lpSidebarCollapsed') === 'true') {
+      if (CommonEditor.loadFromStorage('lpSidebarCollapsed') === true) {
         container.classList.add('sidebar-collapsed');
       }
     }
   }
+
+  // ==========================================
+  // ZOOM CONTROLS
+  // ==========================================
 
   setupZoomControls() {
     const zoomSlider = document.getElementById('zoomSlider');
@@ -123,17 +262,16 @@ class LandingPageGenerator {
 
     if (!zoomSlider || !previewFrame) return;
 
-    // Store original dimensions for zoom calculations
     let baseWidth = null;
     let baseHeight = null;
 
-    // Apply zoom level (scale entire preview, maintain aspect ratio)
+    const { ZOOM_MIN, ZOOM_MAX, ZOOM_DEFAULT } = LandingPageGenerator.CONFIG;
+
     const applyZoom = (level) => {
-      this.zoomLevel = Math.max(25, Math.min(100, level));
+      this.zoomLevel = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, level));
       const scale = this.zoomLevel / 100;
 
-      if (this.zoomLevel < 100) {
-        // Fix dimensions to prevent responsive breakpoints from triggering
+      if (this.zoomLevel < ZOOM_DEFAULT) {
         if (!baseWidth) {
           baseWidth = previewFrame.offsetWidth;
           baseHeight = previewFrame.scrollHeight;
@@ -145,7 +283,6 @@ class LandingPageGenerator {
         previewFrame.classList.add('zoomed');
         previewArea?.classList.add('zoom-active');
       } else {
-        // Reset to normal
         previewFrame.style.width = '';
         previewFrame.style.height = '';
         previewFrame.style.transform = '';
@@ -158,37 +295,31 @@ class LandingPageGenerator {
       zoomSlider.value = this.zoomLevel;
       zoomValue.textContent = `${this.zoomLevel}%`;
 
-      // Save to localStorage
-      localStorage.setItem('lpZoomLevel', this.zoomLevel);
+      CommonEditor.saveToStorage('lpZoomLevel', this.zoomLevel);
     };
 
-    // Slider change
     zoomSlider.addEventListener('input', (e) => {
       applyZoom(parseInt(e.target.value));
     });
 
-    // Zoom in button
     zoomIn?.addEventListener('click', () => {
       applyZoom(this.zoomLevel + 10);
     });
 
-    // Zoom out button
     zoomOut?.addEventListener('click', () => {
       applyZoom(this.zoomLevel - 10);
     });
 
-    // Fit to screen (compact view at 50%)
     zoomFit?.addEventListener('click', () => {
       applyZoom(50);
     });
 
-    // Reset to 100%
     zoomReset?.addEventListener('click', () => {
-      applyZoom(100);
+      applyZoom(ZOOM_DEFAULT);
     });
 
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
+    // キーボードショートカット
+    this._addListener(document, 'keydown', (e) => {
       if (
         (e.ctrlKey || e.metaKey) &&
         e.target.tagName !== 'INPUT' &&
@@ -202,12 +333,12 @@ class LandingPageGenerator {
           applyZoom(this.zoomLevel - 10);
         } else if (e.key === '0') {
           e.preventDefault();
-          applyZoom(100);
+          applyZoom(ZOOM_DEFAULT);
         }
       }
     });
 
-    // Mouse wheel zoom with Ctrl
+    // マウスホイールズーム (Ctrl)
     previewFrame.addEventListener(
       'wheel',
       (e) => {
@@ -220,12 +351,16 @@ class LandingPageGenerator {
       { passive: false }
     );
 
-    // Restore zoom level from localStorage
-    const savedZoom = localStorage.getItem('lpZoomLevel');
+    // 保存済みズームレベル復元
+    const savedZoom = CommonEditor.loadFromStorage('lpZoomLevel');
     if (savedZoom) {
       applyZoom(parseInt(savedZoom));
     }
   }
+
+  // ==========================================
+  // HELP PANEL
+  // ==========================================
 
   setupHelpPanel() {
     const helpToggle = document.getElementById('helpToggle');
@@ -241,7 +376,6 @@ class LandingPageGenerator {
         helpContent.classList.remove('active');
       });
 
-      // Close on click outside
       document.addEventListener('click', (e) => {
         if (!e.target.closest('.help-panel')) {
           helpContent.classList.remove('active');
@@ -250,6 +384,10 @@ class LandingPageGenerator {
     }
   }
 
+  // ==========================================
+  // WELCOME MODAL
+  // ==========================================
+
   setupWelcomeModal() {
     const welcomeModal = document.getElementById('welcomeModal');
     const welcomeClose = document.getElementById('welcomeClose');
@@ -257,11 +395,9 @@ class LandingPageGenerator {
 
     if (!welcomeModal) return;
 
-    // Check if user has dismissed the welcome modal
-    const hideWelcome = localStorage.getItem('lpHideWelcome');
+    const hideWelcome = CommonEditor.loadFromStorage('lpHideWelcome');
 
-    if (hideWelcome !== 'true') {
-      // Show welcome modal after a short delay
+    if (hideWelcome !== true) {
       setTimeout(() => {
         welcomeModal.classList.add('active');
       }, 500);
@@ -270,20 +406,17 @@ class LandingPageGenerator {
     welcomeClose?.addEventListener('click', () => {
       welcomeModal.classList.remove('active');
 
-      // Save preference if checkbox is checked
       if (dontShowAgain?.checked) {
-        localStorage.setItem('lpHideWelcome', 'true');
+        CommonEditor.saveToStorage('lpHideWelcome', true);
       }
     });
 
-    // Close on backdrop click
     welcomeModal.addEventListener('click', (e) => {
       if (e.target === welcomeModal) {
         welcomeModal.classList.remove('active');
       }
     });
 
-    // Close on Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && welcomeModal.classList.contains('active')) {
         welcomeModal.classList.remove('active');
@@ -291,38 +424,37 @@ class LandingPageGenerator {
     });
   }
 
+  // ==========================================
+  // EVENT LISTENERS
+  // ==========================================
+
   setupEventListeners() {
-    // Theme selection
+    // テーマ選択
     document.querySelectorAll('.theme-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => this.handleThemeChange(e));
     });
 
-    // Component addition (click and drag) with preview tooltip
+    // コンポーネント追加（クリック&ドラッグ）
     document.querySelectorAll('.component-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => this.handleComponentAdd(e));
 
-      // Make draggable
       btn.setAttribute('draggable', 'true');
       btn.addEventListener('dragstart', (e) => this.handleComponentDragStart(e));
       btn.addEventListener('dragend', (e) => this.handleComponentDragEnd(e));
 
-      // Preview tooltip on hover
       btn.addEventListener('mouseenter', (e) => this.showSectionPreview(e));
       btn.addEventListener('mouseleave', () => this.hideSectionPreview());
     });
 
-    // Create preview tooltip
     this.createSectionPreviewTooltip();
-
-    // Setup preview area as drop zone
     this.setupPreviewDropZone();
 
-    // Device toggles
+    // デバイス切替
     document.querySelectorAll('.device-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => this.handleDeviceChange(e));
     });
 
-    // Layout options
+    // レイアウトオプション
     document.getElementById('animationsToggle')?.addEventListener('change', (e) => {
       this.animations = e.target.checked;
       this.updatePreview();
@@ -333,12 +465,12 @@ class LandingPageGenerator {
       this.updatePreview();
     });
 
-    // Actions
+    // アクション
     document.getElementById('exportHTML')?.addEventListener('click', () => this.exportHTML());
     document.getElementById('previewExport')?.addEventListener('click', () => this.previewExport());
     document.getElementById('clearAll')?.addEventListener('click', () => this.clearAll());
 
-    // Project management
+    // プロジェクト管理
     document.getElementById('saveProject')?.addEventListener('click', () => this.saveProject());
     document
       .getElementById('loadProject')
@@ -352,7 +484,7 @@ class LandingPageGenerator {
       .getElementById('importJSON')
       ?.addEventListener('click', () => this.importProjectFromJSON());
 
-    // Export modal
+    // エクスポートモーダル
     document
       .getElementById('exportModalClose')
       ?.addEventListener('click', () => this.closeExportModal());
@@ -361,15 +493,14 @@ class LandingPageGenerator {
       .getElementById('downloadCodeBtn')
       ?.addEventListener('click', () => this.downloadFromModal());
 
-    // Close modal on backdrop click
     document.getElementById('exportModal')?.addEventListener('click', (e) => {
       if (e.target.id === 'exportModal') {
         this.closeExportModal();
       }
     });
 
-    // Close modal on Escape key & Undo/Redo shortcuts
-    document.addEventListener('keydown', (e) => {
+    // Escape / Undo / Redo ショートカット
+    this._addListener(document, 'keydown', (e) => {
       if (e.key === 'Escape') {
         const modal = document.getElementById('exportModal');
         if (modal && modal.classList.contains('active')) {
@@ -377,13 +508,11 @@ class LandingPageGenerator {
         }
       }
 
-      // Undo: Ctrl+Z or Cmd+Z
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
         this.undo();
       }
 
-      // Redo: Ctrl+Shift+Z or Cmd+Shift+Z or Ctrl+Y
       if (
         ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z') ||
         ((e.ctrlKey || e.metaKey) && e.key === 'y')
@@ -393,7 +522,7 @@ class LandingPageGenerator {
       }
     });
 
-    // CSS mode selection
+    // CSSモード選択
     document.querySelectorAll('input[name="cssMode"]').forEach((radio) => {
       radio.addEventListener('change', (e) => {
         this.cssMode = e.target.value;
@@ -406,22 +535,23 @@ class LandingPageGenerator {
     });
   }
 
+  // ==========================================
+  // SECTION TEMPLATES
+  // ==========================================
+
   loadSectionTemplates() {
-    // Templates are loaded from templates.js
-    console.log('Section templates loaded');
-
-    // Load saved projects list on init
     this.renderProjectsList();
-
-    // Start auto-save (every 30 seconds)
     this.startAutoSave();
   }
+
+  // ==========================================
+  // THEME CHANGE
+  // ==========================================
 
   handleThemeChange(e) {
     const btn = e.currentTarget;
     const theme = btn.dataset.theme;
 
-    // Update active state
     document.querySelectorAll('.theme-btn').forEach((b) => b.classList.remove('active'));
     btn.classList.add('active');
 
@@ -429,36 +559,45 @@ class LandingPageGenerator {
     this.updatePreview();
   }
 
+  // ==========================================
+  // COMPONENT ADD
+  // ==========================================
+
   handleComponentAdd(e) {
     const btn = e.currentTarget;
     const component = btn.dataset.component;
 
-    if (sectionTemplates[component]) {
-      // Remove empty state if this is the first section
-      if (this.sections.length === 0) {
-        const emptyState = document.querySelector('.empty-state');
-        if (emptyState) {
-          emptyState.remove();
-        }
-      }
-
-      this.sections.push({
-        type: component,
-        id: this.generateId(),
-        template: sectionTemplates[component],
-      });
-
-      this.saveState();
-      this.updatePreview();
-      this.showNotification(`${sectionTemplates[component].name} を追加しました`);
+    if (!sectionTemplates[component]) {
+      console.warn(`テンプレート "${component}" が見つかりません`);
+      return;
     }
+
+    if (this.sections.length === 0) {
+      const emptyState = document.querySelector('.empty-state');
+      if (emptyState) {
+        emptyState.remove();
+      }
+    }
+
+    this.sections.push({
+      type: component,
+      id: CommonEditor.generateId('section'),
+      template: sectionTemplates[component],
+    });
+
+    this.saveState();
+    this.updatePreview();
+    this.showNotification(`${sectionTemplates[component].name} を追加しました`);
   }
+
+  // ==========================================
+  // DEVICE CHANGE
+  // ==========================================
 
   handleDeviceChange(e) {
     const btn = e.currentTarget;
     const device = btn.dataset.device;
 
-    // Update active state
     document.querySelectorAll('.device-btn').forEach((b) => b.classList.remove('active'));
     btn.classList.add('active');
 
@@ -470,6 +609,10 @@ class LandingPageGenerator {
     const previewFrame = document.getElementById('previewFrame');
     previewFrame.className = `preview-frame ${this.deviceMode}`;
   }
+
+  // ==========================================
+  // PREVIEW UPDATE
+  // ==========================================
 
   updatePreview() {
     const previewFrame = document.getElementById('previewFrame');
@@ -494,26 +637,79 @@ class LandingPageGenerator {
     const html = this.generatePreviewHTML();
     previewFrame.innerHTML = html;
 
-    // Add delete buttons to sections
     this.addSectionControls();
 
-    // Make images editable
     if (typeof ImageManager !== 'undefined') {
       ImageManager.makeImagesEditable(previewFrame);
     }
+
+    // プレビュー再構築後にデザイン設定を再適用
+    this.applyDesignSettings();
+  }
+
+  /**
+   * 全デザイン設定をプレビューフレーム内にCSS変数として一括注入
+   */
+  applyDesignSettings() {
+    const previewFrame = document.getElementById('previewFrame');
+    if (!previewFrame) return;
+
+    const settings = this.designSettings;
+
+    // CSS変数をプレビューフレーム内に注入
+    const styleId = 'lp-design-settings';
+    let styleEl = previewFrame.querySelector(`#${styleId}`);
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = styleId;
+      previewFrame.prepend(styleEl);
+    }
+
+    styleEl.textContent = `
+      :root {
+        --lp-primary: ${settings.primaryColor};
+        --lp-secondary: ${settings.secondaryColor};
+        --lp-accent: ${settings.accentColor};
+        --lp-font-family: '${settings.fontFamily}', sans-serif;
+        --lp-font-scale: ${settings.fontSizeScale};
+        --lp-spacing-scale: ${settings.spacingScale};
+        --lp-border-radius: ${settings.borderRadius}px;
+      }
+
+      .lp-section { font-family: var(--lp-font-family); }
+      .lp-section-title { font-size: calc(2.25rem * var(--lp-font-scale)); }
+      .lp-section-subtitle { font-size: calc(1.125rem * var(--lp-font-scale)); }
+      .lp-hero-title { font-size: calc(3rem * var(--lp-font-scale)); }
+      .lp-btn { border-radius: var(--lp-border-radius); }
+      .lp-btn-primary { background: var(--lp-primary); }
+      .lp-btn-primary:hover { background: color-mix(in srgb, var(--lp-primary) 85%, black); }
+      .lp-feature-card, .lp-pricing-card, .lp-testimonial-card { border-radius: var(--lp-border-radius); }
+      .lp-feature-icon-wrapper { background: color-mix(in srgb, var(--lp-primary) 15%, white); }
+      .lp-section-eyebrow, .lp-text-primary, .lp-gradient-text { color: var(--lp-primary); }
+      .lp-bg-primary { background: var(--lp-primary); }
+      .lp-bg-accent { background: var(--lp-accent); }
+      .lp-section { padding: calc(4rem * var(--lp-spacing-scale)) 0; }
+      .lp-content-wrapper { padding: 0 calc(1.5rem * var(--lp-spacing-scale)); }
+    `;
+
+    // 個別のカスタムCSSも再適用（フォント、サイズ、スペーシング、角丸、カラー）
+    this.applyFontFamily(settings.fontFamily);
+    this.applyFontSizeScale(settings.fontSizeScale);
+    this.applySpacingScale(settings.spacingScale);
+    this.applyBorderRadius(settings.borderRadius);
+    this.injectThemeCSS();
   }
 
   generatePreviewHTML() {
     const sectionsHTML = this.sections
       .map((section) => {
-        // Apply image changes if any
         let sectionHtml = section.template.html;
         if (section.imageChanges && section.imageChanges.length > 0) {
           sectionHtml = this.applyImageChanges(sectionHtml, section.imageChanges);
         }
 
         return `
-                <div class="lp-section-wrapper" data-section-id="${section.id}" draggable="true">
+                <div class="lp-section-wrapper" data-section-id="${CommonEditor.sanitizeAttribute(section.id)}" draggable="true">
                     <div class="lp-section-controls">
                         <button class="lp-control-btn lp-drag-handle" title="ドラッグして移動" aria-label="ドラッグして移動">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
@@ -620,8 +816,11 @@ class LandingPageGenerator {
         `;
   }
 
+  // ==========================================
+  // SECTION CONTROLS
+  // ==========================================
+
   addSectionControls() {
-    // Delete buttons
     document.querySelectorAll('.lp-delete').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const wrapper = e.currentTarget.closest('.lp-section-wrapper');
@@ -630,7 +829,6 @@ class LandingPageGenerator {
       });
     });
 
-    // Move up buttons
     document.querySelectorAll('.lp-move-up').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const wrapper = e.currentTarget.closest('.lp-section-wrapper');
@@ -639,7 +837,6 @@ class LandingPageGenerator {
       });
     });
 
-    // Move down buttons
     document.querySelectorAll('.lp-move-down').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const wrapper = e.currentTarget.closest('.lp-section-wrapper');
@@ -648,7 +845,6 @@ class LandingPageGenerator {
       });
     });
 
-    // Duplicate buttons
     document.querySelectorAll('.lp-duplicate').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const wrapper = e.currentTarget.closest('.lp-section-wrapper');
@@ -657,15 +853,24 @@ class LandingPageGenerator {
       });
     });
 
-    // Drag and Drop functionality
     this.setupDragAndDrop();
+
+    // AIカスタマイズボタンをセクションコントロールに追加
+    if (this.aiController) {
+      document.querySelectorAll('.lp-section-wrapper').forEach(wrapper => {
+        this.aiController.addAIButtonToSectionControls(wrapper);
+      });
+    }
   }
+
+  // ==========================================
+  // DRAG AND DROP (プレビュー内セクション並べ替え)
+  // ==========================================
 
   setupDragAndDrop() {
     const wrappers = document.querySelectorAll('.lp-section-wrapper');
 
     wrappers.forEach((wrapper) => {
-      // Drag start
       wrapper.addEventListener('dragstart', (e) => {
         this.draggedItem = wrapper;
         wrapper.classList.add('dragging');
@@ -673,7 +878,6 @@ class LandingPageGenerator {
         e.dataTransfer.setData('text/plain', wrapper.dataset.sectionId);
       });
 
-      // Drag end
       wrapper.addEventListener('dragend', () => {
         this.draggedItem = null;
         wrapper.classList.remove('dragging');
@@ -682,7 +886,6 @@ class LandingPageGenerator {
         });
       });
 
-      // Drag over
       wrapper.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
@@ -692,12 +895,10 @@ class LandingPageGenerator {
         }
       });
 
-      // Drag leave
       wrapper.addEventListener('dragleave', () => {
         wrapper.classList.remove('drag-over');
       });
 
-      // Drop
       wrapper.addEventListener('drop', (e) => {
         e.preventDefault();
         wrapper.classList.remove('drag-over');
@@ -718,7 +919,6 @@ class LandingPageGenerator {
 
     if (draggedIndex === -1 || targetIndex === -1) return;
 
-    // Remove dragged item and insert at target position
     const [draggedSection] = this.sections.splice(draggedIndex, 1);
     this.sections.splice(targetIndex, 0, draggedSection);
 
@@ -739,7 +939,6 @@ class LandingPageGenerator {
     btn.classList.add('dragging');
     this.draggedComponentType = component;
 
-    // Show drop zone indicator
     const previewFrame = document.getElementById('previewFrame');
     previewFrame?.classList.add('drop-zone-active');
   }
@@ -748,11 +947,9 @@ class LandingPageGenerator {
     e.currentTarget.classList.remove('dragging');
     this.draggedComponentType = null;
 
-    // Hide drop zone indicator
     const previewFrame = document.getElementById('previewFrame');
     previewFrame?.classList.remove('drop-zone-active');
 
-    // Remove all drop indicators
     document.querySelectorAll('.drop-indicator').forEach((el) => el.remove());
   }
 
@@ -765,7 +962,6 @@ class LandingPageGenerator {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'copy';
 
-      // Find drop position
       this.updateDropIndicator(e);
     });
 
@@ -784,7 +980,6 @@ class LandingPageGenerator {
         this.insertComponentAt(componentType, dropIndex);
       }
 
-      // Cleanup
       document.querySelectorAll('.drop-indicator').forEach((el) => el.remove());
       previewFrame.classList.remove('drop-zone-active');
     });
@@ -794,7 +989,6 @@ class LandingPageGenerator {
     const previewFrame = document.getElementById('previewFrame');
     const container = previewFrame.querySelector('.lp-container');
     if (!container) {
-      // Show indicator for empty state
       this.showEmptyDropIndicator(previewFrame);
       return;
     }
@@ -805,10 +999,8 @@ class LandingPageGenerator {
       return;
     }
 
-    // Remove existing indicators
     document.querySelectorAll('.drop-indicator').forEach((el) => el.remove());
 
-    // Find the closest section
     let closestWrapper = null;
     let closestOffset = Number.POSITIVE_INFINITY;
     let insertBefore = true;
@@ -888,7 +1080,6 @@ class LandingPageGenerator {
   insertComponentAt(componentType, index) {
     if (!sectionTemplates[componentType]) return;
 
-    // Remove empty state if first section
     if (this.sections.length === 0) {
       const emptyState = document.querySelector('.empty-state');
       if (emptyState) emptyState.remove();
@@ -896,11 +1087,10 @@ class LandingPageGenerator {
 
     const newSection = {
       type: componentType,
-      id: this.generateId(),
+      id: CommonEditor.generateId('section'),
       template: sectionTemplates[componentType],
     };
 
-    // Insert at specific index
     this.sections.splice(index, 0, newSection);
 
     this.saveState();
@@ -908,21 +1098,22 @@ class LandingPageGenerator {
     this.showNotification(`${sectionTemplates[componentType].name} を追加しました`);
   }
 
+  // ==========================================
+  // IMAGE CHANGES
+  // ==========================================
+
   applyImageChanges(html, imageChanges) {
-    // Create a temporary container to parse the HTML
     const temp = document.createElement('div');
     temp.innerHTML = html;
 
     imageChanges.forEach((change) => {
       if (change.index < 1000) {
-        // Regular image
         const images = temp.querySelectorAll('img');
         if (images[change.index]) {
           images[change.index].src = change.src;
           if (change.alt) images[change.index].alt = change.alt;
         }
       } else {
-        // Background image
         const bgIndex = change.index - 1000;
         const bgElements = temp.querySelectorAll('[style*="background"]');
         if (bgElements[bgIndex]) {
@@ -938,6 +1129,10 @@ class LandingPageGenerator {
 
     return temp.innerHTML;
   }
+
+  // ==========================================
+  // SECTION OPERATIONS
+  // ==========================================
 
   deleteSection(sectionId) {
     this.sections = this.sections.filter((s) => s.id !== sectionId);
@@ -970,7 +1165,6 @@ class LandingPageGenerator {
     }
   }
 
-  // セクション複製
   duplicateSection(sectionId) {
     const index = this.sections.findIndex((s) => s.id === sectionId);
     if (index === -1) return;
@@ -978,7 +1172,7 @@ class LandingPageGenerator {
     const original = this.sections[index];
     const duplicate = {
       type: original.type,
-      id: this.generateId(),
+      id: CommonEditor.generateId('section'),
       template: original.template,
     };
 
@@ -995,13 +1189,11 @@ class LandingPageGenerator {
   saveState() {
     const state = JSON.parse(JSON.stringify(this.sections));
 
-    // 現在位置より後の履歴を削除
     this.history = this.history.slice(0, this.historyIndex + 1);
 
     this.history.push(state);
     this.historyIndex++;
 
-    // 最大履歴サイズを超えたら古いものを削除
     if (this.history.length > this.maxHistorySize) {
       this.history.shift();
       this.historyIndex--;
@@ -1015,7 +1207,6 @@ class LandingPageGenerator {
       this.updatePreview();
       this.showNotification('元に戻しました (Ctrl+Z)');
     } else if (this.historyIndex === 0 && this.sections.length > 0) {
-      // 最初の状態に戻す
       this.historyIndex = -1;
       this.sections = [];
       this.updatePreview();
@@ -1032,13 +1223,16 @@ class LandingPageGenerator {
     }
   }
 
+  // ==========================================
+  // EXPORT
+  // ==========================================
+
   async exportHTML() {
     if (this.sections.length === 0) {
       this.showNotification('エクスポートするセクションがありません', 'error');
       return;
     }
 
-    // Generate HTML and show preview modal
     const fullHTML = await this.generateFullHTML();
     this.showExportModal(fullHTML);
   }
@@ -1049,7 +1243,6 @@ class LandingPageGenerator {
       return;
     }
 
-    // Get selected export format
     const formatRadio = document.querySelector('input[name="lpExportFormat"]:checked');
     const format = formatRadio ? formatRadio.value : 'html';
 
@@ -1105,20 +1298,16 @@ class LandingPageGenerator {
     const modalTitle = modal.querySelector('.export-modal-header h3');
     const modalToolbar = modal.querySelector('.export-modal-toolbar');
 
-    // Store the code for later download
     this.exportedHTML = code;
     this.currentPreviewTab = 'html';
 
-    // Update modal title with format
     if (modalTitle) {
       modalTitle.textContent = `コードプレビュー - ${formatLabel}`;
     }
 
-    // Remove existing tabs if any
     const existingTabs = modal.querySelector('.export-file-tabs');
     if (existingTabs) existingTabs.remove();
 
-    // Add file tabs for html-external format
     if (this.exportFormat === 'html-external' && this.exportCSS) {
       const tabsHTML = `
         <div class="export-file-tabs">
@@ -1138,7 +1327,6 @@ class LandingPageGenerator {
       `;
       modalToolbar.insertAdjacentHTML('beforebegin', tabsHTML);
 
-      // Add tab click handlers
       modal.querySelectorAll('.export-tab').forEach((tab) => {
         tab.addEventListener('click', () => {
           modal.querySelectorAll('.export-tab').forEach((t) => t.classList.remove('active'));
@@ -1149,17 +1337,14 @@ class LandingPageGenerator {
       });
     }
 
-    // Display the code
     codePreview.textContent = code;
 
-    // Calculate and display stats
     const lines = code.split('\n').length;
     const sizeKB = (new Blob([code]).size / 1024).toFixed(2);
 
     linesElement.textContent = lines;
     sizeElement.textContent = sizeKB;
 
-    // Show modal
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
   }
@@ -1191,7 +1376,6 @@ class LandingPageGenerator {
     this.exportFormat = null;
     this.currentPreviewTab = 'html';
 
-    // Remove tabs if any
     const tabs = modal.querySelector('.export-file-tabs');
     if (tabs) tabs.remove();
   }
@@ -1199,7 +1383,6 @@ class LandingPageGenerator {
   async copyCode() {
     if (!this.exportedHTML) return;
 
-    // Copy currently visible content
     const content =
       this.currentPreviewTab === 'css' && this.exportCSS ? this.exportCSS : this.exportedHTML;
 
@@ -1208,7 +1391,6 @@ class LandingPageGenerator {
       const fileType = this.currentPreviewTab === 'css' ? 'CSS' : 'コード';
       this.showNotification(`${fileType}をクリップボードにコピーしました`);
 
-      // Update button text temporarily
       const btn = document.getElementById('copyCodeBtn');
       const originalHTML = btn.innerHTML;
       btn.innerHTML = `
@@ -1222,6 +1404,7 @@ class LandingPageGenerator {
         btn.innerHTML = originalHTML;
       }, 2000);
     } catch (err) {
+      console.error('コピーに失敗しました:', err);
       this.showNotification('コピーに失敗しました', 'error');
     }
   }
@@ -1229,16 +1412,13 @@ class LandingPageGenerator {
   downloadFromModal() {
     if (!this.exportedHTML) return;
 
-    // Determine file type based on filename
     const filename = this.exportFilename || `landing-page-${Date.now()}.html`;
     const isReact = filename.endsWith('.tsx') || filename.endsWith('.jsx');
     const isCSS = filename.endsWith('.css');
     const mimeType = isReact ? 'text/plain' : isCSS ? 'text/css' : 'text/html';
 
-    // Download main file
     this.downloadFile(this.exportedHTML, filename, mimeType);
 
-    // If html-external format, also download CSS file
     if (this.exportFormat === 'html-external' && this.exportCSS) {
       setTimeout(() => {
         this.downloadFile(this.exportCSS, 'landing-page.css', 'text/css');
@@ -1264,6 +1444,10 @@ class LandingPageGenerator {
     URL.revokeObjectURL(url);
   }
 
+  // ==========================================
+  // HTML GENERATION
+  // ==========================================
+
   async generateFullHTML() {
     if (this.cssMode === 'tailwind') {
       return await this.generateTailwindHTML();
@@ -1275,17 +1459,9 @@ class LandingPageGenerator {
   async generateCustomCSSHTML() {
     const sectionsHTML = this.sections.map((section) => section.template.html).join('\n');
 
-    // Get SEO meta tags from enhanced generator if available
-    let seoMetaTags = '';
-    if (window.enhancedGenerator && window.enhancedGenerator.generateSEOMetaTags) {
-      seoMetaTags = window.enhancedGenerator.generateSEOMetaTags();
-    }
-
-    // Get language setting from enhanced generator if available
-    const lang = window.enhancedGenerator?.seoData?.lang || 'ja';
-
-    // CDN URLs for CSS (via jsDelivr from GitHub)
-    const cdnBase = 'https://cdn.jsdelivr.net/gh/BoxPistols/LP-WebDesign-Brand@main/css';
+    const seoMetaTags = this.generateSEOMetaTags();
+    const lang = this.seoData.lang || 'ja';
+    const cdnBase = LandingPageGenerator.CONFIG.CDN_BASE_URL;
 
     return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -1342,15 +1518,8 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 
   async generateExternalCSSHTML() {
     const sectionsHTML = this.sections.map((section) => section.template.html).join('\n');
-
-    // Get SEO meta tags from enhanced generator if available
-    let seoMetaTags = '';
-    if (window.enhancedGenerator && window.enhancedGenerator.generateSEOMetaTags) {
-      seoMetaTags = window.enhancedGenerator.generateSEOMetaTags();
-    }
-
-    // Get language setting from enhanced generator if available
-    const lang = window.enhancedGenerator?.seoData?.lang || 'ja';
+    const seoMetaTags = this.generateSEOMetaTags();
+    const lang = this.seoData.lang || 'ja';
 
     return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -1371,7 +1540,6 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     </div>
 
     <script>
-        // Smooth scroll animation observer
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -100px 0px'
@@ -1393,7 +1561,6 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
             observer.observe(el);
         });
 
-        // Form submission handler
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -1406,21 +1573,12 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
   }
 
   async generateTailwindHTML() {
-    // Convert sections to Tailwind classes
     const sectionsHTML = this.sections
       .map((section) => this.convertToTailwind(section.template.html))
       .join('\n');
 
-    // Get SEO meta tags from enhanced generator if available
-    let seoMetaTags = '';
-    if (window.enhancedGenerator && window.enhancedGenerator.generateSEOMetaTags) {
-      seoMetaTags = window.enhancedGenerator.generateSEOMetaTags();
-    }
-
-    // Get language setting from enhanced generator if available
-    const lang = window.enhancedGenerator?.seoData?.lang || 'ja';
-
-    // Get theme colors
+    const seoMetaTags = this.generateSEOMetaTags();
+    const lang = this.seoData.lang || 'ja';
     const themeColors = this.getThemeColors();
 
     return `<!--
@@ -1498,7 +1656,6 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     ${sectionsHTML}
 
     <script>
-        // Intersection Observer for animations
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1510,7 +1667,6 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 
         document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
 
-        // Form handler
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -1522,107 +1678,30 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 </html>`;
   }
 
+  // ==========================================
+  // TAILWIND CONVERSION
+  // ==========================================
+
   convertToTailwind(html) {
-    // Map of lp- classes to Tailwind classes (comprehensive mapping)
     const classMap = {
-      // Sections
+      // レイアウト
       'lp-section-alt': 'bg-gray-50',
-      'lp-section': 'py-20 px-4 md:px-8 lg:px-16',
+      'lp-section': 'py-16 md:py-24',
+      'lp-content-wrapper': 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
+      'lp-section-header': 'text-center mb-12',
+      'lp-section-title': 'text-3xl md:text-4xl font-bold text-gray-900',
+      'lp-section-subtitle': 'mt-4 text-lg text-gray-600 max-w-2xl mx-auto',
+      'lp-section-eyebrow': 'text-sm font-semibold text-primary uppercase tracking-wide',
+
+      // ヒーロー
       'lp-hero-modern': 'relative overflow-hidden',
       'lp-hero':
         'min-h-screen flex items-center bg-gradient-to-br from-primary to-secondary text-white py-20 px-4',
-
-      // Layout
-      'lp-container': 'max-w-7xl mx-auto px-4',
+      'lp-container': 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
       'lp-hero-content': 'relative z-10 max-w-3xl',
-      'lp-section-header': 'text-center mb-16',
-
-      // Typography
       'lp-hero-title': 'text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight',
-      'lp-hero-subtitle': 'text-xl md:text-2xl opacity-90 mb-8',
-      'lp-section-title': 'text-3xl md:text-4xl font-bold text-gray-900 mb-4',
-      'lp-section-subtitle': 'text-lg text-gray-600 max-w-2xl mx-auto',
-      'lp-gradient-text':
-        'bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent',
-      'lp-feature-title': 'text-xl font-semibold text-gray-900 mb-3',
-      'lp-feature-description': 'text-gray-600 leading-relaxed',
-      'lp-pricing-price': 'text-4xl font-bold text-gray-900 mb-2',
-      'lp-pricing-period': 'text-gray-500',
-      'lp-pricing-title': 'text-xl font-semibold text-gray-900 mb-2',
-      'lp-pricing-description': 'text-gray-600 mb-6',
-      'lp-testimonial-text': 'text-gray-700 mb-4 italic',
-      'lp-testimonial-author': 'font-semibold text-gray-900',
-      'lp-testimonial-role': 'text-sm text-gray-500',
-
-      // Buttons
-      'lp-btn-primary': 'bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl',
-      'lp-btn-secondary': 'bg-secondary hover:bg-secondary/90 text-white',
-      'lp-btn-ghost': 'border-2 border-white/30 text-white hover:bg-white/10',
-      'lp-btn-outline': 'border-2 border-primary text-primary hover:bg-primary hover:text-white',
-      'lp-btn-lg': 'px-8 py-4 text-lg',
-      'lp-btn':
-        'inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-all duration-300',
+      'lp-hero-subtitle': 'mt-6 text-xl md:text-2xl text-gray-600 opacity-90 mb-8',
       'lp-hero-buttons': 'flex flex-col sm:flex-row gap-4',
-
-      // Cards
-      'lp-feature-card':
-        'bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300',
-      'lp-pricing-card-popular': 'ring-2 ring-primary scale-105',
-      'lp-pricing-card': 'bg-white rounded-2xl p-8 shadow-lg border border-gray-100',
-      'lp-testimonial-card': 'bg-white rounded-2xl p-6 shadow-lg',
-      'lp-cta-content': 'max-w-3xl mx-auto text-center',
-
-      // Grid
-      'lp-features-grid': 'grid md:grid-cols-2 lg:grid-cols-3 gap-8',
-      'lp-pricing-grid': 'grid md:grid-cols-3 gap-8 items-start',
-      'lp-testimonials-grid': 'grid md:grid-cols-2 lg:grid-cols-3 gap-6',
-      'lp-footer-grid': 'grid md:grid-cols-4 gap-8',
-
-      // Stats
-      'lp-hero-stats': 'flex flex-wrap gap-8 mt-12 pt-8 border-t border-white/20',
-      'lp-hero-stat-number': 'text-3xl font-bold',
-      'lp-hero-stat-label': 'text-sm opacity-80',
-      'lp-hero-stat': 'text-center',
-
-      // Badges
-      'lp-hero-badge':
-        'inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6',
-      'lp-badge-dot': 'w-2 h-2 bg-white rounded-full animate-pulse',
-      'lp-pricing-badge':
-        'absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-sm font-medium rounded-full',
-
-      // Icons
-      'lp-feature-icon-wrapper':
-        'w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white mb-6',
-      'lp-feature-icon': 'w-8 h-8',
-
-      // CTA
-      'lp-cta': 'bg-gradient-to-r from-primary to-secondary text-white py-20 px-4',
-      'lp-cta-title': 'text-3xl md:text-4xl font-bold mb-4',
-      'lp-cta-subtitle': 'text-xl opacity-90 mb-8',
-
-      // Forms
-      'lp-contact-form': 'bg-white rounded-2xl p-8 shadow-xl',
-      'lp-form-group': 'mb-6',
-      'lp-form-label': 'block text-sm font-medium text-gray-700 mb-2',
-      'lp-input':
-        'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition',
-      'lp-textarea':
-        'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none',
-      'lp-select':
-        'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition appearance-none bg-white',
-
-      // Lists
-      'lp-pricing-features': 'space-y-3 mb-8',
-      'lp-pricing-feature': 'flex items-center gap-3 text-gray-600',
-      'lp-footer-links': 'space-y-2',
-      'lp-footer-link': 'text-gray-400 hover:text-white transition-colors',
-
-      // Animation classes
-      'lp-slide-up': 'opacity-0 translate-y-8 transition-all duration-700',
-      'lp-fade-in': 'opacity-0 transition-opacity duration-700',
-
-      // Visual elements
       'lp-hero-visual': 'relative mt-12 lg:mt-0',
       'lp-hero-image': 'rounded-2xl shadow-2xl',
       'lp-hero-bg-pattern': 'absolute inset-0 overflow-hidden pointer-events-none',
@@ -1630,12 +1709,91 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
       'lp-hero-orb-1': 'bg-blue-500 top-0 right-0',
       'lp-hero-orb-2': 'bg-purple-500 bottom-0 left-1/4',
       'lp-hero-orb-3': 'bg-pink-500 top-1/2 right-1/4',
+      'lp-hero-stats': 'flex flex-wrap gap-8 mt-12 pt-8 border-t border-white/20',
+      'lp-hero-stat-number': 'text-3xl font-bold',
+      'lp-hero-stat-label': 'text-sm opacity-80',
+      'lp-hero-stat': 'text-center',
+      'lp-hero-badge':
+        'inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6',
+      'lp-badge-dot': 'w-2 h-2 bg-white rounded-full animate-pulse',
 
-      // Footer
+      // ボタン
+      'lp-btn-primary': 'bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl',
+      'lp-btn-secondary': 'bg-secondary hover:bg-secondary/90 text-white',
+      'lp-btn-ghost': 'text-gray-700 hover:bg-gray-100 px-6 py-3',
+      'lp-btn-outline': 'border-2 border-primary text-primary hover:bg-primary hover:text-white',
+      'lp-btn-lg': 'px-8 py-4 text-lg',
+      'lp-btn':
+        'inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-all duration-300',
+
+      // フィーチャー
+      'lp-features-grid-3': 'grid grid-cols-1 md:grid-cols-3 gap-8',
+      'lp-features-grid': 'grid md:grid-cols-2 lg:grid-cols-3 gap-8',
+      'lp-feature-card-modern': 'p-6 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow',
+      'lp-feature-card':
+        'bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300',
+      'lp-feature-icon-wrapper':
+        'w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white mb-6',
+      'lp-feature-icon': 'w-8 h-8',
+      'lp-feature-title': 'mt-4 text-xl font-semibold text-gray-900 mb-3',
+      'lp-feature-description': 'mt-2 text-gray-600 leading-relaxed',
+
+      // グラデーション
+      'lp-gradient-text':
+        'bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent',
+
+      // プライシング
+      'lp-pricing-grid-modern': 'grid grid-cols-1 md:grid-cols-3 gap-8',
+      'lp-pricing-grid': 'grid md:grid-cols-3 gap-8 items-start',
+      'lp-pricing-card-featured': 'p-8 rounded-2xl bg-primary text-white shadow-xl scale-105',
+      'lp-pricing-card-popular': 'ring-2 ring-primary scale-105',
+      'lp-pricing-card': 'bg-white rounded-2xl p-8 shadow-lg border border-gray-200',
+      'lp-pricing-badge':
+        'absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-sm font-medium rounded-full',
+      'lp-pricing-price': 'text-4xl font-bold text-gray-900 mb-2',
+      'lp-pricing-period': 'text-gray-500',
+      'lp-pricing-title': 'text-xl font-semibold text-gray-900 mb-2',
+      'lp-pricing-description': 'text-gray-600 mb-6',
+      'lp-pricing-features': 'space-y-3 mb-8',
+      'lp-pricing-feature': 'flex items-center gap-3 text-gray-600',
+
+      // テスティモニアル
+      'lp-testimonials-grid': 'grid md:grid-cols-2 lg:grid-cols-3 gap-6',
+      'lp-testimonial-card': 'bg-white rounded-2xl p-6 shadow-lg',
+      'lp-testimonial-text': 'text-gray-700 mb-4 italic',
+      'lp-testimonial-author': 'font-semibold text-gray-900',
+      'lp-testimonial-role': 'text-sm text-gray-500',
+
+      // CTA
+      'lp-cta-banner': 'bg-primary text-white rounded-2xl p-12 text-center',
+      'lp-cta': 'bg-gradient-to-r from-primary to-secondary text-white py-20 px-4',
+      'lp-cta-content': 'max-w-3xl mx-auto text-center',
+      'lp-cta-title': 'text-3xl md:text-4xl font-bold mb-4',
+      'lp-cta-subtitle': 'text-xl opacity-90 mb-8',
+
+      // フォーム
+      'lp-contact-form': 'bg-white rounded-2xl p-8 shadow-xl',
+      'lp-form-group': 'mb-4',
+      'lp-form-label': 'block text-sm font-medium text-gray-700 mb-1',
+      'lp-form-input':
+        'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition',
+      'lp-form-textarea':
+        'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary resize-none outline-none transition',
+      'lp-input':
+        'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition',
+      'lp-textarea':
+        'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none',
+      'lp-select':
+        'w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition appearance-none bg-white',
+
+      // フッター
+      'lp-footer-grid': 'grid md:grid-cols-4 gap-8',
       'lp-footer': 'bg-gray-900 text-white py-16 px-4',
       'lp-footer-logo': 'text-2xl font-bold mb-4',
       'lp-footer-description': 'text-gray-400 mb-6',
       'lp-footer-title': 'font-semibold mb-4',
+      'lp-footer-links': 'space-y-2',
+      'lp-footer-link': 'text-gray-400 hover:text-white transition-colors',
       'lp-footer-bottom': 'border-t border-gray-800 mt-12 pt-8 text-center text-gray-400',
       'lp-social-links': 'flex gap-4',
       'lp-social-link':
@@ -1648,13 +1806,13 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
         'w-full px-6 py-4 text-left font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors',
       'lp-faq-answer': 'px-6 py-4 text-gray-600 border-t border-gray-100',
 
-      // Gallery
+      // ギャラリー
       'lp-gallery-grid': 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4',
       'lp-gallery-item': 'aspect-square rounded-xl overflow-hidden',
       'lp-gallery-image':
         'w-full h-full object-cover hover:scale-110 transition-transform duration-300',
 
-      // Timeline
+      // タイムライン
       'lp-timeline': 'relative max-w-3xl mx-auto',
       'lp-timeline-item': 'relative pl-8 pb-8 border-l-2 border-primary/30 last:border-transparent',
       'lp-timeline-dot': 'absolute left-0 -translate-x-1/2 w-4 h-4 bg-primary rounded-full',
@@ -1662,33 +1820,72 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
       'lp-timeline-date': 'text-sm text-primary font-medium mb-2',
       'lp-timeline-title': 'text-lg font-semibold text-gray-900 mb-2',
       'lp-timeline-description': 'text-gray-600',
+
+      // アニメーション
+      'lp-slide-up': 'opacity-0 translate-y-8 transition-all duration-700',
+      'lp-fade-in': 'opacity-0 transition-opacity duration-700',
+      'lp-hover-lift': 'hover:-translate-y-1 transition-transform',
+
+      // ユーティリティ
+      'lp-bg-light': 'bg-gray-50',
+      'lp-bg-dark': 'bg-gray-900',
+      'lp-bg-primary': 'bg-primary',
+      'lp-text-primary': 'text-primary',
+      'lp-text-white': 'text-white',
+      'lp-text-muted': 'text-gray-500',
+      'lp-grid-2col': 'grid grid-cols-1 md:grid-cols-2 gap-8',
+      'lp-gap-xl': 'gap-12',
+      'lp-items-center': 'items-center',
+      'lp-mx-auto': 'mx-auto',
+      'lp-py-xl': 'py-16',
+      'lp-sr-only': 'sr-only',
     };
 
     let result = html;
 
-    // Sort by length (longest first) to match more specific classes first
+    // CSS変数 var(--xxx) をTailwindのカスタムカラーに変換
+    result = result.replace(/var\(--primary(?:-color)?\)/g, 'theme(colors.primary)');
+    result = result.replace(/var\(--secondary(?:-color)?\)/g, 'theme(colors.secondary)');
+
+    // style属性内のCSS変数をインラインで処理
+    result = result.replace(/style="([^"]*)"/g, (match, styleContent) => {
+      let cleaned = styleContent
+        .replace(/color:\s*var\(--primary(?:-color)?\)/g, '')
+        .replace(/background(?:-color)?:\s*var\(--primary(?:-color)?\)/g, '')
+        .replace(/color:\s*var\(--secondary(?:-color)?\)/g, '')
+        .replace(/background(?:-color)?:\s*var\(--secondary(?:-color)?\)/g, '')
+        .replace(/;\s*;/g, ';')
+        .replace(/^\s*;\s*/, '')
+        .replace(/;\s*$/, '')
+        .trim();
+      return cleaned ? `style="${cleaned}"` : '';
+    });
+
     const sortedEntries = Object.entries(classMap).sort((a, b) => b[0].length - a[0].length);
 
-    // Replace lp- classes with Tailwind equivalents (completely remove lp- classes)
     sortedEntries.forEach(([lpClass, twClasses]) => {
-      // Match class="...lp-class..." patterns and replace the lp- class with Tailwind
       const regex = new RegExp(`\\b${lpClass}\\b`, 'g');
       result = result.replace(regex, twClasses);
     });
 
-    // Clean up any remaining unmapped lp- classes (remove them entirely)
+    // 未マッピングのlp-*クラスを除去（空白も整理）
     result = result.replace(/\blp-[a-zA-Z0-9-]+\b\s*/g, '');
 
-    // Clean up extra whitespace in class attributes
+    // 重複スペースの整理とclass属性の最適化
     result = result.replace(/class="([^"]*)"/g, (match, classes) => {
-      const cleaned = classes.replace(/\s+/g, ' ').trim();
+      // 重複クラスを除去
+      const uniqueClasses = [...new Set(classes.split(/\s+/).filter(Boolean))];
+      const cleaned = uniqueClasses.join(' ');
       return cleaned ? `class="${cleaned}"` : '';
     });
 
-    // Remove empty class attributes
+    // 空のclass属性を除去
     result = result.replace(/\s*class=""\s*/g, ' ');
 
-    // Add data-animate to elements with animation classes
+    // 空のstyle属性を除去
+    result = result.replace(/\s*style=""\s*/g, ' ');
+
+    // data-animate属性を追加（アニメーション用）
     result = result.replace(
       /class="([^"]*(?:opacity-0[^"]*translate-y-8|transition-all duration-700)[^"]*)"/g,
       'class="$1" data-animate'
@@ -1696,6 +1893,10 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 
     return result;
   }
+
+  // ==========================================
+  // THEME COLORS
+  // ==========================================
 
   getThemeColors() {
     const themes = {
@@ -1711,23 +1912,23 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
       pastel: { primary: '#10b981', secondary: '#3b82f6' },
     };
 
-    return themes[this.currentTheme] || themes['modern-blue'];
+    return themes[this.currentTheme] || themes[LandingPageGenerator.CONFIG.DEFAULT_THEME];
   }
+
+  // ==========================================
+  // SHADCN UI EXPORT
+  // ==========================================
 
   generateShadcnUI() {
     const themeColors = this.getThemeColors();
 
-    // Convert HTML sections to React components
     const sectionComponents = this.sections
       .map((section) => {
         return this.convertToReactComponent(section);
       })
       .join('\n');
 
-    // Generate imports based on used components
     const imports = this.getShadcnImports();
-
-    // Get required shadcn components
     const requiredComponents = this.getRequiredShadcnComponents();
 
     return `/**
@@ -1814,7 +2015,6 @@ ${this.generateShadcnSectionComponents()}
   }
 
   hexToHSL(hex) {
-    // Convert hex to HSL for CSS variables
     const r = parseInt(hex.slice(1, 3), 16) / 255;
     const g = parseInt(hex.slice(3, 5), 16) / 255;
     const b = parseInt(hex.slice(5, 7), 16) / 255;
@@ -1846,7 +2046,7 @@ ${this.generateShadcnSectionComponents()}
     return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
   }
 
-  convertToReactComponent(section, index) {
+  convertToReactComponent(section) {
     const componentName = this.pascalCase(section.type);
     return `      <${componentName} />`;
   }
@@ -1861,13 +2061,11 @@ ${this.generateShadcnSectionComponents()}
   getShadcnImports() {
     const imports = new Set();
 
-    // Always include base components
     imports.add("import { Button } from '@/components/ui/button';");
     imports.add(
       "import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';"
     );
 
-    // Check for specific sections
     this.sections.forEach((section) => {
       if (section.type.includes('contact') || section.type.includes('newsletter')) {
         imports.add("import { Input } from '@/components/ui/input';");
@@ -1900,7 +2098,6 @@ ${this.generateShadcnSectionComponents()}
       if (generatedTypes.has(section.type)) return;
       generatedTypes.add(section.type);
 
-      const componentName = this.pascalCase(section.type);
       const componentCode = this.generateShadcnComponent(section);
       components.push(componentCode);
     });
@@ -1912,54 +2109,54 @@ ${this.generateShadcnSectionComponents()}
     const componentName = this.pascalCase(section.type);
     const type = section.type;
 
-    // Generate component based on section type
-    if (type.includes('hero')) {
-      return this.generateHeroComponent(componentName, type);
-    } else if (type.includes('features')) {
-      return this.generateFeaturesComponent(componentName, type);
-    } else if (type.includes('pricing')) {
-      return this.generatePricingComponent(componentName, type);
-    } else if (type.includes('testimonial') || type.includes('carousel')) {
+    if (type.includes('hero')) return this.generateHeroComponent(componentName, type);
+    if (type.includes('features')) return this.generateFeaturesComponent(componentName, type);
+    if (type.includes('pricing')) return this.generatePricingComponent(componentName, type);
+    if (type.includes('testimonial') || type.includes('carousel'))
       return this.generateTestimonialsComponent(componentName, type);
-    } else if (type.includes('cta')) {
-      return this.generateCtaComponent(componentName, type);
-    } else if (type.includes('faq') || type.includes('accordion')) {
+    if (type.includes('cta')) return this.generateCtaComponent(componentName, type);
+    if (type.includes('faq') || type.includes('accordion'))
       return this.generateFaqComponent(componentName, type);
-    } else if (type.includes('contact')) {
-      return this.generateContactComponent(componentName, type);
-    } else if (type.includes('newsletter')) {
+    if (type.includes('contact')) return this.generateContactComponent(componentName, type);
+    if (type.includes('newsletter'))
       return this.generateNewsletterComponent(componentName, type);
-    } else if (type.includes('stats') || type.includes('metrics')) {
+    if (type.includes('stats') || type.includes('metrics'))
       return this.generateStatsComponent(componentName, type);
-    } else if (type.includes('team')) {
-      return this.generateTeamComponent(componentName, type);
-    } else if (type.includes('gallery')) {
-      return this.generateGalleryComponent(componentName, type);
-    } else if (type.includes('logo')) {
-      return this.generateLogoCloudComponent(componentName, type);
-    } else {
-      return this.generateGenericComponent(componentName, type);
-    }
+    if (type.includes('team')) return this.generateTeamComponent(componentName, type);
+    if (type.includes('gallery')) return this.generateGalleryComponent(componentName, type);
+    if (type.includes('logo')) return this.generateLogoCloudComponent(componentName, type);
+    return this.generateGenericComponent(componentName, type);
   }
 
-  generateHeroComponent(name, type) {
-    return `function ${name}() {
+  generateHeroComponent(name) {
+    return `interface ${name}Props {
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  secondaryCtaText?: string;
+}
+
+function ${name}({
+  title = "あなたのビジネスを次のレベルへ",
+  subtitle = "革新的なソリューションで、ビジネスの成長を加速させましょう。今すぐ始めて、未来を切り開いてください。",
+  ctaText = "今すぐ始める",
+  secondaryCtaText = "詳しく見る",
+}: ${name}Props) {
   return (
     <section className="relative py-20 px-4 md:px-8 lg:px-16 bg-gradient-to-br from-primary/10 to-secondary/10">
       <div className="max-w-6xl mx-auto text-center">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-          あなたのビジネスを次のレベルへ
+          {title}
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          革新的なソリューションで、ビジネスの成長を加速させましょう。
-          今すぐ始めて、未来を切り開いてください。
+          {subtitle}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button size="lg" className="bg-primary hover:bg-primary/90">
-            今すぐ始める
+            {ctaText}
           </Button>
           <Button size="lg" variant="outline">
-            詳しく見る
+            {secondaryCtaText}
           </Button>
         </div>
       </div>
@@ -1968,36 +2165,34 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generateFeaturesComponent(name, type) {
-    return `function ${name}() {
-  const features = [
-    {
-      title: '高速パフォーマンス',
-      description: '最新技術により、高速で安定したパフォーマンスを実現します。',
-      icon: '⚡',
-    },
-    {
-      title: 'セキュリティ',
-      description: '業界最高水準のセキュリティで、大切なデータを保護します。',
-      icon: '🔒',
-    },
-    {
-      title: '24時間サポート',
-      description: '専門チームが24時間体制でサポートいたします。',
-      icon: '💬',
-    },
-  ];
+  generateFeaturesComponent(name) {
+    return `interface FeatureItem {
+  title: string;
+  description: string;
+  icon: string;
+}
 
+interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  features?: FeatureItem[];
+}
+
+function ${name}({
+  heading = "主な機能",
+  subheading = "最高の体験を提供するための機能をご紹介します",
+  features = [
+    { title: '高速パフォーマンス', description: '最新技術により、高速で安定したパフォーマンスを実現します。', icon: '⚡' },
+    { title: 'セキュリティ', description: '業界最高水準のセキュリティで、大切なデータを保護します。', icon: '🔒' },
+    { title: '24時間サポート', description: '専門チームが24時間体制でサポートいたします。', icon: '💬' },
+  ],
+}: ${name}Props) {
   return (
     <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            主な機能
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            最高の体験を提供するための機能をご紹介します
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{heading}</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{subheading}</p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
@@ -2018,45 +2213,37 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generatePricingComponent(name, type) {
-    return `function ${name}() {
-  const plans = [
-    {
-      name: 'スターター',
-      price: '¥980',
-      period: '/月',
-      description: '個人利用に最適',
-      features: ['基本機能', 'メールサポート', '1GB ストレージ'],
-      featured: false,
-    },
-    {
-      name: 'プロ',
-      price: '¥2,980',
-      period: '/月',
-      description: 'チーム利用に最適',
-      features: ['全機能', '優先サポート', '10GB ストレージ', 'API アクセス'],
-      featured: true,
-    },
-    {
-      name: 'エンタープライズ',
-      price: 'お問合せ',
-      period: '',
-      description: '大規模組織向け',
-      features: ['カスタム機能', '専任サポート', '無制限ストレージ', 'SLA保証'],
-      featured: false,
-    },
-  ];
+  generatePricingComponent(name) {
+    return `interface PricingPlan {
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  featured: boolean;
+}
 
+interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  plans?: PricingPlan[];
+}
+
+function ${name}({
+  heading = "料金プラン",
+  subheading = "あなたに最適なプランをお選びください",
+  plans = [
+    { name: 'スターター', price: '¥980', period: '/月', description: '個人利用に最適', features: ['基本機能', 'メールサポート', '1GB ストレージ'], featured: false },
+    { name: 'プロ', price: '¥2,980', period: '/月', description: 'チーム利用に最適', features: ['全機能', '優先サポート', '10GB ストレージ', 'API アクセス'], featured: true },
+    { name: 'エンタープライズ', price: 'お問合せ', period: '', description: '大規模組織向け', features: ['カスタム機能', '専任サポート', '無制限ストレージ', 'SLA保証'], featured: false },
+  ],
+}: ${name}Props) {
   return (
     <section className="py-20 px-4 md:px-8 lg:px-16 bg-muted/50">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            料金プラン
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            あなたに最適なプランをお選びください
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{heading}</h2>
+          <p className="text-lg text-muted-foreground">{subheading}</p>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
@@ -2073,15 +2260,10 @@ ${this.generateShadcnSectionComponents()}
               <CardContent>
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      <span className="text-primary">✓</span>
-                      {feature}
-                    </li>
+                    <li key={i} className="flex items-center gap-2"><span className="text-primary">✓</span>{feature}</li>
                   ))}
                 </ul>
-                <Button className="w-full" variant={plan.featured ? 'default' : 'outline'}>
-                  選択する
-                </Button>
+                <Button className="w-full" variant={plan.featured ? 'default' : 'outline'}>選択する</Button>
               </CardContent>
             </Card>
           ))}
@@ -2092,42 +2274,36 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generateTestimonialsComponent(name, type) {
-    return `function ${name}() {
-  const testimonials = [
-    {
-      name: '田中 太郎',
-      role: 'マーケティング部長',
-      company: 'ABC株式会社',
-      content: 'このサービスを導入してから、業務効率が大幅に改善しました。チーム全体の生産性が向上しています。',
-      avatar: '/api/placeholder/64/64',
-    },
-    {
-      name: '佐藤 花子',
-      role: 'CEO',
-      company: 'XYZ Inc.',
-      content: '素晴らしいサポートと機能性。私たちのビジネスに欠かせないツールになりました。',
-      avatar: '/api/placeholder/64/64',
-    },
-    {
-      name: '鈴木 一郎',
-      role: 'エンジニア',
-      company: 'テック株式会社',
-      content: '直感的なUIと強力な機能が魅力です。導入してから3ヶ月で投資回収できました。',
-      avatar: '/api/placeholder/64/64',
-    },
-  ];
+  generateTestimonialsComponent(name) {
+    return `interface TestimonialItem {
+  name: string;
+  role: string;
+  company: string;
+  content: string;
+  avatar?: string;
+}
 
+interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  testimonials?: TestimonialItem[];
+}
+
+function ${name}({
+  heading = "お客様の声",
+  subheading = "実際にご利用いただいているお客様からの声をご紹介します",
+  testimonials = [
+    { name: '田中 太郎', role: 'マーケティング部長', company: 'ABC株式会社', content: 'このサービスを導入してから、業務効率が大幅に改善しました。' },
+    { name: '佐藤 花子', role: 'CEO', company: 'XYZ Inc.', content: '素晴らしいサポートと機能性。私たちのビジネスに欠かせないツールになりました。' },
+    { name: '鈴木 一郎', role: 'エンジニア', company: 'テック株式会社', content: '直感的なUIと強力な機能が魅力です。導入してから3ヶ月で投資回収できました。' },
+  ],
+}: ${name}Props) {
   return (
     <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            お客様の声
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            実際にご利用いただいているお客様からの声をご紹介します
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{heading}</h2>
+          <p className="text-lg text-muted-foreground">{subheading}</p>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
@@ -2135,16 +2311,16 @@ ${this.generateShadcnSectionComponents()}
               <CardContent className="pt-6">
                 <p className="text-muted-foreground mb-6">"{testimonial.content}"</p>
                 <div className="flex items-center gap-4">
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full"
-                  />
+                  {testimonial.avatar ? (
+                    <img src={testimonial.avatar} alt={testimonial.name} className="w-12 h-12 rounded-full" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">
+                      {testimonial.name.charAt(0)}
+                    </div>
+                  )}
                   <div>
                     <p className="font-semibold">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {testimonial.role}, {testimonial.company}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{testimonial.role}, {testimonial.company}</p>
                   </div>
                 </div>
               </CardContent>
@@ -2157,25 +2333,28 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generateCtaComponent(name, type) {
-    return `function ${name}() {
+  generateCtaComponent(name) {
+    return `interface ${name}Props {
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  secondaryCtaText?: string;
+}
+
+function ${name}({
+  title = "今すぐ始めましょう",
+  subtitle = "14日間の無料トライアルで、すべての機能をお試しいただけます。",
+  ctaText = "無料で始める",
+  secondaryCtaText = "お問い合わせ",
+}: ${name}Props) {
   return (
     <section className="py-20 px-4 md:px-8 lg:px-16 bg-primary text-primary-foreground">
       <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-6">
-          今すぐ始めましょう
-        </h2>
-        <p className="text-xl opacity-90 mb-8">
-          14日間の無料トライアルで、すべての機能をお試しいただけます。
-          クレジットカード不要で今すぐスタート。
-        </p>
+        <h2 className="text-3xl md:text-4xl font-bold mb-6">{title}</h2>
+        <p className="text-xl opacity-90 mb-8">{subtitle}</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" variant="secondary">
-            無料で始める
-          </Button>
-          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-            お問い合わせ
-          </Button>
+          <Button size="lg" variant="secondary">{ctaText}</Button>
+          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">{secondaryCtaText}</Button>
         </div>
       </div>
     </section>
@@ -2183,47 +2362,40 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generateFaqComponent(name, type) {
-    return `function ${name}() {
-  const faqs = [
-    {
-      question: 'サービスの利用に必要なものは？',
-      answer: 'インターネット接続環境とウェブブラウザがあれば、すぐにご利用いただけます。特別なソフトウェアのインストールは不要です。',
-    },
-    {
-      question: '無料トライアル期間はありますか？',
-      answer: 'はい、14日間の無料トライアルをご用意しています。クレジットカードの登録なしでお試しいただけます。',
-    },
-    {
-      question: 'プランの変更はいつでもできますか？',
-      answer: 'はい、いつでもプランの変更が可能です。アップグレードは即座に反映され、ダウングレードは次の請求サイクルから適用されます。',
-    },
-    {
-      question: 'サポート対応時間は？',
-      answer: 'プロプラン以上では24時間365日のサポートを提供しています。スタータープランでは営業時間内（9:00-18:00 JST）のメールサポートとなります。',
-    },
-  ];
+  generateFaqComponent(name) {
+    return `interface FaqEntry {
+  question: string;
+  answer: string;
+}
 
+interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  faqs?: FaqEntry[];
+}
+
+function ${name}({
+  heading = "よくある質問",
+  subheading = "お客様からよくいただくご質問にお答えします",
+  faqs = [
+    { question: 'サービスの利用に必要なものは？', answer: 'インターネット接続環境とウェブブラウザがあれば、すぐにご利用いただけます。' },
+    { question: '無料トライアル期間はありますか？', answer: 'はい、14日間の無料トライアルをご用意しています。' },
+    { question: 'プランの変更はいつでもできますか？', answer: 'はい、いつでもプランの変更が可能です。' },
+    { question: 'サポート対応時間は？', answer: 'プロプラン以上では24時間365日のサポートを提供しています。' },
+  ],
+}: ${name}Props) {
   return (
     <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            よくある質問
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            お客様からよくいただくご質問にお答えします
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{heading}</h2>
+          <p className="text-lg text-muted-foreground">{subheading}</p>
         </div>
         <Accordion type="single" collapsible className="w-full">
           {faqs.map((faq, index) => (
             <AccordionItem key={index} value={\`item-\${index}\`}>
-              <AccordionTrigger className="text-left">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent>
-                {faq.answer}
-              </AccordionContent>
+              <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
+              <AccordionContent>{faq.answer}</AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
@@ -2233,48 +2405,34 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generateContactComponent(name, type) {
-    return `function ${name}() {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('お問い合わせを受け付けました（デモ）');
-  };
+  generateContactComponent(name) {
+    return `interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+}
 
+function ${name}({
+  heading = "お問い合わせ",
+  subheading = "ご質問やご相談がございましたら、お気軽にお問い合わせください",
+}: ${name}Props) {
+  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); alert('お問い合わせを受け付けました（デモ）'); };
   return (
     <section className="py-20 px-4 md:px-8 lg:px-16 bg-muted/50">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            お問い合わせ
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            ご質問やご相談がございましたら、お気軽にお問い合わせください
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{heading}</h2>
+          <p className="text-lg text-muted-foreground">{subheading}</p>
         </div>
         <Card>
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">お名前</Label>
-                  <Input id="name" placeholder="山田 太郎" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">メールアドレス</Label>
-                  <Input id="email" type="email" placeholder="you@example.com" required />
-                </div>
+                <div className="space-y-2"><Label htmlFor="name">お名前</Label><Input id="name" placeholder="山田 太郎" required /></div>
+                <div className="space-y-2"><Label htmlFor="email">メールアドレス</Label><Input id="email" type="email" placeholder="you@example.com" required /></div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="subject">件名</Label>
-                <Input id="subject" placeholder="お問い合わせ内容" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="message">メッセージ</Label>
-                <Textarea id="message" placeholder="詳細をご記入ください..." rows={5} required />
-              </div>
-              <Button type="submit" className="w-full">
-                送信する
-              </Button>
+              <div className="space-y-2"><Label htmlFor="subject">件名</Label><Input id="subject" placeholder="お問い合わせ内容" required /></div>
+              <div className="space-y-2"><Label htmlFor="message">メッセージ</Label><Textarea id="message" placeholder="詳細をご記入ください..." rows={5} required /></div>
+              <Button type="submit" className="w-full">送信する</Button>
             </form>
           </CardContent>
         </Card>
@@ -2284,30 +2442,27 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generateNewsletterComponent(name, type) {
-    return `function ${name}() {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('ニュースレターに登録しました（デモ）');
-  };
+  generateNewsletterComponent(name) {
+    return `interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  buttonText?: string;
+}
 
+function ${name}({
+  heading = "ニュースレターに登録",
+  subheading = "最新情報やお得な情報をメールでお届けします",
+  buttonText = "登録する",
+}: ${name}Props) {
+  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); alert('ニュースレターに登録しました（デモ）'); };
   return (
     <section className="py-20 px-4 md:px-8 lg:px-16 bg-primary/5">
       <div className="max-w-2xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-          ニュースレターに登録
-        </h2>
-        <p className="text-lg text-muted-foreground mb-8">
-          最新情報やお得な情報をメールでお届けします
-        </p>
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{heading}</h2>
+        <p className="text-lg text-muted-foreground mb-8">{subheading}</p>
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Input
-            type="email"
-            placeholder="メールアドレスを入力"
-            className="max-w-sm"
-            required
-          />
-          <Button type="submit">登録する</Button>
+          <Input type="email" placeholder="メールアドレスを入力" className="max-w-sm" required />
+          <Button type="submit">{buttonText}</Button>
         </form>
       </div>
     </section>
@@ -2315,24 +2470,26 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generateStatsComponent(name, type) {
-    return `function ${name}() {
-  const stats = [
-    { value: '10,000+', label: '利用企業数' },
-    { value: '99.9%', label: '稼働率' },
-    { value: '24/7', label: 'サポート対応' },
-    { value: '50+', label: '連携サービス' },
-  ];
+  generateStatsComponent(name) {
+    return `interface StatEntry {
+  value: string;
+  label: string;
+}
 
+interface ${name}Props {
+  stats?: StatEntry[];
+}
+
+function ${name}({
+  stats = [{ value: '10,000+', label: '利用企業数' }, { value: '99.9%', label: '稼働率' }, { value: '24/7', label: 'サポート対応' }, { value: '50+', label: '連携サービス' }],
+}: ${name}Props) {
   return (
     <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, index) => (
             <div key={index} className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
-                {stat.value}
-              </div>
+              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">{stat.value}</div>
               <div className="text-muted-foreground">{stat.label}</div>
             </div>
           ))}
@@ -2343,35 +2500,41 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generateTeamComponent(name, type) {
-    return `function ${name}() {
-  const team = [
+  generateTeamComponent(name) {
+    return `interface TeamMember {
+  name: string;
+  role: string;
+  avatar?: string;
+}
+
+interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  team?: TeamMember[];
+}
+
+function ${name}({
+  heading = "チームメンバー",
+  subheading = "私たちのサービスを支えるメンバーをご紹介します",
+  team = [
     { name: '山田 太郎', role: 'CEO', avatar: '/api/placeholder/150/150' },
     { name: '佐藤 花子', role: 'CTO', avatar: '/api/placeholder/150/150' },
     { name: '鈴木 一郎', role: 'デザインリード', avatar: '/api/placeholder/150/150' },
     { name: '田中 美咲', role: 'マーケティング', avatar: '/api/placeholder/150/150' },
-  ];
-
+  ],
+}: ${name}Props) {
   return (
     <section className="py-20 px-4 md:px-8 lg:px-16 bg-muted/50">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            チームメンバー
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            私たちのサービスを支えるメンバーをご紹介します
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{heading}</h2>
+          <p className="text-lg text-muted-foreground">{subheading}</p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {team.map((member, index) => (
             <Card key={index} className="text-center">
               <CardContent className="pt-6">
-                <img
-                  src={member.avatar}
-                  alt={member.name}
-                  className="w-24 h-24 rounded-full mx-auto mb-4"
-                />
+                <img src={member.avatar} alt={member.name} className="w-24 h-24 rounded-full mx-auto mb-4" />
                 <h3 className="font-semibold text-lg">{member.name}</h3>
                 <p className="text-muted-foreground">{member.role}</p>
               </CardContent>
@@ -2384,33 +2547,17 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generateGalleryComponent(name, type) {
+  generateGalleryComponent(name) {
     return `function ${name}() {
-  const images = [
-    '/api/placeholder/400/300',
-    '/api/placeholder/400/300',
-    '/api/placeholder/400/300',
-    '/api/placeholder/400/300',
-    '/api/placeholder/400/300',
-    '/api/placeholder/400/300',
-  ];
-
+  const images = ['/api/placeholder/400/300', '/api/placeholder/400/300', '/api/placeholder/400/300', '/api/placeholder/400/300', '/api/placeholder/400/300', '/api/placeholder/400/300'];
   return (
     <section className="py-20 px-4 md:px-8 lg:px-16 bg-background">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            ギャラリー
-          </h2>
-        </div>
+        <div className="text-center mb-16"><h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">ギャラリー</h2></div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {images.map((src, index) => (
             <div key={index} className="relative aspect-video overflow-hidden rounded-lg">
-              <img
-                src={src}
-                alt={\`Gallery image \${index + 1}\`}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
+              <img src={src} alt={\`Gallery image \${index + 1}\`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
             </div>
           ))}
         </div>
@@ -2420,30 +2567,16 @@ ${this.generateShadcnSectionComponents()}
 }`;
   }
 
-  generateLogoCloudComponent(name, type) {
+  generateLogoCloudComponent(name) {
     return `function ${name}() {
-  const logos = [
-    { name: 'Company 1', src: '/api/placeholder/120/40' },
-    { name: 'Company 2', src: '/api/placeholder/120/40' },
-    { name: 'Company 3', src: '/api/placeholder/120/40' },
-    { name: 'Company 4', src: '/api/placeholder/120/40' },
-    { name: 'Company 5', src: '/api/placeholder/120/40' },
-  ];
-
+  const logos = [{ name: 'Company 1', src: '/api/placeholder/120/40' }, { name: 'Company 2', src: '/api/placeholder/120/40' }, { name: 'Company 3', src: '/api/placeholder/120/40' }, { name: 'Company 4', src: '/api/placeholder/120/40' }, { name: 'Company 5', src: '/api/placeholder/120/40' }];
   return (
     <section className="py-12 px-4 md:px-8 lg:px-16 bg-muted/50">
       <div className="max-w-6xl mx-auto">
-        <p className="text-center text-muted-foreground mb-8">
-          多くの企業様にご利用いただいています
-        </p>
+        <p className="text-center text-muted-foreground mb-8">多くの企業様にご利用いただいています</p>
         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
           {logos.map((logo, index) => (
-            <img
-              key={index}
-              src={logo.src}
-              alt={logo.name}
-              className="h-8 opacity-60 hover:opacity-100 transition-opacity"
-            />
+            <img key={index} src={logo.src} alt={logo.name} className="h-8 opacity-60 hover:opacity-100 transition-opacity" />
           ))}
         </div>
       </div>
@@ -2460,15 +2593,10 @@ ${this.generateShadcnSectionComponents()}
         <Card>
           <CardHeader>
             <CardTitle>${name} Section</CardTitle>
-            <CardDescription>
-              This is a placeholder for the ${type} section.
-              Customize this component to match your needs.
-            </CardDescription>
+            <CardDescription>This is a placeholder for the ${type} section.</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
-              Add your content here.
-            </p>
+            <p className="text-muted-foreground">Add your content here.</p>
           </CardContent>
         </Card>
       </div>
@@ -2553,7 +2681,6 @@ ${this.generateMUISectionComponents()}
   }
 
   getMUIImports() {
-    // Collect components by package
     const materialComponents = new Set(['Box', 'Container', 'Typography', 'Button', 'Grid']);
     const iconComponents = new Set();
 
@@ -2598,14 +2725,10 @@ ${this.generateMUISectionComponents()}
       }
     });
 
-    // Generate grouped imports
     const imports = [];
-
-    // Material UI components (single line)
     const materialList = Array.from(materialComponents).sort();
     imports.push(`import { ${materialList.join(', ')} } from '@mui/material';`);
 
-    // Icons (if any)
     if (iconComponents.size > 0) {
       const iconList = Array.from(iconComponents)
         .sort()
@@ -2913,8 +3036,11 @@ ${this.generateMUISectionComponents()}
 }`;
   }
 
+  // ==========================================
+  // CSS LOADING
+  // ==========================================
+
   async getInlineCSS() {
-    // Load both landing-page.css and advanced-components.css
     try {
       const [landingPageCSS, advancedComponentsCSS] = await Promise.all([
         fetch('css/landing-page.css').then((r) => r.text()),
@@ -2922,10 +3048,15 @@ ${this.generateMUISectionComponents()}
       ]);
       return `/* Landing Page Styles */\n${landingPageCSS}\n\n/* Advanced Components */\n${advancedComponentsCSS}`;
     } catch (error) {
-      console.error('Failed to load CSS:', error);
+      console.error('CSSの読み込みに失敗しました:', error);
+      this.showNotification('CSSファイルの読み込みに失敗しました', 'error');
       return '/* CSS loading failed - please include css/landing-page.css and css/advanced-components.css manually */';
     }
   }
+
+  // ==========================================
+  // CLEAR ALL
+  // ==========================================
 
   clearAll() {
     if (this.sections.length === 0) {
@@ -2941,11 +3072,11 @@ ${this.generateMUISectionComponents()}
   }
 
   generateId() {
-    return `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return CommonEditor.generateId('section');
   }
 
   // ==========================================
-  // LOCAL STORAGE FUNCTIONALITY
+  // LOCAL STORAGE / PROJECT MANAGEMENT
   // ==========================================
 
   saveProject() {
@@ -2961,9 +3092,11 @@ ${this.generateMUISectionComponents()}
 
     if (!projectName) return;
 
+    const sanitizedName = CommonEditor.sanitizeHTML(projectName);
+
     const projectData = {
-      id: `project-${Date.now()}`,
-      name: projectName,
+      id: CommonEditor.generateId('project'),
+      name: sanitizedName,
       timestamp: Date.now(),
       data: {
         theme: this.currentTheme,
@@ -2974,16 +3107,12 @@ ${this.generateMUISectionComponents()}
       },
     };
 
-    // Get existing projects
     const projects = this.getAllProjects();
-
-    // Add new project
     projects.push(projectData);
 
-    // Save to localStorage
-    localStorage.setItem('lp-generator-projects', JSON.stringify(projects));
+    CommonEditor.saveToStorage('lp-generator-projects', projects);
 
-    this.showNotification(`プロジェクト「${projectName}」を保存しました`);
+    this.showNotification(`プロジェクト「${sanitizedName}」を保存しました`);
     this.renderProjectsList();
   }
 
@@ -2998,8 +3127,7 @@ ${this.generateMUISectionComponents()}
   }
 
   getAllProjects() {
-    const data = localStorage.getItem('lp-generator-projects');
-    return data ? JSON.parse(data) : [];
+    return CommonEditor.loadFromStorage('lp-generator-projects', []);
   }
 
   renderProjectsList() {
@@ -3014,7 +3142,6 @@ ${this.generateMUISectionComponents()}
       return;
     }
 
-    // Sort by timestamp (newest first)
     projects.sort((a, b) => b.timestamp - a.timestamp);
 
     list.innerHTML = projects
@@ -3027,20 +3154,22 @@ ${this.generateMUISectionComponents()}
         });
         const timeStr = date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
         const sectionCount = project.data.sections.length;
+        const safeName = CommonEditor.sanitizeHTML(project.name);
+        const safeId = CommonEditor.sanitizeAttribute(project.id);
 
         return `
-                <div class="saved-project-item" data-project-id="${project.id}">
-                    <div class="project-info" onclick="window.lpGenerator.loadProjectById('${project.id}')">
-                        <div class="project-name">${project.name}</div>
+                <div class="saved-project-item" data-project-id="${safeId}">
+                    <div class="project-info" onclick="window.lpGenerator.loadProjectById('${safeId}')">
+                        <div class="project-name">${safeName}</div>
                         <div class="project-meta">${dateStr} ${timeStr} · ${sectionCount}セクション</div>
                     </div>
                     <div class="project-actions">
-                        <button class="project-action-btn" onclick="window.lpGenerator.loadProjectById('${project.id}')" title="読み込む">
+                        <button class="project-action-btn" onclick="window.lpGenerator.loadProjectById('${safeId}')" title="読み込む">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/>
                             </svg>
                         </button>
-                        <button class="project-action-btn delete" onclick="window.lpGenerator.deleteProject('${project.id}')" title="削除">
+                        <button class="project-action-btn delete" onclick="window.lpGenerator.deleteProject('${safeId}')" title="削除">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="3 6 5 6 21 6"/>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -3068,14 +3197,12 @@ ${this.generateMUISectionComponents()}
       }
     }
 
-    // Load project data
     this.currentTheme = project.data.theme;
     this.sections = project.data.sections;
     this.animations = project.data.animations !== undefined ? project.data.animations : true;
     this.glassmorphism = project.data.glassmorphism || false;
     this.deviceMode = project.data.deviceMode || 'desktop';
 
-    // Update UI
     document.querySelectorAll('.theme-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
     });
@@ -3086,7 +3213,6 @@ ${this.generateMUISectionComponents()}
     this.updatePreview();
     this.showNotification(`プロジェクト「${project.name}」を読み込みました`);
 
-    // Close the projects list
     document.getElementById('savedProjectsList').classList.remove('active');
   }
 
@@ -3098,19 +3224,31 @@ ${this.generateMUISectionComponents()}
     let projects = this.getAllProjects();
     projects = projects.filter((p) => p.id !== projectId);
 
-    localStorage.setItem('lp-generator-projects', JSON.stringify(projects));
+    CommonEditor.saveToStorage('lp-generator-projects', projects);
 
     this.showNotification('プロジェクトを削除しました');
     this.renderProjectsList();
   }
 
+  // ==========================================
+  // AUTO SAVE
+  // ==========================================
+
   startAutoSave() {
-    // Auto-save every 30 seconds if there are sections
+    this.stopAutoSave();
+
     this.autoSaveInterval = setInterval(() => {
       if (this.sections.length > 0) {
         this.autoSave();
       }
-    }, 30000); // 30 seconds
+    }, LandingPageGenerator.CONFIG.AUTOSAVE_INTERVAL);
+  }
+
+  stopAutoSave() {
+    if (this.autoSaveInterval) {
+      clearInterval(this.autoSaveInterval);
+      this.autoSaveInterval = null;
+    }
   }
 
   autoSave() {
@@ -3123,19 +3261,16 @@ ${this.generateMUISectionComponents()}
       timestamp: Date.now(),
     };
 
-    localStorage.setItem('lp-generator-autosave', JSON.stringify(autoSaveData));
-    console.log('Auto-saved at', new Date().toLocaleTimeString());
+    CommonEditor.saveToStorage('lp-generator-autosave', autoSaveData);
   }
 
   loadAutoSave() {
-    const data = localStorage.getItem('lp-generator-autosave');
-    if (!data) return false;
+    const autoSaveData = CommonEditor.loadFromStorage('lp-generator-autosave');
+    if (!autoSaveData) return false;
 
-    const autoSaveData = JSON.parse(data);
-
-    // Check if auto-save is recent (within 24 hours)
-    const hoursSinceAutoSave = (Date.now() - autoSaveData.timestamp) / (1000 * 60 * 60);
-    if (hoursSinceAutoSave > 24) return false;
+    const hoursSinceAutoSave =
+      (Date.now() - autoSaveData.timestamp) / (1000 * 60 * 60);
+    if (hoursSinceAutoSave > LandingPageGenerator.CONFIG.AUTOSAVE_RETENTION_HOURS) return false;
 
     if (confirm('前回の作業内容が見つかりました。復元しますか？')) {
       this.currentTheme = autoSaveData.theme;
@@ -3144,7 +3279,6 @@ ${this.generateMUISectionComponents()}
       this.glassmorphism = autoSaveData.glassmorphism;
       this.deviceMode = autoSaveData.deviceMode;
 
-      // Update UI
       document.querySelectorAll('.theme-btn').forEach((btn) => {
         btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
       });
@@ -3216,29 +3350,37 @@ ${this.generateMUISectionComponents()}
         try {
           const projectData = JSON.parse(event.target.result);
 
-          // Validate project data
-          if (projectData.type !== 'lp-generator-project') {
-            throw new Error('Invalid project file format');
+          // バリデーション強化
+          if (!projectData || projectData.type !== 'lp-generator-project') {
+            throw new Error('無効なプロジェクトファイル形式です');
           }
 
-          // Restore project
-          this.currentTheme = projectData.data.theme || 'modern-blue';
+          if (!projectData.data || !Array.isArray(projectData.data.sections)) {
+            throw new Error('プロジェクトデータにセクション情報がありません');
+          }
+
+          this.currentTheme = projectData.data.theme || LandingPageGenerator.CONFIG.DEFAULT_THEME;
           this.animations =
             projectData.data.animations !== undefined ? projectData.data.animations : true;
           this.glassmorphism = projectData.data.glassmorphism || false;
 
-          // Restore sections with templates from sectionTemplates
           this.sections = projectData.data.sections.map((section) => {
+            if (!section.type) {
+              console.warn('セクションにtypeがありません、スキップします');
+              return null;
+            }
             const originalTemplate = sectionTemplates[section.type];
+            if (!originalTemplate && !section.template) {
+              console.warn(`テンプレート "${section.type}" が見つかりません`);
+            }
             return {
               type: section.type,
-              id: section.id || this.generateId(),
+              id: section.id || CommonEditor.generateId('section'),
               customContent: section.customContent,
               template: originalTemplate || section.template,
             };
-          });
+          }).filter(Boolean);
 
-          // Update UI
           document.querySelectorAll('.theme-btn').forEach((btn) => {
             btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
           });
@@ -3249,8 +3391,11 @@ ${this.generateMUISectionComponents()}
           this.updatePreview();
           this.showNotification('プロジェクトをインポートしました');
         } catch (error) {
-          console.error('Import error:', error);
-          this.showNotification('ファイルの読み込みに失敗しました', 'error');
+          console.error('インポートエラー:', error);
+          this.showNotification(
+            error.message || 'ファイルの読み込みに失敗しました',
+            'error'
+          );
         }
       };
 
@@ -3261,24 +3406,46 @@ ${this.generateMUISectionComponents()}
   }
 
   // ==========================================
-  // INLINE EDITING WITH CONTENT SAVE
+  // INLINE EDITING (CommonEditor に委譲)
   // ==========================================
 
   setupInlineEditing() {
     const previewFrame = document.getElementById('previewFrame');
     if (!previewFrame) return;
 
-    previewFrame.addEventListener('dblclick', (e) => {
-      const editableSelectors =
-        'h1, h2, h3, h4, h5, h6, p, span:not(.lp-control-btn span), a, button:not(.lp-control-btn), li, label';
-      const target = e.target.closest(editableSelectors);
+    // CommonEditor がロード済みならそれを使用
+    if (typeof CommonEditor !== 'undefined') {
+      this.commonEditor = new CommonEditor({
+        previewSelector: '#previewFrame',
+        sectionWrapperClass: 'lp-section-wrapper',
+        controlsClass: 'lp-section-controls',
+        cssPrefix: 'lp',
+        onContentChange: (element, oldContent, newContent) => {
+          const wrapper = element.closest('.lp-section-wrapper');
+          if (wrapper) {
+            const sectionId = wrapper.dataset.sectionId;
+            this.saveContentChange(sectionId, element, oldContent);
+          }
+        },
+        onSaveState: () => this.saveState(),
+        notificationFn: (msg, type) => this.showNotification(msg, type),
+      });
 
-      if (target && !target.closest('.lp-section-controls')) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.makeElementEditable(target);
-      }
-    });
+      this.commonEditor.setupInlineEditing(previewFrame);
+    } else {
+      // フォールバック: 直接実装
+      previewFrame.addEventListener('dblclick', (e) => {
+        const editableSelectors =
+          'h1, h2, h3, h4, h5, h6, p, span:not(.lp-control-btn span), a, button:not(.lp-control-btn), li, label';
+        const target = e.target.closest(editableSelectors);
+
+        if (target && !target.closest('.lp-section-controls')) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.makeElementEditable(target);
+        }
+      });
+    }
   }
 
   makeElementEditable(element) {
@@ -3291,7 +3458,6 @@ ${this.generateMUISectionComponents()}
     element.style.background = 'rgba(59, 130, 246, 0.05)';
     element.focus();
 
-    // Select all text
     const range = document.createRange();
     range.selectNodeContents(element);
     const selection = window.getSelection();
@@ -3304,7 +3470,6 @@ ${this.generateMUISectionComponents()}
       element.style.outlineOffset = '';
       element.style.background = '';
 
-      // Save content change to section
       const wrapper = element.closest('.lp-section-wrapper');
       if (wrapper) {
         const sectionId = wrapper.dataset.sectionId;
@@ -3331,12 +3496,10 @@ ${this.generateMUISectionComponents()}
 
     const newContent = element.innerHTML;
     if (newContent !== originalContent) {
-      // Store custom content modifications
       if (!section.customContent) {
         section.customContent = {};
       }
 
-      // Create a unique identifier for this element
       const elementPath = this.getElementPath(element);
       section.customContent[elementPath] = newContent;
 
@@ -3363,8 +3526,11 @@ ${this.generateMUISectionComponents()}
     return parts.join(' > ');
   }
 
+  // ==========================================
+  // NOTIFICATION
+  // ==========================================
+
   showNotification(message, type = 'success') {
-    // Remove existing notification
     const existing = document.querySelector('.lp-notification');
     if (existing) {
       existing.remove();
@@ -3390,13 +3556,17 @@ ${this.generateMUISectionComponents()}
 
     document.body.appendChild(notification);
 
+    const fadeMs = LandingPageGenerator.CONFIG.NOTIFICATION_FADE_MS;
     setTimeout(() => {
-      notification.style.animation = 'slideOutRight 0.3s ease-out';
-      setTimeout(() => notification.remove(), 300);
-    }, 3000);
+      notification.style.animation = `slideOutRight ${fadeMs}ms ease-out`;
+      setTimeout(() => notification.remove(), fadeMs);
+    }, CommonEditor.CONFIG.NOTIFICATION_DURATION);
   }
 
-  // Section Preview Tooltip
+  // ==========================================
+  // SECTION PREVIEW TOOLTIP
+  // ==========================================
+
   createSectionPreviewTooltip() {
     if (document.getElementById('sectionPreviewTooltip')) return;
 
@@ -3416,6 +3586,8 @@ ${this.generateMUISectionComponents()}
   showSectionPreview(e) {
     const btn = e.currentTarget;
     const componentType = btn.dataset.component;
+
+    if (!sectionTemplates[componentType]) return;
     const template = sectionTemplates[componentType];
 
     if (!template || !this.sectionPreviewTooltip) return;
@@ -3425,7 +3597,6 @@ ${this.generateMUISectionComponents()}
 
     header.textContent = template.name;
 
-    // Create a mini version of the section with inline styles for preview
     const previewHTML = `
       <div style="background: white; padding: 10px; border-radius: 8px; font-family: 'Inter', sans-serif;">
         ${template.html}
@@ -3433,7 +3604,6 @@ ${this.generateMUISectionComponents()}
     `;
     content.innerHTML = previewHTML;
 
-    // Position tooltip
     const rect = btn.getBoundingClientRect();
     const sidebar = document.querySelector('.sidebar');
     const sidebarRight = sidebar ? sidebar.getBoundingClientRect().right : 320;
@@ -3441,7 +3611,6 @@ ${this.generateMUISectionComponents()}
     this.sectionPreviewTooltip.style.left = `${sidebarRight + 12}px`;
     this.sectionPreviewTooltip.style.top = `${Math.max(80, rect.top - 40)}px`;
 
-    // Ensure tooltip doesn't go off screen
     const maxTop = window.innerHeight - 320;
     if (parseInt(this.sectionPreviewTooltip.style.top) > maxTop) {
       this.sectionPreviewTooltip.style.top = `${maxTop}px`;
@@ -3455,40 +3624,2042 @@ ${this.generateMUISectionComponents()}
       this.sectionPreviewTooltip.classList.remove('visible');
     }
   }
+
+  // ==========================================
+  // ENHANCED GENERATOR 統合: Advanced Export
+  // ==========================================
+
+  setupAdvancedExport() {
+    const exportSection = document.querySelector('.action-buttons');
+    if (!exportSection) return;
+
+    const exportDropdown = document.createElement('div');
+    exportDropdown.className = 'export-dropdown';
+    exportDropdown.innerHTML = `
+            <button class="action-btn secondary export-toggle" id="exportOptions">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                エクスポート形式
+            </button>
+            <div class="export-menu" id="exportMenu" style="display: none;">
+                <button class="export-option" data-format="html">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    HTML
+                </button>
+                <button class="export-option" data-format="react">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c1.5 0 3-.3 4.3-.9"/></svg>
+                    React Component
+                </button>
+                <button class="export-option" data-format="vue">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    Vue Component
+                </button>
+                <button class="export-option" data-format="json">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                    JSON Config
+                </button>
+            </div>
+        `;
+
+    exportSection.insertBefore(exportDropdown, exportSection.firstChild);
+
+    document.getElementById('exportOptions')?.addEventListener('click', () => {
+      const menu = document.getElementById('exportMenu');
+      if (menu) {
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+
+    document.querySelectorAll('.export-option').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const format = e.currentTarget.dataset.format;
+        this.exportAs(format);
+        document.getElementById('exportMenu').style.display = 'none';
+      });
+    });
+
+    this.addExportStyles();
+  }
+
+  addExportStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+            .export-dropdown { position: relative; }
+            .export-menu {
+                position: absolute; top: 100%; left: 0; right: 0;
+                background: white; border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+                margin-top: 8px; overflow: hidden; z-index: 1000;
+            }
+            .export-option {
+                width: 100%; padding: 12px 16px; border: none;
+                background: white; text-align: left;
+                font-family: var(--font-primary, 'Inter', sans-serif);
+                font-size: 0.95rem; font-weight: 600; cursor: pointer;
+                transition: all 0.2s ease; display: flex;
+                align-items: center; gap: 8px; color: #2d3748;
+            }
+            .export-option:hover {
+                background: #f7fafc;
+                color: var(--primary-color, #667eea);
+            }
+        `;
+    document.head.appendChild(style);
+  }
+
+  exportAs(format) {
+    switch (format) {
+      case 'html':
+        this.exportHTML();
+        break;
+      case 'react':
+        this.exportReact();
+        break;
+      case 'vue':
+        this.exportVue();
+        break;
+      case 'json':
+        this.exportEnhancedJSON();
+        break;
+    }
+  }
+
+  exportReact() {
+    if (this.sections.length === 0) {
+      this.showNotification('エクスポートするセクションがありません', 'error');
+      return;
+    }
+
+    const themeColors = this.getThemeColors();
+    const sectionComponents = [];
+    const sectionUsages = [];
+    const generatedTypes = new Set();
+
+    this.sections.forEach((section) => {
+      const componentName = this.pascalCase(section.type);
+      sectionUsages.push(`      <${componentName} />`);
+
+      if (generatedTypes.has(section.type)) return;
+      generatedTypes.add(section.type);
+
+      const componentCode = this.generateReactSectionComponent(section);
+      sectionComponents.push(componentCode);
+    });
+
+    const componentCode = `/**
+ * LP Generator - React (TypeScript) コンポーネント
+ *
+ * ============================================
+ * 環境構築ガイド (Setup Guide)
+ * ============================================
+ *
+ * 1. プロジェクト作成:
+ *    npx create-vite@latest my-landing-page -- --template react-ts
+ *    cd my-landing-page
+ *
+ * 2. Tailwind CSS インストール:
+ *    npm install -D tailwindcss @tailwindcss/vite
+ *
+ * 3. vite.config.ts に追加:
+ *    import tailwindcss from '@tailwindcss/vite'
+ *    plugins: [react(), tailwindcss()]
+ *
+ * 4. src/index.css に追加:
+ *    @import "tailwindcss";
+ *
+ * 5. tailwind.config.ts でカスタムカラーを設定:
+ *    colors: {
+ *      primary: '${themeColors.primary}',
+ *      secondary: '${themeColors.secondary}',
+ *    }
+ *
+ * 6. このファイルを src/components/LandingPage.tsx に配置
+ *
+ * 7. 開発サーバー起動:
+ *    npm run dev
+ *
+ * ============================================
+ */
+
+import React from 'react';
+
+// ==========================================
+// メインコンポーネント
+// ==========================================
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
+${sectionUsages.join('\n')}
+    </div>
+  );
 }
 
-// Add notification animations
+// ==========================================
+// セクションコンポーネント
+// ==========================================
+
+${sectionComponents.join('\n\n')}
+`;
+
+    this.downloadFile(componentCode, 'LandingPage.tsx', 'text/plain');
+    this.showNotification('Reactコンポーネントをエクスポートしました');
+  }
+
+  generateReactSectionComponent(section) {
+    const name = this.pascalCase(section.type);
+    const type = section.type;
+
+    if (type.includes('hero')) return this.reactHero(name);
+    if (type.includes('features')) return this.reactFeatures(name);
+    if (type.includes('pricing')) return this.reactPricing(name);
+    if (type.includes('testimonial') || type.includes('carousel')) return this.reactTestimonials(name);
+    if (type.includes('cta')) return this.reactCta(name);
+    if (type.includes('faq') || type.includes('accordion')) return this.reactFaq(name);
+    if (type.includes('contact')) return this.reactContact(name);
+    if (type.includes('newsletter')) return this.reactNewsletter(name);
+    if (type.includes('stats') || type.includes('metrics')) return this.reactStats(name);
+    if (type.includes('footer')) return this.reactFooter(name);
+    return this.reactGeneric(name, type);
+  }
+
+  reactHero(name) {
+    return `interface ${name}Props {
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  secondaryCtaText?: string;
+  secondaryCtaLink?: string;
+}
+
+function ${name}({
+  title = "ビジネスを次のレベルへ",
+  subtitle = "革新的なソリューションで、ビジネスの成長を加速させましょう。今すぐ始めて、未来を切り開いてください。",
+  ctaText = "今すぐ始める",
+  ctaLink = "#",
+  secondaryCtaText = "詳しく見る",
+  secondaryCtaLink = "#",
+}: ${name}Props) {
+  return (
+    <section className="relative py-24 overflow-hidden bg-gradient-to-br from-primary to-secondary text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">{title}</h1>
+          <p className="mt-6 text-xl md:text-2xl opacity-90">{subtitle}</p>
+          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+            <a href={ctaLink} className="inline-flex items-center justify-center px-8 py-4 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+              {ctaText}
+            </a>
+            <a href={secondaryCtaLink} className="inline-flex items-center justify-center px-8 py-4 border-2 border-white/30 text-white rounded-lg font-semibold hover:bg-white/10 transition-colors">
+              {secondaryCtaText}
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  reactFeatures(name) {
+    return `interface Feature {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  features?: Feature[];
+}
+
+function ${name}({
+  heading = "主な機能",
+  subheading = "最高の体験を提供するための機能をご紹介します",
+  features = [
+    { title: '高速パフォーマンス', description: '最新技術により、高速で安定したパフォーマンスを実現します。', icon: '⚡' },
+    { title: 'セキュリティ', description: '業界最高水準のセキュリティで、大切なデータを保護します。', icon: '🔒' },
+    { title: '24時間サポート', description: '専門チームが24時間体制でサポートいたします。', icon: '💬' },
+  ],
+}: ${name}Props) {
+  return (
+    <section className="py-16 md:py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{heading}</h2>
+          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">{subheading}</p>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <div className="text-4xl mb-4">{feature.icon}</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
+              <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  reactPricing(name) {
+    return `interface PricingPlan {
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  featured: boolean;
+}
+
+interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  plans?: PricingPlan[];
+}
+
+function ${name}({
+  heading = "料金プラン",
+  subheading = "あなたに最適なプランをお選びください",
+  plans = [
+    { name: 'スターター', price: '¥980', period: '/月', description: '個人利用に最適', features: ['基本機能', 'メールサポート', '1GB ストレージ'], featured: false },
+    { name: 'プロ', price: '¥2,980', period: '/月', description: 'チーム利用に最適', features: ['全機能', '優先サポート', '10GB ストレージ', 'API アクセス'], featured: true },
+    { name: 'エンタープライズ', price: 'お問合せ', period: '', description: '大規模組織向け', features: ['カスタム機能', '専任サポート', '無制限ストレージ', 'SLA保証'], featured: false },
+  ],
+}: ${name}Props) {
+  return (
+    <section className="py-16 md:py-24 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{heading}</h2>
+          <p className="mt-4 text-lg text-gray-600">{subheading}</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8 items-start">
+          {plans.map((plan, index) => (
+            <div key={index} className={\`bg-white rounded-2xl p-8 shadow-lg border \${plan.featured ? 'border-primary ring-2 ring-primary scale-105' : 'border-gray-200'} relative\`}>
+              {plan.featured && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-sm font-medium rounded-full">人気</span>
+              )}
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.name}</h3>
+              <p className="text-gray-600 mb-4">{plan.description}</p>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
+                <span className="text-gray-500">{plan.period}</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                {plan.features.map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-600">
+                    <span className="text-primary">✓</span>{feature}
+                  </li>
+                ))}
+              </ul>
+              <button className={\`w-full py-3 rounded-lg font-semibold transition-colors \${plan.featured ? 'bg-primary text-white hover:bg-primary/90' : 'border-2 border-primary text-primary hover:bg-primary hover:text-white'}\`}>
+                選択する
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  reactTestimonials(name) {
+    return `interface Testimonial {
+  name: string;
+  role: string;
+  company: string;
+  content: string;
+  avatar?: string;
+}
+
+interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  testimonials?: Testimonial[];
+}
+
+function ${name}({
+  heading = "お客様の声",
+  subheading = "実際にご利用いただいているお客様からの声をご紹介します",
+  testimonials = [
+    { name: '田中 太郎', role: 'マーケティング部長', company: 'ABC株式会社', content: 'このサービスを導入してから、業務効率が大幅に改善しました。' },
+    { name: '佐藤 花子', role: 'CEO', company: 'XYZ Inc.', content: '素晴らしいサポートと機能性。私たちのビジネスに欠かせないツールになりました。' },
+    { name: '鈴木 一郎', role: 'エンジニア', company: 'テック株式会社', content: '直感的なUIと強力な機能が魅力です。導入してから3ヶ月で投資回収できました。' },
+  ],
+}: ${name}Props) {
+  return (
+    <section className="py-16 md:py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{heading}</h2>
+          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">{subheading}</p>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {testimonials.map((t, index) => (
+            <div key={index} className="bg-white rounded-2xl p-6 shadow-lg">
+              <p className="text-gray-700 mb-4 italic">"{t.content}"</p>
+              <div className="flex items-center gap-4">
+                {t.avatar ? (
+                  <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">
+                    {t.name.charAt(0)}
+                  </div>
+                )}
+                <div>
+                  <p className="font-semibold text-gray-900">{t.name}</p>
+                  <p className="text-sm text-gray-500">{t.role}, {t.company}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  reactCta(name) {
+    return `interface ${name}Props {
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  secondaryCtaText?: string;
+}
+
+function ${name}({
+  title = "今すぐ始めましょう",
+  subtitle = "14日間の無料トライアルで、すべての機能をお試しいただけます。",
+  ctaText = "無料で始める",
+  ctaLink = "#",
+  secondaryCtaText = "お問い合わせ",
+}: ${name}Props) {
+  return (
+    <section className="py-16 md:py-24 bg-gradient-to-r from-primary to-secondary text-white">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold mb-6">{title}</h2>
+        <p className="text-xl opacity-90 mb-8">{subtitle}</p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href={ctaLink} className="inline-flex items-center justify-center px-8 py-4 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            {ctaText}
+          </a>
+          <button className="inline-flex items-center justify-center px-8 py-4 border-2 border-white/30 text-white rounded-lg font-semibold hover:bg-white/10 transition-colors">
+            {secondaryCtaText}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  reactFaq(name) {
+    return `interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  faqs?: FaqItem[];
+}
+
+function ${name}({
+  heading = "よくある質問",
+  subheading = "お客様からよくいただくご質問にお答えします",
+  faqs = [
+    { question: 'サービスの利用に必要なものは？', answer: 'インターネット接続環境とウェブブラウザがあれば、すぐにご利用いただけます。' },
+    { question: '無料トライアル期間はありますか？', answer: 'はい、14日間の無料トライアルをご用意しています。' },
+    { question: 'プランの変更はいつでもできますか？', answer: 'はい、いつでもプランの変更が可能です。' },
+    { question: 'サポート対応時間は？', answer: 'プロプラン以上では24時間365日のサポートを提供しています。' },
+  ],
+}: ${name}Props) {
+  const [openIndex, setOpenIndex] = React.useState<number | null>(null);
+
+  return (
+    <section className="py-16 md:py-24 bg-white">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{heading}</h2>
+          <p className="mt-4 text-lg text-gray-600">{subheading}</p>
+        </div>
+        <div className="space-y-4">
+          {faqs.map((faq, index) => (
+            <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden">
+              <button
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                className="w-full px-6 py-4 text-left font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors"
+              >
+                {faq.question}
+                <span className={\`transform transition-transform \${openIndex === index ? 'rotate-180' : ''}\`}>▼</span>
+              </button>
+              {openIndex === index && (
+                <div className="px-6 py-4 text-gray-600 border-t border-gray-100">{faq.answer}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  reactContact(name) {
+    return `interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+}
+
+function ${name}({
+  heading = "お問い合わせ",
+  subheading = "ご質問やご相談がございましたら、お気軽にお問い合わせください",
+}: ${name}Props) {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert('お問い合わせを受け付けました（デモ）');
+  };
+
+  return (
+    <section className="py-16 md:py-24 bg-gray-50">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{heading}</h2>
+          <p className="mt-4 text-lg text-gray-600">{subheading}</p>
+        </div>
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-xl space-y-6">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">お名前</label>
+              <input id="name" type="text" placeholder="山田 太郎" required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" />
+            </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
+              <input id="email" type="email" placeholder="you@example.com" required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">件名</label>
+            <input id="subject" type="text" placeholder="お問い合わせ内容" required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" />
+          </div>
+          <div>
+            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">メッセージ</label>
+            <textarea id="message" rows={5} placeholder="詳細をご記入ください..." required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none" />
+          </div>
+          <button type="submit" className="w-full py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">送信する</button>
+        </form>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  reactNewsletter(name) {
+    return `interface ${name}Props {
+  heading?: string;
+  subheading?: string;
+  buttonText?: string;
+}
+
+function ${name}({
+  heading = "ニュースレターに登録",
+  subheading = "最新情報やお得な情報をメールでお届けします",
+  buttonText = "登録する",
+}: ${name}Props) {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert('ニュースレターに登録しました（デモ）');
+  };
+
+  return (
+    <section className="py-16 md:py-24 bg-primary/5">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{heading}</h2>
+        <p className="mt-4 text-lg text-gray-600 mb-8">{subheading}</p>
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 justify-center">
+          <input type="email" placeholder="メールアドレスを入力" required className="max-w-sm flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" />
+          <button type="submit" className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">{buttonText}</button>
+        </form>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  reactStats(name) {
+    return `interface StatItem {
+  value: string;
+  label: string;
+}
+
+interface ${name}Props {
+  stats?: StatItem[];
+}
+
+function ${name}({
+  stats = [
+    { value: '10,000+', label: '利用企業数' },
+    { value: '99.9%', label: '稼働率' },
+    { value: '24/7', label: 'サポート対応' },
+    { value: '50+', label: '連携サービス' },
+  ],
+}: ${name}Props) {
+  return (
+    <section className="py-16 md:py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {stats.map((stat, index) => (
+            <div key={index} className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">{stat.value}</div>
+              <div className="text-gray-600">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  reactFooter(name) {
+    return `interface FooterLink {
+  title: string;
+  items: { label: string; href: string }[];
+}
+
+interface ${name}Props {
+  companyName?: string;
+  description?: string;
+  links?: FooterLink[];
+}
+
+function ${name}({
+  companyName = "LP Generator",
+  description = "美しいランディングページを簡単に作成できるサービスです。",
+  links = [
+    { title: '製品', items: [{ label: '機能', href: '#' }, { label: '料金', href: '#' }, { label: '導入事例', href: '#' }] },
+    { title: '会社情報', items: [{ label: '会社概要', href: '#' }, { label: 'ブログ', href: '#' }, { label: '採用情報', href: '#' }] },
+    { title: 'サポート', items: [{ label: 'ヘルプセンター', href: '#' }, { label: 'API ドキュメント', href: '#' }, { label: 'お問い合わせ', href: '#' }] },
+  ],
+}: ${name}Props) {
+  return (
+    <footer className="bg-gray-900 text-white py-16 px-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-4 gap-8">
+          <div>
+            <h3 className="text-2xl font-bold mb-4">{companyName}</h3>
+            <p className="text-gray-400 mb-6">{description}</p>
+          </div>
+          {links.map((section, i) => (
+            <div key={i}>
+              <h4 className="font-semibold mb-4">{section.title}</h4>
+              <ul className="space-y-2">
+                {section.items.map((link, j) => (
+                  <li key={j}><a href={link.href} className="text-gray-400 hover:text-white transition-colors">{link.label}</a></li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+          <p>&copy; {new Date().getFullYear()} {companyName}. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  );
+}`;
+  }
+
+  reactGeneric(name, type) {
+    return `interface ${name}Props {
+  title?: string;
+  description?: string;
+}
+
+function ${name}({
+  title = "${name}",
+  description = "${type} セクションの内容をここに追加してください。",
+}: ${name}Props) {
+  return (
+    <section className="py-16 md:py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{title}</h2>
+          <p className="mt-4 text-lg text-gray-600">{description}</p>
+        </div>
+      </div>
+    </section>
+  );
+}`;
+  }
+
+  exportVue() {
+    if (this.sections.length === 0) {
+      this.showNotification('エクスポートするセクションがありません', 'error');
+      return;
+    }
+
+    const themeColors = this.getThemeColors();
+    const sectionComponents = [];
+    const sectionUsages = [];
+    const componentImports = [];
+    const generatedTypes = new Set();
+
+    this.sections.forEach((section) => {
+      const componentName = this.pascalCase(section.type);
+      sectionUsages.push(`      <${componentName} />`);
+
+      if (generatedTypes.has(section.type)) return;
+      generatedTypes.add(section.type);
+
+      componentImports.push(componentName);
+      const componentCode = this.generateVueSectionComponent(section);
+      sectionComponents.push(componentCode);
+    });
+
+    const componentCode = `<!--
+  LP Generator - Vue 3 (Composition API) コンポーネント
+
+  ============================================
+  環境構築ガイド (Setup Guide)
+  ============================================
+
+  1. プロジェクト作成:
+     npm create vue@latest my-landing-page
+     cd my-landing-page
+
+  2. Tailwind CSS インストール:
+     npm install -D tailwindcss @tailwindcss/vite
+
+  3. vite.config.ts に追加:
+     import tailwindcss from '@tailwindcss/vite'
+     plugins: [vue(), tailwindcss()]
+
+  4. src/assets/main.css に追加:
+     @import "tailwindcss";
+
+  5. tailwind.config.ts でカスタムカラーを設定:
+     colors: {
+       primary: '${themeColors.primary}',
+       secondary: '${themeColors.secondary}',
+     }
+
+  6. このファイルを src/components/LandingPage.vue に配置
+     各セクションコンポーネントは src/components/sections/ に配置
+
+  7. 開発サーバー起動:
+     npm run dev
+
+  ============================================
+-->
+
+<script setup lang="ts">
+// セクションコンポーネントのインポート
+// 各コンポーネントを個別ファイルに分割する場合:
+// ${componentImports.map(name => `import ${name} from './sections/${name}.vue';`).join('\n// ')}
+</script>
+
+<template>
+  <div class="min-h-screen bg-white text-gray-900 font-sans antialiased">
+${sectionUsages.join('\n')}
+  </div>
+</template>
+
+<!--
+==========================================
+セクションコンポーネント（個別ファイルに分割推奨）
+==========================================
+以下は各セクションの実装例です。
+実運用時は各コンポーネントを個別の .vue ファイルに分割してください。
+-->
+
+${sectionComponents.join('\n\n')}
+`;
+
+    this.downloadFile(componentCode, 'LandingPage.vue', 'text/plain');
+    this.showNotification('Vueコンポーネントをエクスポートしました');
+  }
+
+  generateVueSectionComponent(section) {
+    const name = this.pascalCase(section.type);
+    const type = section.type;
+
+    if (type.includes('hero')) return this.vueHero(name);
+    if (type.includes('features')) return this.vueFeatures(name);
+    if (type.includes('pricing')) return this.vuePricing(name);
+    if (type.includes('testimonial') || type.includes('carousel')) return this.vueTestimonials(name);
+    if (type.includes('cta')) return this.vueCta(name);
+    if (type.includes('faq') || type.includes('accordion')) return this.vueFaq(name);
+    if (type.includes('contact')) return this.vueContact(name);
+    if (type.includes('newsletter')) return this.vueNewsletter(name);
+    if (type.includes('stats') || type.includes('metrics')) return this.vueStats(name);
+    if (type.includes('footer')) return this.vueFooter(name);
+    return this.vueGeneric(name, type);
+  }
+
+  vueHero(name) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+interface Props {
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  secondaryCtaText?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  title: 'ビジネスを次のレベルへ',
+  subtitle: '革新的なソリューションで、ビジネスの成長を加速させましょう。',
+  ctaText: '今すぐ始める',
+  ctaLink: '#',
+  secondaryCtaText: '詳しく見る',
+});
+<\/script>
+
+<template>
+  <section class="relative py-24 overflow-hidden bg-gradient-to-br from-primary to-secondary text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">{{ title }}</h1>
+        <p class="mt-6 text-xl md:text-2xl opacity-90">{{ subtitle }}</p>
+        <div class="mt-8 flex flex-col sm:flex-row gap-4">
+          <a :href="ctaLink" class="inline-flex items-center justify-center px-8 py-4 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition-colors">{{ ctaText }}</a>
+          <a href="#" class="inline-flex items-center justify-center px-8 py-4 border-2 border-white/30 text-white rounded-lg font-semibold hover:bg-white/10 transition-colors">{{ secondaryCtaText }}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+-->`;
+  }
+
+  vueFeatures(name) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+interface Feature {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+interface Props {
+  heading?: string;
+  subheading?: string;
+  features?: Feature[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  heading: '主な機能',
+  subheading: '最高の体験を提供するための機能をご紹介します',
+  features: () => [
+    { title: '高速パフォーマンス', description: '最新技術により、高速で安定したパフォーマンスを実現します。', icon: '⚡' },
+    { title: 'セキュリティ', description: '業界最高水準のセキュリティで、大切なデータを保護します。', icon: '🔒' },
+    { title: '24時間サポート', description: '専門チームが24時間体制でサポートいたします。', icon: '💬' },
+  ],
+});
+<\/script>
+
+<template>
+  <section class="py-16 md:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ heading }}</h2>
+        <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">{{ subheading }}</p>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div v-for="(feature, index) in features" :key="index" class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div class="text-4xl mb-4">{{ feature.icon }}</div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ feature.title }}</h3>
+          <p class="text-gray-600 leading-relaxed">{{ feature.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+-->`;
+  }
+
+  vuePricing(name) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+interface Plan {
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  featured: boolean;
+}
+
+interface Props {
+  heading?: string;
+  subheading?: string;
+  plans?: Plan[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  heading: '料金プラン',
+  subheading: 'あなたに最適なプランをお選びください',
+  plans: () => [
+    { name: 'スターター', price: '¥980', period: '/月', description: '個人利用に最適', features: ['基本機能', 'メールサポート', '1GB ストレージ'], featured: false },
+    { name: 'プロ', price: '¥2,980', period: '/月', description: 'チーム利用に最適', features: ['全機能', '優先サポート', '10GB ストレージ', 'API アクセス'], featured: true },
+    { name: 'エンタープライズ', price: 'お問合せ', period: '', description: '大規模組織向け', features: ['カスタム機能', '専任サポート', '無制限ストレージ'], featured: false },
+  ],
+});
+<\/script>
+
+<template>
+  <section class="py-16 md:py-24 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ heading }}</h2>
+        <p class="mt-4 text-lg text-gray-600">{{ subheading }}</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8 items-start">
+        <div v-for="(plan, index) in plans" :key="index" :class="['bg-white rounded-2xl p-8 shadow-lg border relative', plan.featured ? 'border-primary ring-2 ring-primary scale-105' : 'border-gray-200']">
+          <span v-if="plan.featured" class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-sm font-medium rounded-full">人気</span>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ plan.name }}</h3>
+          <p class="text-gray-600 mb-4">{{ plan.description }}</p>
+          <div class="mb-6">
+            <span class="text-4xl font-bold text-gray-900">{{ plan.price }}</span>
+            <span class="text-gray-500">{{ plan.period }}</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li v-for="(feature, i) in plan.features" :key="i" class="flex items-center gap-3 text-gray-600">
+              <span class="text-primary">✓</span>{{ feature }}
+            </li>
+          </ul>
+          <button :class="['w-full py-3 rounded-lg font-semibold transition-colors', plan.featured ? 'bg-primary text-white hover:bg-primary/90' : 'border-2 border-primary text-primary hover:bg-primary hover:text-white']">選択する</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+-->`;
+  }
+
+  vueTestimonials(name) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+interface Testimonial {
+  name: string;
+  role: string;
+  company: string;
+  content: string;
+}
+
+interface Props {
+  heading?: string;
+  subheading?: string;
+  testimonials?: Testimonial[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  heading: 'お客様の声',
+  subheading: '実際にご利用いただいているお客様からの声をご紹介します',
+  testimonials: () => [
+    { name: '田中 太郎', role: 'マーケティング部長', company: 'ABC株式会社', content: 'このサービスを導入してから、業務効率が大幅に改善しました。' },
+    { name: '佐藤 花子', role: 'CEO', company: 'XYZ Inc.', content: '素晴らしいサポートと機能性。' },
+    { name: '鈴木 一郎', role: 'エンジニア', company: 'テック株式会社', content: '直感的なUIと強力な機能が魅力です。' },
+  ],
+});
+<\/script>
+
+<template>
+  <section class="py-16 md:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ heading }}</h2>
+        <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">{{ subheading }}</p>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div v-for="(t, index) in testimonials" :key="index" class="bg-white rounded-2xl p-6 shadow-lg">
+          <p class="text-gray-700 mb-4 italic">"{{ t.content }}"</p>
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">{{ t.name.charAt(0) }}</div>
+            <div>
+              <p class="font-semibold text-gray-900">{{ t.name }}</p>
+              <p class="text-sm text-gray-500">{{ t.role }}, {{ t.company }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+-->`;
+  }
+
+  vueCta(name) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+interface Props {
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  title: '今すぐ始めましょう',
+  subtitle: '14日間の無料トライアルで、すべての機能をお試しいただけます。',
+  ctaText: '無料で始める',
+  ctaLink: '#',
+});
+<\/script>
+
+<template>
+  <section class="py-16 md:py-24 bg-gradient-to-r from-primary to-secondary text-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-6">{{ title }}</h2>
+      <p class="text-xl opacity-90 mb-8">{{ subtitle }}</p>
+      <a :href="ctaLink" class="inline-flex items-center justify-center px-8 py-4 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition-colors">{{ ctaText }}</a>
+    </div>
+  </section>
+</template>
+-->`;
+  }
+
+  vueFaq(name) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+import { ref } from 'vue';
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  heading?: string;
+  subheading?: string;
+  faqs?: FaqItem[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  heading: 'よくある質問',
+  subheading: 'お客様からよくいただくご質問にお答えします',
+  faqs: () => [
+    { question: 'サービスの利用に必要なものは？', answer: 'インターネット接続環境とウェブブラウザがあれば、すぐにご利用いただけます。' },
+    { question: '無料トライアル期間はありますか？', answer: 'はい、14日間の無料トライアルをご用意しています。' },
+    { question: 'プランの変更はいつでもできますか？', answer: 'はい、いつでもプランの変更が可能です。' },
+  ],
+});
+
+const openIndex = ref<number | null>(null);
+const toggle = (index: number) => {
+  openIndex.value = openIndex.value === index ? null : index;
+};
+<\/script>
+
+<template>
+  <section class="py-16 md:py-24 bg-white">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ heading }}</h2>
+        <p class="mt-4 text-lg text-gray-600">{{ subheading }}</p>
+      </div>
+      <div class="space-y-4">
+        <div v-for="(faq, index) in faqs" :key="index" class="bg-white rounded-xl shadow-md overflow-hidden">
+          <button @click="toggle(index)" class="w-full px-6 py-4 text-left font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
+            {{ faq.question }}
+            <span :class="['transform transition-transform', openIndex === index ? 'rotate-180' : '']">▼</span>
+          </button>
+          <div v-show="openIndex === index" class="px-6 py-4 text-gray-600 border-t border-gray-100">{{ faq.answer }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+-->`;
+  }
+
+  vueContact(name) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+interface Props {
+  heading?: string;
+  subheading?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  heading: 'お問い合わせ',
+  subheading: 'ご質問やご相談がございましたら、お気軽にお問い合わせください',
+});
+
+const handleSubmit = () => {
+  alert('お問い合わせを受け付けました（デモ）');
+};
+<\/script>
+
+<template>
+  <section class="py-16 md:py-24 bg-gray-50">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ heading }}</h2>
+        <p class="mt-4 text-lg text-gray-600">{{ subheading }}</p>
+      </div>
+      <form @submit.prevent="handleSubmit" class="bg-white rounded-2xl p-8 shadow-xl space-y-6">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">お名前</label>
+            <input type="text" placeholder="山田 太郎" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
+            <input type="email" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">メッセージ</label>
+          <textarea rows="5" placeholder="詳細をご記入ください..." required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none"></textarea>
+        </div>
+        <button type="submit" class="w-full py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">送信する</button>
+      </form>
+    </div>
+  </section>
+</template>
+-->`;
+  }
+
+  vueNewsletter(name) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+interface Props {
+  heading?: string;
+  subheading?: string;
+  buttonText?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  heading: 'ニュースレターに登録',
+  subheading: '最新情報やお得な情報をメールでお届けします',
+  buttonText: '登録する',
+});
+
+const handleSubmit = () => {
+  alert('ニュースレターに登録しました（デモ）');
+};
+<\/script>
+
+<template>
+  <section class="py-16 md:py-24 bg-primary/5">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ heading }}</h2>
+      <p class="mt-4 text-lg text-gray-600 mb-8">{{ subheading }}</p>
+      <form @submit.prevent="handleSubmit" class="flex flex-col sm:flex-row gap-4 justify-center">
+        <input type="email" placeholder="メールアドレスを入力" required class="max-w-sm flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" />
+        <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">{{ buttonText }}</button>
+      </form>
+    </div>
+  </section>
+</template>
+-->`;
+  }
+
+  vueStats(name) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+interface StatItem {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  stats?: StatItem[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  stats: () => [
+    { value: '10,000+', label: '利用企業数' },
+    { value: '99.9%', label: '稼働率' },
+    { value: '24/7', label: 'サポート対応' },
+    { value: '50+', label: '連携サービス' },
+  ],
+});
+<\/script>
+
+<template>
+  <section class="py-16 md:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div v-for="(stat, index) in stats" :key="index" class="text-center">
+          <div class="text-4xl md:text-5xl font-bold text-primary mb-2">{{ stat.value }}</div>
+          <div class="text-gray-600">{{ stat.label }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+-->`;
+  }
+
+  vueFooter(name) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+interface FooterLink {
+  title: string;
+  items: { label: string; href: string }[];
+}
+
+interface Props {
+  companyName?: string;
+  description?: string;
+  links?: FooterLink[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  companyName: 'LP Generator',
+  description: '美しいランディングページを簡単に作成できるサービスです。',
+  links: () => [
+    { title: '製品', items: [{ label: '機能', href: '#' }, { label: '料金', href: '#' }, { label: '導入事例', href: '#' }] },
+    { title: '会社情報', items: [{ label: '会社概要', href: '#' }, { label: 'ブログ', href: '#' }, { label: '採用情報', href: '#' }] },
+    { title: 'サポート', items: [{ label: 'ヘルプセンター', href: '#' }, { label: 'API ドキュメント', href: '#' }, { label: 'お問い合わせ', href: '#' }] },
+  ],
+});
+
+const currentYear = new Date().getFullYear();
+<\/script>
+
+<template>
+  <footer class="bg-gray-900 text-white py-16 px-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <h3 class="text-2xl font-bold mb-4">{{ companyName }}</h3>
+          <p class="text-gray-400 mb-6">{{ description }}</p>
+        </div>
+        <div v-for="(section, i) in links" :key="i">
+          <h4 class="font-semibold mb-4">{{ section.title }}</h4>
+          <ul class="space-y-2">
+            <li v-for="(link, j) in section.items" :key="j">
+              <a :href="link.href" class="text-gray-400 hover:text-white transition-colors">{{ link.label }}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+        <p>&copy; {{ currentYear }} {{ companyName }}. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</template>
+-->`;
+  }
+
+  vueGeneric(name, type) {
+    return `<!--
+  ${name}.vue
+-->
+<!--
+<script setup lang="ts">
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  title: '${name}',
+  description: '${type} セクションの内容をここに追加してください。',
+});
+<\/script>
+
+<template>
+  <section class="py-16 md:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ title }}</h2>
+        <p class="mt-4 text-lg text-gray-600">{{ description }}</p>
+      </div>
+    </div>
+  </section>
+</template>
+-->`;
+  }
+
+  exportEnhancedJSON() {
+    const config = {
+      version: '1.0.0',
+      theme: this.currentTheme,
+      animations: this.animations,
+      glassmorphism: this.glassmorphism,
+      sections: this.sections.map((section) => ({
+        id: section.id,
+        type: section.type,
+        name: section.template.name,
+      })),
+    };
+
+    const jsonString = JSON.stringify(config, null, 2);
+    this.downloadFile(jsonString, 'landing-page-config.json', 'application/json');
+    this.showNotification('設定をJSONでエクスポートしました');
+  }
+
+  // ==========================================
+  // ENHANCED GENERATOR 統合: Presets
+  // ==========================================
+
+  setupPresets() {
+    const controlSection = document.createElement('section');
+    controlSection.className = 'control-section';
+    controlSection.innerHTML = `
+            <h3 class="section-title">プリセットテンプレート</h3>
+            <div class="preset-grid">
+                <button class="preset-btn" data-preset="startup">
+                    <span class="preset-name">スタートアップ</span>
+                    <span class="preset-desc">新規ビジネス向け</span>
+                </button>
+                <button class="preset-btn" data-preset="saas">
+                    <span class="preset-name">SaaS</span>
+                    <span class="preset-desc">ソフトウェア製品向け</span>
+                </button>
+                <button class="preset-btn" data-preset="portfolio">
+                    <span class="preset-name">ポートフォリオ</span>
+                    <span class="preset-desc">個人作品集</span>
+                </button>
+                <button class="preset-btn" data-preset="ecommerce">
+                    <span class="preset-name">Eコマース</span>
+                    <span class="preset-desc">オンラインストア</span>
+                </button>
+                <button class="preset-btn" data-preset="agency">
+                    <span class="preset-name">エージェンシー</span>
+                    <span class="preset-desc">制作会社・代理店向け</span>
+                </button>
+                <button class="preset-btn" data-preset="consulting">
+                    <span class="preset-name">コンサルティング</span>
+                    <span class="preset-desc">専門サービス向け</span>
+                </button>
+                <button class="preset-btn" data-preset="education">
+                    <span class="preset-name">教育・スクール</span>
+                    <span class="preset-desc">オンライン講座向け</span>
+                </button>
+                <button class="preset-btn" data-preset="restaurant">
+                    <span class="preset-name">レストラン</span>
+                    <span class="preset-desc">飲食店向け</span>
+                </button>
+                <button class="preset-btn" data-preset="realestate">
+                    <span class="preset-name">不動産</span>
+                    <span class="preset-desc">物件紹介向け</span>
+                </button>
+                <button class="preset-btn" data-preset="event">
+                    <span class="preset-name">イベント</span>
+                    <span class="preset-desc">セミナー・展示会向け</span>
+                </button>
+            </div>
+        `;
+
+    const layoutSection = document.querySelector('.control-section:nth-child(4)');
+    if (layoutSection) {
+      layoutSection.parentNode.insertBefore(controlSection, layoutSection);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+            .preset-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+            .preset-btn {
+                display: flex; flex-direction: column; align-items: flex-start;
+                padding: 16px; border: 2px solid var(--border-color, #e2e8f0);
+                border-radius: 12px; background: white; cursor: pointer;
+                transition: all 0.3s ease; text-align: left;
+            }
+            .preset-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                border-color: var(--primary-color, #667eea);
+            }
+            .preset-name { font-size: 1rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+            .preset-desc { font-size: 0.85rem; color: #718096; }
+        `;
+    document.head.appendChild(style);
+
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const preset = e.currentTarget.dataset.preset;
+        this.applyPreset(preset);
+      });
+    });
+  }
+
+  applyPreset(presetName) {
+    const presets = {
+      startup: ['hero-split', 'features-cards-hover', 'social-proof', 'pricing-modern', 'testimonials-carousel', 'cta-split'],
+      saas: ['hero-animated', 'features-timeline', 'pricing-modern', 'testimonials', 'faq', 'newsletter'],
+      portfolio: ['hero-1', 'gallery', 'features-grid', 'team', 'testimonials', 'contact'],
+      ecommerce: ['hero-split', 'features-grid', 'gallery', 'pricing', 'testimonials', 'cta'],
+      agency: ['hero-gradient', 'logo-cloud', 'features-grid', 'gallery', 'testimonials-carousel', 'team', 'cta-banner'],
+      consulting: ['hero-minimal', 'features-list', 'benefits-grid', 'testimonials', 'steps-horizontal', 'contact'],
+      education: ['hero-video', 'features-cards-hover', 'pricing-modern', 'testimonials-carousel', 'accordion-faq', 'cta-split'],
+      restaurant: ['hero-fullscreen', 'gallery', 'features-grid', 'testimonials', 'contact'],
+      realestate: ['hero-split-image', 'features-grid', 'gallery', 'testimonials', 'contact-split'],
+      event: ['hero-gradient', 'steps-horizontal', 'features-grid', 'pricing-modern', 'testimonials', 'cta-banner'],
+    };
+
+    const sections = presets[presetName] || [];
+
+    this.sections = [];
+
+    sections.forEach((componentType) => {
+      if (sectionTemplates[componentType]) {
+        this.sections.push({
+          type: componentType,
+          id: CommonEditor.generateId('section'),
+          template: sectionTemplates[componentType],
+        });
+      }
+    });
+
+    this.updatePreview();
+    this.showNotification(`${presetName}プリセットを適用しました`);
+  }
+
+  // ==========================================
+  // ENHANCED GENERATOR 統合: Keyboard Shortcuts
+  // ==========================================
+
+  setupEnhancedKeyboardShortcuts() {
+    this._addListener(document, 'keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        this.exportHTML();
+      }
+    });
+  }
+
+  // ==========================================
+  // ENHANCED GENERATOR 統合: Design Customization
+  // ==========================================
+
+  setupDesignCustomization() {
+    const fontFamilySelect = document.getElementById('fontFamilySelect');
+    if (fontFamilySelect) {
+      fontFamilySelect.addEventListener('change', (e) => {
+        this.designSettings.fontFamily = e.target.value;
+        this.applyFontFamily(e.target.value);
+      });
+    }
+
+    const fontSizeScale = document.getElementById('fontSizeScale');
+    if (fontSizeScale) {
+      fontSizeScale.addEventListener('change', (e) => {
+        this.designSettings.fontSizeScale = parseFloat(e.target.value);
+        this.applyFontSizeScale(parseFloat(e.target.value));
+      });
+    }
+
+    const spacingScale = document.getElementById('spacingScale');
+    if (spacingScale) {
+      spacingScale.addEventListener('change', (e) => {
+        this.designSettings.spacingScale = parseFloat(e.target.value);
+        this.applySpacingScale(parseFloat(e.target.value));
+      });
+    }
+
+    const borderRadiusStyle = document.getElementById('borderRadiusStyle');
+    if (borderRadiusStyle) {
+      borderRadiusStyle.addEventListener('change', (e) => {
+        this.designSettings.borderRadius = parseInt(e.target.value);
+        this.applyBorderRadius(parseInt(e.target.value));
+      });
+    }
+
+    const primaryColor = document.getElementById('primaryColor');
+    const secondaryColor = document.getElementById('secondaryColor');
+    const accentColor = document.getElementById('accentColor');
+
+    primaryColor?.addEventListener('change', (e) => {
+      this.designSettings.primaryColor = e.target.value;
+      this.applyCustomColors();
+    });
+
+    secondaryColor?.addEventListener('change', (e) => {
+      this.designSettings.secondaryColor = e.target.value;
+      this.applyCustomColors();
+    });
+
+    accentColor?.addEventListener('change', (e) => {
+      this.designSettings.accentColor = e.target.value;
+      this.applyCustomColors();
+    });
+
+    const resetColors = document.getElementById('resetColors');
+    resetColors?.addEventListener('click', () => {
+      this.resetColors();
+    });
+  }
+
+  applyFontFamily(fontFamily) {
+    const previewFrame = document.getElementById('previewFrame');
+    if (previewFrame) {
+      previewFrame.style.fontFamily = `'${fontFamily}', sans-serif`;
+      this.injectCustomCSS('custom-font-css', `
+        #previewFrame, #previewFrame * { font-family: '${fontFamily}', sans-serif !important; }
+      `);
+      this.showNotification(`フォントを ${fontFamily} に変更しました`);
+    }
+  }
+
+  applyFontSizeScale(scale) {
+    const previewFrame = document.getElementById('previewFrame');
+    if (previewFrame) {
+      previewFrame.style.fontSize = `${scale * 100}%`;
+      this.injectCustomCSS('custom-fontsize-css', `
+        #previewFrame { font-size: ${scale * 100}% !important; }
+      `);
+      this.showNotification(`フォントサイズを ${scale * 100}% に変更しました`);
+    }
+  }
+
+  applySpacingScale(scale) {
+    const previewFrame = document.getElementById('previewFrame');
+    if (previewFrame) {
+      previewFrame.style.setProperty('--spacing-scale', scale);
+      this.injectCustomCSS('custom-spacing-css', `
+        #previewFrame [class*="lp-section"] { padding-top: calc(80px * ${scale}) !important; padding-bottom: calc(80px * ${scale}) !important; }
+        #previewFrame [class*="lp-hero"] { padding-top: calc(120px * ${scale}) !important; padding-bottom: calc(120px * ${scale}) !important; }
+        #previewFrame [class*="lp-card"], #previewFrame [class*="lp-feature"] { padding: calc(24px * ${scale}) !important; }
+      `);
+      this.showNotification(`余白を ${scale * 100}% に変更しました`);
+    }
+  }
+
+  applyBorderRadius(radius) {
+    this.injectCustomCSS('custom-radius-css', `
+      #previewFrame [class*="lp-btn"] { border-radius: ${radius}px !important; }
+      #previewFrame [class*="lp-card"], #previewFrame [class*="lp-feature-card"],
+      #previewFrame [class*="lp-pricing-card"], #previewFrame [class*="lp-testimonial"] { border-radius: ${radius}px !important; }
+      #previewFrame [class*="lp-mockup"] { border-radius: ${radius}px !important; }
+      #previewFrame .lp-hero-visual img { border-radius: ${radius}px !important; }
+    `);
+    this.showNotification(`角丸を ${radius}px に変更しました`);
+  }
+
+  applyCustomColors() {
+    const previewFrame = document.getElementById('previewFrame');
+    if (!previewFrame) return;
+
+    previewFrame.style.setProperty('--theme-primary', this.designSettings.primaryColor);
+    previewFrame.style.setProperty('--theme-secondary', this.designSettings.secondaryColor);
+    previewFrame.style.setProperty('--theme-accent', this.designSettings.accentColor);
+
+    this.injectThemeCSS();
+    this.showNotification('カスタムカラーを適用しました');
+  }
+
+  injectThemeCSS() {
+    const { primaryColor, secondaryColor, accentColor } = this.designSettings;
+    this.injectCustomCSS('custom-theme-css', `
+      #previewFrame [class*="lp-hero"]:not([class*="lp-hero-stat"]):not([class*="lp-hero-content"]):not([class*="lp-hero-visual"]):not([class*="lp-hero-title"]):not([class*="lp-hero-subtitle"]):not([class*="lp-hero-buttons"]):not([class*="lp-hero-badge"]) {
+        background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
+      }
+      #previewFrame .lp-btn-primary, #previewFrame [class*="lp-btn-primary"],
+      #previewFrame .lp-cta-btn, #previewFrame [class*="lp-cta"] button {
+        background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
+        border-color: ${primaryColor} !important;
+      }
+      #previewFrame .lp-btn-primary:hover, #previewFrame [class*="lp-btn-primary"]:hover {
+        box-shadow: 0 10px 30px ${primaryColor}40 !important;
+      }
+      #previewFrame .lp-hero-badge, #previewFrame [class*="lp-badge"], #previewFrame .lp-section-badge {
+        background: ${primaryColor}15 !important; color: ${primaryColor} !important;
+      }
+      #previewFrame .lp-badge-dot { background: ${primaryColor} !important; }
+      #previewFrame .lp-hero-stat-number, #previewFrame .lp-stat-number, #previewFrame [class*="stat-number"] { color: ${primaryColor} !important; }
+      #previewFrame .lp-feature-icon, #previewFrame [class*="lp-feature-icon"] { color: ${primaryColor} !important; }
+      #previewFrame .lp-feature-icon-wrapper, #previewFrame [class*="icon-wrapper"] {
+        background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
+      }
+      #previewFrame .lp-pricing-card.featured, #previewFrame .lp-pricing-card.highlighted,
+      #previewFrame [class*="lp-pricing"][class*="featured"] { border-color: ${primaryColor} !important; }
+      #previewFrame .lp-pricing-card .lp-pricing-cta { background: ${primaryColor} !important; }
+      #previewFrame .lp-cta, #previewFrame [class*="lp-cta-section"], #previewFrame .lp-newsletter {
+        background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
+      }
+      #previewFrame .lp-gradient-text {
+        background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}, ${accentColor}) !important;
+        -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; background-clip: text !important;
+      }
+      #previewFrame a:not([class*="lp-btn"]):hover { color: ${primaryColor} !important; }
+      #previewFrame .lp-team-role, #previewFrame [class*="lp-team-role"] { color: ${primaryColor} !important; }
+      #previewFrame .lp-nav-logo { color: ${primaryColor} !important; }
+      #previewFrame .lp-testimonial-rating, #previewFrame [class*="rating"] svg {
+        color: ${accentColor} !important; fill: ${accentColor} !important;
+      }
+      #previewFrame [class*="faq"] [class*="icon"] { color: ${primaryColor} !important; }
+      #previewFrame .lp-hero-orb-1 { background: ${primaryColor} !important; }
+      #previewFrame .lp-hero-orb-2 { background: ${secondaryColor} !important; }
+      #previewFrame .lp-hero-orb-3 { background: ${accentColor} !important; }
+      #previewFrame .lp-nav-menu li a::after { background: ${primaryColor} !important; }
+    `);
+  }
+
+  resetColors() {
+    this.designSettings.primaryColor = '#667eea';
+    this.designSettings.secondaryColor = '#764ba2';
+    this.designSettings.accentColor = '#f093fb';
+
+    const primaryEl = document.getElementById('primaryColor');
+    const secondaryEl = document.getElementById('secondaryColor');
+    const accentEl = document.getElementById('accentColor');
+    if (primaryEl) primaryEl.value = this.designSettings.primaryColor;
+    if (secondaryEl) secondaryEl.value = this.designSettings.secondaryColor;
+    if (accentEl) accentEl.value = this.designSettings.accentColor;
+
+    this.applyCustomColors();
+    this.showNotification('カラーをリセットしました');
+  }
+
+  /**
+   * カスタムCSS注入のヘルパー（IDで管理、上書き可能）
+   * プレビューフレーム内にも注入して確実に反映させる
+   */
+  injectCustomCSS(id, cssText) {
+    // document.head にも注入（既存互換）
+    const existing = document.getElementById(id);
+    if (existing) existing.remove();
+
+    const style = document.createElement('style');
+    style.id = id;
+    style.textContent = cssText;
+    document.head.appendChild(style);
+
+    // プレビューフレーム内にも注入（テンプレートへの確実な反映）
+    const previewFrame = document.getElementById('previewFrame');
+    if (previewFrame) {
+      const previewId = `${id}-preview`;
+      const existingPreview = previewFrame.querySelector(`#${previewId}`);
+      if (existingPreview) existingPreview.remove();
+
+      const previewStyle = document.createElement('style');
+      previewStyle.id = previewId;
+      previewStyle.textContent = cssText;
+      previewFrame.prepend(previewStyle);
+    }
+  }
+
+  // ==========================================
+  // ENHANCED GENERATOR 統合: SEO Editor
+  // ==========================================
+
+  setupSEOEditor() {
+    const fields = [
+      { id: 'seoTitle', prop: 'title', event: 'input' },
+      { id: 'seoDescription', prop: 'description', event: 'input' },
+      { id: 'seoKeywords', prop: 'keywords', event: 'input' },
+      { id: 'ogImage', prop: 'ogImage', event: 'input' },
+      { id: 'canonicalUrl', prop: 'canonicalUrl', event: 'input' },
+      { id: 'seoLang', prop: 'lang', event: 'change' },
+    ];
+
+    const checkboxFields = [
+      { id: 'includeTwitterCard', prop: 'includeTwitterCard' },
+      { id: 'includeSchema', prop: 'includeSchema' },
+    ];
+
+    // DOMContentLoaded 後にバインド
+    const bindFields = () => {
+      fields.forEach(({ id, prop, event }) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener(event, (e) => {
+            this.seoData[prop] = e.target.value;
+          });
+        }
+      });
+
+      checkboxFields.forEach(({ id, prop }) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('change', (e) => {
+            this.seoData[prop] = e.target.checked;
+          });
+        }
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindFields);
+    } else {
+      bindFields();
+    }
+  }
+
+  generateSEOMetaTags() {
+    let metaTags = '';
+
+    if (this.seoData.title) {
+      metaTags += `    <title>${CommonEditor.sanitizeHTML(this.seoData.title)}</title>\n`;
+    }
+
+    if (this.seoData.description) {
+      metaTags += `    <meta name="description" content="${CommonEditor.sanitizeAttribute(this.seoData.description)}">\n`;
+    }
+
+    if (this.seoData.keywords) {
+      metaTags += `    <meta name="keywords" content="${CommonEditor.sanitizeAttribute(this.seoData.keywords)}">\n`;
+    }
+
+    metaTags += `    <meta http-equiv="content-language" content="${CommonEditor.sanitizeAttribute(this.seoData.lang)}">\n`;
+
+    if (this.seoData.canonicalUrl) {
+      metaTags += `    <link rel="canonical" href="${CommonEditor.sanitizeAttribute(this.seoData.canonicalUrl)}">\n`;
+    }
+
+    // Open Graph
+    if (this.seoData.title) {
+      metaTags += `    <meta property="og:title" content="${CommonEditor.sanitizeAttribute(this.seoData.title)}">\n`;
+    }
+    if (this.seoData.description) {
+      metaTags += `    <meta property="og:description" content="${CommonEditor.sanitizeAttribute(this.seoData.description)}">\n`;
+    }
+    if (this.seoData.ogImage) {
+      metaTags += `    <meta property="og:image" content="${CommonEditor.sanitizeAttribute(this.seoData.ogImage)}">\n`;
+    }
+    metaTags += `    <meta property="og:type" content="website">\n`;
+    if (this.seoData.canonicalUrl) {
+      metaTags += `    <meta property="og:url" content="${CommonEditor.sanitizeAttribute(this.seoData.canonicalUrl)}">\n`;
+    }
+
+    // Twitter Card
+    if (this.seoData.includeTwitterCard) {
+      metaTags += `    <meta name="twitter:card" content="summary_large_image">\n`;
+      if (this.seoData.title) {
+        metaTags += `    <meta name="twitter:title" content="${CommonEditor.sanitizeAttribute(this.seoData.title)}">\n`;
+      }
+      if (this.seoData.description) {
+        metaTags += `    <meta name="twitter:description" content="${CommonEditor.sanitizeAttribute(this.seoData.description)}">\n`;
+      }
+      if (this.seoData.ogImage) {
+        metaTags += `    <meta name="twitter:image" content="${CommonEditor.sanitizeAttribute(this.seoData.ogImage)}">\n`;
+      }
+    }
+
+    // Schema.org JSON-LD
+    if (this.seoData.includeSchema) {
+      const schema = {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: this.seoData.title || 'Landing Page',
+        description: this.seoData.description || '',
+        url: this.seoData.canonicalUrl || '',
+      };
+      metaTags += `    <script type="application/ld+json">\n${JSON.stringify(schema, null, 6)}\n    </script>\n`;
+    }
+
+    return metaTags;
+  }
+
+  // ==========================================
+  // ENHANCED GENERATOR 統合: Scroll Animations
+  // ==========================================
+
+  setupScrollAnimations() {
+    this.addAnimationStyles();
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px 0px -10% 0px',
+      threshold: [0, 0.1, 0.2, 0.3],
+    };
+
+    this.animationObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
+          const target = entry.target;
+          const delay = target.dataset.animDelay || 0;
+
+          setTimeout(() => {
+            target.classList.add('lp-animated');
+            target.classList.remove('lp-animate-ready');
+          }, delay);
+
+          this.animationObserver.unobserve(target);
+        }
+      });
+    }, observerOptions);
+
+    this.observePreviewChanges();
+  }
+
+  observePreviewChanges() {
+    const previewFrame = document.getElementById('previewFrame');
+    if (!previewFrame) {
+      setTimeout(() => this.observePreviewChanges(), 500);
+      return;
+    }
+
+    this.initializeAnimatedElements(previewFrame);
+
+    const mutationObserver = new MutationObserver(() => {
+      this.initializeAnimatedElements(previewFrame);
+    });
+
+    mutationObserver.observe(previewFrame, {
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  initializeAnimatedElements(container) {
+    const animatableSelectors = [
+      '.lp-slide-up', '.lp-fade-in', '.lp-scale-in',
+      '.lp-slide-left', '.lp-slide-right',
+      '.lp-feature-card', '.lp-pricing-card-modern',
+      '.lp-testimonial-card', '.lp-stat-card', '.lp-faq-item',
+    ];
+
+    const elements = container.querySelectorAll(animatableSelectors.join(', '));
+
+    elements.forEach((el, index) => {
+      if (!el.classList.contains('lp-animated') && !el.classList.contains('lp-animate-ready')) {
+        el.classList.add('lp-animate-ready');
+        el.dataset.animDelay = index * 100;
+        if (this.animationObserver) {
+          this.animationObserver.observe(el);
+        }
+      }
+    });
+  }
+
+  addAnimationStyles() {
+    if (document.getElementById('lp-animation-styles')) return;
+
+    this.injectCustomCSS('lp-animation-styles', `
+      .lp-animate-ready.lp-slide-up { opacity: 0; transform: translateY(40px); }
+      .lp-animate-ready.lp-fade-in { opacity: 0; }
+      .lp-animate-ready.lp-scale-in { opacity: 0; transform: scale(0.9); }
+      .lp-animate-ready.lp-slide-left { opacity: 0; transform: translateX(-40px); }
+      .lp-animate-ready.lp-slide-right { opacity: 0; transform: translateX(40px); }
+      .lp-animate-ready.lp-feature-card, .lp-animate-ready.lp-pricing-card-modern,
+      .lp-animate-ready.lp-testimonial-card, .lp-animate-ready.lp-stat-card,
+      .lp-animate-ready.lp-faq-item { opacity: 0; transform: translateY(30px); }
+
+      .lp-animated.lp-slide-up { opacity: 1; transform: translateY(0); transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+      .lp-animated.lp-fade-in { opacity: 1; transition: opacity 0.8s ease; }
+      .lp-animated.lp-scale-in { opacity: 1; transform: scale(1); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+      .lp-animated.lp-slide-left { opacity: 1; transform: translateX(0); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+      .lp-animated.lp-slide-right { opacity: 1; transform: translateX(0); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+      .lp-animated.lp-feature-card, .lp-animated.lp-pricing-card-modern,
+      .lp-animated.lp-testimonial-card, .lp-animated.lp-stat-card,
+      .lp-animated.lp-faq-item { opacity: 1; transform: translateY(0); transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+
+      .lp-features-grid-modern .lp-feature-card:nth-child(1) { transition-delay: 0ms; }
+      .lp-features-grid-modern .lp-feature-card:nth-child(2) { transition-delay: 100ms; }
+      .lp-features-grid-modern .lp-feature-card:nth-child(3) { transition-delay: 200ms; }
+      .lp-features-grid-modern .lp-feature-card:nth-child(4) { transition-delay: 300ms; }
+      .lp-features-grid-modern .lp-feature-card:nth-child(5) { transition-delay: 400ms; }
+      .lp-features-grid-modern .lp-feature-card:nth-child(6) { transition-delay: 500ms; }
+
+      .lp-pricing-grid-modern .lp-pricing-card-modern:nth-child(1) { transition-delay: 0ms; }
+      .lp-pricing-grid-modern .lp-pricing-card-modern:nth-child(2) { transition-delay: 150ms; }
+      .lp-pricing-grid-modern .lp-pricing-card-modern:nth-child(3) { transition-delay: 300ms; }
+
+      .lp-stats-grid-modern .lp-stat-card:nth-child(1) { transition-delay: 0ms; }
+      .lp-stats-grid-modern .lp-stat-card:nth-child(2) { transition-delay: 100ms; }
+      .lp-stats-grid-modern .lp-stat-card:nth-child(3) { transition-delay: 200ms; }
+      .lp-stats-grid-modern .lp-stat-card:nth-child(4) { transition-delay: 300ms; }
+    `);
+  }
+
+  // ==========================================
+  // ENHANCED GENERATOR 統合: Hover Effects
+  // ==========================================
+
+  setupHoverEffects() {
+    this.addHoverEffectStyles();
+
+    const throttledMouseMove = CommonEditor.throttle((e) => {
+      const cards = document.querySelectorAll(
+        '.lp-feature-card, .lp-pricing-card-modern, .lp-stat-card'
+      );
+      cards.forEach((card) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+          card.style.setProperty('--mouse-x', `${x}px`);
+          card.style.setProperty('--mouse-y', `${y}px`);
+        }
+      });
+    }, 16);
+
+    this._addListener(document, 'mousemove', throttledMouseMove);
+  }
+
+  addHoverEffectStyles() {
+    if (document.getElementById('lp-hover-effect-styles')) return;
+
+    this.injectCustomCSS('lp-hover-effect-styles', `
+      .lp-feature-card::before, .lp-pricing-card-modern::before, .lp-stat-card::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(59, 130, 246, 0.08), transparent 40%);
+        border-radius: inherit; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 0;
+      }
+      .lp-feature-card:hover::before, .lp-pricing-card-modern:hover::before, .lp-stat-card:hover::before { opacity: 1; }
+      .lp-btn { position: relative; overflow: hidden; }
+      .lp-btn::after {
+        content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+        background: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10%);
+        transform: scale(10); opacity: 0; transition: transform 0.5s, opacity 0.3s; pointer-events: none;
+      }
+      .lp-btn:active::after { transform: scale(0); opacity: 1; transition: 0s; }
+      .lp-gallery-item img, .lp-feature-image img { transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+      .lp-gallery-item:hover img, .lp-feature-image:hover img { transform: scale(1.05); }
+      .lp-feature-link { position: relative; }
+      .lp-feature-link::after {
+        content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px;
+        background: currentColor; transition: width 0.3s ease;
+      }
+      .lp-feature-link:hover::after { width: 100%; }
+      @media (hover: hover) {
+        .lp-pricing-card-modern { transform-style: preserve-3d; perspective: 1000px; }
+        .lp-pricing-card-modern:hover { transform: translateY(-8px) rotateX(2deg); }
+        .lp-pricing-featured:hover { transform: scale(1.05) translateY(-10px) rotateX(2deg); }
+      }
+    `);
+  }
+
+  // ==========================================
+  // ENHANCED GENERATOR 統合: Parallax Effects
+  // ==========================================
+
+  setupParallaxEffects() {
+    this.addParallaxStyles();
+
+    let ticking = false;
+
+    const updateParallax = () => {
+      const scrollY = window.scrollY;
+      const heroSection = document.querySelector('.lp-hero-modern');
+
+      if (heroSection) {
+        const heroRect = heroSection.getBoundingClientRect();
+        const heroOffset = heroRect.top + scrollY;
+        const scrollProgress = Math.max(0, scrollY - heroOffset);
+
+        const orbs = heroSection.querySelectorAll('.lp-hero-gradient-orb');
+        orbs.forEach((orb, index) => {
+          const speed = 0.3 + index * 0.1;
+          orb.style.transform = `translateY(${scrollProgress * speed}px)`;
+        });
+
+        const mockup = heroSection.querySelector('.lp-hero-mockup');
+        if (mockup) {
+          mockup.style.transform = `translateY(${scrollProgress * 0.15}px)`;
+        }
+
+        const heroContent = heroSection.querySelector('.lp-hero-content');
+        if (heroContent) {
+          const opacity = Math.max(0, 1 - scrollProgress / 400);
+          heroContent.style.opacity = opacity;
+        }
+      }
+
+      const statsSection = document.querySelector('.lp-stats-modern');
+      if (statsSection) {
+        const gradientLine = statsSection.querySelector('.lp-stats-gradient-line');
+        if (gradientLine) {
+          gradientLine.style.backgroundPosition = `${scrollY * 0.5}% 0%`;
+        }
+      }
+
+      ticking = false;
+    };
+
+    this._addListener(window, 'scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    });
+  }
+
+  addParallaxStyles() {
+    if (document.getElementById('lp-parallax-styles')) return;
+
+    this.injectCustomCSS('lp-parallax-styles', `
+      .lp-hero-gradient-orb { will-change: transform; transition: transform 0.1s ease-out; }
+      .lp-hero-mockup { will-change: transform; transition: transform 0.1s ease-out; }
+      .lp-hero-content { will-change: opacity; transition: opacity 0.1s ease-out; }
+      @keyframes float-subtle {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-10px) rotate(1deg); }
+        50% { transform: translateY(-5px) rotate(-1deg); }
+        75% { transform: translateY(-15px) rotate(0.5deg); }
+      }
+      .lp-hero-stats .lp-hero-stat-item { animation: float-subtle 6s ease-in-out infinite; }
+      .lp-hero-stats .lp-hero-stat-item:nth-child(1) { animation-delay: 0s; }
+      .lp-hero-stats .lp-hero-stat-item:nth-child(2) { animation-delay: 1s; }
+      .lp-hero-stats .lp-hero-stat-item:nth-child(3) { animation-delay: 2s; }
+      @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+      .lp-gradient-text { background-size: 200% auto; animation: shimmer 4s linear infinite; }
+      @keyframes badge-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+        50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+      }
+      .lp-hero-badge, .lp-cta-badge { animation: badge-pulse 3s infinite; }
+      .lp-stat-count { display: inline-block; }
+    `);
+  }
+}
+
+// 通知アニメーション
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideInRight {
-        from {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+        from { transform: translateX(400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
     @keyframes slideOutRight {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(400px);
-            opacity: 0;
-        }
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(400px); opacity: 0; }
     }
 `;
 document.head.appendChild(style);
 
-// Initialize the generator when DOM is loaded
+// 初期化
 document.addEventListener('DOMContentLoaded', () => {
   window.lpGenerator = new LandingPageGenerator();
-  console.log('Landing Page Generator initialized');
 
-  // Check for auto-save after a short delay to ensure everything is loaded
   setTimeout(() => {
     window.lpGenerator.loadAutoSave();
   }, 500);
@@ -3506,7 +5677,6 @@ class Lightbox {
   }
 
   init() {
-    // Create lightbox HTML
     const lightboxHTML = `
             <div class="lp-lightbox" id="lightbox">
                 <button class="lp-lightbox-close" id="lightboxClose">
@@ -3541,17 +5711,14 @@ class Lightbox {
     const prevBtn = document.getElementById('lightboxPrev');
     const nextBtn = document.getElementById('lightboxNext');
 
-    // Close lightbox
     closeBtn?.addEventListener('click', () => this.close());
     lightbox?.addEventListener('click', (e) => {
       if (e.target.id === 'lightbox') this.close();
     });
 
-    // Navigation
     prevBtn?.addEventListener('click', () => this.prev());
     nextBtn?.addEventListener('click', () => this.next());
 
-    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
       if (!lightbox.classList.contains('active')) return;
       if (e.key === 'Escape') this.close();
@@ -3559,7 +5726,6 @@ class Lightbox {
       if (e.key === 'ArrowRight') this.next();
     });
 
-    // Gallery items click handler using delegation
     document.addEventListener('click', (e) => {
       const galleryItem = e.target.closest('[data-lightbox="gallery"]');
       if (galleryItem) {
@@ -3612,7 +5778,7 @@ class Lightbox {
   }
 }
 
-// Initialize lightbox when DOM is ready
+// Lightbox 初期化
 document.addEventListener('DOMContentLoaded', () => {
   window.lightbox = new Lightbox();
 });
@@ -3629,13 +5795,11 @@ class DarkModeToggle {
   }
 
   init() {
-    // Load saved preference from localStorage
-    const savedMode = localStorage.getItem('darkMode');
+    const savedMode = CommonEditor.loadFromStorage('darkMode');
     if (savedMode === 'enabled') {
       this.enable();
     }
 
-    // Attach event listener
     this.toggle?.addEventListener('click', () => this.toggleMode());
   }
 
@@ -3650,17 +5814,17 @@ class DarkModeToggle {
   enable() {
     document.body.classList.add('dark-mode');
     if (this.modeText) this.modeText.textContent = 'Light Mode';
-    localStorage.setItem('darkMode', 'enabled');
+    CommonEditor.saveToStorage('darkMode', 'enabled');
   }
 
   disable() {
     document.body.classList.remove('dark-mode');
     if (this.modeText) this.modeText.textContent = 'Dark Mode';
-    localStorage.setItem('darkMode', 'disabled');
+    CommonEditor.saveToStorage('darkMode', 'disabled');
   }
 }
 
-// Initialize dark mode toggle when DOM is ready
+// ダークモード初期化
 document.addEventListener('DOMContentLoaded', () => {
   window.darkModeToggle = new DarkModeToggle();
 });
