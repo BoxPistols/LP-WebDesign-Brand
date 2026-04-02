@@ -442,9 +442,20 @@
   padding-right: var(--grid-margin);
 }
 
-/* lp-hero-contentにもコンテナ制約を適用 */
-.lp-hero-content {
-  width: 100%;
+/* lp-hero-contentのコンテナ制約
+   注意: .lp-hero-modern はCSS Gridの子要素として使うため、
+   max-width/margin:auto は親(.lp-hero)側で制御する。
+   hero-content自体にはpaddingのみ適用 */
+.lp-hero > .lp-hero-content:only-child {
+  max-width: var(--grid-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+}
+
+/* グリッドヒーロー(.lp-hero-modern)では親にmax-width制約 */
+.lp-hero-modern {
   max-width: var(--grid-max-width);
   margin-left: auto;
   margin-right: auto;

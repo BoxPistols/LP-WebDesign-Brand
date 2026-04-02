@@ -661,13 +661,13 @@ body {
   color: var(--color-secondary-500);
 }
 
-/* 交互レイアウト */
-.lp-feature-reverse .lp-feature-content {
-  direction: rtl;
+/* 交互レイアウト - orderで制御（direction:rtlは崩れるため不使用） */
+.lp-feature-reverse .lp-feature-image {
+  order: 2;
 }
 
 .lp-feature-reverse .lp-feature-text {
-  direction: ltr;
+  order: 1;
 }
 
 /* フィーチャーレスポンシブ - モバイルファースト */
@@ -701,7 +701,11 @@ body {
   .lp-feature-reverse .lp-feature-content {
     grid-template-columns: 1fr;
     gap: var(--space-8);
-    direction: ltr;
+  }
+
+  .lp-feature-reverse .lp-feature-image,
+  .lp-feature-reverse .lp-feature-text {
+    order: unset;
   }
 }
 
