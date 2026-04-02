@@ -122,6 +122,7 @@ body.dark-mode .sidebar-toggle svg {
   overflow-y: auto;
   z-index: var(--z-10);
   border-right: 1px solid var(--gen-border);
+  padding-bottom: 60px; /* フッターナビ被り防止 */
 }
 
 .panel-header {

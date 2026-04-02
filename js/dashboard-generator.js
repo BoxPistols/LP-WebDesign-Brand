@@ -133,7 +133,7 @@ class DashboardGenerator {
     };
 
     // Grid Design Mode properties
-    this.designMode = 'grid'; // 'grid' | 'component'
+    this.designMode = 'component'; // 'component' | 'grid' - デフォルトはDrag&Dropモード
     this.gridRows = DashboardGenerator.CONFIG.DEFAULT_GRID_ROWS;
     this.gridAreas = [];
     this.isSelectingArea = false;

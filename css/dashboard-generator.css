@@ -176,14 +176,15 @@ body {
 }
 
 .sidebar-subtitle {
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   opacity: 0.9;
 }
 
-/* サイドバースクロール - overflow:hiddenを上書き */
+/* サイドバースクロール - overflow:hiddenを上書き + フッター被り防止 */
 .builder-sidebar {
   overflow-y: auto !important;
   overflow-x: hidden;
+  padding-bottom: 60px; /* フッターナビの高さ分 */
 }
 
 .builder-section {
@@ -281,7 +282,7 @@ body {
 }
 
 .category-title {
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   color: var(--db-text);
   margin-bottom: var(--space-2);
@@ -433,7 +434,7 @@ body {
 }
 
 .component-name {
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--db-text);
 }
@@ -498,7 +499,7 @@ body {
 .customize-select {
   width: 100%;
   padding: var(--space-2) var(--space-2-5);
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   border: 1px solid var(--db-border);
   border-radius: var(--radius-md);
   background: white;
@@ -622,7 +623,7 @@ body {
 }
 
 .format-label strong {
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   color: var(--db-text);
 }
@@ -647,7 +648,7 @@ body {
   padding: var(--space-2-5) var(--space-4);
   border: none;
   border-radius: var(--radius-lg);
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -858,7 +859,7 @@ body {
 }
 
 .zoom-level {
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--db-text);
   min-width: 45px;
@@ -1056,7 +1057,7 @@ body {
 }
 
 .no-selection p {
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
 }
 
 /* ==========================================
@@ -1279,7 +1280,7 @@ body {
   border: 1px solid var(--db-border);
   border-radius: var(--radius-md);
   background: white;
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   color: var(--db-text);
   cursor: pointer;
 }
@@ -1595,7 +1596,7 @@ body {
   padding: var(--space-2-5) var(--space-4);
   border: none;
   border-radius: var(--radius-lg);
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -1696,7 +1697,7 @@ body {
 .grid-quick-btn {
   flex: 1;
   padding: var(--space-2) var(--space-3);
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   border: 1px solid var(--db-border);
   border-radius: var(--radius-md);
@@ -2218,7 +2219,7 @@ body {
   color: var(--color-secondary-400);
   border: none;
   border-radius: var(--radius-md);
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -2274,7 +2275,7 @@ body {
   padding: var(--space-5);
   background: var(--color-secondary-800);
   font-family: var(--font-mono);
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
   color: var(--color-secondary-200);
   white-space: pre-wrap;
@@ -2351,7 +2352,7 @@ body {
   background: transparent;
   border: 1px solid var(--color-secondary-200);
   border-radius: var(--radius-lg);
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--color-secondary-500);
   cursor: pointer;
@@ -2477,7 +2478,7 @@ body {
 }
 
 .grid-row-controls label {
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--color-secondary-600);
 }
@@ -2528,7 +2529,7 @@ body {
   border: 1px solid #fecaca;
   border-radius: var(--radius-lg);
   color: var(--color-error);
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -2939,7 +2940,7 @@ body.component-mode .grid-area-defined.drop-target::after {
   color: var(--color-secondary-400);
   text-decoration: none;
   border-radius: var(--radius-md);
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   margin-bottom: var(--space-1);
 }
 
@@ -2957,7 +2958,7 @@ body.component-mode .grid-area-defined.drop-target::after {
   background: var(--color-secondary-800);
   padding: var(--space-3) var(--space-5);
   color: var(--color-secondary-400);
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
 }
 
 /* サイドバートグルボタン */
@@ -3242,7 +3243,7 @@ body.component-mode .grid-area-defined.drop-target::after {
 }
 
 .spacing-group label {
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--color-secondary-500);
 }
@@ -3281,7 +3282,7 @@ body.component-mode .grid-area-defined.drop-target::after {
 
 .spacing-value {
   min-width: 48px;
-  font-size: var(--text-xs) + 1px;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--color-secondary-800);
   text-align: right;
