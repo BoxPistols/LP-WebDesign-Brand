@@ -142,7 +142,8 @@ body {
   border-right: 1px solid var(--db-border);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   transition:
     transform var(--transition-base),
     opacity var(--transition-base);
@@ -180,11 +181,9 @@ body {
   opacity: 0.9;
 }
 
-/* サイドバースクロール - overflow:hiddenを上書き + フッター被り防止 */
+/* サイドバー フッター被り防止 */
 .builder-sidebar {
-  overflow-y: auto !important;
-  overflow-x: hidden;
-  padding-bottom: 60px; /* フッターナビの高さ分 */
+  padding-bottom: 60px;
 }
 
 .builder-section {
