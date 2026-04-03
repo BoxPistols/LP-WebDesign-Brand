@@ -600,6 +600,8 @@ class DashboardGenerator {
     if (color) {
       document.documentElement.style.setProperty('--db-primary', color);
     }
+    // Darkテーマ時はbodyにクラスを追加してCSS側でダークモード適用
+    document.body.classList.toggle('db-dark-mode', theme === 'dark');
   }
 
   // ==========================================

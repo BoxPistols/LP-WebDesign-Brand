@@ -3388,6 +3388,8 @@ body.component-mode .grid-area-defined.drop-target::after {
    ダークモード対応
    ========================================== */
 
+/* Darkテーマ（ボタン選択時） + OS設定 共通 */
+body.db-dark-mode,
 @media (prefers-color-scheme: dark) {
   :root {
     --db-bg: var(--color-secondary-900);
@@ -3396,30 +3398,92 @@ body.component-mode .grid-area-defined.drop-target::after {
     --db-text: var(--color-secondary-100);
     --db-text-muted: var(--color-secondary-400);
   }
+}
 
-  .layout-btn,
-  .theme-option,
-  .component-item,
-  .format-option,
-  .quick-start-btn {
-    background: var(--color-secondary-800);
-    color: var(--color-secondary-200);
-  }
+body.db-dark-mode .layout-btn,
+body.db-dark-mode .theme-option,
+body.db-dark-mode .component-item,
+body.db-dark-mode .format-option,
+body.db-dark-mode .quick-start-btn {
+  background: var(--color-secondary-700);
+  color: var(--color-secondary-200);
+  border-color: var(--color-secondary-600);
+}
 
-  .component-control,
-  .area-component-wrapper {
-    background: var(--color-secondary-800);
-  }
+body.db-dark-mode .component-control,
+body.db-dark-mode .area-component-wrapper {
+  background: var(--color-secondary-800);
+}
 
-  .code-preview-container {
-    background: var(--color-secondary-900);
-  }
+body.db-dark-mode .code-preview-container {
+  background: var(--color-secondary-900);
+}
 
-  .settings-modal-content {
-    background: var(--color-secondary-800);
-  }
+body.db-dark-mode .settings-modal-content {
+  background: var(--color-secondary-800);
+}
 
-  .settings-modal-footer {
-    background: var(--color-secondary-900);
-  }
+body.db-dark-mode .settings-modal-footer {
+  background: var(--color-secondary-900);
+}
+
+/* サイドバーフォーム要素のダークモード */
+body.db-dark-mode .customize-select,
+body.db-dark-mode .color-row input[type='text'],
+body.db-dark-mode input.customize-select {
+  background: var(--color-secondary-700);
+  color: var(--color-secondary-100);
+  border-color: var(--color-secondary-600);
+}
+
+body.db-dark-mode .customize-label {
+  color: var(--color-secondary-200);
+}
+
+body.db-dark-mode .color-row {
+  background: var(--color-secondary-700);
+}
+
+body.db-dark-mode .color-row span {
+  color: var(--color-secondary-300);
+}
+
+body.db-dark-mode .reset-colors-btn {
+  background: var(--color-secondary-700);
+  color: var(--color-secondary-300);
+  border-color: var(--color-secondary-600);
+}
+
+body.db-dark-mode .builder-section {
+  border-color: var(--color-secondary-700);
+}
+
+body.db-dark-mode .section-title {
+  color: var(--color-secondary-200);
+}
+
+body.db-dark-mode .format-option label {
+  color: var(--color-secondary-200);
+}
+
+body.db-dark-mode .format-option small {
+  color: var(--color-secondary-400);
+}
+
+body.db-dark-mode .format-option.active {
+  background: var(--color-secondary-700);
+  border-color: var(--color-primary-500);
+}
+
+body.db-dark-mode .canvas-workspace {
+  background: var(--color-secondary-900);
+}
+
+body.db-dark-mode .empty-canvas {
+  color: var(--color-secondary-400);
+}
+
+body.db-dark-mode .properties-panel {
+  background: var(--color-secondary-800);
+  border-color: var(--color-secondary-700);
 }
