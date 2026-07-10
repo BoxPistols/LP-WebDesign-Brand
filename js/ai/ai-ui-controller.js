@@ -229,14 +229,11 @@ class AIUIController {
           <label class="ai-form-label">保存方法</label>
           <div class="ai-storage-options">
             <label class="ai-storage-option">
-              <input type="radio" name="aiStorage" value="local" checked />
-              ローカル保存（次回も使用）
-            </label>
-            <label class="ai-storage-option">
-              <input type="radio" name="aiStorage" value="session" />
-              セッションのみ
+              <input type="checkbox" id="aiPersistKey" />
+              このブラウザに保存する（localStorage）
             </label>
           </div>
+          <p class="ai-form-hint">未チェックの場合はセッションのみ保存（タブを閉じると設定が消えます）</p>
         </div>
 
         <div class="ai-modal-footer">
@@ -362,13 +359,29 @@ class AIUIController {
         providerSelect.value = this.service._provider;
         this._onProviderChange(this.service._provider);
       }
+      // セキュリティ: 保存済みAPIキーは画面に書き戻さない
       const apiKeyInput = document.getElementById('aiApiKey');
-      if (apiKeyInput && this.service._apiKey) apiKeyInput.value = this.service._apiKey;
-      const modelSelect = document.getElementById('aiModel');
-      if (modelSelect && this.service._model) {
-        // モデル一覧更新後に値を設定
-        setTimeout(() => { modelSelect.value = this.service._model; }, 100);
+      if (apiKeyInput) {
+        apiKeyInput.value = '';
+        apiKeyInput.placeholder = this.service._apiKey
+          ? '設定済み（変更する場合のみ入力）'
+          : 'sk-...';
       }
+      const modelSelect = document.getElementById('aiModel');
+      if (modelSelect) {
+        // モデル一覧更新後に値を設定
+        setTimeout(() => {
+          modelSelect.value = this.service.autoRouting ? 'auto' : (this.service._model || 'auto');
+        }, 100);
+      }
+    }
+
+    // 永続化チェックボックス: localStorage に保存済みならチェック
+    const persistCheckbox = document.getElementById('aiPersistKey');
+    if (persistCheckbox) {
+      let persisted = false;
+      try { persisted = !!localStorage.getItem('ai-provider-config'); } catch (e) { /* 無視 */ }
+      persistCheckbox.checked = persisted;
     }
   }
 
@@ -405,11 +418,37 @@ class AIUIController {
         });
       } else if (AIService.PROVIDERS[provider]) {
         const models = AIService.PROVIDERS[provider].models;
-        modelSelect.innerHTML = models.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        // 先頭は自動ルーティング（デフォルト）
+        modelSelect.innerHTML = '<option value="auto">自動（タスク別に最適モデルを選択）</option>' +
+          models.map(m => `<option value="${m.id}">${this._modelOptionLabel(m)}</option>`).join('');
       } else {
         modelSelect.innerHTML = '<option value="">プロバイダを選択</option>';
       }
     }
+  }
+
+  /** モデルのドロップダウン表示ラベル（価格ヒント付き） */
+  _modelOptionLabel(model) {
+    if (model.pricing) {
+      return `${model.name}（$${model.pricing.input.toFixed(2)}/$${model.pricing.output.toFixed(2)} per 1M）`;
+    }
+    return model.name;
+  }
+
+  /** ドロップダウンの選択値（'auto' or モデルID）を { model, autoRouting } に解決する */
+  _resolveModelSelection(provider, modelValue) {
+    if (modelValue !== 'auto') return { model: modelValue, autoRouting: false };
+    const models = AIService.PROVIDERS[provider]?.models || [];
+    const draft = models.find(m => m.tier === 'draft') || models[0];
+    return { model: draft ? draft.id : '', autoRouting: true };
+  }
+
+  /** APIキー入力欄が空欄なら保存済みキーを再利用する（キーは画面に再表示しないため） */
+  _resolveApiKey(provider) {
+    const entered = document.getElementById('aiApiKey')?.value?.trim() || '';
+    if (entered) return entered;
+    if (provider === this.service._provider && this.service._apiKey) return this.service._apiKey;
+    return '';
   }
 
   async _testConnection() {
@@ -418,8 +457,7 @@ class AIUIController {
 
     // 一時的に設定を適用
     const provider = document.getElementById('aiProvider')?.value;
-    const apiKey = document.getElementById('aiApiKey')?.value;
-    const model = document.getElementById('aiModel')?.value;
+    const modelValue = document.getElementById('aiModel')?.value;
     const ollamaEndpoint = document.getElementById('aiOllamaEndpoint')?.value;
 
     if (!provider) {
@@ -427,8 +465,12 @@ class AIUIController {
       return;
     }
 
+    const apiKey = this._resolveApiKey(provider);
+    const { model, autoRouting } = this._resolveModelSelection(provider, modelValue);
+
     const tempService = new AIService();
-    tempService.configure(provider, apiKey, model, { ollamaEndpoint, sessionOnly: true });
+    // transient: 接続テストではストレージへ保存しない
+    tempService.configure(provider, apiKey, model, { ollamaEndpoint, autoRouting, transient: true });
 
     const result = await tempService.validateConnection();
     if (resultEl) {
@@ -439,14 +481,17 @@ class AIUIController {
 
   _saveSettings() {
     const provider = document.getElementById('aiProvider')?.value;
-    const apiKey = document.getElementById('aiApiKey')?.value;
-    const model = document.getElementById('aiModel')?.value;
+    const modelValue = document.getElementById('aiModel')?.value;
     const ollamaEndpoint = document.getElementById('aiOllamaEndpoint')?.value;
-    const sessionOnly = document.querySelector('input[name="aiStorage"][value="session"]')?.checked || false;
+    const persist = document.getElementById('aiPersistKey')?.checked === true;
 
     if (!provider) return;
 
-    this.service.configure(provider, apiKey, model, { ollamaEndpoint, sessionOnly });
+    const apiKey = this._resolveApiKey(provider);
+    const { model, autoRouting } = this._resolveModelSelection(provider, modelValue);
+
+    // persist未チェック時はセッションのみ保存（デフォルト）
+    this.service.configure(provider, apiKey, model, { ollamaEndpoint, persist, autoRouting });
     this._closeSettingsModal();
     this._updateUIState();
 
@@ -470,7 +515,10 @@ class AIUIController {
       if (banner) banner.style.display = 'none';
       if (controls) controls.style.display = 'block';
       if (statusDot) statusDot.classList.add('connected');
-      if (statusText) statusText.textContent = `${this.service.providerName} / ${this.service.modelName}`;
+      if (statusText) {
+        const modelLabel = this.service.autoRouting ? '自動ルーティング' : this.service.modelName;
+        statusText.textContent = `${this.service.providerName} / ${modelLabel}`;
+      }
     } else {
       if (banner) banner.style.display = 'flex';
       if (controls) controls.style.display = 'none';
@@ -583,6 +631,45 @@ class AIUIController {
     }
   }
 
+  /**
+   * プロンプトエンジンの buildMessages を呼び、戻り値を
+   * { messages, temperature?, estimatedTokens? } 形式に正規化する。
+   * エンジン未ロード時や旧形式（生の配列）にも対応。
+   */
+  _buildTaskMessages(taskType, prompt, context, fallbackMessages) {
+    const built = this.promptEngine
+      ? this.promptEngine.buildMessages(taskType, prompt, context)
+      : null;
+    if (Array.isArray(built)) return { messages: built };
+    if (built && Array.isArray(built.messages)) return built;
+    return { messages: fallbackMessages };
+  }
+
+  /** generateStream 用オプション（taskType でモデル自動ルーティング） */
+  _streamOptions(taskType, built) {
+    const options = { taskType };
+    if (built && typeof built.temperature === 'number') options.temperature = built.temperature;
+    return options;
+  }
+
+  /** 実行前に推定コストをステータス領域へ表示する */
+  _showCostEstimate(taskType, built) {
+    try {
+      if (typeof AIPromptEngine === 'undefined') return;
+      const messages = built.messages || [];
+      const inputTokens = built.estimatedTokens ||
+        AIPromptEngine.estimateTokens(messages.map(m => m.content || '').join(''));
+      const provider = this.service._provider;
+      const modelId = this.service.modelForTask(taskType);
+      const modelDef = (AIService.PROVIDERS[provider]?.models || []).find(m => m.id === modelId);
+      const maxTokens = modelDef?.maxTokens || AIService.DEFAULT_CONFIG.maxTokens;
+      const cost = AIService.estimateCost(provider, modelId, inputTokens, Math.min(2000, maxTokens));
+      if (cost == null) return;
+      const progressText = document.getElementById('aiProgressText');
+      if (progressText) progressText.textContent = `推定コスト: 約$${cost.toFixed(4)}`;
+    } catch (e) { /* 推定失敗は無視 */ }
+  }
+
   /** セクションのカスタマイズ */
   async customizeSection(sectionId, prompt) {
     if (!sectionId && this.type === 'lp') {
@@ -607,17 +694,16 @@ class AIUIController {
     }
 
     // メッセージ構築
-    const messages = this.promptEngine
-      ? this.promptEngine.buildMessages('customize_section', prompt, { currentHTML, type: this.type })
-      : [
-          { role: 'system', content: 'あなたはWebデザインの専門家です。HTMLセクションのカスタマイズを行います。HTMLのみ返してください。' },
-          { role: 'user', content: `以下のHTMLセクションを次の指示に従って修正してください。\n\n指示: ${prompt}\n\n現在のHTML:\n${currentHTML}` },
-        ];
+    const built = this._buildTaskMessages('customize_section', prompt, { currentHTML, type: this.type }, [
+      { role: 'system', content: 'あなたはWebデザインの専門家です。HTMLセクションのカスタマイズを行います。HTMLのみ返してください。' },
+      { role: 'user', content: `以下のHTMLセクションを次の指示に従って修正してください。\n\n指示: ${prompt}\n\n現在のHTML:\n${currentHTML}` },
+    ]);
+    this._showCostEstimate('customize_section', built);
 
     // ストリーミング生成
     let result = '';
     try {
-      for await (const chunk of this.service.generateStream(messages)) {
+      for await (const chunk of this.service.generateStream(built.messages, this._streamOptions('customize_section', built))) {
         result += chunk;
         if (progressText) progressText.textContent = `${result.length} 文字を生成中...`;
       }
@@ -638,16 +724,15 @@ class AIUIController {
     this._setGeneratingState(true);
     const progressText = document.getElementById('aiProgressText');
 
-    const messages = this.promptEngine
-      ? this.promptEngine.buildMessages('generate_section', prompt, { type: this.type })
-      : [
-          { role: 'system', content: 'あなたはWebデザインの専門家です。指示に基づいて単一のHTMLセクションを生成します。HTMLのみ返してください。' },
-          { role: 'user', content: `次の指示に基づいてHTMLセクションを1つ生成してください。\n\n${prompt}` },
-        ];
+    const built = this._buildTaskMessages('generate_section', prompt, { type: this.type }, [
+      { role: 'system', content: 'あなたはWebデザインの専門家です。指示に基づいて単一のHTMLセクションを生成します。HTMLのみ返してください。' },
+      { role: 'user', content: `次の指示に基づいてHTMLセクションを1つ生成してください。\n\n${prompt}` },
+    ]);
+    this._showCostEstimate('generate_section', built);
 
     let result = '';
     try {
-      for await (const chunk of this.service.generateStream(messages)) {
+      for await (const chunk of this.service.generateStream(built.messages, this._streamOptions('generate_section', built))) {
         result += chunk;
         if (progressText) progressText.textContent = `${result.length} 文字を生成中...`;
       }
@@ -667,18 +752,17 @@ class AIUIController {
     this._setGeneratingState(true);
     const progressText = document.getElementById('aiProgressText');
 
-    // 第1段階: 構成計画
+    // 第1段階: 構成計画（品質ティアのモデルを使用）
     if (progressText) progressText.textContent = '構成を計画中...';
-    const planMessages = this.promptEngine
-      ? this.promptEngine.buildMessages('plan_fullpage', prompt, { type: this.type })
-      : [
-          { role: 'system', content: 'あなたはWebデザインの専門家です。LPの構成計画をJSON配列で返してください。各要素は {type, description} を持ちます。' },
-          { role: 'user', content: `次のテーマでLPの構成計画を立ててください。セクションは5-8個。\n\n${prompt}` },
-        ];
+    const planBuilt = this._buildTaskMessages('plan_fullpage', prompt, { type: this.type }, [
+      { role: 'system', content: 'あなたはWebデザインの専門家です。LPの構成計画をJSON配列で返してください。各要素は {type, description} を持ちます。' },
+      { role: 'user', content: `次のテーマでLPの構成計画を立ててください。セクションは5-8個。\n\n${prompt}` },
+    ]);
+    this._showCostEstimate('plan_fullpage', planBuilt);
 
     let planResult = '';
     try {
-      for await (const chunk of this.service.generateStream(planMessages)) {
+      for await (const chunk of this.service.generateStream(planBuilt.messages, this._streamOptions('plan_fullpage', planBuilt))) {
         planResult += chunk;
       }
     } catch (e) {
@@ -701,16 +785,14 @@ class AIUIController {
     for (let i = 0; i < plan.length; i++) {
       if (progressText) progressText.textContent = `セクション ${i + 1}/${plan.length} を生成中...`;
 
-      const sectionMessages = this.promptEngine
-        ? this.promptEngine.buildMessages('generate_section', plan[i].description, { type: this.type, context: prompt })
-        : [
-            { role: 'system', content: 'HTMLセクションを1つ生成してください。HTMLのみ返してください。' },
-            { role: 'user', content: `テーマ: ${prompt}\nセクション: ${plan[i].description}` },
-          ];
+      const sectionBuilt = this._buildTaskMessages('generate_section', plan[i].description, { type: this.type, context: prompt }, [
+        { role: 'system', content: 'HTMLセクションを1つ生成してください。HTMLのみ返してください。' },
+        { role: 'user', content: `テーマ: ${prompt}\nセクション: ${plan[i].description}` },
+      ]);
 
       let sectionResult = '';
       try {
-        for await (const chunk of this.service.generateStream(sectionMessages)) {
+        for await (const chunk of this.service.generateStream(sectionBuilt.messages, this._streamOptions('generate_page_section', sectionBuilt))) {
           sectionResult += chunk;
         }
       } catch (e) {
@@ -731,16 +813,15 @@ class AIUIController {
     const progressText = document.getElementById('aiProgressText');
     if (progressText) progressText.textContent = 'デザインシステムを生成中...';
 
-    const messages = this.promptEngine
-      ? this.promptEngine.buildMessages('design_system', prompt, { currentSettings: this.generator.designSettings })
-      : [
-          { role: 'system', content: 'あなたはWebデザインの専門家です。デザイン設定をJSON形式で返してください。キー: fontFamily, primaryColor, secondaryColor, accentColor, borderRadius, fontSizeScale, spacingScale' },
-          { role: 'user', content: `次の方向性でデザイン設定を生成してください。\n\n${prompt}` },
-        ];
+    const built = this._buildTaskMessages('design_system', prompt, { currentSettings: this.generator.designSettings }, [
+      { role: 'system', content: 'あなたはWebデザインの専門家です。デザイン設定をJSON形式で返してください。キー: fontFamily, primaryColor, secondaryColor, accentColor, borderRadius, fontSizeScale, spacingScale' },
+      { role: 'user', content: `次の方向性でデザイン設定を生成してください。\n\n${prompt}` },
+    ]);
+    this._showCostEstimate('design_system', built);
 
     let result = '';
     try {
-      for await (const chunk of this.service.generateStream(messages)) {
+      for await (const chunk of this.service.generateStream(built.messages, this._streamOptions('design_system', built))) {
         result += chunk;
         if (progressText) progressText.textContent = `${result.length} 文字を生成中...`;
       }
@@ -788,16 +869,15 @@ class AIUIController {
       structureInfo = (this.generator.components || []).map(c => c.template?.name || c.id).join(', ');
     }
 
-    const messages = this.promptEngine
-      ? this.promptEngine.buildMessages('review', prompt, { structure: structureInfo, designSettings: this.generator.designSettings })
-      : [
-          { role: 'system', content: 'あなたはUX/UIの専門家です。Webページの構成とデザインをレビューし、改善提案を日本語で返してください。' },
-          { role: 'user', content: `以下のページ構成をレビューしてください。\n\n構成: ${structureInfo}\nデザイン設定: ${JSON.stringify(this.generator.designSettings)}\n${prompt ? `追加の観点: ${prompt}` : ''}` },
-        ];
+    const built = this._buildTaskMessages('review', prompt, { structure: structureInfo, designSettings: this.generator.designSettings }, [
+      { role: 'system', content: 'あなたはUX/UIの専門家です。Webページの構成とデザインをレビューし、改善提案を日本語で返してください。' },
+      { role: 'user', content: `以下のページ構成をレビューしてください。\n\n構成: ${structureInfo}\nデザイン設定: ${JSON.stringify(this.generator.designSettings)}\n${prompt ? `追加の観点: ${prompt}` : ''}` },
+    ]);
+    this._showCostEstimate('review', built);
 
     let result = '';
     try {
-      for await (const chunk of this.service.generateStream(messages)) {
+      for await (const chunk of this.service.generateStream(built.messages, this._streamOptions('review', built))) {
         result += chunk;
         if (progressText) progressText.textContent = `${result.length} 文字を分析中...`;
       }

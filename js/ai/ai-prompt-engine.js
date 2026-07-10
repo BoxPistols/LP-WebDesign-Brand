@@ -566,7 +566,20 @@ HTMLを生成する場合は \`\`\`html コードブロックで出力してく�
   // ============================================================
   // UIコントローラーとの互換ブリッジ
   // buildMessages(taskType, prompt, context) でどのタスクでも呼べる
+  // 戻り値は常に { messages, temperature?, estimatedTokens? } 形式
   // ============================================================
+
+  /** メッセージ配列を { messages, temperature, estimatedTokens } 形式に包む */
+  static _asPromptResult(messages, temperature = 0.3) {
+    return {
+      messages,
+      temperature,
+      estimatedTokens: AIPromptEngine.estimateTokens(
+        messages.map(m => m.content || '').join('')
+      ),
+    };
+  }
+
   static buildMessages(taskType, prompt, context = {}) {
     switch (taskType) {
       case 'customize_section':
@@ -586,24 +599,24 @@ HTMLを生成する場合は \`\`\`html コードブロックで出力してく�
           type: context.type,
         });
       case 'design_system':
-        return AIPromptEngine.buildDesignSystemPrompt
-          ? AIPromptEngine.buildDesignSystemPrompt(prompt, context)
-          : [
-              { role: 'system', content: 'デザイン設定をJSON形式で返してください。キー: fontFamily, primaryColor, secondaryColor, accentColor, borderRadius, fontSizeScale, spacingScale' },
-              { role: 'user', content: prompt },
-            ];
-      case 'review':
-        return AIPromptEngine.buildReviewPrompt
-          ? AIPromptEngine.buildReviewPrompt(prompt, context)
-          : [
-              { role: 'system', content: 'UX/UIの専門家としてWebページ構成をレビューし、改善提案を返してください。' },
-              { role: 'user', content: prompt },
-            ];
+        return AIPromptEngine.buildDesignSystemPrompt({
+          additionalNotes: prompt,
+        });
+      case 'review': {
+        const structureInfo = context.structure || '';
+        const settingsInfo = context.designSettings ? JSON.stringify(context.designSettings) : '';
+        return AIPromptEngine._asPromptResult([
+          { role: 'system', content: 'あなたはUX/UIの専門家です。Webページの構成とデザインをレビューし、改善提案を日本語で返してください。' },
+          { role: 'user', content: `以下のページ構成をレビューしてください。\n\n構成: ${structureInfo}\nデザイン設定: ${settingsInfo}\n${prompt ? `追加の観点: ${prompt}` : ''}` },
+        ], 0.5);
+      }
+      case 'freeform':
+        return AIPromptEngine.buildFreeformPrompt(prompt, context);
       default:
-        return [
+        return AIPromptEngine._asPromptResult([
           { role: 'system', content: 'あなたはWebデザインの専門家です。' },
           { role: 'user', content: prompt },
-        ];
+        ]);
     }
   }
 
