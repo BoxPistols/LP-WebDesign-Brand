@@ -1,0 +1,1764 @@
+/* ============================================================
+   LP Archetypes
+   1) 日本型・高密度LP (lp-jp-*)   … 通販/BtoB リード獲得型 縦長LP
+   2) アワード志向リッチ表現 (lp-rich-*) … エディトリアル/タイポグラフィ主導
+   design-system.css / landing-page.css のトークンと併用する。
+   テーマカラーは --lp-primary / --lp-accent / --theme-text を継承。
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   0. 共有トークン
+   ------------------------------------------------------------ */
+
+.lp-jp-hero-offer,
+.lp-jp-problem,
+.lp-jp-bridge,
+.lp-jp-reasons,
+.lp-jp-steps-section,
+.lp-jp-compare,
+.lp-jp-voice,
+.lp-jp-badge-strip,
+.lp-jp-offer-section,
+.lp-jp-cta-band,
+.lp-jp-faq {
+  --jp-primary: var(--lp-primary, #6366f1);
+  --jp-accent: var(--lp-accent, #f59e0b);
+  --jp-ink: var(--theme-text, #1e293b);
+  --jp-red: #d7263d;
+  --jp-muted: #5b6472;
+  --jp-line: #dfe4ec;
+  --jp-soft: #f6f8fb;
+  --jp-radius: 12px;
+  color: var(--jp-ink);
+  line-height: 1.7;
+}
+
+.lp-rich-hero,
+.lp-rich-marquee,
+.lp-rich-editorial,
+.lp-rich-showcase,
+.lp-rich-statement,
+.lp-rich-cta-full {
+  --rich-primary: var(--lp-primary, #6366f1);
+  --rich-accent: var(--lp-accent, #f59e0b);
+  --rich-ink: var(--theme-text, #1e293b);
+  --rich-muted: #6b7280;
+  --rich-line: #d8dce3;
+  color: var(--rich-ink);
+}
+
+/* ------------------------------------------------------------
+   1. JP共通パーツ
+   ------------------------------------------------------------ */
+
+/* 帯見出し（＼ こんなお悩み ／ ブラケットアクセント付き） */
+.lp-jp-band-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.lp-jp-band-eyebrow {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 999px;
+  background: var(--jp-primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.lp-jp-band-title h2,
+.lp-jp-band-heading {
+  position: relative;
+  display: inline-block;
+  padding: 0 2.2em;
+  font-size: clamp(1.5rem, 3.2vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+.lp-jp-band-heading::before,
+.lp-jp-band-heading::after {
+  position: absolute;
+  bottom: 0.1em;
+  width: 3px;
+  height: 1.6em;
+  border-radius: 2px;
+  background: var(--jp-primary);
+  content: "";
+}
+
+.lp-jp-band-heading::before {
+  left: 0.6em;
+  transform: rotate(-30deg);
+}
+
+.lp-jp-band-heading::after {
+  right: 0.6em;
+  transform: rotate(30deg);
+}
+
+.lp-jp-band-sub {
+  font-size: 0.95rem;
+  color: var(--jp-muted);
+}
+
+/* 蛍光マーカー下線 */
+.lp-jp-marker {
+  background-image: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--jp-accent) 42%, #fff) 34%,
+    transparent 34%
+  );
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 100%;
+  font-weight: 800;
+}
+
+/* ※注釈 */
+.lp-jp-note {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--jp-muted);
+}
+
+/* 大型コンバージョンボタン（3D押下タイプ） */
+.lp-jp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 280px;
+  padding: 18px 44px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--jp-accent) 82%, #fff),
+    var(--jp-accent) 55%,
+    color-mix(in srgb, var(--jp-accent) 82%, #7a3c00)
+  );
+  box-shadow:
+    0 6px 0 color-mix(in srgb, var(--jp-accent) 55%, #4a2a00),
+    0 12px 24px rgb(15 23 42 / 0.18);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.28);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.lp-jp-btn:hover {
+  transform: translateY(3px);
+  box-shadow:
+    0 3px 0 color-mix(in srgb, var(--jp-accent) 55%, #4a2a00),
+    0 8px 16px rgb(15 23 42 / 0.18);
+  filter: brightness(1.05);
+}
+
+.lp-jp-btn-caption {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: inherit;
+}
+
+/* 価格強調 */
+.lp-jp-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  line-height: 1;
+}
+
+.lp-jp-price-label {
+  margin-right: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.lp-jp-price-em {
+  color: var(--jp-red);
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-feature-settings: "tnum";
+}
+
+.lp-jp-price-unit,
+.lp-jp-price-tax {
+  color: var(--jp-red);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.lp-jp-price-tax {
+  color: var(--jp-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.lp-jp-price-strike {
+  margin-right: 10px;
+  color: var(--jp-muted);
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-decoration: line-through;
+  text-decoration-color: var(--jp-red);
+  text-decoration-thickness: 2px;
+}
+
+/* ------------------------------------------------------------
+   2. JPヒーロー（オファー型）
+   ------------------------------------------------------------ */
+
+.lp-jp-hero-offer {
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--jp-primary) 8%, #fff) 0%,
+      #fff 45%,
+      color-mix(in srgb, var(--jp-accent) 10%, #fff) 100%
+    );
+  overflow: hidden;
+}
+
+.lp-jp-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 40px;
+  align-items: center;
+}
+
+.lp-jp-hero-copy .lp-jp-badge-row-inline {
+  margin-bottom: 24px;
+}
+
+.lp-jp-hero-title {
+  margin: 0 0 16px;
+  font-size: clamp(1.9rem, 4.4vw, 3rem);
+  font-weight: 900;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+
+.lp-jp-hero-lead {
+  margin: 0 0 20px;
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  color: var(--jp-muted);
+}
+
+.lp-jp-hero-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.lp-jp-hero-points li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid color-mix(in srgb, var(--jp-primary) 35%, #fff);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.lp-jp-hero-points li::before {
+  color: var(--jp-primary);
+  font-weight: 900;
+  content: "✓";
+}
+
+.lp-jp-hero-price-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 28px;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  border: 2px solid color-mix(in srgb, var(--jp-red) 30%, #fff);
+  border-radius: var(--jp-radius);
+  background: #fff;
+}
+
+.lp-jp-hero-cta {
+  text-align: left;
+}
+
+.lp-jp-hero-visual {
+  position: relative;
+}
+
+.lp-jp-hero-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgb(15 23 42 / 0.16);
+}
+
+@media (max-width: 900px) {
+  .lp-jp-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-jp-hero-visual {
+    order: -1;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+/* ------------------------------------------------------------
+   3. 悩みチェックリスト
+   ------------------------------------------------------------ */
+
+.lp-jp-problem {
+  background: var(--jp-soft);
+}
+
+.lp-jp-checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 880px;
+  margin: 0 auto 48px;
+  padding: 0;
+  list-style: none;
+}
+
+.lp-jp-check-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 20px;
+  border: 1px solid var(--jp-line);
+  border-left: 4px solid var(--jp-primary);
+  border-radius: var(--jp-radius);
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.05);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.lp-jp-check-item::before {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--jp-primary);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 900;
+  content: "✓";
+}
+
+@media (max-width: 700px) {
+  .lp-jp-checklist {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 吹き出し */
+.lp-jp-speech {
+  position: relative;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 32px;
+  border: 2px solid var(--jp-primary);
+  border-radius: 16px;
+  background: #fff;
+  text-align: center;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.lp-jp-speech::after {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  border-right: 2px solid var(--jp-primary);
+  border-bottom: 2px solid var(--jp-primary);
+  background: #fff;
+  transform: translateX(-50%) rotate(45deg);
+  content: "";
+}
+
+.lp-jp-speech-source img {
+  border-radius: 50%;
+}
+
+.lp-jp-speech-source {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 28px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--jp-muted);
+}
+
+/* ------------------------------------------------------------
+   4. 共感→解決ブリッジ
+   ------------------------------------------------------------ */
+
+.lp-jp-bridge {
+  background: #fff;
+  text-align: center;
+}
+
+.lp-jp-bridge-empathy {
+  max-width: 640px;
+  margin: 0 auto;
+  font-size: 1rem;
+  color: var(--jp-muted);
+}
+
+.lp-jp-bridge-empathy p {
+  margin: 0 0 8px;
+}
+
+.lp-jp-bridge-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 28px auto;
+  color: var(--jp-primary);
+}
+
+.lp-jp-bridge-arrow span {
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 14px solid currentColor;
+  border-right: 22px solid transparent;
+  border-left: 22px solid transparent;
+  opacity: 0.35;
+}
+
+.lp-jp-bridge-arrow span:nth-child(2) {
+  opacity: 0.65;
+}
+
+.lp-jp-bridge-arrow span:nth-child(3) {
+  opacity: 1;
+}
+
+.lp-jp-bridge-answer {
+  margin: 0 auto 12px;
+  font-size: clamp(1.5rem, 3.4vw, 2.4rem);
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.lp-jp-bridge-answer strong {
+  color: var(--jp-primary);
+}
+
+.lp-jp-bridge-lead {
+  max-width: 620px;
+  margin: 0 auto;
+  font-size: 0.98rem;
+  color: var(--jp-muted);
+}
+
+/* ------------------------------------------------------------
+   5. 選ばれる理由（丸数字）
+   ------------------------------------------------------------ */
+
+.lp-jp-reasons {
+  background: #fff;
+}
+
+.lp-jp-reason-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.lp-jp-reason {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 24px 28px;
+  border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius);
+  background: var(--jp-soft);
+  text-align: center;
+}
+
+.lp-jp-reason-num {
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--jp-primary);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--jp-primary) 40%, transparent);
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 900;
+  transform: translateX(-50%);
+  font-feature-settings: "tnum";
+}
+
+.lp-jp-reason img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 16px;
+  border-radius: 8px;
+}
+
+.lp-jp-reason h3 {
+  margin: 0 0 10px;
+  font-size: 1.12rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.lp-jp-reason p {
+  margin: 0;
+  font-size: 0.9rem;
+  text-align: left;
+  color: var(--jp-muted);
+}
+
+.lp-jp-reason-list + .lp-jp-note {
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .lp-jp-reason-list {
+    grid-template-columns: 1fr;
+    gap: 44px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+}
+
+/* ------------------------------------------------------------
+   6. ご利用の流れ（3ステップ＋接続矢印）
+   ------------------------------------------------------------ */
+
+.lp-jp-steps-section {
+  background: var(--jp-soft);
+}
+
+.lp-jp-steps {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.lp-jp-step {
+  flex: 1 1 0;
+  padding: 24px 20px 20px;
+  border: 1px solid var(--jp-line);
+  border-top: 4px solid var(--jp-primary);
+  border-radius: var(--jp-radius);
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.05);
+  text-align: center;
+}
+
+.lp-jp-step-num {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: var(--jp-primary);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.lp-jp-step-num .lp-jp-step-num-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+}
+
+.lp-jp-step-num .lp-jp-step-num-digit {
+  font-size: 2rem;
+  font-feature-settings: "tnum";
+}
+
+.lp-jp-step h3 {
+  margin: 0 0 8px;
+  font-size: 1.02rem;
+  font-weight: 800;
+}
+
+.lp-jp-step p {
+  margin: 0;
+  font-size: 0.86rem;
+  text-align: left;
+  color: var(--jp-muted);
+}
+
+.lp-jp-step-arrow {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  color: var(--jp-primary);
+}
+
+.lp-jp-step-arrow::before {
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 14px solid currentColor;
+  content: "";
+}
+
+.lp-jp-steps-note {
+  margin-top: 24px;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .lp-jp-steps {
+    flex-direction: column;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .lp-jp-step-arrow {
+    padding: 4px 0;
+  }
+
+  .lp-jp-step-arrow::before {
+    border-top: 14px solid currentColor;
+    border-right: 12px solid transparent;
+    border-bottom: 0;
+    border-left: 12px solid transparent;
+  }
+}
+
+/* ------------------------------------------------------------
+   7. 他社比較表
+   ------------------------------------------------------------ */
+
+.lp-jp-compare {
+  background: #fff;
+}
+
+.lp-jp-compare-wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lp-jp-compare-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+}
+
+.lp-jp-compare-table th,
+.lp-jp-compare-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--jp-line);
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1.5;
+}
+
+.lp-jp-compare-table thead th {
+  border-bottom: 2px solid var(--jp-ink);
+  background: var(--jp-soft);
+  font-weight: 800;
+}
+
+.lp-jp-compare-table tbody th {
+  background: var(--jp-soft);
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.lp-jp-compare-table .lp-jp-compare-own {
+  background: color-mix(in srgb, var(--jp-primary) 8%, #fff);
+  font-weight: 700;
+}
+
+.lp-jp-compare-table thead .lp-jp-compare-own {
+  position: relative;
+  border-top: 3px solid var(--jp-primary);
+  border-bottom: 2px solid var(--jp-primary);
+  color: var(--jp-primary);
+  font-size: 1rem;
+}
+
+.lp-jp-good,
+.lp-jp-soso,
+.lp-jp-bad {
+  display: inline-block;
+  font-size: 1.3rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.lp-jp-good {
+  color: var(--jp-red);
+}
+
+.lp-jp-soso {
+  color: #d97706;
+}
+
+.lp-jp-bad {
+  color: #94a3b8;
+}
+
+.lp-jp-compare-note {
+  max-width: 880px;
+  margin: 0 auto;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------
+   8. お客様の声（高密度）
+   ------------------------------------------------------------ */
+
+.lp-jp-voice {
+  background: var(--jp-soft);
+}
+
+.lp-jp-voice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.lp-jp-voice-card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius);
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.05);
+}
+
+.lp-jp-stars {
+  margin-bottom: 10px;
+  color: var(--jp-accent);
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+}
+
+.lp-jp-stars .lp-jp-stars-score {
+  margin-left: 6px;
+  color: var(--jp-ink);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.lp-jp-voice-title {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.lp-jp-voice-body {
+  margin: 0 0 16px;
+  font-size: 0.86rem;
+  color: var(--jp-muted);
+}
+
+.lp-jp-voice-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px dashed var(--jp-line);
+}
+
+.lp-jp-voice-meta img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.lp-jp-voice-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.lp-jp-voice-attr {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--jp-muted);
+}
+
+.lp-jp-voice-note {
+  margin-top: 20px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .lp-jp-voice-grid {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+}
+
+/* ------------------------------------------------------------
+   9. 実績・掲載メディア帯
+   ------------------------------------------------------------ */
+
+.lp-jp-badge-strip {
+  padding-top: 48px;
+  padding-bottom: 48px;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--jp-primary) 10%, #fff),
+      color-mix(in srgb, var(--jp-accent) 12%, #fff)
+    );
+  text-align: center;
+}
+
+.lp-jp-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+.lp-jp-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 132px;
+  height: 132px;
+  border: 3px double color-mix(in srgb, var(--jp-accent) 70%, #7a4b00);
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #fffdf4, #fdf3d7 70%);
+  box-shadow: 0 8px 18px rgb(15 23 42 / 0.12);
+  color: #7a4b00;
+  line-height: 1.3;
+}
+
+.lp-jp-badge-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.lp-jp-badge-value {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: color-mix(in srgb, var(--jp-accent) 60%, #5c3a00);
+}
+
+.lp-jp-badge-ref {
+  font-size: 0.6rem;
+}
+
+.lp-jp-badge-media {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 24px;
+  margin-top: 32px;
+}
+
+.lp-jp-badge-media img {
+  height: 30px;
+  width: auto;
+  border-radius: 4px;
+  opacity: 0.75;
+  filter: grayscale(1);
+}
+
+.lp-jp-badge-media-label {
+  width: 100%;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--jp-muted);
+}
+
+.lp-jp-badge-strip .lp-jp-note {
+  margin-top: 20px;
+}
+
+/* ------------------------------------------------------------
+   10. 特別オファー
+   ------------------------------------------------------------ */
+
+.lp-jp-offer-section {
+  background: var(--jp-soft);
+}
+
+.lp-jp-offer {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 0 36px;
+  border: 3px solid var(--jp-red);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgb(15 23 42 / 0.12);
+  overflow: hidden;
+  text-align: center;
+}
+
+.lp-jp-offer-deadline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  padding: 12px 16px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--jp-red),
+    var(--jp-red) 14px,
+    color-mix(in srgb, var(--jp-red) 85%, #000) 14px,
+    color-mix(in srgb, var(--jp-red) 85%, #000) 28px
+  );
+  color: #fff;
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.lp-jp-offer-title {
+  margin: 0 16px 20px;
+  font-size: clamp(1.3rem, 2.8vw, 1.8rem);
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.lp-jp-offer-benefits {
+  display: grid;
+  gap: 10px;
+  max-width: 480px;
+  margin: 0 auto 24px;
+  padding: 0 16px;
+  list-style: none;
+  text-align: left;
+}
+
+.lp-jp-offer-benefits li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--jp-accent) 45%, #fff);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--jp-accent) 8%, #fff);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.lp-jp-offer-benefit-tag {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: var(--jp-accent);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.lp-jp-offer-price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px 12px;
+  margin-bottom: 24px;
+}
+
+.lp-jp-offer .lp-jp-note {
+  padding: 0 24px;
+}
+
+/* ------------------------------------------------------------
+   11. CTA帯（繰り返し用）
+   ------------------------------------------------------------ */
+
+.lp-jp-cta-band {
+  padding-top: 56px;
+  padding-bottom: 56px;
+  background:
+    linear-gradient(
+      135deg,
+      var(--jp-primary),
+      color-mix(in srgb, var(--jp-primary) 70%, #0b1020)
+    );
+  color: #fff;
+  text-align: center;
+}
+
+.lp-jp-cta-copy {
+  margin: 0 0 6px;
+  font-size: clamp(1.3rem, 3vw, 1.9rem);
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.lp-jp-cta-urgency {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 4px 16px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.16);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.lp-jp-cta-arrow {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 14px;
+  color: #fff;
+  animation: lp-jp-cta-bounce 1.4s ease-in-out infinite;
+}
+
+.lp-jp-cta-arrow::before {
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 16px solid currentColor;
+  border-right: 20px solid transparent;
+  border-left: 20px solid transparent;
+  content: "";
+}
+
+@keyframes lp-jp-cta-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+.lp-jp-cta-band .lp-jp-note {
+  margin-top: 16px;
+  color: rgb(255 255 255 / 0.8);
+}
+
+/* ------------------------------------------------------------
+   12. FAQ（高密度）
+   ------------------------------------------------------------ */
+
+.lp-jp-faq {
+  background: #fff;
+}
+
+.lp-jp-faq-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 32px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.lp-jp-faq-item {
+  padding: 18px 20px;
+  border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius);
+  background: var(--jp-soft);
+}
+
+.lp-jp-faq-q,
+.lp-jp-faq-a {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 10px;
+  align-items: start;
+  margin: 0;
+}
+
+.lp-jp-faq-q {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.lp-jp-faq-a {
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--jp-muted);
+}
+
+.lp-jp-faq-q::before,
+.lp-jp-faq-a::before {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-top: 1px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.lp-jp-faq-q::before {
+  background: var(--jp-primary);
+  color: #fff;
+  content: "Q";
+}
+
+.lp-jp-faq-a::before {
+  background: var(--jp-red);
+  color: #fff;
+  content: "A";
+}
+
+@media (max-width: 760px) {
+  .lp-jp-faq-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* バッジ小型行（ヒーロー用） */
+.lp-jp-badge-row-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lp-jp-badge-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid color-mix(in srgb, var(--jp-accent) 60%, #7a4b00);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--jp-accent) 12%, #fff);
+  color: #6b4300;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   アワード志向リッチ表現 (lp-rich-*)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   13. リッチヒーロー（大型タイポ）
+   ------------------------------------------------------------ */
+
+.lp-rich-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 90vh;
+  padding: clamp(24px, 4vw, 56px) clamp(20px, 5vw, 72px);
+  background: #fafaf8;
+  overflow: hidden;
+}
+
+.lp-rich-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rich-muted);
+}
+
+.lp-rich-meta span {
+  white-space: nowrap;
+}
+
+.lp-rich-title-xl {
+  margin: clamp(32px, 6vh, 64px) 0;
+  font-size: clamp(3rem, 9vw, 9rem);
+  font-weight: 900;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.lp-rich-title-xl span {
+  display: block;
+}
+
+.lp-rich-title-accent {
+  color: var(--rich-primary);
+}
+
+.lp-rich-outline {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--rich-ink);
+}
+
+.lp-rich-outline.lp-rich-title-accent {
+  -webkit-text-stroke-color: var(--rich-primary);
+}
+
+@supports not (-webkit-text-stroke: 2px black) {
+  .lp-rich-outline {
+    color: var(--rich-muted);
+  }
+}
+
+.lp-rich-vertical {
+  position: absolute;
+  top: 50%;
+  right: clamp(12px, 2.5vw, 32px);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  color: var(--rich-muted);
+  writing-mode: vertical-rl;
+  transform: translateY(-50%);
+}
+
+.lp-rich-vertical::after {
+  display: block;
+  width: 1px;
+  height: 72px;
+  background: currentColor;
+  content: "";
+}
+
+.lp-rich-hero-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.lp-rich-hero-lede {
+  max-width: 26rem;
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 2;
+  color: var(--rich-muted);
+}
+
+.lp-rich-scroll-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--rich-ink);
+}
+
+.lp-rich-scroll-cue::after {
+  display: block;
+  width: 56px;
+  height: 1px;
+  background: currentColor;
+  content: "";
+}
+
+@media (max-width: 760px) {
+  .lp-rich-vertical {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   14. マーキー帯
+   ------------------------------------------------------------ */
+
+.lp-rich-marquee {
+  padding: 0;
+  border-top: 1px solid var(--rich-line);
+  border-bottom: 1px solid var(--rich-line);
+  background: #fafaf8;
+  overflow: hidden;
+}
+
+.lp-rich-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: lp-rich-marquee-scroll 26s linear infinite;
+  will-change: transform;
+}
+
+.lp-rich-marquee-group {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: clamp(24px, 4vw, 56px);
+  padding: clamp(18px, 3vw, 32px) clamp(12px, 2vw, 28px);
+}
+
+.lp-rich-marquee-group span {
+  font-size: clamp(1.6rem, 4vw, 3.2rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.lp-rich-marquee-group .lp-rich-marquee-sep {
+  color: var(--rich-accent);
+  font-size: clamp(1rem, 2.4vw, 1.8rem);
+}
+
+@keyframes lp-rich-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-rich-marquee-track {
+    animation-play-state: paused;
+  }
+
+  .lp-jp-cta-arrow {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   15. エディトリアル特集（巨大インデックス数字＋オフセットグリッド）
+   ------------------------------------------------------------ */
+
+.lp-rich-editorial {
+  background: #fff;
+}
+
+.lp-rich-editorial-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 1120px;
+  margin: 0 auto clamp(48px, 8vw, 96px);
+}
+
+.lp-rich-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--rich-primary);
+}
+
+.lp-rich-editorial-title {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.lp-rich-offset-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  row-gap: clamp(56px, 9vw, 120px);
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.lp-rich-editorial-item {
+  position: relative;
+  grid-column: 1 / 9;
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: clamp(20px, 3.5vw, 48px);
+  align-items: end;
+}
+
+.lp-rich-editorial-item:nth-child(even) {
+  grid-column: 5 / 13;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+}
+
+.lp-rich-editorial-item:nth-child(even) .lp-rich-editorial-media {
+  order: 2;
+}
+
+.lp-rich-index-num {
+  position: absolute;
+  top: -0.55em;
+  left: -0.06em;
+  z-index: 0;
+  font-size: clamp(5.5rem, 13vw, 11rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: color-mix(in srgb, var(--rich-primary) 14%, transparent);
+  pointer-events: none;
+  font-feature-settings: "tnum";
+}
+
+.lp-rich-editorial-item:nth-child(even) .lp-rich-index-num {
+  right: -0.06em;
+  left: auto;
+}
+
+.lp-rich-editorial-media {
+  position: relative;
+  z-index: 1;
+}
+
+.lp-rich-editorial-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.lp-rich-editorial-copy {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 8px;
+}
+
+.lp-rich-editorial-copy h3 {
+  margin: 0 0 14px;
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.lp-rich-editorial-copy p {
+  margin: 0 0 18px;
+  font-size: 0.9rem;
+  line-height: 2;
+  color: var(--rich-muted);
+}
+
+.lp-rich-textlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  color: var(--rich-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.25s ease;
+}
+
+.lp-rich-textlink:hover {
+  color: var(--rich-primary);
+}
+
+@media (max-width: 860px) {
+  .lp-rich-editorial-item,
+  .lp-rich-editorial-item:nth-child(even) {
+    grid-column: 1 / 13;
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .lp-rich-editorial-item:nth-child(even) .lp-rich-editorial-media {
+    order: 0;
+  }
+
+  .lp-rich-index-num {
+    position: static;
+    display: block;
+    margin-bottom: -0.35em;
+  }
+}
+
+/* ------------------------------------------------------------
+   16. 横スクロールショーケース
+   ------------------------------------------------------------ */
+
+.lp-rich-showcase {
+  padding-right: 0;
+  padding-left: 0;
+  background: #fafaf8;
+  overflow: hidden;
+}
+
+.lp-rich-showcase-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 clamp(20px, 5vw, 72px);
+  margin-bottom: clamp(28px, 5vw, 56px);
+}
+
+.lp-rich-showcase-title {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.lp-rich-hscroll-hint {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--rich-muted);
+}
+
+.lp-rich-hscroll {
+  display: flex;
+  gap: clamp(16px, 2.5vw, 32px);
+  padding: 4px clamp(20px, 5vw, 72px) 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: clamp(20px, 5vw, 72px);
+  scrollbar-width: thin;
+  scrollbar-color: var(--rich-ink) transparent;
+}
+
+.lp-rich-hscroll-item {
+  flex: 0 0 min(72vw, 400px);
+  scroll-snap-align: start;
+}
+
+.lp-rich-hscroll-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  margin-bottom: 16px;
+}
+
+.lp-rich-hscroll-caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--rich-ink);
+  padding-top: 12px;
+}
+
+.lp-rich-hscroll-caption h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.lp-rich-hscroll-caption p {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--rich-muted);
+}
+
+.lp-rich-hscroll-index {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--rich-primary);
+  font-feature-settings: "tnum";
+}
+
+/* ------------------------------------------------------------
+   17. ステートメント（明朝）
+   ------------------------------------------------------------ */
+
+.lp-rich-statement {
+  padding-top: clamp(96px, 16vw, 200px);
+  padding-bottom: clamp(96px, 16vw, 200px);
+  background: #fff;
+  text-align: center;
+}
+
+.lp-rich-statement .lp-rich-eyebrow {
+  display: block;
+  margin-bottom: clamp(28px, 5vw, 56px);
+}
+
+.lp-rich-serif {
+  font-family: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", serif;
+}
+
+.lp-rich-statement-copy {
+  max-width: 46rem;
+  margin: 0 auto;
+  font-size: clamp(1.35rem, 3vw, 2.3rem);
+  font-weight: 600;
+  line-height: 2.1;
+  letter-spacing: 0.1em;
+}
+
+.lp-rich-statement-copy em {
+  font-style: normal;
+  color: var(--rich-primary);
+}
+
+.lp-rich-statement-sign {
+  display: block;
+  margin-top: clamp(32px, 6vw, 64px);
+  font-size: 0.82rem;
+  letter-spacing: 0.34em;
+  color: var(--rich-muted);
+}
+
+/* ------------------------------------------------------------
+   18. フルブリードCTA
+   ------------------------------------------------------------ */
+
+.lp-rich-cta-full {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 4vw, 48px);
+  min-height: 72vh;
+  padding: clamp(64px, 10vw, 140px) clamp(20px, 5vw, 72px);
+  background:
+    radial-gradient(
+      1100px 520px at 78% -10%,
+      color-mix(in srgb, var(--rich-primary) 42%, transparent),
+      transparent 68%
+    ),
+    #101319;
+  color: #fff;
+  text-align: center;
+  overflow: hidden;
+}
+
+.lp-rich-cta-full .lp-rich-eyebrow {
+  color: color-mix(in srgb, var(--rich-accent) 80%, #fff);
+}
+
+.lp-rich-cta-title {
+  margin: 0;
+  font-size: clamp(2.6rem, 8vw, 7rem);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.lp-rich-cta-title .lp-rich-outline {
+  -webkit-text-stroke-color: #fff;
+}
+
+@supports not (-webkit-text-stroke: 2px black) {
+  .lp-rich-cta-title .lp-rich-outline {
+    color: rgb(255 255 255 / 0.55);
+  }
+}
+
+.lp-rich-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 52px;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  background: #fff;
+  color: #101319;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s ease, color 0.3s ease;
+}
+
+.lp-rich-btn:hover {
+  background: transparent;
+  color: #fff;
+  transform: scale(1.06);
+}
+
+.lp-rich-cta-note {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: rgb(255 255 255 / 0.6);
+}
+
+/* ------------------------------------------------------------
+   19. reduced-motion 追加ケア
+   ------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-jp-btn,
+  .lp-rich-btn {
+    transition: none;
+  }
+
+  .lp-rich-btn:hover {
+    transform: none;
+  }
+}
