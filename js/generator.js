@@ -995,6 +995,11 @@ class LandingPageGenerator {
 
     // プレビュー再構築後にデザイン設定を再適用
     this.applyDesignSettings();
+
+    // スクロール演出ランタイムを再初期化（data-motion / data-parallax / data-counter）
+    if (typeof LPMotion !== 'undefined') {
+      LPMotion.init(previewFrame, { scrollTarget: previewFrame });
+    }
   }
 
   /**
@@ -1943,6 +1948,7 @@ class LandingPageGenerator {
     const inlineCSS = await this.getInlineCSS();
     const cssLoaded = inlineCSS && !inlineCSS.startsWith('/* CSS loading failed');
     const designCSS = this.buildExportDesignCSS();
+    const motionScript = await this.getMotionScript();
     const styleBlock = cssLoaded
       ? `    <style>\n${inlineCSS}\n\n${designCSS}\n    </style>`
       : `    <!-- Landing Page Styles via CDN (ローカルCSSの読み込みに失敗) -->\n    <link rel="stylesheet" href="${cdnBase}/landing-page.css">\n    <link rel="stylesheet" href="${cdnBase}/advanced-components.css">\n    <style>\n${designCSS}\n    </style>`;
@@ -1993,6 +1999,9 @@ ${styleBlock}
                 alert('フォームが送信されました！（デモ）');
             });
         });
+
+        // LP Motion Runtime（スクロール演出）
+        ${motionScript}
     </script>
 </body>
 </html>`;
@@ -2004,6 +2013,7 @@ ${styleBlock}
       .join('\n');
     const seoMetaTags = this.generateSEOMetaTags();
     const lang = this.seoData.lang || 'ja';
+    const motionScript = await this.getMotionScript();
 
     return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -2050,6 +2060,9 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
                 alert('フォームが送信されました！（デモ）');
             });
         });
+
+        // LP Motion Runtime（スクロール演出）
+        ${motionScript}
     </script>
 </body>
 </html>`;
@@ -3521,6 +3534,20 @@ ${this.generateMUISectionComponents()}
   // ==========================================
   // CSS LOADING
   // ==========================================
+
+  /**
+   * エクスポートHTMLに同梱するモーションランタイム（js/lp-motion.js）を取得する。
+   * 取得失敗時は data-motion 要素を即時表示するフォールバックを返す。
+   */
+  async getMotionScript() {
+    try {
+      const src = await fetch('js/lp-motion.js').then((r) => (r.ok ? r.text() : ''));
+      if (src) return `${src}\n        LPMotion.init(document);`;
+    } catch (e) {
+      /* フォールバックへ */
+    }
+    return `document.querySelectorAll('[data-motion]').forEach(function (el) { el.classList.add('lpm-in'); });`;
+  }
 
   async getInlineCSS() {
     try {
