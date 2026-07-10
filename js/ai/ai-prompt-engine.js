@@ -116,6 +116,11 @@ CSS変数（デザイントークン）:
       heading: ['lp-jp-band-title', 'lp-jp-marker', 'lp-jp-hero-offer', 'lp-nb'],
       emphasis: ['lp-jp-price', 'lp-jp-price-em', 'lp-jp-note', 'lp-jp-speech'],
       visual: ['lp-jp-art', 'lp-jp-avatar', 'lp-jp-reason-icon', 'lp-jp-media-logo'],
+      density: [
+        'lp-jp-bg-word', 'lp-jp-side-label', 'lp-jp-seam-top', 'lp-jp-bleed-up',
+        'lp-jp-stat-row', 'lp-jp-stat', 'lp-jp-stat-num', 'lp-jp-stat-label',
+        'lp-jp-cta-micro', 'lp-jp-float-chip',
+      ],
       trust: ['lp-jp-badge-strip', 'lp-jp-badge', 'lp-jp-voice-card', 'lp-jp-voice-meta'],
       structure: [
         'lp-jp-checklist', 'lp-jp-check-item',
@@ -133,7 +138,10 @@ CSS変数（デザイントークン）:
       typography: [
         'lp-rich-title-xl', 'lp-rich-outline', 'lp-rich-vertical', 'lp-rich-serif', 'lp-nb',
       ],
-      visual: ['lp-rich-art', 'lp-rich-index-num', 'lp-rich-editorial-num-label'],
+      visual: [
+        'lp-rich-art', 'lp-rich-index-num', 'lp-rich-editorial-num-label',
+        'lp-rich-bg-word', 'lp-rich-statement-kanji', 'lp-rich-vertical-edge',
+      ],
       layout: [
         'lp-rich-hero', 'lp-rich-editorial', 'lp-rich-index-num', 'lp-rich-offset-grid',
         'lp-rich-statement', 'lp-rich-cta-full',
@@ -213,6 +221,13 @@ CSS変数（デザイントークン）:
     return text;
   }
 
+  // --- モーション属性の使用ルール（lp-motion.js ランタイムが解釈する） ---
+  static MOTION_RULES = `
+モーション属性（ランタイムが自動で演出する。scriptタグは書かないこと）:
+- カード・見出し等の出現: data-motion="up|fade|left|right|scale"、グリッド内は data-motion-delay="0/80/160..." でスタッガー
+- 統計・価格の数値: data-counter="数値" data-counter-suffix="社" 等（テキスト内容にも最終値を書くこと）
+- 背景の巨大タイポ層(lp-jp-bg-word / lp-rich-bg-word): data-parallax="0.15" 程度を付与`;
+
   // --- デザイン様式別のコピー執筆ルール ---
   static _copyRules(designStyle) {
     if (designStyle === 'jp-dense') {
@@ -222,7 +237,9 @@ CSS変数（デザイントークン）:
 - 重要語句は lp-jp-marker でマーカー強調、価格・数値は lp-jp-price / lp-jp-price-em で強調する
 - 「No.1」「満足度◯%」等の訴求には必ず lp-jp-note で根拠注釈（例: ※2025年 自社調べ）を付ける
 - 見出しの改行は文節単位で制御する: 文節ごとに <span class="lp-nb">…</span> で囲む
-- 具体的な数値・固有の悩み・ベネフィットを書く。抽象的な定型文は禁止`;
+- 具体的な数値・固有の悩み・ベネフィットを書く。抽象的な定型文は禁止
+- 背景に lp-jp-bg-word でセクションキーワードの巨大英字を敷き、lp-jp-side-label で回転ラベルを付ける
+${AIPromptEngine.MOTION_RULES}`;
     }
     if (designStyle === 'award-rich') {
       return `
@@ -231,7 +248,9 @@ CSS変数（デザイントークン）:
 - 見出しは lp-rich-title-xl / lp-rich-outline / lp-rich-serif 等の大型タイポクラスを主役にする
 - 要素数を絞り、余白を大胆に使う。装飾的な説明文は書かない
 - 英語の短いキーワード（例: VISION, CRAFT）をアクセントに使ってよい
-- 見出しの改行は文節単位で制御する: 文節ごとに <span class="lp-nb">…</span> で囲む`;
+- 見出しの改行は文節単位で制御する: 文節ごとに <span class="lp-nb">…</span> で囲む
+- 背景に lp-rich-bg-word で巨大アウトライン英字を敷き、1つの「見せ場」を必ず作る
+${AIPromptEngine.MOTION_RULES}`;
     }
     return '';
   }

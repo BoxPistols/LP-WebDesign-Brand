@@ -2,6 +2,7 @@
 // 1) 日本型・高密度LP (category: 'jp-conversion') — 通販/BtoBリード獲得型の縦長LPセクション
 // 2) アワード志向リッチ表現 (category: 'rich-design') — エディトリアル/タイポグラフィ主導のブランドセクション
 // スタイルは css/lp-archetypes.css に定義。ビジュアルはすべてインラインSVG（外部画像なし）。
+// モーションは js/lp-motion.js の data-motion / data-parallax / data-counter を使用。
 // サンプルコピーは勤怠管理SaaS「タイムライトクラウド」想定。
 
 const archetypeTemplates = {
@@ -14,28 +15,47 @@ const archetypeTemplates = {
     category: 'jp-conversion',
     html: `
         <section class="lp-section lp-jp-hero-offer" aria-labelledby="jp-hero-offer-title">
+            <div class="lp-jp-deco" aria-hidden="true">
+                <span class="lp-jp-bg-word lp-jp-bg-word-tr" data-parallax="0.12">AUTOMATION</span>
+            </div>
             <div class="lp-content-wrapper">
+                <div class="lp-jp-hero-topbar" data-motion="fade">
+                    <span class="lp-jp-hero-logo">
+                        <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+                            <circle cx="13" cy="13" r="12" fill="var(--lp-primary, #6366f1)"/>
+                            <circle cx="13" cy="13" r="8.5" fill="#fff"/>
+                            <line x1="13" y1="13" x2="13" y2="7.6" stroke="var(--lp-primary, #6366f1)" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="13" y1="13" x2="16.8" y2="15" stroke="var(--lp-primary, #6366f1)" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        タイムライトクラウド
+                    </span>
+                    <span class="lp-jp-hero-topbar-tag">クラウド勤怠管理システム</span>
+                    <a class="lp-jp-hero-tel" href="tel:0120000000" aria-label="電話で相談する。フリーダイヤル0120-000-000、平日9時から18時受付">
+                        <span class="lp-jp-hero-tel-num">0120-000-000</span>
+                        <span class="lp-jp-hero-tel-hours">通話無料｜平日 9:00〜18:00</span>
+                    </a>
+                </div>
                 <div class="lp-jp-hero-grid">
                     <div class="lp-jp-hero-copy">
-                        <div class="lp-jp-badge-row-inline" aria-label="実績バッジ">
+                        <div class="lp-jp-badge-row-inline" aria-label="実績バッジ" data-motion="up">
                             <span class="lp-jp-badge-inline">導入社数 3,000社突破</span>
                             <span class="lp-jp-badge-inline">顧客満足度 No.1※</span>
                             <span class="lp-jp-badge-inline">継続率 99.2%</span>
                         </div>
-                        <h1 id="jp-hero-offer-title" class="lp-jp-hero-title">
+                        <h1 id="jp-hero-offer-title" class="lp-jp-hero-title" data-motion="up" data-motion-delay="60">
                             <span class="lp-nb">勤怠管理の</span><span class="lp-nb">ムダな作業を、</span><br>
                             <span class="lp-nb"><span class="lp-jp-marker">まるごと自動化</span>する</span>
                         </h1>
-                        <p class="lp-jp-hero-lead">
+                        <p class="lp-jp-hero-lead" data-motion="up" data-motion-delay="120">
                             <span class="lp-nb">打刻・集計・申請承認・給与連携まで</span><span class="lp-nb">ワンストップ。</span>
                             <span class="lp-nb">タイムライトクラウドなら、</span><span class="lp-nb">毎月の締め作業が</span><span class="lp-nb">最短10分で完了します。</span>
                         </p>
-                        <ul class="lp-jp-hero-points">
+                        <ul class="lp-jp-hero-points" data-motion="up" data-motion-delay="160">
                             <li>初期費用0円</li>
                             <li>最短即日で利用開始</li>
                             <li>専任サポート付き</li>
                         </ul>
-                        <div class="lp-jp-hero-price-box">
+                        <div class="lp-jp-hero-price-box" data-motion="scale" data-motion-delay="200">
                             <p class="lp-jp-price">
                                 <span class="lp-jp-price-label">月額1名あたり</span>
                                 <span class="lp-jp-price-em">300</span>
@@ -48,13 +68,13 @@ const archetypeTemplates = {
                                 <span class="lp-jp-price-unit">円</span>
                             </p>
                         </div>
-                        <div class="lp-jp-hero-cta">
+                        <div class="lp-jp-hero-cta" data-motion="up" data-motion-delay="240">
                             <span class="lp-jp-btn-caption">＼ 30日間ずっと無料で試せる ／</span>
                             <button type="button" class="lp-jp-btn" aria-label="無料トライアルを今すぐ始める">無料トライアルを始める</button>
                             <span class="lp-jp-note">※クレジットカード登録不要。期間終了後に自動課金されることはありません。<br>※顧客満足度No.1は2025年◯◯総研「勤怠管理システム利用実態調査」による。</span>
                         </div>
                     </div>
-                    <div class="lp-jp-hero-visual">
+                    <div class="lp-jp-hero-visual" data-motion="right" data-motion-delay="180">
                         <div class="lp-jp-hero-shot">
                             <svg class="lp-jp-art" viewBox="0 0 560 400" role="img" aria-label="タイムライトクラウドの管理画面イメージ">
                                 <rect width="560" height="400" fill="#fdfdff"/>
@@ -133,34 +153,55 @@ const archetypeTemplates = {
     name: '悩みチェックリスト',
     category: 'jp-conversion',
     html: `
-        <section class="lp-section lp-jp-problem" aria-labelledby="jp-problem-title">
+        <section class="lp-section lp-jp-problem lp-jp-seam-top" aria-labelledby="jp-problem-title">
+            <div class="lp-jp-deco" aria-hidden="true">
+                <span class="lp-jp-bg-word lp-jp-bg-word-bl" data-parallax="0.1">PROBLEM</span>
+            </div>
+            <span class="lp-jp-side-label" aria-hidden="true">SECTION 01 — お悩みチェック</span>
             <div class="lp-content-wrapper">
-                <header class="lp-jp-band-title">
+                <header class="lp-jp-band-title" data-motion="up">
                     <span class="lp-jp-band-eyebrow">CHECK LIST</span>
                     <h2 id="jp-problem-title"><span class="lp-jp-band-heading"><span class="lp-nb">こんな<span class="lp-jp-marker">お悩み</span>、</span><span class="lp-nb">ありませんか？</span></span></h2>
                     <p class="lp-jp-band-sub"><span class="lp-nb">1つでも当てはまる方は、</span><span class="lp-nb">勤怠管理の見直しどきです。</span></p>
                 </header>
-                <ul class="lp-jp-checklist">
-                    <li class="lp-jp-check-item">打刻漏れ・修正依頼の確認に毎月何時間もかかっている</li>
-                    <li class="lp-jp-check-item">Excelの勤怠表と給与ソフトへの転記でミスが絶えない</li>
-                    <li class="lp-jp-check-item">残業時間の上限超過に、月末になってから気づく</li>
-                    <li class="lp-jp-check-item">有給休暇の残日数管理が属人化していて把握できない</li>
-                    <li class="lp-jp-check-item">テレワークや直行直帰の勤務実態が見えない</li>
-                    <li class="lp-jp-check-item">法改正のたびに就業規則との整合チェックに追われる</li>
-                </ul>
-                <p class="lp-jp-speech"><span class="lp-nb">その悩み、</span><span class="lp-nb"><span class="lp-jp-marker">タイムライトクラウド</span>が</span><span class="lp-nb">まとめて解決します！</span></p>
-                <p class="lp-jp-speech-source">
-                    <svg class="lp-jp-mascot" width="52" height="52" viewBox="0 0 52 52" role="img" aria-label="タイムライトクラウド公式キャラクター">
-                        <circle cx="26" cy="26" r="25" fill="var(--lp-primary, #6366f1)"/>
-                        <circle cx="26" cy="26" r="19" fill="#fff"/>
-                        <line x1="26" y1="26" x2="26" y2="14.5" stroke="var(--lp-primary, #6366f1)" stroke-width="3" stroke-linecap="round"/>
-                        <line x1="26" y1="26" x2="34" y2="30" stroke="var(--lp-primary, #6366f1)" stroke-width="3" stroke-linecap="round"/>
-                        <circle cx="26" cy="26" r="2.6" fill="var(--lp-primary, #6366f1)"/>
-                        <circle cx="19" cy="21" r="1.6" fill="#28304a"/>
-                        <circle cx="33" cy="21" r="1.6" fill="#28304a"/>
-                    </svg>
-                    導入企業3,000社の運用ノウハウでサポートします
-                </p>
+                <div class="lp-jp-problem-grid">
+                    <div class="lp-jp-problem-main">
+                        <ul class="lp-jp-checklist">
+                            <li class="lp-jp-check-item" data-motion="up">打刻漏れ・修正依頼の確認に毎月何時間もかかっている</li>
+                            <li class="lp-jp-check-item" data-motion="up" data-motion-delay="60">Excelの勤怠表と給与ソフトへの転記でミスが絶えない</li>
+                            <li class="lp-jp-check-item" data-motion="up" data-motion-delay="120">残業時間の上限超過に、月末になってから気づく</li>
+                            <li class="lp-jp-check-item" data-motion="up" data-motion-delay="180">有給休暇の残日数管理が属人化していて把握できない</li>
+                            <li class="lp-jp-check-item" data-motion="up" data-motion-delay="240">テレワークや直行直帰の勤務実態が見えない</li>
+                            <li class="lp-jp-check-item" data-motion="up" data-motion-delay="300">法改正のたびに就業規則との整合チェックに追われる</li>
+                        </ul>
+                        <p class="lp-jp-problem-tally" data-motion="fade" data-motion-delay="320">
+                            <strong>2つ以上</strong>当てはまったら、仕組みを変えるサインです
+                        </p>
+                    </div>
+                    <aside class="lp-jp-problem-aside">
+                        <p class="lp-jp-speech" data-motion="scale" data-motion-delay="120"><span class="lp-nb">その悩み、</span><span class="lp-nb"><span class="lp-jp-marker">タイムライトクラウド</span>が</span><span class="lp-nb">まとめて解決します！</span></p>
+                        <p class="lp-jp-speech-source">
+                            <svg class="lp-jp-mascot" width="52" height="52" viewBox="0 0 52 52" role="img" aria-label="タイムライトクラウド公式キャラクター">
+                                <circle cx="26" cy="26" r="25" fill="var(--lp-primary, #6366f1)"/>
+                                <circle cx="26" cy="26" r="19" fill="#fff"/>
+                                <line x1="26" y1="26" x2="26" y2="14.5" stroke="var(--lp-primary, #6366f1)" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="26" y1="26" x2="34" y2="30" stroke="var(--lp-primary, #6366f1)" stroke-width="3" stroke-linecap="round"/>
+                                <circle cx="26" cy="26" r="2.6" fill="var(--lp-primary, #6366f1)"/>
+                                <circle cx="19" cy="21" r="1.6" fill="#28304a"/>
+                                <circle cx="33" cy="21" r="1.6" fill="#28304a"/>
+                            </svg>
+                            導入企業3,000社の運用ノウハウでサポートします
+                        </p>
+                        <div class="lp-jp-mini-stat" data-motion="up" data-motion-delay="200">
+                            <span class="lp-jp-mini-stat-label">導入企業の平均削減時間</span>
+                            <span class="lp-jp-mini-stat-value">
+                                <span class="lp-jp-mini-stat-num" data-counter="32" data-counter-suffix="">32</span>
+                                <span class="lp-jp-mini-stat-unit">時間/月</span>
+                            </span>
+                            <span class="lp-jp-note">※2025年12月時点、導入128社の当社調べ。</span>
+                        </div>
+                    </aside>
+                </div>
             </div>
         </section>
         `,
@@ -170,24 +211,63 @@ const archetypeTemplates = {
     name: '共感→解決ブリッジ',
     category: 'jp-conversion',
     html: `
-        <section class="lp-section lp-jp-bridge" aria-labelledby="jp-bridge-title">
+        <section class="lp-section lp-jp-bridge lp-jp-seam-top-rev" aria-labelledby="jp-bridge-title">
+            <div class="lp-jp-deco" aria-hidden="true">
+                <span class="lp-jp-bg-word lp-jp-bg-word-tr" data-parallax="0.14">SOLUTION</span>
+            </div>
+            <span class="lp-jp-side-label" aria-hidden="true">SECTION 02 — 課題から解決へ</span>
             <div class="lp-content-wrapper">
-                <div class="lp-jp-bridge-empathy">
-                    <p>「月末月初は勤怠の締めで残業続き…」</p>
-                    <p>「チェックしてもチェックしても、修正が出てくる…」</p>
-                    <p><span class="lp-nb">そのお気持ち、よく分かります。</span><span class="lp-nb">実は担当者の努力不足ではなく、</span><span class="lp-nb"><strong>仕組みの問題</strong>なのです。</span></p>
+                <div class="lp-jp-bridge-grid">
+                    <div class="lp-jp-bridge-quotes">
+                        <p class="lp-jp-quote-card" data-motion="left">
+                            <svg class="lp-jp-quote-avatar" width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+                                <circle cx="20" cy="20" r="20" fill="#dbe3f8"/>
+                                <circle cx="20" cy="16" r="7" fill="var(--lp-primary, #6366f1)" opacity="0.7"/>
+                                <path d="M5 42c2-9 8-13 15-13s13 4 15 13z" fill="var(--lp-primary, #6366f1)" opacity="0.7"/>
+                            </svg>
+                            <span>「月末月初は勤怠の締めで<strong>残業続き</strong>…」</span>
+                        </p>
+                        <p class="lp-jp-quote-card" data-motion="left" data-motion-delay="100">
+                            <svg class="lp-jp-quote-avatar" width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+                                <circle cx="20" cy="20" r="20" fill="#fdeed3"/>
+                                <circle cx="20" cy="16" r="7" fill="var(--lp-accent, #f59e0b)" opacity="0.75"/>
+                                <path d="M5 42c2-9 8-13 15-13s13 4 15 13z" fill="var(--lp-accent, #f59e0b)" opacity="0.75"/>
+                            </svg>
+                            <span>「チェックしても、<strong>修正が出てくる</strong>…」</span>
+                        </p>
+                        <p class="lp-jp-bridge-empathy" data-motion="left" data-motion-delay="200">
+                            <span class="lp-nb">そのお気持ち、よく分かります。</span><span class="lp-nb">実は担当者の努力不足ではなく、</span><span class="lp-nb"><strong>仕組みの問題</strong>なのです。</span>
+                        </p>
+                    </div>
+                    <div class="lp-jp-bridge-arrow" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="lp-jp-bridge-main">
+                        <h2 id="jp-bridge-title" class="lp-jp-bridge-answer" data-motion="up">
+                            <span class="lp-nb">だからこそ、</span><span class="lp-nb"><strong>集計ゼロ・転記ゼロ</strong>の</span><br>
+                            <span class="lp-nb"><span class="lp-jp-marker">自動化された勤怠管理</span>が</span><span class="lp-nb">必要です。</span>
+                        </h2>
+                        <p class="lp-jp-bridge-lead" data-motion="up" data-motion-delay="100">
+                            <span class="lp-nb">タイムライトクラウドは</span><span class="lp-nb">打刻データをリアルタイムに自動集計。</span>
+                            <span class="lp-nb">アラート機能が異常値をその場で検知するので、</span><span class="lp-nb">月末にまとめて確認する作業そのものが</span><span class="lp-nb">なくなります。</span>
+                        </p>
+                        <div class="lp-jp-stat-row" aria-label="導入効果の実績値">
+                            <div class="lp-jp-stat" data-motion="up" data-motion-delay="140">
+                                <span class="lp-jp-stat-label">月次の集計時間</span>
+                                <span class="lp-jp-stat-num"><span data-counter="87" data-counter-prefix="-" data-counter-suffix="%">-87%</span></span>
+                            </div>
+                            <div class="lp-jp-stat" data-motion="up" data-motion-delay="220">
+                                <span class="lp-jp-stat-label">給与転記ミス</span>
+                                <span class="lp-jp-stat-num"><span data-counter="0" data-counter-suffix="件">0件</span></span>
+                            </div>
+                            <div class="lp-jp-stat" data-motion="up" data-motion-delay="300">
+                                <span class="lp-jp-stat-label">締め作業は最短</span>
+                                <span class="lp-jp-stat-num"><span data-counter="10" data-counter-suffix="分">10分</span></span>
+                            </div>
+                        </div>
+                        <span class="lp-jp-note">※2025年12月時点、導入企業128社の平均値（当社調べ）。</span>
+                    </div>
                 </div>
-                <div class="lp-jp-bridge-arrow" aria-hidden="true">
-                    <span></span><span></span><span></span>
-                </div>
-                <h2 id="jp-bridge-title" class="lp-jp-bridge-answer">
-                    <span class="lp-nb">だからこそ、</span><span class="lp-nb"><strong>集計ゼロ・転記ゼロ</strong>の</span><br>
-                    <span class="lp-nb"><span class="lp-jp-marker">自動化された勤怠管理</span>が</span><span class="lp-nb">必要です。</span>
-                </h2>
-                <p class="lp-jp-bridge-lead">
-                    <span class="lp-nb">タイムライトクラウドは</span><span class="lp-nb">打刻データをリアルタイムに自動集計。</span>
-                    <span class="lp-nb">アラート機能が異常値をその場で検知するので、</span><span class="lp-nb">月末にまとめて確認する作業そのものが</span><span class="lp-nb">なくなります。</span>
-                </p>
             </div>
         </section>
         `,
@@ -198,13 +278,17 @@ const archetypeTemplates = {
     category: 'jp-conversion',
     html: `
         <section class="lp-section lp-jp-reasons" aria-labelledby="jp-reasons-title">
+            <div class="lp-jp-deco" aria-hidden="true">
+                <span class="lp-jp-bg-word lp-jp-bg-word-tl" data-parallax="0.1">REASON</span>
+            </div>
+            <span class="lp-jp-side-label" aria-hidden="true">SECTION 03 — 選ばれる理由</span>
             <div class="lp-content-wrapper">
-                <header class="lp-jp-band-title">
+                <header class="lp-jp-band-title" data-motion="up">
                     <span class="lp-jp-band-eyebrow">REASON</span>
                     <h2 id="jp-reasons-title"><span class="lp-jp-band-heading"><span class="lp-nb">タイムライトクラウドが</span><span class="lp-nb"><span class="lp-jp-marker">選ばれる3つの理由</span></span></span></h2>
                 </header>
                 <ol class="lp-jp-reason-list">
-                    <li class="lp-jp-reason">
+                    <li class="lp-jp-reason" data-motion="up">
                         <span class="lp-jp-reason-num" aria-hidden="true">1</span>
                         <span class="lp-jp-reason-icon" aria-hidden="true">
                             <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -216,7 +300,7 @@ const archetypeTemplates = {
                         <h3><span class="lp-nb">集計・転記が</span><span class="lp-nb">完全自動</span></h3>
                         <p>打刻データを就業規則に沿って自動計算し、主要な給与ソフトへワンクリック連携。手作業の転記ミスをゼロにします。</p>
                     </li>
-                    <li class="lp-jp-reason">
+                    <li class="lp-jp-reason" data-motion="up" data-motion-delay="120">
                         <span class="lp-jp-reason-num" aria-hidden="true">2</span>
                         <span class="lp-jp-reason-icon" aria-hidden="true">
                             <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -228,7 +312,7 @@ const archetypeTemplates = {
                         <h3><span class="lp-nb">法令リスクを</span><span class="lp-nb">事前にアラート</span></h3>
                         <p>残業上限や有給取得義務の未達を自動で検知して通知。月末に慌てる前に、リアルタイムで手を打てます。</p>
                     </li>
-                    <li class="lp-jp-reason">
+                    <li class="lp-jp-reason" data-motion="up" data-motion-delay="240">
                         <span class="lp-jp-reason-num" aria-hidden="true">3</span>
                         <span class="lp-jp-reason-icon" aria-hidden="true">
                             <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -242,7 +326,10 @@ const archetypeTemplates = {
                         <p>就業規則のヒアリングから初期設定、社内説明会の資料まで専任担当がサポート。導入後の定着率は99.2%※です。</p>
                     </li>
                 </ol>
-                <span class="lp-jp-note">※2025年12月時点、当社契約データベースにおける年間継続率。</span>
+                <p class="lp-jp-reason-foot" data-motion="fade" data-motion-delay="200">
+                    <a class="lp-jp-more-link" href="#features" aria-label="全32機能の一覧を見る">全32機能の一覧を見る</a>
+                    <span class="lp-jp-note">※2025年12月時点、当社契約データベースにおける年間継続率。</span>
+                </p>
             </div>
         </section>
         `,
@@ -252,27 +339,34 @@ const archetypeTemplates = {
     name: 'ご利用の流れ3ステップ',
     category: 'jp-conversion',
     html: `
-        <section class="lp-section lp-jp-steps-section" aria-labelledby="jp-steps-title">
+        <section class="lp-section lp-jp-steps-section lp-jp-seam-top" aria-labelledby="jp-steps-title">
+            <div class="lp-jp-deco" aria-hidden="true">
+                <span class="lp-jp-bg-word lp-jp-bg-word-br" data-parallax="0.1">FLOW</span>
+            </div>
+            <span class="lp-jp-side-label" aria-hidden="true">SECTION 04 — ご利用の流れ</span>
             <div class="lp-content-wrapper">
-                <header class="lp-jp-band-title">
+                <header class="lp-jp-band-title" data-motion="up">
                     <span class="lp-jp-band-eyebrow">FLOW</span>
                     <h2 id="jp-steps-title"><span class="lp-jp-band-heading"><span class="lp-nb">ご利用開始まで</span><span class="lp-nb"><span class="lp-jp-marker">最短即日</span>・3ステップ</span></span></h2>
                 </header>
                 <ol class="lp-jp-steps">
-                    <li class="lp-jp-step">
+                    <li class="lp-jp-step" data-motion="up">
                         <span class="lp-jp-step-num"><span class="lp-jp-step-num-label">STEP</span><span class="lp-jp-step-num-digit">01</span></span>
+                        <span class="lp-jp-step-time">所要 約30秒</span>
                         <h3><span class="lp-nb">フォームから</span><span class="lp-nb">お申し込み</span></h3>
-                        <p>会社名とメールアドレスを入力するだけ。所要時間は約30秒、その場でアカウントが発行されます。</p>
+                        <p>会社名とメールアドレスを入力するだけ。その場でアカウントが発行され、すぐに管理画面へ入れます。</p>
                     </li>
                     <li class="lp-jp-step-arrow" aria-hidden="true"></li>
-                    <li class="lp-jp-step">
+                    <li class="lp-jp-step" data-motion="up" data-motion-delay="120">
                         <span class="lp-jp-step-num"><span class="lp-jp-step-num-label">STEP</span><span class="lp-jp-step-num-digit">02</span></span>
+                        <span class="lp-jp-step-time">1〜3営業日</span>
                         <h3><span class="lp-nb">就業規則にあわせて</span><span class="lp-nb">初期設定</span></h3>
                         <p>専任スタッフがオンラインでヒアリングし、締め日・残業ルール・雇用区分を代行設定します。</p>
                     </li>
                     <li class="lp-jp-step-arrow" aria-hidden="true"></li>
-                    <li class="lp-jp-step">
+                    <li class="lp-jp-step" data-motion="up" data-motion-delay="240">
                         <span class="lp-jp-step-num"><span class="lp-jp-step-num-label">STEP</span><span class="lp-jp-step-num-digit">03</span></span>
+                        <span class="lp-jp-step-time">設定完了後 即日</span>
                         <h3><span class="lp-nb">その日から</span><span class="lp-nb">打刻スタート</span></h3>
                         <p>PC・スマホ・ICカードですぐに打刻開始。集計はすべて自動なので、あとは待つだけです。</p>
                     </li>
@@ -288,17 +382,21 @@ const archetypeTemplates = {
     category: 'jp-conversion',
     html: `
         <section class="lp-section lp-jp-compare" aria-labelledby="jp-compare-title">
+            <div class="lp-jp-deco" aria-hidden="true">
+                <span class="lp-jp-bg-word lp-jp-bg-word-br" data-parallax="0.1">COMPARE</span>
+            </div>
+            <span class="lp-jp-side-label" aria-hidden="true">SECTION 05 — 他社比較</span>
             <div class="lp-content-wrapper">
-                <header class="lp-jp-band-title">
+                <header class="lp-jp-band-title" data-motion="up">
                     <span class="lp-jp-band-eyebrow">COMPARISON</span>
                     <h2 id="jp-compare-title"><span class="lp-jp-band-heading"><span class="lp-nb">他社サービスとの</span><span class="lp-nb"><span class="lp-jp-marker">違い</span>をご覧ください</span></span></h2>
                 </header>
-                <div class="lp-jp-compare-wrap" role="region" aria-label="他社比較表（横にスクロールできます）" tabindex="0">
+                <div class="lp-jp-compare-wrap" role="region" aria-label="他社比較表（横にスクロールできます）" tabindex="0" data-motion="up" data-motion-delay="100">
                     <table class="lp-jp-compare-table">
                         <thead>
                             <tr>
                                 <th scope="col">項目</th>
-                                <th scope="col" class="lp-jp-compare-own">タイムライト<br>クラウド</th>
+                                <th scope="col" class="lp-jp-compare-own"><span class="lp-jp-compare-own-tag">おすすめ</span>タイムライト<br>クラウド</th>
                                 <th scope="col">A社</th>
                                 <th scope="col">B社</th>
                             </tr>
@@ -354,13 +452,39 @@ const archetypeTemplates = {
     category: 'jp-conversion',
     html: `
         <section class="lp-section lp-jp-voice" aria-labelledby="jp-voice-title">
+            <div class="lp-jp-deco" aria-hidden="true">
+                <span class="lp-jp-bg-word lp-jp-bg-word-tl" data-parallax="0.1">VOICE</span>
+            </div>
+            <span class="lp-jp-side-label" aria-hidden="true">SECTION 06 — お客様の声</span>
             <div class="lp-content-wrapper">
-                <header class="lp-jp-band-title">
+                <header class="lp-jp-band-title" data-motion="up">
                     <span class="lp-jp-band-eyebrow">VOICE</span>
                     <h2 id="jp-voice-title"><span class="lp-jp-band-heading"><span class="lp-nb">導入企業さまの</span><span class="lp-nb"><span class="lp-jp-marker">リアルな声</span></span></span></h2>
                 </header>
+                <div class="lp-jp-voice-summary" data-motion="scale">
+                    <div class="lp-jp-voice-summary-score" aria-label="総合満足度 5点満点中4.8点">
+                        <span class="lp-jp-voice-summary-num" data-counter="4.8">4.8</span>
+                        <span class="lp-jp-voice-summary-stars" aria-hidden="true">★★★★★</span>
+                        <span class="lp-jp-voice-summary-label">総合満足度※</span>
+                    </div>
+                    <div class="lp-jp-stat-row lp-jp-voice-summary-facts">
+                        <div class="lp-jp-stat">
+                            <span class="lp-jp-stat-label">回答件数</span>
+                            <span class="lp-jp-stat-num"><span data-counter="1247" data-counter-suffix="件">1,247件</span></span>
+                        </div>
+                        <div class="lp-jp-stat">
+                            <span class="lp-jp-stat-label">継続利用意向</span>
+                            <span class="lp-jp-stat-num"><span data-counter="96.4" data-counter-suffix="%">96.4%</span></span>
+                        </div>
+                        <div class="lp-jp-stat">
+                            <span class="lp-jp-stat-label">サポート評価</span>
+                            <span class="lp-jp-stat-num"><span data-counter="4.9" data-counter-suffix="点">4.9点</span></span>
+                        </div>
+                    </div>
+                </div>
                 <div class="lp-jp-voice-grid">
-                    <article class="lp-jp-voice-card">
+                    <article class="lp-jp-voice-card" data-motion="up">
+                        <span class="lp-jp-voice-tag">コスト削減</span>
                         <p class="lp-jp-stars" aria-label="5点満点中4.8点の評価">★★★★★<span class="lp-jp-stars-score">4.8</span></p>
                         <h3 class="lp-jp-voice-title"><span class="lp-nb">月40時間かかっていた</span><span class="lp-nb">締め作業が<span class="lp-jp-marker">半日で完了</span></span></h3>
                         <p class="lp-jp-voice-body">拠点ごとにバラバラだったExcel集計を廃止できました。給与ソフト連携で転記作業もなくなり、締め日直後の残業がゼロに。もっと早く入れればよかったです。</p>
@@ -376,7 +500,8 @@ const archetypeTemplates = {
                             <p class="lp-jp-voice-name">佐藤 様（40代・総務部長）<span class="lp-jp-voice-attr">製造業／従業員320名</span></p>
                         </footer>
                     </article>
-                    <article class="lp-jp-voice-card">
+                    <article class="lp-jp-voice-card" data-motion="up" data-motion-delay="120">
+                        <span class="lp-jp-voice-tag">リスク対策</span>
                         <p class="lp-jp-stars" aria-label="5点満点中4.6点の評価">★★★★★<span class="lp-jp-stars-score">4.6</span></p>
                         <h3 class="lp-jp-voice-title"><span class="lp-nb">残業の上限超過アラートで</span><span class="lp-nb"><span class="lp-jp-marker">労務リスクを未然に防止</span></span></h3>
                         <p class="lp-jp-voice-body">36協定の上限に近づくと本人と上長に自動通知が届くので、月末に慌てて調整することがなくなりました。監査対応の資料出力も助かっています。</p>
@@ -392,7 +517,8 @@ const archetypeTemplates = {
                             <p class="lp-jp-voice-name">田中 様（30代・人事労務担当）<span class="lp-jp-voice-attr">IT・通信／従業員85名</span></p>
                         </footer>
                     </article>
-                    <article class="lp-jp-voice-card">
+                    <article class="lp-jp-voice-card" data-motion="up" data-motion-delay="240">
+                        <span class="lp-jp-voice-tag">現場定着</span>
                         <p class="lp-jp-stars" aria-label="5点満点中4.9点の評価">★★★★★<span class="lp-jp-stars-score">4.9</span></p>
                         <h3 class="lp-jp-voice-title"><span class="lp-nb">ITが苦手な現場でも</span><span class="lp-nb"><span class="lp-jp-marker">初日から迷わず打刻</span></span></h3>
                         <p class="lp-jp-voice-body">スマホとICカードの併用ができるので、店舗スタッフにもすぐ定着しました。導入時は専任の方が説明会用の資料まで用意してくれて心強かったです。</p>
@@ -421,29 +547,29 @@ const archetypeTemplates = {
     html: `
         <section class="lp-section lp-jp-badge-strip" aria-label="実績と掲載メディア">
             <div class="lp-content-wrapper">
-                <div class="lp-jp-badge-row" role="list" aria-label="受賞・実績バッジ">
-                    <div class="lp-jp-badge" role="listitem">
+                <div class="lp-jp-badge-row lp-jp-bleed-up" role="list" aria-label="受賞・実績バッジ">
+                    <div class="lp-jp-badge" role="listitem" data-motion="scale">
                         <span class="lp-jp-badge-label">顧客満足度</span>
                         <span class="lp-jp-badge-value">No.1</span>
                         <span class="lp-jp-badge-ref">※1</span>
                     </div>
-                    <div class="lp-jp-badge" role="listitem">
+                    <div class="lp-jp-badge" role="listitem" data-motion="scale" data-motion-delay="90">
                         <span class="lp-jp-badge-label">導入社数</span>
-                        <span class="lp-jp-badge-value">3,000社</span>
+                        <span class="lp-jp-badge-value" data-counter="3000" data-counter-suffix="社">3,000社</span>
                         <span class="lp-jp-badge-ref">突破※2</span>
                     </div>
-                    <div class="lp-jp-badge" role="listitem">
+                    <div class="lp-jp-badge" role="listitem" data-motion="scale" data-motion-delay="180">
                         <span class="lp-jp-badge-label">年間継続率</span>
-                        <span class="lp-jp-badge-value">99.2%</span>
+                        <span class="lp-jp-badge-value" data-counter="99.2" data-counter-suffix="%">99.2%</span>
                         <span class="lp-jp-badge-ref">※2</span>
                     </div>
-                    <div class="lp-jp-badge" role="listitem">
+                    <div class="lp-jp-badge" role="listitem" data-motion="scale" data-motion-delay="270">
                         <span class="lp-jp-badge-label">SaaSアワード</span>
                         <span class="lp-jp-badge-value">受賞</span>
                         <span class="lp-jp-badge-ref">2025年※3</span>
                     </div>
                 </div>
-                <div class="lp-jp-badge-media" aria-label="掲載メディア">
+                <div class="lp-jp-badge-media" aria-label="掲載メディア" data-motion="fade" data-motion-delay="200">
                     <span class="lp-jp-badge-media-label">＼ 各種メディアで紹介されました ／</span>
                     <span class="lp-jp-media-logo lp-jp-media-logo-serif">Biz Journal</span>
                     <span class="lp-jp-media-logo lp-jp-media-logo-caps">HR TIMES</span>
@@ -461,28 +587,34 @@ const archetypeTemplates = {
     category: 'jp-conversion',
     html: `
         <section class="lp-section lp-jp-offer-section" aria-labelledby="jp-offer-title">
+            <div class="lp-jp-deco" aria-hidden="true">
+                <span class="lp-jp-bg-word lp-jp-bg-word-bl" data-parallax="0.12">OFFER</span>
+            </div>
             <div class="lp-content-wrapper">
-                <div class="lp-jp-offer">
-                    <p class="lp-jp-offer-deadline">
-                        <span aria-hidden="true">＼</span>7月31日（金）お申し込み分まで<span aria-hidden="true">／</span>
-                    </p>
-                    <h2 id="jp-offer-title" class="lp-jp-offer-title"><span class="lp-nb">今だけ、<span class="lp-jp-marker">3つの特典</span>付きで</span><br><span class="lp-nb">スタートできます</span></h2>
-                    <ul class="lp-jp-offer-benefits">
-                        <li><span class="lp-jp-offer-benefit-tag">特典1</span>初期設定代行（通常60,000円）が無料</li>
-                        <li><span class="lp-jp-offer-benefit-tag">特典2</span>無料トライアル期間を30日→60日に延長</li>
-                        <li><span class="lp-jp-offer-benefit-tag">特典3</span>「勤怠DX導入チェックリスト」PDFをプレゼント</li>
-                    </ul>
-                    <p class="lp-jp-offer-price-row">
-                        <span class="lp-jp-price-label">初期設定代行</span>
-                        <span class="lp-jp-price-strike">60,000円</span>
-                        <span class="lp-jp-price">
-                            <span class="lp-jp-price-em">0</span>
-                            <span class="lp-jp-price-unit">円</span>
-                            <span class="lp-jp-price-tax">（税込）</span>
-                        </span>
-                    </p>
-                    <button type="button" class="lp-jp-btn" aria-label="特典付きで無料トライアルに申し込む">特典付きで申し込む</button>
-                    <span class="lp-jp-note">※特典は期間中に新規でお申し込みいただいた法人のお客様が対象です。<br>※他のキャンペーンとの併用はできません。予告なく終了する場合があります。</span>
+                <div class="lp-jp-offer-wrap lp-jp-bleed-up">
+                    <span class="lp-jp-float-chip" aria-hidden="true">先着50社限定</span>
+                    <div class="lp-jp-offer" data-motion="up">
+                        <p class="lp-jp-offer-deadline">
+                            <span aria-hidden="true">＼</span>7月31日（金）お申し込み分まで<span aria-hidden="true">／</span>
+                        </p>
+                        <h2 id="jp-offer-title" class="lp-jp-offer-title"><span class="lp-nb">今だけ、<span class="lp-jp-marker">3つの特典</span>付きで</span><br><span class="lp-nb">スタートできます</span></h2>
+                        <ul class="lp-jp-offer-benefits">
+                            <li data-motion="left" data-motion-delay="80"><span class="lp-jp-offer-benefit-tag">特典1</span>初期設定代行（通常60,000円）が無料</li>
+                            <li data-motion="left" data-motion-delay="160"><span class="lp-jp-offer-benefit-tag">特典2</span>無料トライアル期間を30日→60日に延長</li>
+                            <li data-motion="left" data-motion-delay="240"><span class="lp-jp-offer-benefit-tag">特典3</span>「勤怠DX導入チェックリスト」PDFをプレゼント</li>
+                        </ul>
+                        <p class="lp-jp-offer-price-row" data-motion="scale" data-motion-delay="240">
+                            <span class="lp-jp-price-label">初期設定代行</span>
+                            <span class="lp-jp-price-strike">60,000円</span>
+                            <span class="lp-jp-price">
+                                <span class="lp-jp-price-em">0</span>
+                                <span class="lp-jp-price-unit">円</span>
+                                <span class="lp-jp-price-tax">（税込）</span>
+                            </span>
+                        </p>
+                        <button type="button" class="lp-jp-btn" aria-label="特典付きで無料トライアルに申し込む">特典付きで申し込む</button>
+                        <span class="lp-jp-note">※特典は期間中に新規でお申し込みいただいた法人のお客様が対象です。<br>※他のキャンペーンとの併用はできません。予告なく終了する場合があります。</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -493,13 +625,22 @@ const archetypeTemplates = {
     name: 'CTA帯（繰り返し用）',
     category: 'jp-conversion',
     html: `
-        <section class="lp-section lp-jp-cta-band" aria-labelledby="jp-cta-band-title">
+        <section class="lp-section lp-jp-cta-band lp-jp-seam-top" aria-labelledby="jp-cta-band-title">
+            <div class="lp-jp-deco" aria-hidden="true">
+                <span class="lp-jp-bg-word lp-jp-bg-word-center" data-parallax="0.14">START NOW</span>
+            </div>
             <div class="lp-content-wrapper">
-                <p class="lp-jp-cta-urgency">今なら初期設定代行が無料（7月31日まで）</p>
-                <h2 id="jp-cta-band-title" class="lp-jp-cta-copy"><span class="lp-nb">面倒な勤怠集計は、</span><span class="lp-nb">今月で終わりにしませんか？</span></h2>
+                <span class="lp-jp-cta-guarantee" data-motion="scale" data-motion-delay="240"><strong>30日間</strong>返金保証※</span>
+                <p class="lp-jp-cta-urgency" data-motion="fade">今なら初期設定代行が無料（7月31日まで）</p>
+                <h2 id="jp-cta-band-title" class="lp-jp-cta-copy" data-motion="up" data-motion-delay="60"><span class="lp-nb">面倒な勤怠集計は、</span><span class="lp-nb">今月で終わりにしませんか？</span></h2>
                 <div class="lp-jp-cta-arrow" aria-hidden="true"></div>
-                <button type="button" class="lp-jp-btn" aria-label="30日間の無料トライアルを申し込む">30日間 無料で試してみる</button>
-                <span class="lp-jp-note">※お申し込みは30秒で完了。クレジットカード登録は不要です。</span>
+                <button type="button" class="lp-jp-btn" aria-label="30日間の無料トライアルを申し込む" data-motion="up" data-motion-delay="140">30日間 無料で試してみる</button>
+                <ul class="lp-jp-cta-micro" data-motion="up" data-motion-delay="220">
+                    <li>お申し込みは30秒で完了</li>
+                    <li>クレジットカード登録不要</li>
+                    <li>いつでも解約OK</li>
+                </ul>
+                <span class="lp-jp-note">※返金保証は有料プラン初月分が対象です。詳細は利用規約をご確認ください。</span>
             </div>
         </section>
         `,
@@ -510,36 +651,51 @@ const archetypeTemplates = {
     category: 'jp-conversion',
     html: `
         <section class="lp-section lp-jp-faq" aria-labelledby="jp-faq-title">
+            <div class="lp-jp-deco" aria-hidden="true">
+                <span class="lp-jp-bg-word lp-jp-bg-word-tr" data-parallax="0.1">Q&amp;A</span>
+            </div>
+            <span class="lp-jp-side-label" aria-hidden="true">SECTION 07 — よくある質問</span>
             <div class="lp-content-wrapper">
-                <header class="lp-jp-band-title">
+                <header class="lp-jp-band-title" data-motion="up">
                     <span class="lp-jp-band-eyebrow">FAQ</span>
                     <h2 id="jp-faq-title"><span class="lp-jp-band-heading"><span class="lp-nb">よくある</span><span class="lp-nb"><span class="lp-jp-marker">ご質問</span></span></span></h2>
                     <p class="lp-jp-band-sub"><span class="lp-nb">お問い合わせの多い質問をまとめました。</span><span class="lp-nb">その他のご質問はお気軽にご相談ください。</span></p>
                 </header>
                 <div class="lp-jp-faq-list">
-                    <div class="lp-jp-faq-item">
+                    <div class="lp-jp-faq-item" data-motion="up">
                         <h3 class="lp-jp-faq-q">無料トライアル終了後、自動で課金されますか？</h3>
                         <p class="lp-jp-faq-a">いいえ。トライアル終了後に自動課金されることはありません。継続をご希望の場合のみ、有料プランをお申し込みください。</p>
                     </div>
-                    <div class="lp-jp-faq-item">
+                    <div class="lp-jp-faq-item" data-motion="up" data-motion-delay="60">
                         <h3 class="lp-jp-faq-q">現在使っている給与ソフトと連携できますか？</h3>
                         <p class="lp-jp-faq-a">主要20種の給与ソフトに標準対応しています。対応外のソフトでもCSV形式での出力が可能です。詳細は連携一覧をご確認ください。</p>
                     </div>
-                    <div class="lp-jp-faq-item">
+                    <div class="lp-jp-faq-item" data-motion="up" data-motion-delay="120">
                         <h3 class="lp-jp-faq-q">変形労働時間制やフレックスにも対応していますか？</h3>
                         <p class="lp-jp-faq-a">1ヶ月・1年単位の変形労働時間制、フレックスタイム制、裁量労働制など主要な勤務形態に対応しています。設定は導入時に代行いたします。</p>
                     </div>
-                    <div class="lp-jp-faq-item">
+                    <div class="lp-jp-faq-item" data-motion="up" data-motion-delay="180">
                         <h3 class="lp-jp-faq-q">最低利用人数や契約期間の縛りはありますか？</h3>
                         <p class="lp-jp-faq-a">最低利用人数は5名からで、契約は月単位です。年間契約の縛りはなく、いつでもプラン変更・解約が可能です。</p>
                     </div>
-                    <div class="lp-jp-faq-item">
+                    <div class="lp-jp-faq-item" data-motion="up" data-motion-delay="240">
                         <h3 class="lp-jp-faq-q">セキュリティ対策はどうなっていますか？</h3>
                         <p class="lp-jp-faq-a">通信は常時暗号化され、データは国内データセンターで冗長化して保管しています。ISMS（ISO/IEC 27001）認証を取得済みです。</p>
                     </div>
-                    <div class="lp-jp-faq-item">
+                    <div class="lp-jp-faq-item" data-motion="up" data-motion-delay="300">
                         <h3 class="lp-jp-faq-q">導入までにどのくらいの期間がかかりますか？</h3>
                         <p class="lp-jp-faq-a">最短で即日からご利用いただけます。就業規則が複雑な場合でも、平均2週間程度で本稼働しているお客様がほとんどです。</p>
+                    </div>
+                </div>
+                <div class="lp-jp-faq-contact" data-motion="up" data-motion-delay="200">
+                    <div class="lp-jp-faq-contact-tel">
+                        <span class="lp-jp-faq-contact-label">お電話でのご相談（通話無料）</span>
+                        <a class="lp-jp-faq-contact-num" href="tel:0120000000" aria-label="電話で相談する。フリーダイヤル0120-000-000">0120-000-000</a>
+                        <span class="lp-jp-note">平日 9:00〜18:00（土日祝休）／導入前の相談だけでも歓迎です</span>
+                    </div>
+                    <div class="lp-jp-faq-contact-web">
+                        <span class="lp-jp-faq-contact-copy"><span class="lp-nb">解決しなかった疑問は、</span><span class="lp-nb">専任スタッフが直接お答えします</span></span>
+                        <button type="button" class="lp-jp-btn lp-jp-btn-sm" aria-label="フォームで質問する">フォームで質問する</button>
                     </div>
                 </div>
             </div>
@@ -556,24 +712,39 @@ const archetypeTemplates = {
     category: 'rich-design',
     html: `
         <section class="lp-section lp-rich-hero" aria-labelledby="rich-hero-title">
-            <div class="lp-rich-meta">
+            <span class="lp-rich-bg-word lp-rich-hero-bgword" aria-hidden="true" data-parallax="0.18">TIME</span>
+            <div class="lp-rich-meta" data-motion="fade">
                 <span>TIMELIGHT&reg;</span>
                 <span>TOKYO — 2026</span>
                 <span>WORKSTYLE PLATFORM</span>
             </div>
             <h1 id="rich-hero-title" class="lp-rich-title-xl">
-                <span>Design</span>
-                <span class="lp-rich-outline">the Time,</span>
-                <span class="lp-rich-title-accent">Free</span>
-                <span>the People.</span>
+                <span data-motion="up">Design</span>
+                <span class="lp-rich-outline" data-motion="up" data-motion-delay="90">the Time,</span>
+                <span class="lp-rich-title-accent" data-motion="up" data-motion-delay="180">Free</span>
+                <span data-motion="up" data-motion-delay="270">the People.</span>
             </h1>
             <p class="lp-rich-vertical" aria-hidden="true">時間をデザインする</p>
             <div class="lp-rich-hero-footer">
-                <p class="lp-rich-hero-lede">
+                <p class="lp-rich-hero-lede" data-motion="up" data-motion-delay="200">
                     <span class="lp-nb">働く時間の一秒までを、</span><span class="lp-nb">美しく整える。</span>
                     <span class="lp-nb">タイムライトは、</span><span class="lp-nb">テクノロジーとデザインの力で</span>
                     <span class="lp-nb">「管理」を「体験」へと再定義する</span><span class="lp-nb">ワークスタイルプラットフォームです。</span>
                 </p>
+                <div class="lp-rich-hero-stats" aria-label="スタジオの実績" data-motion="up" data-motion-delay="300">
+                    <div class="lp-rich-hero-stat">
+                        <span class="lp-rich-hero-stat-num" data-counter="12">12</span>
+                        <span class="lp-rich-hero-stat-label">Awards</span>
+                    </div>
+                    <div class="lp-rich-hero-stat">
+                        <span class="lp-rich-hero-stat-num" data-counter="240">240</span>
+                        <span class="lp-rich-hero-stat-label">Projects</span>
+                    </div>
+                    <div class="lp-rich-hero-stat">
+                        <span class="lp-rich-hero-stat-num" data-counter="16">16</span>
+                        <span class="lp-rich-hero-stat-label">Countries</span>
+                    </div>
+                </div>
                 <span class="lp-rich-scroll-cue">Scroll</span>
             </div>
         </section>
@@ -585,18 +756,20 @@ const archetypeTemplates = {
     category: 'rich-design',
     html: `
         <section class="lp-section lp-rich-marquee" aria-label="ブランドメッセージ（装飾）">
-            <div class="lp-rich-marquee-track">
-                <div class="lp-rich-marquee-group">
-                    <span>Craft</span><span class="lp-rich-marquee-sep" aria-hidden="true">✦</span>
-                    <span class="lp-rich-outline">Precision</span><span class="lp-rich-marquee-sep" aria-hidden="true">✦</span>
-                    <span>余白の美学</span><span class="lp-rich-marquee-sep" aria-hidden="true">✦</span>
-                    <span class="lp-rich-outline">Typography</span><span class="lp-rich-marquee-sep" aria-hidden="true">✦</span>
-                </div>
-                <div class="lp-rich-marquee-group" aria-hidden="true">
-                    <span>Craft</span><span class="lp-rich-marquee-sep">✦</span>
-                    <span class="lp-rich-outline">Precision</span><span class="lp-rich-marquee-sep">✦</span>
-                    <span>余白の美学</span><span class="lp-rich-marquee-sep">✦</span>
-                    <span class="lp-rich-outline">Typography</span><span class="lp-rich-marquee-sep">✦</span>
+            <div class="lp-rich-marquee-inner">
+                <div class="lp-rich-marquee-track">
+                    <div class="lp-rich-marquee-group">
+                        <span>Craft</span><span class="lp-rich-marquee-sep" aria-hidden="true">✦</span>
+                        <span class="lp-rich-outline">Precision</span><span class="lp-rich-marquee-sep" aria-hidden="true">✦</span>
+                        <span>余白の美学</span><span class="lp-rich-marquee-sep" aria-hidden="true">✦</span>
+                        <span class="lp-rich-outline">Typography</span><span class="lp-rich-marquee-sep" aria-hidden="true">✦</span>
+                    </div>
+                    <div class="lp-rich-marquee-group" aria-hidden="true">
+                        <span>Craft</span><span class="lp-rich-marquee-sep">✦</span>
+                        <span class="lp-rich-outline">Precision</span><span class="lp-rich-marquee-sep">✦</span>
+                        <span>余白の美学</span><span class="lp-rich-marquee-sep">✦</span>
+                        <span class="lp-rich-outline">Typography</span><span class="lp-rich-marquee-sep">✦</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -608,14 +781,15 @@ const archetypeTemplates = {
     category: 'rich-design',
     html: `
         <section class="lp-section lp-rich-editorial" aria-labelledby="rich-editorial-title">
-            <header class="lp-rich-editorial-head">
+            <span class="lp-rich-vertical lp-rich-vertical-edge" aria-hidden="true">FEATURES — 01 / 03</span>
+            <header class="lp-rich-editorial-head" data-motion="up">
                 <span class="lp-rich-eyebrow">Features</span>
                 <h2 id="rich-editorial-title" class="lp-rich-editorial-title">機能ではなく、体験を。</h2>
             </header>
             <div class="lp-rich-offset-grid">
                 <article class="lp-rich-editorial-item">
-                    <span class="lp-rich-index-num" aria-hidden="true">01</span>
-                    <div class="lp-rich-editorial-media">
+                    <span class="lp-rich-index-num" aria-hidden="true" data-parallax="0.16">01</span>
+                    <div class="lp-rich-editorial-media" data-motion="left">
                         <svg class="lp-rich-art" viewBox="0 0 720 540" role="img" aria-label="つなぎ目のない流れを表す抽象アート">
                             <defs>
                                 <filter id="lpg-e1"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
@@ -634,7 +808,7 @@ const archetypeTemplates = {
                             <rect width="720" height="540" filter="url(#lpg-e1)"/>
                         </svg>
                     </div>
-                    <div class="lp-rich-editorial-copy">
+                    <div class="lp-rich-editorial-copy" data-motion="right" data-motion-delay="120">
                         <span class="lp-rich-editorial-num-label">FEATURE 01</span>
                         <h3><span class="lp-nb">Seamless</span><br><span class="lp-nb">つなぎ目のない一日</span></h3>
                         <p><span class="lp-nb">出社も、リモートも、移動中も。</span><span class="lp-nb">あらゆる働く場面が</span><span class="lp-nb">ひとつの流れとして記録され、</span><span class="lp-nb">意識せずとも一日が</span><span class="lp-nb">美しく整っていきます。</span></p>
@@ -642,8 +816,8 @@ const archetypeTemplates = {
                     </div>
                 </article>
                 <article class="lp-rich-editorial-item">
-                    <span class="lp-rich-index-num" aria-hidden="true">02</span>
-                    <div class="lp-rich-editorial-media">
+                    <span class="lp-rich-index-num" aria-hidden="true" data-parallax="0.16">02</span>
+                    <div class="lp-rich-editorial-media" data-motion="right">
                         <svg class="lp-rich-art" viewBox="0 0 720 540" role="img" aria-label="時間のインサイトを表す抽象アート">
                             <defs>
                                 <filter id="lpg-e2"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
@@ -660,7 +834,7 @@ const archetypeTemplates = {
                             <rect width="720" height="540" filter="url(#lpg-e2)"/>
                         </svg>
                     </div>
-                    <div class="lp-rich-editorial-copy">
+                    <div class="lp-rich-editorial-copy" data-motion="left" data-motion-delay="120">
                         <span class="lp-rich-editorial-num-label">FEATURE 02</span>
                         <h3><span class="lp-nb">Insight</span><br><span class="lp-nb">時間が語りはじめる</span></h3>
                         <p><span class="lp-nb">チームの時間の使い方が、</span><span class="lp-nb">静かなグラフィックとなって立ち上がる。</span><span class="lp-nb">数字の羅列ではなく、</span><span class="lp-nb">次の意思決定を導く風景として。</span></p>
@@ -668,8 +842,8 @@ const archetypeTemplates = {
                     </div>
                 </article>
                 <article class="lp-rich-editorial-item">
-                    <span class="lp-rich-index-num" aria-hidden="true">03</span>
-                    <div class="lp-rich-editorial-media">
+                    <span class="lp-rich-index-num" aria-hidden="true" data-parallax="0.16">03</span>
+                    <div class="lp-rich-editorial-media" data-motion="left">
                         <svg class="lp-rich-art" viewBox="0 0 720 540" role="img" aria-label="静けさを表す余白の多い抽象アート">
                             <defs>
                                 <filter id="lpg-e3"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
@@ -682,7 +856,7 @@ const archetypeTemplates = {
                             <rect width="720" height="540" filter="url(#lpg-e3)"/>
                         </svg>
                     </div>
-                    <div class="lp-rich-editorial-copy">
+                    <div class="lp-rich-editorial-copy" data-motion="right" data-motion-delay="120">
                         <span class="lp-rich-editorial-num-label">FEATURE 03</span>
                         <h3><span class="lp-nb">Quiet</span><br><span class="lp-nb">静けさという機能</span></h3>
                         <p><span class="lp-nb">通知は少なく、</span><span class="lp-nb">意味のあるものだけを。</span><span class="lp-nb">プロダクトが沈黙している時間こそが、</span><span class="lp-nb">集中というもっとも贅沢な体験を</span><span class="lp-nb">つくります。</span></p>
@@ -699,12 +873,13 @@ const archetypeTemplates = {
     category: 'rich-design',
     html: `
         <section class="lp-section lp-rich-showcase" aria-labelledby="rich-showcase-title">
-            <header class="lp-rich-showcase-head">
+            <span class="lp-rich-bg-word lp-rich-showcase-bgword" aria-hidden="true" data-parallax="0.12">WORKS</span>
+            <header class="lp-rich-showcase-head" data-motion="up">
                 <h2 id="rich-showcase-title" class="lp-rich-showcase-title">Selected Works</h2>
                 <span class="lp-rich-hscroll-hint" aria-hidden="true">Drag / Scroll →</span>
             </header>
             <div class="lp-rich-hscroll" role="region" aria-label="ショーケースギャラリー（横にスクロールできます）" tabindex="0">
-                <figure class="lp-rich-hscroll-item">
+                <figure class="lp-rich-hscroll-item" data-motion="up">
                     <svg class="lp-rich-art" viewBox="0 0 640 800" role="img" aria-label="Aurora Identityのキービジュアル">
                         <defs>
                             <filter id="lpg-s1"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
@@ -724,7 +899,7 @@ const archetypeTemplates = {
                         <span class="lp-rich-hscroll-index">01</span>
                     </figcaption>
                 </figure>
-                <figure class="lp-rich-hscroll-item">
+                <figure class="lp-rich-hscroll-item" data-motion="up" data-motion-delay="80">
                     <svg class="lp-rich-art" viewBox="0 0 640 800" role="img" aria-label="Monolith Appのキービジュアル">
                         <defs>
                             <filter id="lpg-s2"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
@@ -742,7 +917,7 @@ const archetypeTemplates = {
                         <span class="lp-rich-hscroll-index">02</span>
                     </figcaption>
                 </figure>
-                <figure class="lp-rich-hscroll-item">
+                <figure class="lp-rich-hscroll-item" data-motion="up" data-motion-delay="160">
                     <svg class="lp-rich-art" viewBox="0 0 640 800" role="img" aria-label="Paper and Pixelのキービジュアル">
                         <defs>
                             <filter id="lpg-s3"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
@@ -760,7 +935,7 @@ const archetypeTemplates = {
                         <span class="lp-rich-hscroll-index">03</span>
                     </figcaption>
                 </figure>
-                <figure class="lp-rich-hscroll-item">
+                <figure class="lp-rich-hscroll-item" data-motion="up" data-motion-delay="240">
                     <svg class="lp-rich-art" viewBox="0 0 640 800" role="img" aria-label="Void Galleryのキービジュアル">
                         <defs>
                             <filter id="lpg-s4"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
@@ -781,7 +956,7 @@ const archetypeTemplates = {
                         <span class="lp-rich-hscroll-index">04</span>
                     </figcaption>
                 </figure>
-                <figure class="lp-rich-hscroll-item">
+                <figure class="lp-rich-hscroll-item" data-motion="up" data-motion-delay="320">
                     <svg class="lp-rich-art" viewBox="0 0 640 800" role="img" aria-label="Kinetic Typeのキービジュアル">
                         <defs>
                             <filter id="lpg-s5"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
@@ -807,15 +982,16 @@ const archetypeTemplates = {
     category: 'rich-design',
     html: `
         <section class="lp-section lp-rich-statement" aria-labelledby="rich-statement-title">
-            <span class="lp-rich-eyebrow">Statement</span>
-            <h2 id="rich-statement-title" class="lp-rich-statement-copy lp-rich-serif">
+            <span class="lp-rich-statement-kanji lp-rich-serif" aria-hidden="true" data-parallax="0.1">間</span>
+            <span class="lp-rich-eyebrow" data-motion="fade">Statement</span>
+            <h2 id="rich-statement-title" class="lp-rich-statement-copy lp-rich-serif" data-motion="up" data-motion-delay="80">
                 <span class="lp-nb">時間は、削るものではなく、</span><br>
                 <span class="lp-nb"><em>研ぎ澄ます</em>ものだと思う。</span><br>
                 <span class="lp-nb">私たちは、働くことの余白に</span><br>
                 <span class="lp-nb">美しさを取り戻すために、</span><br>
                 <span class="lp-nb">つくり続けます。</span>
             </h2>
-            <span class="lp-rich-statement-sign lp-rich-serif">TIMELIGHT DESIGN PRINCIPLES</span>
+            <span class="lp-rich-statement-sign lp-rich-serif" data-motion="fade" data-motion-delay="240">TIMELIGHT DESIGN PRINCIPLES</span>
         </section>
         `,
   },
@@ -825,14 +1001,15 @@ const archetypeTemplates = {
     category: 'rich-design',
     html: `
         <section class="lp-section lp-rich-cta-full" aria-labelledby="rich-cta-title">
-            <span class="lp-rich-eyebrow">Get Started</span>
+            <div class="lp-rich-cta-glow" aria-hidden="true" data-parallax="0.22"></div>
+            <span class="lp-rich-eyebrow" data-motion="fade">Get Started</span>
             <h2 id="rich-cta-title" class="lp-rich-cta-title">
-                Let&#39;s Make<br>
-                <span class="lp-rich-outline">Something</span><br>
-                Beautiful.
+                <span data-motion="up">Let&#39;s Make</span>
+                <span class="lp-rich-outline" data-motion="up" data-motion-delay="100">Something</span>
+                <span data-motion="up" data-motion-delay="200">Beautiful.</span>
             </h2>
-            <button type="button" class="lp-rich-btn" aria-label="プロジェクトの相談を始める">Start a Project</button>
-            <span class="lp-rich-cta-note">HELLO@TIMELIGHT.DESIGN</span>
+            <button type="button" class="lp-rich-btn" aria-label="プロジェクトの相談を始める" data-motion="scale" data-motion-delay="280">Start a Project</button>
+            <span class="lp-rich-cta-note" data-motion="fade" data-motion-delay="360">HELLO@TIMELIGHT.DESIGN</span>
         </section>
         `,
   },
