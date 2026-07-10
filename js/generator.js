@@ -850,7 +850,22 @@ class LandingPageGenerator {
       previewFrame.prepend(styleEl);
     }
 
-    styleEl.textContent = `
+    styleEl.textContent = this.buildDesignTokensCSS();
+
+    // 個別のカスタムCSSも再適用（フォント、サイズ、スペーシング、角丸、カラー）
+    this.applyFontFamily(settings.fontFamily);
+    this.applyFontSizeScale(settings.fontSizeScale);
+    this.applySpacingScale(settings.spacingScale);
+    this.applyBorderRadius(settings.borderRadius);
+    this.injectThemeCSS();
+  }
+
+  /**
+   * デザイン設定のCSS変数＋基本ルール（プレビューとエクスポートで共通）
+   */
+  buildDesignTokensCSS() {
+    const settings = this.designSettings;
+    return `
       :root {
         --lp-primary: ${settings.primaryColor};
         --lp-secondary: ${settings.secondaryColor};
@@ -876,13 +891,34 @@ class LandingPageGenerator {
       .lp-section { padding: calc(4rem * var(--lp-spacing-scale)) 0; }
       .lp-content-wrapper { padding: 0 calc(1.5rem * var(--lp-spacing-scale)); }
     `;
+  }
 
-    // 個別のカスタムCSSも再適用（フォント、サイズ、スペーシング、角丸、カラー）
-    this.applyFontFamily(settings.fontFamily);
-    this.applyFontSizeScale(settings.fontSizeScale);
-    this.applySpacingScale(settings.spacingScale);
-    this.applyBorderRadius(settings.borderRadius);
-    this.injectThemeCSS();
+  /**
+   * デザイン設定の上書きCSSをスコープ指定で生成する。
+   * プレビューでは '#previewFrame'、エクスポートでは '.lp-container' を渡す。
+   */
+  buildDesignOverrideCSS(scope) {
+    const { fontFamily, fontSizeScale, spacingScale, borderRadius } = this.designSettings;
+    return `
+      ${scope}, ${scope} * { font-family: '${fontFamily}', sans-serif !important; }
+      ${scope} { font-size: ${fontSizeScale * 100}% !important; }
+      ${scope} [class*="lp-section"] { padding-top: calc(80px * ${spacingScale}) !important; padding-bottom: calc(80px * ${spacingScale}) !important; }
+      ${scope} [class*="lp-hero"] { padding-top: calc(120px * ${spacingScale}) !important; padding-bottom: calc(120px * ${spacingScale}) !important; }
+      ${scope} [class*="lp-card"], ${scope} [class*="lp-feature"] { padding: calc(24px * ${spacingScale}) !important; }
+      ${scope} [class*="lp-btn"] { border-radius: ${borderRadius}px !important; }
+      ${scope} [class*="lp-card"], ${scope} [class*="lp-feature-card"],
+      ${scope} [class*="lp-pricing-card"], ${scope} [class*="lp-testimonial"] { border-radius: ${borderRadius}px !important; }
+      ${scope} [class*="lp-mockup"] { border-radius: ${borderRadius}px !important; }
+      ${scope} .lp-hero-visual img { border-radius: ${borderRadius}px !important; }
+      ${this.buildThemeColorsCSS(scope)}
+    `;
+  }
+
+  /**
+   * エクスポートHTMLに埋め込むデザイン設定CSS一式
+   */
+  buildExportDesignCSS() {
+    return `/* === デザインカスタマイズ（ジェネレーター設定） === */\n${this.buildDesignTokensCSS()}\n${this.buildDesignOverrideCSS('.lp-container')}`;
   }
 
   generatePreviewHTML() {
@@ -1522,7 +1558,7 @@ class LandingPageGenerator {
 
     switch (format) {
       case 'css-only':
-        code = await this.getInlineCSS();
+        code = `${await this.getInlineCSS()}\n\n${this.buildExportDesignCSS()}`;
         filename = `landing-page-${Date.now()}.css`;
         formatLabel = 'CSS Only';
         break;
@@ -1530,8 +1566,9 @@ class LandingPageGenerator {
         code = await this.generateExternalCSSHTML();
         filename = `landing-page-${Date.now()}.html`;
         formatLabel = 'HTML + 外部CSS';
-        this.exportCSS = await this.getInlineCSS();
-        this.exportCSSFilename = `landing-page-${Date.now()}.css`;
+        this.exportCSS = `${await this.getInlineCSS()}\n\n${this.buildExportDesignCSS()}`;
+        // HTML側の <link href="landing-page.css"> と一致させる
+        this.exportCSSFilename = 'landing-page.css';
         break;
       case 'tailwind':
         code = await this.generateTailwindHTML();
@@ -1735,6 +1772,15 @@ class LandingPageGenerator {
     const lang = this.seoData.lang || 'ja';
     const cdnBase = LandingPageGenerator.CONFIG.CDN_BASE_URL;
 
+    // CSSをインライン埋め込みして単体で表示できるHTMLを生成する。
+    // 読み込みに失敗した場合のみCDNリンクにフォールバック
+    const inlineCSS = await this.getInlineCSS();
+    const cssLoaded = inlineCSS && !inlineCSS.startsWith('/* CSS loading failed');
+    const designCSS = this.buildExportDesignCSS();
+    const styleBlock = cssLoaded
+      ? `    <style>\n${inlineCSS}\n\n${designCSS}\n    </style>`
+      : `    <!-- Landing Page Styles via CDN (ローカルCSSの読み込みに失敗) -->\n    <link rel="stylesheet" href="${cdnBase}/landing-page.css">\n    <link rel="stylesheet" href="${cdnBase}/advanced-components.css">\n    <style>\n${designCSS}\n    </style>`;
+
     return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -1744,9 +1790,7 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <!-- Landing Page Styles via CDN -->
-    <link rel="stylesheet" href="${cdnBase}/landing-page.css">
-    <link rel="stylesheet" href="${cdnBase}/advanced-components.css">
+${styleBlock}
 </head>
 <body>
     <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
@@ -1804,9 +1848,8 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <!-- External CSS files - download separately -->
+    <!-- 同時にダウンロードされる landing-page.css を同じディレクトリに配置してください -->
     <link rel="stylesheet" href="landing-page.css">
-    <link rel="stylesheet" href="advanced-components.css">
 </head>
 <body>
     <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
@@ -5539,50 +5582,57 @@ ${'</script>'}
   }
 
   injectThemeCSS() {
+    this.injectCustomCSS('custom-theme-css', this.buildThemeColorsCSS('#previewFrame'));
+  }
+
+  /**
+   * カスタムカラーの上書きCSSをスコープ指定で生成する
+   */
+  buildThemeColorsCSS(scope) {
     const { primaryColor, secondaryColor, accentColor } = this.designSettings;
-    this.injectCustomCSS('custom-theme-css', `
-      #previewFrame [class*="lp-hero"]:not([class*="lp-hero-stat"]):not([class*="lp-hero-content"]):not([class*="lp-hero-visual"]):not([class*="lp-hero-title"]):not([class*="lp-hero-subtitle"]):not([class*="lp-hero-buttons"]):not([class*="lp-hero-badge"]) {
+    return `
+      ${scope} [class*="lp-hero"]:not([class*="lp-hero-stat"]):not([class*="lp-hero-content"]):not([class*="lp-hero-visual"]):not([class*="lp-hero-title"]):not([class*="lp-hero-subtitle"]):not([class*="lp-hero-buttons"]):not([class*="lp-hero-badge"]) {
         background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
       }
-      #previewFrame .lp-btn-primary, #previewFrame [class*="lp-btn-primary"],
-      #previewFrame .lp-cta-btn, #previewFrame [class*="lp-cta"] button {
+      ${scope} .lp-btn-primary, ${scope} [class*="lp-btn-primary"],
+      ${scope} .lp-cta-btn, ${scope} [class*="lp-cta"] button {
         background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
         border-color: ${primaryColor} !important;
       }
-      #previewFrame .lp-btn-primary:hover, #previewFrame [class*="lp-btn-primary"]:hover {
+      ${scope} .lp-btn-primary:hover, ${scope} [class*="lp-btn-primary"]:hover {
         box-shadow: 0 10px 30px ${primaryColor}40 !important;
       }
-      #previewFrame .lp-hero-badge, #previewFrame [class*="lp-badge"], #previewFrame .lp-section-badge {
+      ${scope} .lp-hero-badge, ${scope} [class*="lp-badge"], ${scope} .lp-section-badge {
         background: ${primaryColor}15 !important; color: ${primaryColor} !important;
       }
-      #previewFrame .lp-badge-dot { background: ${primaryColor} !important; }
-      #previewFrame .lp-hero-stat-number, #previewFrame .lp-stat-number, #previewFrame [class*="stat-number"] { color: ${primaryColor} !important; }
-      #previewFrame .lp-feature-icon, #previewFrame [class*="lp-feature-icon"] { color: ${primaryColor} !important; }
-      #previewFrame .lp-feature-icon-wrapper, #previewFrame [class*="icon-wrapper"] {
+      ${scope} .lp-badge-dot { background: ${primaryColor} !important; }
+      ${scope} .lp-hero-stat-number, ${scope} .lp-stat-number, ${scope} [class*="stat-number"] { color: ${primaryColor} !important; }
+      ${scope} .lp-feature-icon, ${scope} [class*="lp-feature-icon"] { color: ${primaryColor} !important; }
+      ${scope} .lp-feature-icon-wrapper, ${scope} [class*="icon-wrapper"] {
         background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
       }
-      #previewFrame .lp-pricing-card.featured, #previewFrame .lp-pricing-card.highlighted,
-      #previewFrame [class*="lp-pricing"][class*="featured"] { border-color: ${primaryColor} !important; }
-      #previewFrame .lp-pricing-card .lp-pricing-cta { background: ${primaryColor} !important; }
-      #previewFrame .lp-cta, #previewFrame [class*="lp-cta-section"], #previewFrame .lp-newsletter {
+      ${scope} .lp-pricing-card.featured, ${scope} .lp-pricing-card.highlighted,
+      ${scope} [class*="lp-pricing"][class*="featured"] { border-color: ${primaryColor} !important; }
+      ${scope} .lp-pricing-card .lp-pricing-cta { background: ${primaryColor} !important; }
+      ${scope} .lp-cta, ${scope} [class*="lp-cta-section"], ${scope} .lp-newsletter {
         background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
       }
-      #previewFrame .lp-gradient-text {
+      ${scope} .lp-gradient-text {
         background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}, ${accentColor}) !important;
         -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; background-clip: text !important;
       }
-      #previewFrame a:not([class*="lp-btn"]):hover { color: ${primaryColor} !important; }
-      #previewFrame .lp-team-role, #previewFrame [class*="lp-team-role"] { color: ${primaryColor} !important; }
-      #previewFrame .lp-nav-logo { color: ${primaryColor} !important; }
-      #previewFrame .lp-testimonial-rating, #previewFrame [class*="rating"] svg {
+      ${scope} a:not([class*="lp-btn"]):hover { color: ${primaryColor} !important; }
+      ${scope} .lp-team-role, ${scope} [class*="lp-team-role"] { color: ${primaryColor} !important; }
+      ${scope} .lp-nav-logo { color: ${primaryColor} !important; }
+      ${scope} .lp-testimonial-rating, ${scope} [class*="rating"] svg {
         color: ${accentColor} !important; fill: ${accentColor} !important;
       }
-      #previewFrame [class*="faq"] [class*="icon"] { color: ${primaryColor} !important; }
-      #previewFrame .lp-hero-orb-1 { background: ${primaryColor} !important; }
-      #previewFrame .lp-hero-orb-2 { background: ${secondaryColor} !important; }
-      #previewFrame .lp-hero-orb-3 { background: ${accentColor} !important; }
-      #previewFrame .lp-nav-menu li a::after { background: ${primaryColor} !important; }
-    `);
+      ${scope} [class*="faq"] [class*="icon"] { color: ${primaryColor} !important; }
+      ${scope} .lp-hero-orb-1 { background: ${primaryColor} !important; }
+      ${scope} .lp-hero-orb-2 { background: ${secondaryColor} !important; }
+      ${scope} .lp-hero-orb-3 { background: ${accentColor} !important; }
+      ${scope} .lp-nav-menu li a::after { background: ${primaryColor} !important; }
+    `;
   }
 
   resetColors() {
