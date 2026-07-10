@@ -109,6 +109,27 @@
   color: var(--jp-muted);
 }
 
+@media (max-width: 600px) {
+  .lp-jp-band-title h2,
+  .lp-jp-band-heading {
+    padding: 0 1em;
+    font-size: 1.3rem;
+  }
+
+  .lp-jp-band-heading::before,
+  .lp-jp-band-heading::after {
+    height: 1.2em;
+  }
+
+  .lp-jp-band-heading::before {
+    left: 0.2em;
+  }
+
+  .lp-jp-band-heading::after {
+    right: 0.2em;
+  }
+}
+
 /* 蛍光マーカー下線 */
 .lp-jp-marker {
   background-image: linear-gradient(
@@ -1215,6 +1236,7 @@
 
 .lp-rich-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
