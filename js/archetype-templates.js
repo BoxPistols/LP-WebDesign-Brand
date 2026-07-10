@@ -1,7 +1,8 @@
 // Archetype Section Templates
 // 1) 日本型・高密度LP (category: 'jp-conversion') — 通販/BtoBリード獲得型の縦長LPセクション
 // 2) アワード志向リッチ表現 (category: 'rich-design') — エディトリアル/タイポグラフィ主導のブランドセクション
-// スタイルは css/lp-archetypes.css に定義。サンプルコピーは勤怠管理SaaS「タイムライトクラウド」想定。
+// スタイルは css/lp-archetypes.css に定義。ビジュアルはすべてインラインSVG（外部画像なし）。
+// サンプルコピーは勤怠管理SaaS「タイムライトクラウド」想定。
 
 const archetypeTemplates = {
   // ============================================================
@@ -22,12 +23,12 @@ const archetypeTemplates = {
                             <span class="lp-jp-badge-inline">継続率 99.2%</span>
                         </div>
                         <h1 id="jp-hero-offer-title" class="lp-jp-hero-title">
-                            勤怠管理のムダな作業を、<br>
-                            <span class="lp-jp-marker">まるごと自動化</span>する
+                            <span class="lp-nb">勤怠管理の</span><span class="lp-nb">ムダな作業を、</span><br>
+                            <span class="lp-nb"><span class="lp-jp-marker">まるごと自動化</span>する</span>
                         </h1>
                         <p class="lp-jp-hero-lead">
-                            打刻・集計・申請承認・給与連携までワンストップ。
-                            タイムライトクラウドなら、毎月の締め作業が最短10分で完了します。
+                            <span class="lp-nb">打刻・集計・申請承認・給与連携まで</span><span class="lp-nb">ワンストップ。</span>
+                            <span class="lp-nb">タイムライトクラウドなら、</span><span class="lp-nb">毎月の締め作業が</span><span class="lp-nb">最短10分で完了します。</span>
                         </p>
                         <ul class="lp-jp-hero-points">
                             <li>初期費用0円</li>
@@ -54,7 +55,73 @@ const archetypeTemplates = {
                         </div>
                     </div>
                     <div class="lp-jp-hero-visual">
-                        <img src="https://placehold.co/560x640/eef1f8/5b6472?text=Product+UI" alt="タイムライトクラウドの管理画面イメージ" loading="lazy" />
+                        <div class="lp-jp-hero-shot">
+                            <svg class="lp-jp-art" viewBox="0 0 560 400" role="img" aria-label="タイムライトクラウドの管理画面イメージ">
+                                <rect width="560" height="400" fill="#fdfdff"/>
+                                <rect width="560" height="34" fill="#eef1f8"/>
+                                <circle cx="20" cy="17" r="5" fill="#f47c6d"/>
+                                <circle cx="38" cy="17" r="5" fill="#f5c451"/>
+                                <circle cx="56" cy="17" r="5" fill="#66c98a"/>
+                                <rect x="180" y="9" width="200" height="16" rx="8" fill="#fff"/>
+                                <rect x="0" y="34" width="118" height="366" fill="var(--lp-primary, #6366f1)" opacity="0.06"/>
+                                <rect x="16" y="58" width="86" height="12" rx="6" fill="var(--lp-primary, #6366f1)" opacity="0.8"/>
+                                <rect x="16" y="92" width="70" height="8" rx="4" fill="#a9b1c4"/>
+                                <rect x="16" y="116" width="82" height="8" rx="4" fill="#c6ccdb"/>
+                                <rect x="16" y="140" width="62" height="8" rx="4" fill="#c6ccdb"/>
+                                <rect x="16" y="164" width="76" height="8" rx="4" fill="#c6ccdb"/>
+                                <g>
+                                    <rect x="140" y="56" width="122" height="66" rx="10" fill="#fff" stroke="#e5e9f2"/>
+                                    <rect x="152" y="68" width="52" height="7" rx="3.5" fill="#a9b1c4"/>
+                                    <text x="152" y="106" font-family="sans-serif" font-size="22" font-weight="700" fill="#28304a">142.5<tspan font-size="11" fill="#7d8598">h</tspan></text>
+                                </g>
+                                <g>
+                                    <rect x="274" y="56" width="122" height="66" rx="10" fill="#fff" stroke="#e5e9f2"/>
+                                    <rect x="286" y="68" width="52" height="7" rx="3.5" fill="#a9b1c4"/>
+                                    <text x="286" y="106" font-family="sans-serif" font-size="22" font-weight="700" fill="var(--lp-primary, #6366f1)">98.6<tspan font-size="11" fill="#7d8598">%</tspan></text>
+                                </g>
+                                <g>
+                                    <rect x="408" y="56" width="122" height="66" rx="10" fill="#fff" stroke="#e5e9f2"/>
+                                    <rect x="420" y="68" width="52" height="7" rx="3.5" fill="#a9b1c4"/>
+                                    <text x="420" y="106" font-family="sans-serif" font-size="22" font-weight="700" fill="#28304a">0<tspan font-size="11" fill="#7d8598">件</tspan></text>
+                                </g>
+                                <g>
+                                    <rect x="140" y="140" width="256" height="236" rx="12" fill="#fff" stroke="#e5e9f2"/>
+                                    <rect x="156" y="156" width="96" height="9" rx="4.5" fill="#8d96ab"/>
+                                    <line x1="156" y1="238" x2="380" y2="238" stroke="#eef1f6"/>
+                                    <line x1="156" y1="288" x2="380" y2="288" stroke="#eef1f6"/>
+                                    <line x1="156" y1="338" x2="380" y2="338" stroke="#eef1f6"/>
+                                    <rect x="162" y="300" width="22" height="58" rx="4" fill="var(--lp-primary, #6366f1)" opacity="0.35"/>
+                                    <rect x="194" y="270" width="22" height="88" rx="4" fill="var(--lp-primary, #6366f1)" opacity="0.5"/>
+                                    <rect x="226" y="288" width="22" height="70" rx="4" fill="var(--lp-primary, #6366f1)" opacity="0.4"/>
+                                    <rect x="258" y="236" width="22" height="122" rx="4" fill="var(--lp-primary, #6366f1)" opacity="0.72"/>
+                                    <rect x="290" y="252" width="22" height="106" rx="4" fill="var(--lp-primary, #6366f1)" opacity="0.55"/>
+                                    <rect x="322" y="196" width="22" height="162" rx="4" fill="var(--lp-primary, #6366f1)"/>
+                                    <rect x="354" y="222" width="22" height="136" rx="4" fill="var(--lp-primary, #6366f1)" opacity="0.82"/>
+                                </g>
+                                <g>
+                                    <rect x="408" y="140" width="122" height="236" rx="12" fill="#fff" stroke="#e5e9f2"/>
+                                    <rect x="424" y="156" width="76" height="9" rx="4.5" fill="#8d96ab"/>
+                                    <circle cx="469" cy="242" r="40" fill="none" stroke="#edf0f6" stroke-width="14"/>
+                                    <circle cx="469" cy="242" r="40" fill="none" stroke="var(--lp-primary, #6366f1)" stroke-width="14"
+                                        stroke-dasharray="188 251" stroke-linecap="round" transform="rotate(-90 469 242)"/>
+                                    <text x="469" y="248" font-family="sans-serif" font-size="17" font-weight="700" fill="#28304a" text-anchor="middle">75%</text>
+                                    <rect x="424" y="306" width="82" height="8" rx="4" fill="#c6ccdb"/>
+                                    <rect x="424" y="326" width="64" height="8" rx="4" fill="#e0e4ee"/>
+                                    <rect x="424" y="346" width="72" height="8" rx="4" fill="#e0e4ee"/>
+                                </g>
+                            </svg>
+                        </div>
+                        <span class="lp-jp-hero-float-alert" aria-hidden="true">リアルタイム集計中</span>
+                        <div class="lp-jp-hero-float" aria-hidden="true">
+                            <svg width="38" height="38" viewBox="0 0 38 38">
+                                <circle cx="19" cy="19" r="19" fill="#e8f8ee"/>
+                                <path d="M11 19.5l5.5 5.5L27 14" fill="none" stroke="#1fa45c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>
+                                <span class="lp-jp-hero-float-title">今月の勤怠締め 完了</span>
+                                <span class="lp-jp-hero-float-sub">所要時間 8分32秒</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -70,8 +137,8 @@ const archetypeTemplates = {
             <div class="lp-content-wrapper">
                 <header class="lp-jp-band-title">
                     <span class="lp-jp-band-eyebrow">CHECK LIST</span>
-                    <h2 id="jp-problem-title"><span class="lp-jp-band-heading">こんな<span class="lp-jp-marker">お悩み</span>、ありませんか？</span></h2>
-                    <p class="lp-jp-band-sub">1つでも当てはまる方は、勤怠管理の見直しどきです。</p>
+                    <h2 id="jp-problem-title"><span class="lp-jp-band-heading"><span class="lp-nb">こんな<span class="lp-jp-marker">お悩み</span>、</span><span class="lp-nb">ありませんか？</span></span></h2>
+                    <p class="lp-jp-band-sub"><span class="lp-nb">1つでも当てはまる方は、</span><span class="lp-nb">勤怠管理の見直しどきです。</span></p>
                 </header>
                 <ul class="lp-jp-checklist">
                     <li class="lp-jp-check-item">打刻漏れ・修正依頼の確認に毎月何時間もかかっている</li>
@@ -81,9 +148,17 @@ const archetypeTemplates = {
                     <li class="lp-jp-check-item">テレワークや直行直帰の勤務実態が見えない</li>
                     <li class="lp-jp-check-item">法改正のたびに就業規則との整合チェックに追われる</li>
                 </ul>
-                <p class="lp-jp-speech">その悩み、<span class="lp-jp-marker">タイムライトクラウド</span>がまとめて解決します！</p>
+                <p class="lp-jp-speech"><span class="lp-nb">その悩み、</span><span class="lp-nb"><span class="lp-jp-marker">タイムライトクラウド</span>が</span><span class="lp-nb">まとめて解決します！</span></p>
                 <p class="lp-jp-speech-source">
-                    <img src="https://placehold.co/56x56/6366f1/ffffff?text=T" alt="タイムライトクラウド公式キャラクター" loading="lazy" width="56" height="56" />
+                    <svg class="lp-jp-mascot" width="52" height="52" viewBox="0 0 52 52" role="img" aria-label="タイムライトクラウド公式キャラクター">
+                        <circle cx="26" cy="26" r="25" fill="var(--lp-primary, #6366f1)"/>
+                        <circle cx="26" cy="26" r="19" fill="#fff"/>
+                        <line x1="26" y1="26" x2="26" y2="14.5" stroke="var(--lp-primary, #6366f1)" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="26" y1="26" x2="34" y2="30" stroke="var(--lp-primary, #6366f1)" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="26" cy="26" r="2.6" fill="var(--lp-primary, #6366f1)"/>
+                        <circle cx="19" cy="21" r="1.6" fill="#28304a"/>
+                        <circle cx="33" cy="21" r="1.6" fill="#28304a"/>
+                    </svg>
                     導入企業3,000社の運用ノウハウでサポートします
                 </p>
             </div>
@@ -100,18 +175,18 @@ const archetypeTemplates = {
                 <div class="lp-jp-bridge-empathy">
                     <p>「月末月初は勤怠の締めで残業続き…」</p>
                     <p>「チェックしてもチェックしても、修正が出てくる…」</p>
-                    <p>そのお気持ち、よく分かります。実は担当者の努力不足ではなく、<strong>仕組みの問題</strong>なのです。</p>
+                    <p><span class="lp-nb">そのお気持ち、よく分かります。</span><span class="lp-nb">実は担当者の努力不足ではなく、</span><span class="lp-nb"><strong>仕組みの問題</strong>なのです。</span></p>
                 </div>
                 <div class="lp-jp-bridge-arrow" aria-hidden="true">
                     <span></span><span></span><span></span>
                 </div>
                 <h2 id="jp-bridge-title" class="lp-jp-bridge-answer">
-                    だからこそ、<strong>集計ゼロ・転記ゼロ</strong>の<br>
-                    <span class="lp-jp-marker">自動化された勤怠管理</span>が必要です。
+                    <span class="lp-nb">だからこそ、</span><span class="lp-nb"><strong>集計ゼロ・転記ゼロ</strong>の</span><br>
+                    <span class="lp-nb"><span class="lp-jp-marker">自動化された勤怠管理</span>が</span><span class="lp-nb">必要です。</span>
                 </h2>
                 <p class="lp-jp-bridge-lead">
-                    タイムライトクラウドは打刻データをリアルタイムに自動集計。
-                    アラート機能が異常値をその場で検知するので、月末にまとめて確認する作業そのものがなくなります。
+                    <span class="lp-nb">タイムライトクラウドは</span><span class="lp-nb">打刻データをリアルタイムに自動集計。</span>
+                    <span class="lp-nb">アラート機能が異常値をその場で検知するので、</span><span class="lp-nb">月末にまとめて確認する作業そのものが</span><span class="lp-nb">なくなります。</span>
                 </p>
             </div>
         </section>
@@ -126,25 +201,44 @@ const archetypeTemplates = {
             <div class="lp-content-wrapper">
                 <header class="lp-jp-band-title">
                     <span class="lp-jp-band-eyebrow">REASON</span>
-                    <h2 id="jp-reasons-title"><span class="lp-jp-band-heading">タイムライトクラウドが<span class="lp-jp-marker">選ばれる3つの理由</span></span></h2>
+                    <h2 id="jp-reasons-title"><span class="lp-jp-band-heading"><span class="lp-nb">タイムライトクラウドが</span><span class="lp-nb"><span class="lp-jp-marker">選ばれる3つの理由</span></span></span></h2>
                 </header>
                 <ol class="lp-jp-reason-list">
                     <li class="lp-jp-reason">
                         <span class="lp-jp-reason-num" aria-hidden="true">1</span>
-                        <img src="https://placehold.co/360x220/eef1f8/5b6472?text=Auto+Sum" alt="自動集計機能のイメージ" loading="lazy" />
-                        <h3>集計・転記が完全自動</h3>
+                        <span class="lp-jp-reason-icon" aria-hidden="true">
+                            <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M40 24a16 16 0 1 1-4.9-11.5"/>
+                                <path d="M40 6v8h-8"/>
+                                <path d="M18 24l4.5 4.5L31 20"/>
+                            </svg>
+                        </span>
+                        <h3><span class="lp-nb">集計・転記が</span><span class="lp-nb">完全自動</span></h3>
                         <p>打刻データを就業規則に沿って自動計算し、主要な給与ソフトへワンクリック連携。手作業の転記ミスをゼロにします。</p>
                     </li>
                     <li class="lp-jp-reason">
                         <span class="lp-jp-reason-num" aria-hidden="true">2</span>
-                        <img src="https://placehold.co/360x220/eef1f8/5b6472?text=Alert" alt="残業アラート機能のイメージ" loading="lazy" />
-                        <h3>法令リスクを事前にアラート</h3>
+                        <span class="lp-jp-reason-icon" aria-hidden="true">
+                            <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M24 5l15 5.5V22c0 9.5-6.4 16.2-15 20-8.6-3.8-15-10.5-15-20V10.5z"/>
+                                <path d="M24 16v8"/>
+                                <circle cx="24" cy="30.5" r="0.5" fill="currentColor" stroke-width="2.4"/>
+                            </svg>
+                        </span>
+                        <h3><span class="lp-nb">法令リスクを</span><span class="lp-nb">事前にアラート</span></h3>
                         <p>残業上限や有給取得義務の未達を自動で検知して通知。月末に慌てる前に、リアルタイムで手を打てます。</p>
                     </li>
                     <li class="lp-jp-reason">
                         <span class="lp-jp-reason-num" aria-hidden="true">3</span>
-                        <img src="https://placehold.co/360x220/eef1f8/5b6472?text=Support" alt="専任サポートのイメージ" loading="lazy" />
-                        <h3>導入から定着まで専任伴走</h3>
+                        <span class="lp-jp-reason-icon" aria-hidden="true">
+                            <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 28v-5a15 15 0 0 1 30 0v5"/>
+                                <rect x="5" y="27" width="9" height="13" rx="4"/>
+                                <rect x="34" y="27" width="9" height="13" rx="4"/>
+                                <path d="M38 40v2a5 5 0 0 1-5 5h-6"/>
+                            </svg>
+                        </span>
+                        <h3><span class="lp-nb">導入から定着まで</span><span class="lp-nb">専任伴走</span></h3>
                         <p>就業規則のヒアリングから初期設定、社内説明会の資料まで専任担当がサポート。導入後の定着率は99.2%※です。</p>
                     </li>
                 </ol>
@@ -162,24 +256,24 @@ const archetypeTemplates = {
             <div class="lp-content-wrapper">
                 <header class="lp-jp-band-title">
                     <span class="lp-jp-band-eyebrow">FLOW</span>
-                    <h2 id="jp-steps-title"><span class="lp-jp-band-heading">ご利用開始まで<span class="lp-jp-marker">最短即日</span>・3ステップ</span></h2>
+                    <h2 id="jp-steps-title"><span class="lp-jp-band-heading"><span class="lp-nb">ご利用開始まで</span><span class="lp-nb"><span class="lp-jp-marker">最短即日</span>・3ステップ</span></span></h2>
                 </header>
                 <ol class="lp-jp-steps">
                     <li class="lp-jp-step">
                         <span class="lp-jp-step-num"><span class="lp-jp-step-num-label">STEP</span><span class="lp-jp-step-num-digit">01</span></span>
-                        <h3>フォームからお申し込み</h3>
+                        <h3><span class="lp-nb">フォームから</span><span class="lp-nb">お申し込み</span></h3>
                         <p>会社名とメールアドレスを入力するだけ。所要時間は約30秒、その場でアカウントが発行されます。</p>
                     </li>
                     <li class="lp-jp-step-arrow" aria-hidden="true"></li>
                     <li class="lp-jp-step">
                         <span class="lp-jp-step-num"><span class="lp-jp-step-num-label">STEP</span><span class="lp-jp-step-num-digit">02</span></span>
-                        <h3>就業規則にあわせて初期設定</h3>
+                        <h3><span class="lp-nb">就業規則にあわせて</span><span class="lp-nb">初期設定</span></h3>
                         <p>専任スタッフがオンラインでヒアリングし、締め日・残業ルール・雇用区分を代行設定します。</p>
                     </li>
                     <li class="lp-jp-step-arrow" aria-hidden="true"></li>
                     <li class="lp-jp-step">
                         <span class="lp-jp-step-num"><span class="lp-jp-step-num-label">STEP</span><span class="lp-jp-step-num-digit">03</span></span>
-                        <h3>その日から打刻スタート</h3>
+                        <h3><span class="lp-nb">その日から</span><span class="lp-nb">打刻スタート</span></h3>
                         <p>PC・スマホ・ICカードですぐに打刻開始。集計はすべて自動なので、あとは待つだけです。</p>
                     </li>
                 </ol>
@@ -197,7 +291,7 @@ const archetypeTemplates = {
             <div class="lp-content-wrapper">
                 <header class="lp-jp-band-title">
                     <span class="lp-jp-band-eyebrow">COMPARISON</span>
-                    <h2 id="jp-compare-title"><span class="lp-jp-band-heading">他社サービスとの<span class="lp-jp-marker">違い</span>をご覧ください</span></h2>
+                    <h2 id="jp-compare-title"><span class="lp-jp-band-heading"><span class="lp-nb">他社サービスとの</span><span class="lp-nb"><span class="lp-jp-marker">違い</span>をご覧ください</span></span></h2>
                 </header>
                 <div class="lp-jp-compare-wrap" role="region" aria-label="他社比較表（横にスクロールできます）" tabindex="0">
                     <table class="lp-jp-compare-table">
@@ -263,33 +357,54 @@ const archetypeTemplates = {
             <div class="lp-content-wrapper">
                 <header class="lp-jp-band-title">
                     <span class="lp-jp-band-eyebrow">VOICE</span>
-                    <h2 id="jp-voice-title"><span class="lp-jp-band-heading">導入企業さまの<span class="lp-jp-marker">リアルな声</span></span></h2>
+                    <h2 id="jp-voice-title"><span class="lp-jp-band-heading"><span class="lp-nb">導入企業さまの</span><span class="lp-nb"><span class="lp-jp-marker">リアルな声</span></span></span></h2>
                 </header>
                 <div class="lp-jp-voice-grid">
                     <article class="lp-jp-voice-card">
                         <p class="lp-jp-stars" aria-label="5点満点中4.8点の評価">★★★★★<span class="lp-jp-stars-score">4.8</span></p>
-                        <h3 class="lp-jp-voice-title">月40時間かかっていた締め作業が<span class="lp-jp-marker">半日で完了</span></h3>
+                        <h3 class="lp-jp-voice-title"><span class="lp-nb">月40時間かかっていた</span><span class="lp-nb">締め作業が<span class="lp-jp-marker">半日で完了</span></span></h3>
                         <p class="lp-jp-voice-body">拠点ごとにバラバラだったExcel集計を廃止できました。給与ソフト連携で転記作業もなくなり、締め日直後の残業がゼロに。もっと早く入れればよかったです。</p>
                         <footer class="lp-jp-voice-meta">
-                            <img src="https://picsum.photos/96/96?random=jpvoice1" alt="佐藤様の写真" loading="lazy" />
+                            <svg class="lp-jp-avatar" width="52" height="52" viewBox="0 0 52 52" role="img" aria-label="佐藤様のアバター">
+                                <defs><clipPath id="lpjpav1"><circle cx="26" cy="26" r="26"/></clipPath></defs>
+                                <g clip-path="url(#lpjpav1)">
+                                    <rect width="52" height="52" fill="#dbe3f8"/>
+                                    <circle cx="26" cy="21" r="9.5" fill="var(--lp-primary, #6366f1)" opacity="0.75"/>
+                                    <path d="M6 56c2.5-12 10.5-17 20-17s17.5 5 20 17z" fill="var(--lp-primary, #6366f1)" opacity="0.75"/>
+                                </g>
+                            </svg>
                             <p class="lp-jp-voice-name">佐藤 様（40代・総務部長）<span class="lp-jp-voice-attr">製造業／従業員320名</span></p>
                         </footer>
                     </article>
                     <article class="lp-jp-voice-card">
                         <p class="lp-jp-stars" aria-label="5点満点中4.6点の評価">★★★★★<span class="lp-jp-stars-score">4.6</span></p>
-                        <h3 class="lp-jp-voice-title">残業の上限超過アラートで<span class="lp-jp-marker">労務リスクを未然に防止</span></h3>
+                        <h3 class="lp-jp-voice-title"><span class="lp-nb">残業の上限超過アラートで</span><span class="lp-nb"><span class="lp-jp-marker">労務リスクを未然に防止</span></span></h3>
                         <p class="lp-jp-voice-body">36協定の上限に近づくと本人と上長に自動通知が届くので、月末に慌てて調整することがなくなりました。監査対応の資料出力も助かっています。</p>
                         <footer class="lp-jp-voice-meta">
-                            <img src="https://picsum.photos/96/96?random=jpvoice2" alt="田中様の写真" loading="lazy" />
+                            <svg class="lp-jp-avatar" width="52" height="52" viewBox="0 0 52 52" role="img" aria-label="田中様のアバター">
+                                <defs><clipPath id="lpjpav2"><circle cx="26" cy="26" r="26"/></clipPath></defs>
+                                <g clip-path="url(#lpjpav2)">
+                                    <rect width="52" height="52" fill="#fdeed3"/>
+                                    <circle cx="26" cy="21" r="9.5" fill="var(--lp-accent, #f59e0b)" opacity="0.8"/>
+                                    <path d="M6 56c2.5-12 10.5-17 20-17s17.5 5 20 17z" fill="var(--lp-accent, #f59e0b)" opacity="0.8"/>
+                                </g>
+                            </svg>
                             <p class="lp-jp-voice-name">田中 様（30代・人事労務担当）<span class="lp-jp-voice-attr">IT・通信／従業員85名</span></p>
                         </footer>
                     </article>
                     <article class="lp-jp-voice-card">
                         <p class="lp-jp-stars" aria-label="5点満点中4.9点の評価">★★★★★<span class="lp-jp-stars-score">4.9</span></p>
-                        <h3 class="lp-jp-voice-title">ITが苦手な現場でも<span class="lp-jp-marker">初日から迷わず打刻</span></h3>
+                        <h3 class="lp-jp-voice-title"><span class="lp-nb">ITが苦手な現場でも</span><span class="lp-nb"><span class="lp-jp-marker">初日から迷わず打刻</span></span></h3>
                         <p class="lp-jp-voice-body">スマホとICカードの併用ができるので、店舗スタッフにもすぐ定着しました。導入時は専任の方が説明会用の資料まで用意してくれて心強かったです。</p>
                         <footer class="lp-jp-voice-meta">
-                            <img src="https://picsum.photos/96/96?random=jpvoice3" alt="鈴木様の写真" loading="lazy" />
+                            <svg class="lp-jp-avatar" width="52" height="52" viewBox="0 0 52 52" role="img" aria-label="鈴木様のアバター">
+                                <defs><clipPath id="lpjpav3"><circle cx="26" cy="26" r="26"/></clipPath></defs>
+                                <g clip-path="url(#lpjpav3)">
+                                    <rect width="52" height="52" fill="#e2e8f0"/>
+                                    <circle cx="26" cy="21" r="9.5" fill="#64748b"/>
+                                    <path d="M6 56c2.5-12 10.5-17 20-17s17.5 5 20 17z" fill="#64748b"/>
+                                </g>
+                            </svg>
                             <p class="lp-jp-voice-name">鈴木 様（50代・店舗運営部）<span class="lp-jp-voice-attr">小売業／従業員150名</span></p>
                         </footer>
                     </article>
@@ -330,10 +445,10 @@ const archetypeTemplates = {
                 </div>
                 <div class="lp-jp-badge-media" aria-label="掲載メディア">
                     <span class="lp-jp-badge-media-label">＼ 各種メディアで紹介されました ／</span>
-                    <img src="https://placehold.co/140x40/e2e8f0/475569?text=BIZ+NEWS" alt="掲載メディア：BIZ NEWSのロゴ" loading="lazy" />
-                    <img src="https://placehold.co/140x40/e2e8f0/475569?text=HR+TIMES" alt="掲載メディア：HR TIMESのロゴ" loading="lazy" />
-                    <img src="https://placehold.co/140x40/e2e8f0/475569?text=SaaS+Mag" alt="掲載メディア：SaaS Magのロゴ" loading="lazy" />
-                    <img src="https://placehold.co/140x40/e2e8f0/475569?text=WORK+LAB" alt="掲載メディア：WORK LABのロゴ" loading="lazy" />
+                    <span class="lp-jp-media-logo lp-jp-media-logo-serif">Biz Journal</span>
+                    <span class="lp-jp-media-logo lp-jp-media-logo-caps">HR TIMES</span>
+                    <span class="lp-jp-media-logo lp-jp-media-logo-slab">SaaS Mag</span>
+                    <span class="lp-jp-media-logo lp-jp-media-logo-round">WORK LAB</span>
                 </div>
                 <span class="lp-jp-note">※1 2025年◯◯総研「勤怠管理システム利用実態調査」 ※2 2025年12月時点の当社実績 ※3 ◯◯協会主催「SaaSアワード2025」業務効率化部門</span>
             </div>
@@ -351,7 +466,7 @@ const archetypeTemplates = {
                     <p class="lp-jp-offer-deadline">
                         <span aria-hidden="true">＼</span>7月31日（金）お申し込み分まで<span aria-hidden="true">／</span>
                     </p>
-                    <h2 id="jp-offer-title" class="lp-jp-offer-title">今だけ、<span class="lp-jp-marker">3つの特典</span>付きで<br>スタートできます</h2>
+                    <h2 id="jp-offer-title" class="lp-jp-offer-title"><span class="lp-nb">今だけ、<span class="lp-jp-marker">3つの特典</span>付きで</span><br><span class="lp-nb">スタートできます</span></h2>
                     <ul class="lp-jp-offer-benefits">
                         <li><span class="lp-jp-offer-benefit-tag">特典1</span>初期設定代行（通常60,000円）が無料</li>
                         <li><span class="lp-jp-offer-benefit-tag">特典2</span>無料トライアル期間を30日→60日に延長</li>
@@ -381,7 +496,7 @@ const archetypeTemplates = {
         <section class="lp-section lp-jp-cta-band" aria-labelledby="jp-cta-band-title">
             <div class="lp-content-wrapper">
                 <p class="lp-jp-cta-urgency">今なら初期設定代行が無料（7月31日まで）</p>
-                <h2 id="jp-cta-band-title" class="lp-jp-cta-copy">面倒な勤怠集計は、今月で終わりにしませんか？</h2>
+                <h2 id="jp-cta-band-title" class="lp-jp-cta-copy"><span class="lp-nb">面倒な勤怠集計は、</span><span class="lp-nb">今月で終わりにしませんか？</span></h2>
                 <div class="lp-jp-cta-arrow" aria-hidden="true"></div>
                 <button type="button" class="lp-jp-btn" aria-label="30日間の無料トライアルを申し込む">30日間 無料で試してみる</button>
                 <span class="lp-jp-note">※お申し込みは30秒で完了。クレジットカード登録は不要です。</span>
@@ -398,8 +513,8 @@ const archetypeTemplates = {
             <div class="lp-content-wrapper">
                 <header class="lp-jp-band-title">
                     <span class="lp-jp-band-eyebrow">FAQ</span>
-                    <h2 id="jp-faq-title"><span class="lp-jp-band-heading">よくある<span class="lp-jp-marker">ご質問</span></span></h2>
-                    <p class="lp-jp-band-sub">お問い合わせの多い質問をまとめました。その他のご質問はお気軽にご相談ください。</p>
+                    <h2 id="jp-faq-title"><span class="lp-jp-band-heading"><span class="lp-nb">よくある</span><span class="lp-nb"><span class="lp-jp-marker">ご質問</span></span></span></h2>
+                    <p class="lp-jp-band-sub"><span class="lp-nb">お問い合わせの多い質問をまとめました。</span><span class="lp-nb">その他のご質問はお気軽にご相談ください。</span></p>
                 </header>
                 <div class="lp-jp-faq-list">
                     <div class="lp-jp-faq-item">
@@ -455,9 +570,9 @@ const archetypeTemplates = {
             <p class="lp-rich-vertical" aria-hidden="true">時間をデザインする</p>
             <div class="lp-rich-hero-footer">
                 <p class="lp-rich-hero-lede">
-                    働く時間の一秒までを、美しく整える。
-                    タイムライトは、テクノロジーとデザインの力で
-                    「管理」を「体験」へと再定義するワークスタイルプラットフォームです。
+                    <span class="lp-nb">働く時間の一秒までを、</span><span class="lp-nb">美しく整える。</span>
+                    <span class="lp-nb">タイムライトは、</span><span class="lp-nb">テクノロジーとデザインの力で</span>
+                    <span class="lp-nb">「管理」を「体験」へと再定義する</span><span class="lp-nb">ワークスタイルプラットフォームです。</span>
                 </p>
                 <span class="lp-rich-scroll-cue">Scroll</span>
             </div>
@@ -501,33 +616,76 @@ const archetypeTemplates = {
                 <article class="lp-rich-editorial-item">
                     <span class="lp-rich-index-num" aria-hidden="true">01</span>
                     <div class="lp-rich-editorial-media">
-                        <img src="https://picsum.photos/720/540?random=riched1" alt="ミニマルなワークスペースの写真" loading="lazy" />
+                        <svg class="lp-rich-art" viewBox="0 0 720 540" role="img" aria-label="つなぎ目のない流れを表す抽象アート">
+                            <defs>
+                                <filter id="lpg-e1"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
+                                <linearGradient id="lpgr-e1" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0" stop-color="var(--lp-primary, #6366f1)"/>
+                                    <stop offset="1" stop-color="#191712"/>
+                                </linearGradient>
+                            </defs>
+                            <rect width="720" height="540" fill="#eceadf"/>
+                            <path d="M0 420 C 180 300, 300 520, 480 380 S 700 260, 720 300 L 720 540 L 0 540 Z" fill="url(#lpgr-e1)" opacity="0.92"/>
+                            <circle cx="500" cy="170" r="110" fill="none" stroke="#191712" stroke-width="1.5"/>
+                            <circle cx="500" cy="170" r="76" fill="var(--lp-primary, #6366f1)" opacity="0.16"/>
+                            <line x1="60" y1="120" x2="330" y2="120" stroke="#191712" stroke-width="1.5"/>
+                            <line x1="60" y1="150" x2="270" y2="150" stroke="#191712" stroke-width="1.5" opacity="0.55"/>
+                            <line x1="60" y1="180" x2="300" y2="180" stroke="#191712" stroke-width="1.5" opacity="0.3"/>
+                            <rect width="720" height="540" filter="url(#lpg-e1)"/>
+                        </svg>
                     </div>
                     <div class="lp-rich-editorial-copy">
-                        <h3>Seamless<br>— つなぎ目のない一日</h3>
-                        <p>出社も、リモートも、移動中も。あらゆる働く場面がひとつの流れとして記録され、意識せずとも一日が美しく整っていきます。</p>
+                        <span class="lp-rich-editorial-num-label">FEATURE 01</span>
+                        <h3><span class="lp-nb">Seamless</span><br><span class="lp-nb">つなぎ目のない一日</span></h3>
+                        <p><span class="lp-nb">出社も、リモートも、移動中も。</span><span class="lp-nb">あらゆる働く場面が</span><span class="lp-nb">ひとつの流れとして記録され、</span><span class="lp-nb">意識せずとも一日が</span><span class="lp-nb">美しく整っていきます。</span></p>
                         <a class="lp-rich-textlink" href="#feature-seamless" aria-label="Seamlessの詳細を見る">Explore</a>
                     </div>
                 </article>
                 <article class="lp-rich-editorial-item">
                     <span class="lp-rich-index-num" aria-hidden="true">02</span>
                     <div class="lp-rich-editorial-media">
-                        <img src="https://picsum.photos/720/540?random=riched2" alt="データビジュアライゼーションの抽象的な写真" loading="lazy" />
+                        <svg class="lp-rich-art" viewBox="0 0 720 540" role="img" aria-label="時間のインサイトを表す抽象アート">
+                            <defs>
+                                <filter id="lpg-e2"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
+                            </defs>
+                            <rect width="720" height="540" fill="#191712"/>
+                            <line x1="80" y1="460" x2="640" y2="460" stroke="#f5f3ee" stroke-width="1.5" opacity="0.6"/>
+                            <rect x="110" y="330" width="46" height="130" fill="#f5f3ee" opacity="0.28"/>
+                            <rect x="186" y="260" width="46" height="200" fill="#f5f3ee" opacity="0.45"/>
+                            <rect x="262" y="300" width="46" height="160" fill="#f5f3ee" opacity="0.35"/>
+                            <rect x="338" y="180" width="46" height="280" fill="var(--lp-primary, #6366f1)"/>
+                            <rect x="414" y="230" width="46" height="230" fill="#f5f3ee" opacity="0.55"/>
+                            <rect x="490" y="120" width="46" height="340" fill="#f5f3ee" opacity="0.85"/>
+                            <circle cx="513" cy="88" r="18" fill="var(--lp-primary, #6366f1)"/>
+                            <rect width="720" height="540" filter="url(#lpg-e2)"/>
+                        </svg>
                     </div>
                     <div class="lp-rich-editorial-copy">
-                        <h3>Insight<br>— 時間が語りはじめる</h3>
-                        <p>チームの時間の使い方が、静かなグラフィックとなって立ち上がる。数字の羅列ではなく、次の意思決定を導く風景として。</p>
+                        <span class="lp-rich-editorial-num-label">FEATURE 02</span>
+                        <h3><span class="lp-nb">Insight</span><br><span class="lp-nb">時間が語りはじめる</span></h3>
+                        <p><span class="lp-nb">チームの時間の使い方が、</span><span class="lp-nb">静かなグラフィックとなって立ち上がる。</span><span class="lp-nb">数字の羅列ではなく、</span><span class="lp-nb">次の意思決定を導く風景として。</span></p>
                         <a class="lp-rich-textlink" href="#feature-insight" aria-label="Insightの詳細を見る">Explore</a>
                     </div>
                 </article>
                 <article class="lp-rich-editorial-item">
                     <span class="lp-rich-index-num" aria-hidden="true">03</span>
                     <div class="lp-rich-editorial-media">
-                        <img src="https://picsum.photos/720/540?random=riched3" alt="建築的な光と影の写真" loading="lazy" />
+                        <svg class="lp-rich-art" viewBox="0 0 720 540" role="img" aria-label="静けさを表す余白の多い抽象アート">
+                            <defs>
+                                <filter id="lpg-e3"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
+                            </defs>
+                            <rect width="720" height="540" fill="#f0eee4"/>
+                            <line x1="0" y1="270" x2="720" y2="270" stroke="#191712" stroke-width="1" opacity="0.25"/>
+                            <line x1="360" y1="0" x2="360" y2="540" stroke="#191712" stroke-width="1" opacity="0.25"/>
+                            <circle cx="360" cy="270" r="54" fill="var(--lp-primary, #6366f1)"/>
+                            <circle cx="360" cy="270" r="92" fill="none" stroke="#191712" stroke-width="1" opacity="0.4"/>
+                            <rect width="720" height="540" filter="url(#lpg-e3)"/>
+                        </svg>
                     </div>
                     <div class="lp-rich-editorial-copy">
-                        <h3>Quiet<br>— 静けさという機能</h3>
-                        <p>通知は少なく、意味のあるものだけを。プロダクトが沈黙している時間こそが、集中というもっとも贅沢な体験をつくります。</p>
+                        <span class="lp-rich-editorial-num-label">FEATURE 03</span>
+                        <h3><span class="lp-nb">Quiet</span><br><span class="lp-nb">静けさという機能</span></h3>
+                        <p><span class="lp-nb">通知は少なく、</span><span class="lp-nb">意味のあるものだけを。</span><span class="lp-nb">プロダクトが沈黙している時間こそが、</span><span class="lp-nb">集中というもっとも贅沢な体験を</span><span class="lp-nb">つくります。</span></p>
                         <a class="lp-rich-textlink" href="#feature-quiet" aria-label="Quietの詳細を見る">Explore</a>
                     </div>
                 </article>
@@ -547,35 +705,93 @@ const archetypeTemplates = {
             </header>
             <div class="lp-rich-hscroll" role="region" aria-label="ショーケースギャラリー（横にスクロールできます）" tabindex="0">
                 <figure class="lp-rich-hscroll-item">
-                    <img src="https://picsum.photos/640/800?random=richsc1" alt="ブランドサイトのデザイン事例" loading="lazy" />
+                    <svg class="lp-rich-art" viewBox="0 0 640 800" role="img" aria-label="Aurora Identityのキービジュアル">
+                        <defs>
+                            <filter id="lpg-s1"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
+                            <linearGradient id="lpgr-s1" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stop-color="var(--lp-primary, #6366f1)"/>
+                                <stop offset="1" stop-color="#191712"/>
+                            </linearGradient>
+                        </defs>
+                        <rect width="640" height="800" fill="#eceadf"/>
+                        <path d="M0 800 A 320 320 0 0 1 640 800 Z" fill="url(#lpgr-s1)"/>
+                        <circle cx="320" cy="300" r="140" fill="none" stroke="#191712" stroke-width="1.5"/>
+                        <circle cx="320" cy="300" r="8" fill="#191712"/>
+                        <rect width="640" height="800" filter="url(#lpg-s1)"/>
+                    </svg>
                     <figcaption class="lp-rich-hscroll-caption">
                         <div><h3>Aurora Identity</h3><p>Brand / Web</p></div>
                         <span class="lp-rich-hscroll-index">01</span>
                     </figcaption>
                 </figure>
                 <figure class="lp-rich-hscroll-item">
-                    <img src="https://picsum.photos/640/800?random=richsc2" alt="プロダクトUIのデザイン事例" loading="lazy" />
+                    <svg class="lp-rich-art" viewBox="0 0 640 800" role="img" aria-label="Monolith Appのキービジュアル">
+                        <defs>
+                            <filter id="lpg-s2"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
+                        </defs>
+                        <rect width="640" height="800" fill="#191712"/>
+                        <rect x="200" y="140" width="240" height="520" fill="#f5f3ee"/>
+                        <rect x="200" y="140" width="240" height="130" fill="var(--lp-primary, #6366f1)"/>
+                        <line x1="240" y1="330" x2="400" y2="330" stroke="#191712" stroke-width="2"/>
+                        <line x1="240" y1="370" x2="370" y2="370" stroke="#191712" stroke-width="2" opacity="0.5"/>
+                        <line x1="240" y1="410" x2="390" y2="410" stroke="#191712" stroke-width="2" opacity="0.3"/>
+                        <rect width="640" height="800" filter="url(#lpg-s2)"/>
+                    </svg>
                     <figcaption class="lp-rich-hscroll-caption">
                         <div><h3>Monolith App</h3><p>Product / UI</p></div>
                         <span class="lp-rich-hscroll-index">02</span>
                     </figcaption>
                 </figure>
                 <figure class="lp-rich-hscroll-item">
-                    <img src="https://picsum.photos/640/800?random=richsc3" alt="エディトリアルデザインの事例" loading="lazy" />
+                    <svg class="lp-rich-art" viewBox="0 0 640 800" role="img" aria-label="Paper and Pixelのキービジュアル">
+                        <defs>
+                            <filter id="lpg-s3"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
+                        </defs>
+                        <rect width="640" height="800" fill="#f0eee4"/>
+                        <circle cx="320" cy="400" r="230" fill="none" stroke="#191712" stroke-width="1"/>
+                        <circle cx="320" cy="400" r="170" fill="none" stroke="#191712" stroke-width="1" opacity="0.6"/>
+                        <circle cx="320" cy="400" r="110" fill="none" stroke="#191712" stroke-width="1" opacity="0.35"/>
+                        <circle cx="320" cy="400" r="52" fill="var(--lp-primary, #6366f1)"/>
+                        <line x1="320" y1="60" x2="320" y2="740" stroke="#191712" stroke-width="1" opacity="0.2"/>
+                        <rect width="640" height="800" filter="url(#lpg-s3)"/>
+                    </svg>
                     <figcaption class="lp-rich-hscroll-caption">
                         <div><h3>Paper &amp; Pixel</h3><p>Editorial</p></div>
                         <span class="lp-rich-hscroll-index">03</span>
                     </figcaption>
                 </figure>
                 <figure class="lp-rich-hscroll-item">
-                    <img src="https://picsum.photos/640/800?random=richsc4" alt="空間デザインの事例" loading="lazy" />
+                    <svg class="lp-rich-art" viewBox="0 0 640 800" role="img" aria-label="Void Galleryのキービジュアル">
+                        <defs>
+                            <filter id="lpg-s4"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
+                        </defs>
+                        <rect width="640" height="800" fill="#eceadf"/>
+                        <g fill="#191712" opacity="0.85">
+                            <circle cx="160" cy="200" r="4"/><circle cx="280" cy="200" r="4"/><circle cx="400" cy="200" r="4"/><circle cx="520" cy="200" r="4"/>
+                            <circle cx="160" cy="320" r="4"/><circle cx="280" cy="320" r="4"/><circle cx="400" cy="320" r="4"/><circle cx="520" cy="320" r="4"/>
+                            <circle cx="160" cy="440" r="4"/><circle cx="280" cy="440" r="4"/><circle cx="400" cy="440" r="4"/><circle cx="520" cy="440" r="4"/>
+                            <circle cx="160" cy="560" r="4"/><circle cx="280" cy="560" r="4"/><circle cx="400" cy="560" r="4"/><circle cx="520" cy="560" r="4"/>
+                        </g>
+                        <rect x="340" y="380" width="180" height="180" fill="var(--lp-primary, #6366f1)"/>
+                        <rect x="120" y="620" width="400" height="1.5" fill="#191712"/>
+                        <rect width="640" height="800" filter="url(#lpg-s4)"/>
+                    </svg>
                     <figcaption class="lp-rich-hscroll-caption">
                         <div><h3>Void Gallery</h3><p>Spatial / Motion</p></div>
                         <span class="lp-rich-hscroll-index">04</span>
                     </figcaption>
                 </figure>
                 <figure class="lp-rich-hscroll-item">
-                    <img src="https://picsum.photos/640/800?random=richsc5" alt="タイポグラフィ主体のポスターデザイン事例" loading="lazy" />
+                    <svg class="lp-rich-art" viewBox="0 0 640 800" role="img" aria-label="Kinetic Typeのキービジュアル">
+                        <defs>
+                            <filter id="lpg-s5"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>
+                        </defs>
+                        <rect width="640" height="800" fill="#191712"/>
+                        <text x="320" y="520" font-family="'Noto Serif JP', 'Noto Serif CJK JP', serif" font-size="420" font-weight="700" fill="#f5f3ee" text-anchor="middle">余</text>
+                        <rect x="80" y="640" width="480" height="1.5" fill="#f5f3ee" opacity="0.6"/>
+                        <circle cx="540" cy="140" r="26" fill="var(--lp-primary, #6366f1)"/>
+                        <rect width="640" height="800" filter="url(#lpg-s5)"/>
+                    </svg>
                     <figcaption class="lp-rich-hscroll-caption">
                         <div><h3>Kinetic Type</h3><p>Poster / Type</p></div>
                         <span class="lp-rich-hscroll-index">05</span>
@@ -593,13 +809,13 @@ const archetypeTemplates = {
         <section class="lp-section lp-rich-statement" aria-labelledby="rich-statement-title">
             <span class="lp-rich-eyebrow">Statement</span>
             <h2 id="rich-statement-title" class="lp-rich-statement-copy lp-rich-serif">
-                時間は、削るものではなく、<br>
-                <em>研ぎ澄ます</em>ものだと思う。<br>
-                私たちは、働くことの余白に<br>
-                美しさを取り戻すために、<br>
-                つくり続けます。
+                <span class="lp-nb">時間は、削るものではなく、</span><br>
+                <span class="lp-nb"><em>研ぎ澄ます</em>ものだと思う。</span><br>
+                <span class="lp-nb">私たちは、働くことの余白に</span><br>
+                <span class="lp-nb">美しさを取り戻すために、</span><br>
+                <span class="lp-nb">つくり続けます。</span>
             </h2>
-            <span class="lp-rich-statement-sign lp-rich-serif">— TIMELIGHT DESIGN PRINCIPLES</span>
+            <span class="lp-rich-statement-sign lp-rich-serif">TIMELIGHT DESIGN PRINCIPLES</span>
         </section>
         `,
   },
