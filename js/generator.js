@@ -703,10 +703,7 @@ class LandingPageGenerator {
   generatePreviewHTML() {
     const sectionsHTML = this.sections
       .map((section) => {
-        let sectionHtml = section.template.html;
-        if (section.imageChanges && section.imageChanges.length > 0) {
-          sectionHtml = this.applyImageChanges(sectionHtml, section.imageChanges);
-        }
+        const sectionHtml = this.getRenderedSectionHTML(section);
 
         return `
                 <div class="lp-section-wrapper" data-section-id="${CommonEditor.sanitizeAttribute(section.id)}" draggable="true">
@@ -1131,6 +1128,90 @@ class LandingPageGenerator {
   }
 
   // ==========================================
+  // SECTION RENDERING
+  // テンプレート + ユーザー編集（画像・テキスト）の合成
+  // ==========================================
+
+  /**
+   * セクションの最終HTMLを返す。
+   * テンプレートに画像差し替え（imageChanges）とインライン編集（customContent）を
+   * 適用した結果を、プレビュー・全エクスポートで共通利用する。
+   *
+   * customContent のパスは「.lp-section-wrapper 直下に .lp-section-controls がある」
+   * プレビューDOM構造を基準に記録されているため、同じ構造を再現してから解決する。
+   */
+  getRenderedSectionHTML(section) {
+    let sectionHtml = section.template.html;
+
+    if (section.imageChanges && section.imageChanges.length > 0) {
+      sectionHtml = this.applyImageChanges(sectionHtml, section.imageChanges);
+    }
+
+    const customContent = section.customContent;
+    if (customContent && Object.keys(customContent).length > 0) {
+      const host = document.createElement('div');
+      host.innerHTML = `<div class="lp-section-wrapper"><div class="lp-section-controls"></div>${sectionHtml}</div>`;
+      const wrapper = host.firstElementChild;
+
+      Object.entries(customContent).forEach(([path, html]) => {
+        const el = this.resolveElementPath(wrapper, path);
+        if (el) {
+          el.innerHTML = html;
+          this.sanitizeEditedElement(el);
+        }
+      });
+
+      const controls = wrapper.firstElementChild;
+      if (controls && controls.classList.contains('lp-section-controls')) {
+        controls.remove();
+      }
+      sectionHtml = wrapper.innerHTML;
+    }
+
+    return sectionHtml;
+  }
+
+  /**
+   * getElementPath() が記録したパス（例: "section[0] > h1[0] > span[1]"）を
+   * 同じ規則（同タグの兄弟内インデックス）で解決する
+   */
+  resolveElementPath(rootEl, path) {
+    let current = rootEl;
+    for (const part of path.split(' > ')) {
+      if (!current) return null;
+      const match = part.match(/^(.+)\[(\d+)\]$/);
+      if (!match) return null;
+      const tag = match[1].toLowerCase();
+      const index = parseInt(match[2], 10);
+      const candidates = Array.from(current.children).filter(
+        (el) => el.tagName.toLowerCase() === tag
+      );
+      current = candidates[index] || null;
+    }
+    return current;
+  }
+
+  /**
+   * contenteditable 由来の保存HTMLから危険な要素・属性を除去する
+   */
+  sanitizeEditedElement(el) {
+    el.querySelectorAll('script, iframe, object, embed').forEach((n) => n.remove());
+    const nodes = [el, ...el.querySelectorAll('*')];
+    nodes.forEach((node) => {
+      Array.from(node.attributes || []).forEach((attr) => {
+        if (/^on/i.test(attr.name)) {
+          node.removeAttribute(attr.name);
+        } else if (
+          (attr.name === 'href' || attr.name === 'src') &&
+          /^\s*javascript:/i.test(attr.value)
+        ) {
+          node.removeAttribute(attr.name);
+        }
+      });
+    });
+  }
+
+  // ==========================================
   // SECTION OPERATIONS
   // ==========================================
 
@@ -1457,7 +1538,9 @@ class LandingPageGenerator {
   }
 
   async generateCustomCSSHTML() {
-    const sectionsHTML = this.sections.map((section) => section.template.html).join('\n');
+    const sectionsHTML = this.sections
+      .map((section) => this.getRenderedSectionHTML(section))
+      .join('\n');
 
     const seoMetaTags = this.generateSEOMetaTags();
     const lang = this.seoData.lang || 'ja';
@@ -1517,7 +1600,9 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
   }
 
   async generateExternalCSSHTML() {
-    const sectionsHTML = this.sections.map((section) => section.template.html).join('\n');
+    const sectionsHTML = this.sections
+      .map((section) => this.getRenderedSectionHTML(section))
+      .join('\n');
     const seoMetaTags = this.generateSEOMetaTags();
     const lang = this.seoData.lang || 'ja';
 
@@ -1574,7 +1659,7 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 
   async generateTailwindHTML() {
     const sectionsHTML = this.sections
-      .map((section) => this.convertToTailwind(section.template.html))
+      .map((section) => this.convertToTailwind(this.getRenderedSectionHTML(section)))
       .join('\n');
 
     const seoMetaTags = this.generateSEOMetaTags();
@@ -3104,6 +3189,8 @@ ${this.generateMUISectionComponents()}
         animations: this.animations,
         glassmorphism: this.glassmorphism,
         deviceMode: this.deviceMode,
+        designSettings: { ...this.designSettings },
+        seoData: { ...this.seoData },
       },
     };
 
@@ -3202,6 +3289,12 @@ ${this.generateMUISectionComponents()}
     this.animations = project.data.animations !== undefined ? project.data.animations : true;
     this.glassmorphism = project.data.glassmorphism || false;
     this.deviceMode = project.data.deviceMode || 'desktop';
+    if (project.data.designSettings) {
+      this.designSettings = { ...this.designSettings, ...project.data.designSettings };
+    }
+    if (project.data.seoData) {
+      this.seoData = { ...this.seoData, ...project.data.seoData };
+    }
 
     document.querySelectorAll('.theme-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
@@ -3209,6 +3302,7 @@ ${this.generateMUISectionComponents()}
 
     document.getElementById('animationsToggle').checked = this.animations;
     document.getElementById('glassmorphismToggle').checked = this.glassmorphism;
+    this.syncSettingsUI();
 
     this.updatePreview();
     this.showNotification(`プロジェクト「${project.name}」を読み込みました`);
@@ -3258,6 +3352,8 @@ ${this.generateMUISectionComponents()}
       animations: this.animations,
       glassmorphism: this.glassmorphism,
       deviceMode: this.deviceMode,
+      designSettings: { ...this.designSettings },
+      seoData: { ...this.seoData },
       timestamp: Date.now(),
     };
 
@@ -3278,6 +3374,12 @@ ${this.generateMUISectionComponents()}
       this.animations = autoSaveData.animations;
       this.glassmorphism = autoSaveData.glassmorphism;
       this.deviceMode = autoSaveData.deviceMode;
+      if (autoSaveData.designSettings) {
+        this.designSettings = { ...this.designSettings, ...autoSaveData.designSettings };
+      }
+      if (autoSaveData.seoData) {
+        this.seoData = { ...this.seoData, ...autoSaveData.seoData };
+      }
 
       document.querySelectorAll('.theme-btn').forEach((btn) => {
         btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
@@ -3285,6 +3387,7 @@ ${this.generateMUISectionComponents()}
 
       document.getElementById('animationsToggle').checked = this.animations;
       document.getElementById('glassmorphismToggle').checked = this.glassmorphism;
+      this.syncSettingsUI();
 
       this.updatePreview();
       this.showNotification('前回の作業内容を復元しました');
@@ -3292,6 +3395,44 @@ ${this.generateMUISectionComponents()}
     }
 
     return false;
+  }
+
+  /**
+   * designSettings / seoData の現在値をサイドバーの入力UIへ反映する
+   * （プロジェクト読込・自動保存復元時に使用）
+   */
+  syncSettingsUI() {
+    const designInputs = {
+      fontFamilySelect: this.designSettings.fontFamily,
+      fontSizeScale: this.designSettings.fontSizeScale,
+      spacingScale: this.designSettings.spacingScale,
+      borderRadiusStyle: this.designSettings.borderRadius,
+      primaryColor: this.designSettings.primaryColor,
+      secondaryColor: this.designSettings.secondaryColor,
+      accentColor: this.designSettings.accentColor,
+    };
+    Object.entries(designInputs).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el && value !== undefined && value !== null) el.value = value;
+    });
+
+    const seoInputs = {
+      seoTitle: this.seoData.title,
+      seoDescription: this.seoData.description,
+      seoKeywords: this.seoData.keywords,
+      ogImage: this.seoData.ogImage,
+      canonicalUrl: this.seoData.canonicalUrl,
+      seoLang: this.seoData.lang,
+    };
+    Object.entries(seoInputs).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el && value !== undefined && value !== null) el.value = value;
+    });
+
+    const twitterCheckbox = document.getElementById('includeTwitterCard');
+    if (twitterCheckbox) twitterCheckbox.checked = !!this.seoData.includeTwitterCard;
+    const schemaCheckbox = document.getElementById('includeSchema');
+    if (schemaCheckbox) schemaCheckbox.checked = !!this.seoData.includeSchema;
   }
 
   // ==========================================
@@ -3305,7 +3446,7 @@ ${this.generateMUISectionComponents()}
     }
 
     const projectData = {
-      version: '1.0',
+      version: '1.1',
       type: 'lp-generator-project',
       exportedAt: new Date().toISOString(),
       data: {
@@ -3314,6 +3455,7 @@ ${this.generateMUISectionComponents()}
           type: section.type,
           id: section.id,
           customContent: section.customContent || null,
+          imageChanges: section.imageChanges || null,
           template: {
             name: section.template.name,
             html: section.template.html,
@@ -3321,6 +3463,8 @@ ${this.generateMUISectionComponents()}
         })),
         animations: this.animations,
         glassmorphism: this.glassmorphism,
+        designSettings: { ...this.designSettings },
+        seoData: { ...this.seoData },
       },
     };
 
@@ -3363,6 +3507,12 @@ ${this.generateMUISectionComponents()}
           this.animations =
             projectData.data.animations !== undefined ? projectData.data.animations : true;
           this.glassmorphism = projectData.data.glassmorphism || false;
+          if (projectData.data.designSettings) {
+            this.designSettings = { ...this.designSettings, ...projectData.data.designSettings };
+          }
+          if (projectData.data.seoData) {
+            this.seoData = { ...this.seoData, ...projectData.data.seoData };
+          }
 
           this.sections = projectData.data.sections.map((section) => {
             if (!section.type) {
@@ -3377,6 +3527,7 @@ ${this.generateMUISectionComponents()}
               type: section.type,
               id: section.id || CommonEditor.generateId('section'),
               customContent: section.customContent,
+              imageChanges: section.imageChanges || [],
               template: originalTemplate || section.template,
             };
           }).filter(Boolean);
@@ -3386,6 +3537,7 @@ ${this.generateMUISectionComponents()}
           });
           document.getElementById('animationsToggle').checked = this.animations;
           document.getElementById('glassmorphismToggle').checked = this.glassmorphism;
+          this.syncSettingsUI();
 
           this.saveState();
           this.updatePreview();
