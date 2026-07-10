@@ -79,6 +79,9 @@ class LandingPageGenerator {
     this.setupWelcomeModal();
     this.setupZoomControls();
     this.setupSectionAccordion();
+    this.setupSidebarTabs();
+    this.setupComponentSearch();
+    this.setupHistoryButtons();
     this.draggedItem = null;
 
     // EnhancedGenerator から統合
@@ -168,6 +171,188 @@ class LandingPageGenerator {
   // ==========================================
   // SECTION ACCORDION
   // ==========================================
+
+  // ==========================================
+  // SIDEBAR TABS（構成 / デザイン / 公開）
+  // ==========================================
+
+  setupSidebarTabs() {
+    const tabs = document.querySelectorAll('.sidebar-tab');
+    const panels = document.querySelectorAll('.sidebar-tab-panel');
+    if (!tabs.length) return;
+
+    const activate = (tabName) => {
+      tabs.forEach((tab) => {
+        const isActive = tab.dataset.tab === tabName;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-selected', String(isActive));
+      });
+      panels.forEach((panel) => {
+        panel.classList.toggle('active', panel.dataset.tab === tabName);
+      });
+      CommonEditor.saveToStorage('lp-generator-active-tab', tabName);
+    };
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => activate(tab.dataset.tab));
+    });
+
+    const saved = CommonEditor.loadFromStorage('lp-generator-active-tab', 'build');
+    activate(['build', 'design', 'publish'].includes(saved) ? saved : 'build');
+  }
+
+  // ==========================================
+  // COMPONENT SEARCH（セクション検索）
+  // ==========================================
+
+  setupComponentSearch() {
+    const input = document.getElementById('componentSearch');
+    if (!input) return;
+    const emptyNote = document.getElementById('componentSearchEmpty');
+
+    input.addEventListener('input', () => {
+      const query = input.value.trim().toLowerCase();
+      const items = document.querySelectorAll('.section-accordion .accordion-item');
+      let totalVisible = 0;
+
+      items.forEach((item) => {
+        const headerText = (
+          item.querySelector('.accordion-title')?.textContent || ''
+        ).toLowerCase();
+        let visibleInItem = 0;
+
+        item.querySelectorAll('.component-btn').forEach((btn) => {
+          const name = (btn.textContent || '').toLowerCase();
+          const key = (btn.dataset.component || '').toLowerCase();
+          const match =
+            !query || name.includes(query) || key.includes(query) || headerText.includes(query);
+          btn.classList.toggle('search-hidden', !match);
+          if (match) visibleInItem++;
+        });
+
+        item.classList.toggle('search-hidden', query !== '' && visibleInItem === 0);
+
+        // 検索中はヒットしたカテゴリを自動展開
+        if (query && visibleInItem > 0) {
+          item.querySelector('.accordion-content')?.classList.add('open');
+          item.querySelector('.accordion-header')?.setAttribute('aria-expanded', 'true');
+        }
+        totalVisible += visibleInItem;
+      });
+
+      if (!query) {
+        // 検索解除時は保存済みの開閉状態に戻す
+        this.restoreAccordionState();
+      }
+
+      if (emptyNote) emptyNote.hidden = !(query && totalVisible === 0);
+    });
+  }
+
+  // ==========================================
+  // HISTORY BUTTONS（undo/redo）
+  // ==========================================
+
+  setupHistoryButtons() {
+    document.getElementById('undoBtn')?.addEventListener('click', () => this.undo());
+    document.getElementById('redoBtn')?.addEventListener('click', () => this.redo());
+    this.updateHistoryButtons();
+  }
+
+  updateHistoryButtons() {
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+    if (undoBtn) {
+      undoBtn.disabled = !(
+        this.historyIndex > 0 ||
+        (this.historyIndex === 0 && this.sections.length > 0)
+      );
+    }
+    if (redoBtn) {
+      redoBtn.disabled = this.historyIndex >= this.history.length - 1;
+    }
+  }
+
+  // ==========================================
+  // DIALOG（confirm / prompt の置き換え）
+  // ==========================================
+
+  confirmDialog(message, options = {}) {
+    return this._openDialog({ mode: 'confirm', message, ...options });
+  }
+
+  promptDialog(message, defaultValue = '', options = {}) {
+    return this._openDialog({ mode: 'prompt', message, defaultValue, ...options });
+  }
+
+  _openDialog({
+    mode,
+    message,
+    defaultValue = '',
+    confirmText = 'OK',
+    cancelText = 'キャンセル',
+    danger = false,
+  }) {
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.className = 'gen-dialog-overlay';
+      overlay.innerHTML = `
+        <div class="gen-dialog" role="dialog" aria-modal="true">
+          <p class="gen-dialog-message"></p>
+          ${mode === 'prompt' ? '<input type="text" class="gen-dialog-input" />' : ''}
+          <div class="gen-dialog-actions">
+            <button type="button" class="gen-dialog-btn cancel"></button>
+            <button type="button" class="gen-dialog-btn confirm${danger ? ' danger' : ''}"></button>
+          </div>
+        </div>
+      `;
+
+      overlay.querySelector('.gen-dialog-message').textContent = message;
+      const confirmBtn = overlay.querySelector('.gen-dialog-btn.confirm');
+      const cancelBtn = overlay.querySelector('.gen-dialog-btn.cancel');
+      confirmBtn.textContent = confirmText;
+      cancelBtn.textContent = cancelText;
+
+      const input = overlay.querySelector('.gen-dialog-input');
+      if (input) input.value = defaultValue;
+
+      const close = (result) => {
+        document.removeEventListener('keydown', onKey, true);
+        overlay.remove();
+        resolve(result);
+      };
+      const confirm = () => {
+        if (mode === 'prompt') {
+          const value = input ? input.value.trim() : '';
+          close(value || null);
+        } else {
+          close(true);
+        }
+      };
+      const cancel = () => close(mode === 'prompt' ? null : false);
+
+      const onKey = (e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          cancel();
+        } else if (e.key === 'Enter' && (mode !== 'prompt' || e.target === input)) {
+          e.stopPropagation();
+          confirm();
+        }
+      };
+
+      confirmBtn.addEventListener('click', confirm);
+      cancelBtn.addEventListener('click', cancel);
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) cancel();
+      });
+      document.addEventListener('keydown', onKey, true);
+
+      document.body.appendChild(overlay);
+      (input || confirmBtn).focus();
+      if (input) input.select();
+    });
+  }
 
   setupSectionAccordion() {
     const accordionHeaders = document.querySelectorAll('.accordion-header');
@@ -1279,6 +1464,8 @@ class LandingPageGenerator {
       this.history.shift();
       this.historyIndex--;
     }
+
+    this.updateHistoryButtons();
   }
 
   undo() {
@@ -1293,6 +1480,7 @@ class LandingPageGenerator {
       this.updatePreview();
       this.showNotification('元に戻しました (Ctrl+Z)');
     }
+    this.updateHistoryButtons();
   }
 
   redo() {
@@ -1302,6 +1490,7 @@ class LandingPageGenerator {
       this.updatePreview();
       this.showNotification('やり直しました (Ctrl+Shift+Z)');
     }
+    this.updateHistoryButtons();
   }
 
   // ==========================================
@@ -1934,7 +2123,7 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 
     // style属性内のCSS変数をインラインで処理
     result = result.replace(/style="([^"]*)"/g, (match, styleContent) => {
-      let cleaned = styleContent
+      const cleaned = styleContent
         .replace(/color:\s*var\(--primary(?:-color)?\)/g, '')
         .replace(/background(?:-color)?:\s*var\(--primary(?:-color)?\)/g, '')
         .replace(/color:\s*var\(--secondary(?:-color)?\)/g, '')
@@ -2106,9 +2295,8 @@ ${this.generateShadcnSectionComponents()}
 
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
-    let h,
-      s,
-      l = (max + min) / 2;
+    let h, s;
+    const l = (max + min) / 2;
 
     if (max === min) {
       h = s = 0;
@@ -3143,17 +3331,22 @@ ${this.generateMUISectionComponents()}
   // CLEAR ALL
   // ==========================================
 
-  clearAll() {
+  async clearAll() {
     if (this.sections.length === 0) {
       this.showNotification('クリアするセクションがありません', 'info');
       return;
     }
 
-    if (confirm('すべてのセクションを削除してもよろしいですか？')) {
-      this.sections = [];
-      this.updatePreview();
-      this.showNotification('すべてのセクションをクリアしました');
-    }
+    const ok = await this.confirmDialog('すべてのセクションを削除してもよろしいですか？', {
+      confirmText: '削除する',
+      danger: true,
+    });
+    if (!ok) return;
+
+    this.sections = [];
+    this.saveState();
+    this.updatePreview();
+    this.showNotification('すべてのセクションをクリアしました');
   }
 
   generateId() {
@@ -3164,15 +3357,16 @@ ${this.generateMUISectionComponents()}
   // LOCAL STORAGE / PROJECT MANAGEMENT
   // ==========================================
 
-  saveProject() {
+  async saveProject() {
     if (this.sections.length === 0) {
       this.showNotification('保存するセクションがありません', 'error');
       return;
     }
 
-    const projectName = prompt(
-      'プロジェクト名を入力してください:',
-      `LP-${new Date().toLocaleDateString('ja-JP')}`
+    const projectName = await this.promptDialog(
+      'プロジェクト名を入力してください',
+      `LP-${new Date().toLocaleDateString('ja-JP')}`,
+      { confirmText: '保存' }
     );
 
     if (!projectName) return;
@@ -3269,7 +3463,7 @@ ${this.generateMUISectionComponents()}
       .join('');
   }
 
-  loadProjectById(projectId) {
+  async loadProjectById(projectId) {
     const projects = this.getAllProjects();
     const project = projects.find((p) => p.id === projectId);
 
@@ -3279,9 +3473,10 @@ ${this.generateMUISectionComponents()}
     }
 
     if (this.sections.length > 0) {
-      if (!confirm('現在の内容を破棄して読み込みますか？')) {
-        return;
-      }
+      const ok = await this.confirmDialog('現在の内容を破棄して読み込みますか？', {
+        confirmText: '読み込む',
+      });
+      if (!ok) return;
     }
 
     this.currentTheme = project.data.theme;
@@ -3310,10 +3505,12 @@ ${this.generateMUISectionComponents()}
     document.getElementById('savedProjectsList').classList.remove('active');
   }
 
-  deleteProject(projectId) {
-    if (!confirm('このプロジェクトを削除してもよろしいですか？')) {
-      return;
-    }
+  async deleteProject(projectId) {
+    const ok = await this.confirmDialog('このプロジェクトを削除してもよろしいですか？', {
+      confirmText: '削除する',
+      danger: true,
+    });
+    if (!ok) return;
 
     let projects = this.getAllProjects();
     projects = projects.filter((p) => p.id !== projectId);
@@ -3360,7 +3557,7 @@ ${this.generateMUISectionComponents()}
     CommonEditor.saveToStorage('lp-generator-autosave', autoSaveData);
   }
 
-  loadAutoSave() {
+  async loadAutoSave() {
     const autoSaveData = CommonEditor.loadFromStorage('lp-generator-autosave');
     if (!autoSaveData) return false;
 
@@ -3368,7 +3565,12 @@ ${this.generateMUISectionComponents()}
       (Date.now() - autoSaveData.timestamp) / (1000 * 60 * 60);
     if (hoursSinceAutoSave > LandingPageGenerator.CONFIG.AUTOSAVE_RETENTION_HOURS) return false;
 
-    if (confirm('前回の作業内容が見つかりました。復元しますか？')) {
+    if (
+      await this.confirmDialog('前回の作業内容が見つかりました。復元しますか？', {
+        confirmText: '復元する',
+        cancelText: '破棄する',
+      })
+    ) {
       this.currentTheme = autoSaveData.theme;
       this.sections = autoSaveData.sections;
       this.animations = autoSaveData.animations;
@@ -3572,7 +3774,7 @@ ${this.generateMUISectionComponents()}
         sectionWrapperClass: 'lp-section-wrapper',
         controlsClass: 'lp-section-controls',
         cssPrefix: 'lp',
-        onContentChange: (element, oldContent, newContent) => {
+        onContentChange: (element, oldContent, _newContent) => {
           const wrapper = element.closest('.lp-section-wrapper');
           if (wrapper) {
             const sectionId = wrapper.dataset.sectionId;
@@ -4578,7 +4780,7 @@ const props = withDefaults(defineProps<Props>(), {
   ctaLink: '#',
   secondaryCtaText: '詳しく見る',
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="relative py-24 overflow-hidden bg-gradient-to-br from-primary to-secondary text-white">
@@ -4624,7 +4826,7 @@ const props = withDefaults(defineProps<Props>(), {
     { title: '24時間サポート', description: '専門チームが24時間体制でサポートいたします。', icon: '💬' },
   ],
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-white">
@@ -4676,7 +4878,7 @@ const props = withDefaults(defineProps<Props>(), {
     { name: 'エンタープライズ', price: 'お問合せ', period: '', description: '大規模組織向け', features: ['カスタム機能', '専任サポート', '無制限ストレージ'], featured: false },
   ],
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-gray-50">
@@ -4736,7 +4938,7 @@ const props = withDefaults(defineProps<Props>(), {
     { name: '鈴木 一郎', role: 'エンジニア', company: 'テック株式会社', content: '直感的なUIと強力な機能が魅力です。' },
   ],
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-white">
@@ -4782,7 +4984,7 @@ const props = withDefaults(defineProps<Props>(), {
   ctaText: '無料で始める',
   ctaLink: '#',
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-gradient-to-r from-primary to-secondary text-white">
@@ -4829,7 +5031,7 @@ const openIndex = ref<number | null>(null);
 const toggle = (index: number) => {
   openIndex.value = openIndex.value === index ? null : index;
 };
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-white">
@@ -4872,7 +5074,7 @@ const props = withDefaults(defineProps<Props>(), {
 const handleSubmit = () => {
   alert('お問い合わせを受け付けました（デモ）');
 };
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-gray-50">
@@ -4925,7 +5127,7 @@ const props = withDefaults(defineProps<Props>(), {
 const handleSubmit = () => {
   alert('ニュースレターに登録しました（デモ）');
 };
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-primary/5">
@@ -4965,7 +5167,7 @@ const props = withDefaults(defineProps<Props>(), {
     { value: '50+', label: '連携サービス' },
   ],
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-white">
@@ -5010,7 +5212,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const currentYear = new Date().getFullYear();
-<\/script>
+${'</script>'}
 
 <template>
   <footer class="bg-gray-900 text-white py-16 px-4">
@@ -5053,7 +5255,7 @@ const props = withDefaults(defineProps<Props>(), {
   title: '${name}',
   description: '${type} セクションの内容をここに追加してください。',
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-white">
@@ -5225,7 +5427,7 @@ const props = withDefaults(defineProps<Props>(), {
     if (fontFamilySelect) {
       fontFamilySelect.addEventListener('change', (e) => {
         this.designSettings.fontFamily = e.target.value;
-        this.applyFontFamily(e.target.value);
+        this.applyFontFamily(e.target.value, true);
       });
     }
 
@@ -5233,7 +5435,7 @@ const props = withDefaults(defineProps<Props>(), {
     if (fontSizeScale) {
       fontSizeScale.addEventListener('change', (e) => {
         this.designSettings.fontSizeScale = parseFloat(e.target.value);
-        this.applyFontSizeScale(parseFloat(e.target.value));
+        this.applyFontSizeScale(parseFloat(e.target.value), true);
       });
     }
 
@@ -5241,7 +5443,7 @@ const props = withDefaults(defineProps<Props>(), {
     if (spacingScale) {
       spacingScale.addEventListener('change', (e) => {
         this.designSettings.spacingScale = parseFloat(e.target.value);
-        this.applySpacingScale(parseFloat(e.target.value));
+        this.applySpacingScale(parseFloat(e.target.value), true);
       });
     }
 
@@ -5249,7 +5451,7 @@ const props = withDefaults(defineProps<Props>(), {
     if (borderRadiusStyle) {
       borderRadiusStyle.addEventListener('change', (e) => {
         this.designSettings.borderRadius = parseInt(e.target.value);
-        this.applyBorderRadius(parseInt(e.target.value));
+        this.applyBorderRadius(parseInt(e.target.value), true);
       });
     }
 
@@ -5259,17 +5461,17 @@ const props = withDefaults(defineProps<Props>(), {
 
     primaryColor?.addEventListener('change', (e) => {
       this.designSettings.primaryColor = e.target.value;
-      this.applyCustomColors();
+      this.applyCustomColors(true);
     });
 
     secondaryColor?.addEventListener('change', (e) => {
       this.designSettings.secondaryColor = e.target.value;
-      this.applyCustomColors();
+      this.applyCustomColors(true);
     });
 
     accentColor?.addEventListener('change', (e) => {
       this.designSettings.accentColor = e.target.value;
-      this.applyCustomColors();
+      this.applyCustomColors(true);
     });
 
     const resetColors = document.getElementById('resetColors');
@@ -5278,29 +5480,29 @@ const props = withDefaults(defineProps<Props>(), {
     });
   }
 
-  applyFontFamily(fontFamily) {
+  applyFontFamily(fontFamily, notify = false) {
     const previewFrame = document.getElementById('previewFrame');
     if (previewFrame) {
       previewFrame.style.fontFamily = `'${fontFamily}', sans-serif`;
       this.injectCustomCSS('custom-font-css', `
         #previewFrame, #previewFrame * { font-family: '${fontFamily}', sans-serif !important; }
       `);
-      this.showNotification(`フォントを ${fontFamily} に変更しました`);
+      if (notify) this.showNotification(`フォントを ${fontFamily} に変更しました`);
     }
   }
 
-  applyFontSizeScale(scale) {
+  applyFontSizeScale(scale, notify = false) {
     const previewFrame = document.getElementById('previewFrame');
     if (previewFrame) {
       previewFrame.style.fontSize = `${scale * 100}%`;
       this.injectCustomCSS('custom-fontsize-css', `
         #previewFrame { font-size: ${scale * 100}% !important; }
       `);
-      this.showNotification(`フォントサイズを ${scale * 100}% に変更しました`);
+      if (notify) this.showNotification(`フォントサイズを ${scale * 100}% に変更しました`);
     }
   }
 
-  applySpacingScale(scale) {
+  applySpacingScale(scale, notify = false) {
     const previewFrame = document.getElementById('previewFrame');
     if (previewFrame) {
       previewFrame.style.setProperty('--spacing-scale', scale);
@@ -5309,11 +5511,11 @@ const props = withDefaults(defineProps<Props>(), {
         #previewFrame [class*="lp-hero"] { padding-top: calc(120px * ${scale}) !important; padding-bottom: calc(120px * ${scale}) !important; }
         #previewFrame [class*="lp-card"], #previewFrame [class*="lp-feature"] { padding: calc(24px * ${scale}) !important; }
       `);
-      this.showNotification(`余白を ${scale * 100}% に変更しました`);
+      if (notify) this.showNotification(`余白を ${scale * 100}% に変更しました`);
     }
   }
 
-  applyBorderRadius(radius) {
+  applyBorderRadius(radius, notify = false) {
     this.injectCustomCSS('custom-radius-css', `
       #previewFrame [class*="lp-btn"] { border-radius: ${radius}px !important; }
       #previewFrame [class*="lp-card"], #previewFrame [class*="lp-feature-card"],
@@ -5321,10 +5523,10 @@ const props = withDefaults(defineProps<Props>(), {
       #previewFrame [class*="lp-mockup"] { border-radius: ${radius}px !important; }
       #previewFrame .lp-hero-visual img { border-radius: ${radius}px !important; }
     `);
-    this.showNotification(`角丸を ${radius}px に変更しました`);
+    if (notify) this.showNotification(`角丸を ${radius}px に変更しました`);
   }
 
-  applyCustomColors() {
+  applyCustomColors(notify = false) {
     const previewFrame = document.getElementById('previewFrame');
     if (!previewFrame) return;
 
@@ -5333,7 +5535,7 @@ const props = withDefaults(defineProps<Props>(), {
     previewFrame.style.setProperty('--theme-accent', this.designSettings.accentColor);
 
     this.injectThemeCSS();
-    this.showNotification('カスタムカラーを適用しました');
+    if (notify) this.showNotification('カスタムカラーを適用しました');
   }
 
   injectThemeCSS() {

@@ -2877,8 +2877,6 @@ ${embeddedCSS}
     const existing = document.querySelector('.db-notification');
     if (existing) existing.remove();
 
-    const safeMessage = CommonEditor.sanitizeHTML(message);
-
     const notification = document.createElement('div');
     notification.className = `db-notification db-notification-${type}`;
     notification.textContent = message;

@@ -3243,3 +3243,296 @@ body.dark-mode .export-tab.active {
   min-height: auto !important;
   padding: 60px 20px !important;
 }
+
+/* ============================================
+   サイドバータブ（構成 / デザイン / 公開）
+   ============================================ */
+
+.sidebar-tabs {
+  display: flex;
+  gap: 4px;
+  padding: var(--gen-space-xs) var(--gen-space-sm);
+  position: sticky;
+  top: 0;
+  background: var(--gen-surface);
+  z-index: var(--z-20);
+  border-bottom: 1px solid var(--gen-border);
+}
+
+.sidebar-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--gen-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background var(--transition-base),
+    color var(--transition-base);
+}
+
+.sidebar-tab:hover {
+  background: var(--color-secondary-100);
+  color: var(--gen-text);
+}
+
+.sidebar-tab.active {
+  background: color-mix(in srgb, var(--gen-primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--gen-primary) 30%, transparent);
+  color: var(--gen-primary);
+}
+
+.sidebar-tab:focus-visible {
+  outline: 2px solid var(--gen-primary);
+  outline-offset: 2px;
+}
+
+.sidebar-tab-panel {
+  display: none;
+}
+
+.sidebar-tab-panel.active {
+  display: block;
+}
+
+body.dark-mode .sidebar-tabs {
+  background: #1e293b;
+  border-bottom-color: #334155;
+}
+
+body.dark-mode .sidebar-tab {
+  color: #94a3b8;
+}
+
+body.dark-mode .sidebar-tab:hover {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .sidebar-tab.active {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.45);
+  color: #a5b4fc;
+}
+
+/* ============================================
+   セクション検索
+   ============================================ */
+
+.component-search-wrapper {
+  position: relative;
+  margin-bottom: var(--gen-space-sm);
+}
+
+.component-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gen-text-muted);
+  pointer-events: none;
+}
+
+.component-search {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  border: 1px solid var(--gen-border);
+  border-radius: 8px;
+  background: var(--gen-surface);
+  color: var(--gen-text);
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color var(--transition-base);
+}
+
+.component-search::placeholder {
+  color: var(--gen-text-muted);
+}
+
+.component-search:focus {
+  outline: none;
+  border-color: var(--gen-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gen-primary) 15%, transparent);
+}
+
+.component-search-empty {
+  margin: 0 0 var(--gen-space-sm);
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--color-secondary-100);
+  color: var(--gen-text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.accordion-item.search-hidden,
+.component-btn.search-hidden {
+  display: none !important;
+}
+
+body.dark-mode .component-search {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .component-search-empty {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+/* ============================================
+   履歴（undo / redo）ボタン
+   ============================================ */
+
+.history-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.history-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   ダイアログ（confirm / prompt 置き換え）
+   ============================================ */
+
+.gen-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: gen-dialog-fade 0.15s ease-out;
+}
+
+@keyframes gen-dialog-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.gen-dialog {
+  width: min(420px, calc(100vw - 48px));
+  background: var(--gen-surface);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--gen-shadow-lg);
+}
+
+.gen-dialog-message {
+  margin: 0 0 16px;
+  color: var(--gen-text);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.gen-dialog-input {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  border: 1px solid var(--gen-border);
+  border-radius: 8px;
+  background: var(--gen-surface);
+  color: var(--gen-text);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.gen-dialog-input:focus {
+  outline: none;
+  border-color: var(--gen-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gen-primary) 15%, transparent);
+}
+
+.gen-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.gen-dialog-btn {
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background var(--transition-base),
+    color var(--transition-base);
+}
+
+.gen-dialog-btn.cancel {
+  background: transparent;
+  border-color: var(--gen-border);
+  color: var(--gen-text-muted);
+}
+
+.gen-dialog-btn.cancel:hover {
+  background: var(--color-secondary-100);
+  color: var(--gen-text);
+}
+
+.gen-dialog-btn.confirm {
+  background: var(--gen-primary);
+  color: #ffffff;
+}
+
+.gen-dialog-btn.confirm:hover {
+  background: color-mix(in srgb, var(--gen-primary) 85%, black);
+}
+
+.gen-dialog-btn.confirm.danger {
+  background: #dc2626;
+}
+
+.gen-dialog-btn.confirm.danger:hover {
+  background: #b91c1c;
+}
+
+.gen-dialog-btn:focus-visible {
+  outline: 2px solid var(--gen-primary);
+  outline-offset: 2px;
+}
+
+body.dark-mode .gen-dialog {
+  background: #1e293b;
+}
+
+body.dark-mode .gen-dialog-message {
+  color: #e2e8f0;
+}
+
+body.dark-mode .gen-dialog-input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .gen-dialog-btn.cancel {
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark-mode .gen-dialog-btn.cancel:hover {
+  background: #334155;
+  color: #e2e8f0;
+}
