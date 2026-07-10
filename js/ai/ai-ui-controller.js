@@ -807,6 +807,141 @@ class AIUIController {
     this._showResult(fullHTML, 'fullpage');
   }
 
+  /**
+   * ブリーフ（業種・目的・ターゲット・トーン・強み・CTA）からLP全体を一括生成する。
+   * 第1段階: 構成プラン（qualityティア）→ 第2段階: セクション逐次生成（draftティア）。
+   * 生成できたセクションから順次 generator に挿入し、プレビューが段階的に組み上がる。
+   *
+   * @param {object} brief - { industry, purpose, audience, tone, differentiators, cta }
+   * @param {object} options - { replace: 既存セクションを置き換える, onProgress: 進捗コールバック }
+   * @returns {Promise<{plan: object, inserted: number}>}
+   */
+  async generateFromBrief(brief, { replace = false, onProgress = () => {} } = {}) {
+    if (!this.service.isConfigured) {
+      throw new Error('AIプロバイダが未設定です。AI設定からAPIキーを登録してください');
+    }
+    if (typeof AIPromptEngine === 'undefined') {
+      throw new Error('プロンプトエンジンが読み込まれていません');
+    }
+
+    this.isGenerating = true;
+    try {
+      // --- 第1段階: 構成プラン（quality ティア） ---
+      onProgress({ step: 'plan', message: '構成プランを作成中...' });
+      const planBuilt = AIPromptEngine.buildPagePlanPrompt({
+        industry: brief.industry || 'ビジネス',
+        purpose: brief.purpose || 'サービス紹介',
+        targetAudience: brief.audience || '',
+        tone: brief.tone || 'プロフェッショナル',
+        differentiators: brief.differentiators || '',
+        ctaText: brief.cta || '',
+        sectionCount: 6,
+      });
+
+      let planResult = '';
+      for await (const chunk of this.service.generateStream(planBuilt.messages, {
+        taskType: 'plan_fullpage',
+        temperature: planBuilt.temperature,
+      })) {
+        planResult += chunk;
+        onProgress({ step: 'plan', message: `構成プランを作成中...（${planResult.length}文字）` });
+      }
+
+      const plan = this._parsePlanJSON(planResult);
+      if (!plan || !Array.isArray(plan.sections) || plan.sections.length === 0) {
+        throw new Error('構成プランの解析に失敗しました。もう一度お試しください');
+      }
+      onProgress({
+        step: 'plan-done',
+        message: `構成が決まりました（${plan.sections.length}セクション）`,
+        plan,
+      });
+
+      if (replace) {
+        this.generator.sections = [];
+        this.generator.saveState?.();
+        this.generator.updatePreview();
+      }
+
+      // --- 第2段階: セクション逐次生成（draft ティア） ---
+      const pageContext = {
+        industry: brief.industry || '',
+        colorScheme: plan.colorScheme || '',
+        tone: brief.tone || '',
+        audience: brief.audience || '',
+        differentiators: brief.differentiators || '',
+        ctaText: brief.cta || '',
+        generatedSections: [],
+      };
+
+      let inserted = 0;
+      for (let i = 0; i < plan.sections.length; i++) {
+        const sectionPlan = plan.sections[i] || {};
+        onProgress({
+          step: 'section',
+          index: i + 1,
+          total: plan.sections.length,
+          message: `セクション ${i + 1}/${plan.sections.length}「${sectionPlan.heading || sectionPlan.type || ''}」を生成中...`,
+        });
+
+        const built = AIPromptEngine.buildPageSectionPrompt(sectionPlan, pageContext);
+        let result = '';
+        try {
+          for await (const chunk of this.service.generateStream(built.messages, {
+            taskType: 'generate_page_section',
+            temperature: built.temperature,
+          })) {
+            result += chunk;
+          }
+        } catch (e) {
+          if (e.name === 'AbortError') throw e;
+          // 失敗したセクションはスキップして続行
+          continue;
+        }
+
+        const html = this._extractHTML(result);
+        if (html && html.trim()) {
+          this.generator.insertAIGeneratedSection(html, undefined, sectionPlan.heading || sectionPlan.type);
+          pageContext.generatedSections.push(sectionPlan.type || 'section');
+          inserted++;
+        }
+      }
+
+      if (inserted === 0) {
+        throw new Error('セクションを生成できませんでした。もう一度お試しください');
+      }
+
+      // プランのタイトル・説明をSEO初期値として補完（未設定の場合のみ）
+      if (plan.title && this.generator.seoData && !this.generator.seoData.title) {
+        this.generator.seoData.title = plan.title;
+        if (plan.description && !this.generator.seoData.description) {
+          this.generator.seoData.description = plan.description;
+        }
+        this.generator.syncSettingsUI?.();
+      }
+
+      return { plan, inserted };
+    } finally {
+      this.isGenerating = false;
+    }
+  }
+
+  /** プランJSON（```json フェンス or 裸のオブジェクト）を解析する */
+  _parsePlanJSON(text) {
+    try {
+      const fenced = text.match(/```json\s*([\s\S]*?)```/i);
+      const raw = fenced ? fenced[1] : (text.match(/\{[\s\S]*\}/) || [null])[0];
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /** 実行中の生成を中断する */
+  abort() {
+    this.service.abort();
+  }
+
   /** デザインシステム生成（CSS変数セット） */
   async generateDesignSystem(prompt) {
     this._setGeneratingState(true);

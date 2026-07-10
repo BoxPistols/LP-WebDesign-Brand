@@ -229,6 +229,24 @@
         </div>
 
         <div class="sidebar-tab-panel active" data-tab="build">
+        <!-- AI Brief Generation -->
+        <section class="control-section">
+          <div class="ai-brief-card">
+            <div class="ai-brief-card-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 3l1.9 5.7a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+              </svg>
+              <span>AIでLPを一括生成</span>
+            </div>
+            <p class="ai-brief-card-description">
+              業種と目的を伝えるだけで、構成・コピーをAIが自動生成します
+            </p>
+            <button class="ai-brief-card-btn" id="openBriefWizard" type="button">
+              ブリーフを入力して生成
+            </button>
+          </div>
+        </section>
+
         <!-- Section Components -->
         <section class="control-section">
           <h3 class="section-title">セクションを追加</h3>
@@ -2177,6 +2195,83 @@
           </div>
         </div>
       </main>
+    </div>
+
+    <!-- Brief Wizard Modal (AI一括生成) -->
+    <div class="brief-modal" id="briefWizardModal" role="dialog" aria-modal="true" aria-labelledby="briefWizardTitle">
+      <div class="brief-modal-content">
+        <div class="brief-modal-header">
+          <h3 id="briefWizardTitle">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 3l1.9 5.7a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+            </svg>
+            AIでLPを一括生成
+          </h3>
+          <p class="brief-modal-subtitle">
+            目的を教えてください。構成プラン（高品質モデル）→ 各セクションのコピー生成（低コストモデル）の2段階で自動生成します。
+          </p>
+        </div>
+
+        <div class="brief-banner" id="briefAIUnconfigured" hidden>
+          <span>AIプロバイダが未設定です。APIキーを登録すると利用できます。</span>
+          <button type="button" class="brief-banner-btn" id="briefOpenAISettings">AI設定を開く</button>
+        </div>
+
+        <div class="brief-form">
+          <div class="brief-field">
+            <label for="briefIndustry">業種・サービス内容 <span class="brief-required">必須</span></label>
+            <input type="text" id="briefIndustry" placeholder="例: 中小企業向けの勤怠管理SaaS" autocomplete="off" />
+          </div>
+          <div class="brief-field-row">
+            <div class="brief-field">
+              <label for="briefPurpose">LPの目的（CV）</label>
+              <select id="briefPurpose">
+                <option value="問い合わせ獲得">問い合わせ獲得</option>
+                <option value="無料トライアル登録">無料トライアル登録</option>
+                <option value="資料請求">資料請求</option>
+                <option value="商品購入">商品購入</option>
+                <option value="採用応募">採用応募</option>
+                <option value="ブランド認知">ブランド認知</option>
+                <option value="イベント申込">イベント申込</option>
+              </select>
+            </div>
+            <div class="brief-field">
+              <label for="briefTone">トーン</label>
+              <select id="briefTone">
+                <option value="プロフェッショナル">プロフェッショナル</option>
+                <option value="親しみやすい">親しみやすい</option>
+                <option value="高級感">高級感</option>
+                <option value="エネルギッシュ">エネルギッシュ</option>
+                <option value="ミニマル">ミニマル</option>
+              </select>
+            </div>
+          </div>
+          <div class="brief-field">
+            <label for="briefAudience">ターゲット</label>
+            <input type="text" id="briefAudience" placeholder="例: 従業員10〜100名の企業の労務担当者" autocomplete="off" />
+          </div>
+          <div class="brief-field">
+            <label for="briefDifferentiators">強み・差別化ポイント</label>
+            <textarea id="briefDifferentiators" rows="2" placeholder="例: 導入5分・初期費用0円・国内サポート"></textarea>
+          </div>
+          <div class="brief-field">
+            <label for="briefCta">CTAボタンの文言</label>
+            <input type="text" id="briefCta" placeholder="例: 無料で試してみる" autocomplete="off" />
+          </div>
+          <label class="brief-replace" id="briefReplaceWrapper" hidden>
+            <input type="checkbox" id="briefReplaceExisting" checked />
+            <span>現在のセクションを置き換える（オフの場合は末尾に追加）</span>
+          </label>
+        </div>
+
+        <p class="brief-progress" id="briefProgress" hidden aria-live="polite"></p>
+
+        <div class="brief-modal-actions">
+          <button type="button" class="gen-dialog-btn cancel" id="briefCancelBtn">閉じる</button>
+          <button type="button" class="gen-dialog-btn cancel" id="briefAbortBtn" hidden>中断</button>
+          <button type="button" class="gen-dialog-btn confirm" id="briefGenerateBtn">AIで一括生成</button>
+        </div>
+      </div>
     </div>
 
     <!-- Export Preview Modal -->

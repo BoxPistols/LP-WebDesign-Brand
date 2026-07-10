@@ -3536,3 +3536,284 @@ body.dark-mode .gen-dialog-btn.cancel:hover {
   background: #334155;
   color: #e2e8f0;
 }
+
+/* ============================================
+   AIブリーフ一括生成（カード + ウィザード）
+   ============================================ */
+
+.ai-brief-card {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--gen-primary) 10%, #ffffff), color-mix(in srgb, #8b5cf6 10%, #ffffff));
+  border: 1px solid color-mix(in srgb, var(--gen-primary) 25%, transparent);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.ai-brief-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gen-text);
+}
+
+.ai-brief-card-header svg {
+  color: var(--gen-primary);
+  flex-shrink: 0;
+}
+
+.ai-brief-card-description {
+  margin: 8px 0 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--gen-text-muted);
+}
+
+.ai-brief-card-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--gen-primary), #8b5cf6);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity var(--transition-base), box-shadow var(--transition-base);
+}
+
+.ai-brief-card-btn:hover {
+  opacity: 0.92;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--gen-primary) 35%, transparent);
+}
+
+.ai-brief-card-btn:focus-visible {
+  outline: 2px solid var(--gen-primary);
+  outline-offset: 2px;
+}
+
+body.dark-mode .ai-brief-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.16), rgba(139, 92, 246, 0.14));
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+body.dark-mode .ai-brief-card-header {
+  color: #e2e8f0;
+}
+
+body.dark-mode .ai-brief-card-description {
+  color: #94a3b8;
+}
+
+/* --- ウィザードモーダル --- */
+
+.brief-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.brief-modal.active {
+  display: flex;
+  animation: gen-dialog-fade 0.15s ease-out;
+}
+
+.brief-modal-content {
+  width: min(560px, calc(100vw - 48px));
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  background: var(--gen-surface);
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: var(--gen-shadow-lg);
+}
+
+.brief-modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 17px;
+  color: var(--gen-text);
+}
+
+.brief-modal-header h3 svg {
+  color: var(--gen-primary);
+}
+
+.brief-modal-subtitle {
+  margin: 8px 0 16px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--gen-text-muted);
+}
+
+.brief-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+  font-size: 12px;
+}
+
+.brief-banner-btn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border: 1px solid #d97706;
+  border-radius: 6px;
+  background: transparent;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.brief-banner-btn:hover {
+  background: #fde68a;
+}
+
+.brief-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.brief-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.brief-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gen-text);
+}
+
+.brief-required {
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.brief-field input[type='text'],
+.brief-field select,
+.brief-field textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--gen-border);
+  border-radius: 8px;
+  background: var(--gen-surface);
+  color: var(--gen-text);
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.brief-field input:focus,
+.brief-field select:focus,
+.brief-field textarea:focus {
+  outline: none;
+  border-color: var(--gen-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gen-primary) 15%, transparent);
+}
+
+.brief-replace {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--gen-text-muted);
+  cursor: pointer;
+}
+
+.brief-progress {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--gen-primary) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gen-primary) 20%, transparent);
+  color: var(--gen-text);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.brief-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.brief-modal-actions .gen-dialog-btn.confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+body.dark-mode .brief-modal-content {
+  background: #1e293b;
+}
+
+body.dark-mode .brief-modal-header h3 {
+  color: #e2e8f0;
+}
+
+body.dark-mode .brief-field label {
+  color: #e2e8f0;
+}
+
+body.dark-mode .brief-field input[type='text'],
+body.dark-mode .brief-field select,
+body.dark-mode .brief-field textarea {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .brief-progress {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: #e2e8f0;
+}
+
+body.dark-mode .brief-banner {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: rgba(251, 191, 36, 0.35);
+  color: #fcd34d;
+}
+
+body.dark-mode .brief-banner-btn {
+  border-color: #fbbf24;
+  color: #fcd34d;
+}
+
+@media (max-width: 640px) {
+  .brief-field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* display:flex が hidden 属性に勝ってしまうのを防止 */
+.brief-banner[hidden],
+.brief-replace[hidden],
+.brief-progress[hidden] {
+  display: none;
+}

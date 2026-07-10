@@ -255,6 +255,8 @@ HTMLを \`\`\`html コードブロックで出力してください。`;
       targetAudience = '',
       tone = 'プロフェッショナル',
       sectionCount = 6,
+      differentiators = '',
+      ctaText = '',
       additionalNotes = '',
     } = options;
 
@@ -274,8 +276,15 @@ ${sectionList}`;
 目的: ${purpose}
 ${targetAudience ? `ターゲット: ${targetAudience}` : ''}
 トーン: ${tone}
+${differentiators ? `強み・差別化ポイント: ${differentiators}` : ''}
+${ctaText ? `主要CTAボタンの文言: ${ctaText}` : ''}
 セクション数: 約${sectionCount}セクション
 ${additionalNotes ? `追加要件: ${additionalNotes}` : ''}
+
+構成の方針:
+- ファーストビュー(hero)で目的「${purpose}」への導線を最優先にする
+- 強み・差別化ポイントは features や socialProof セクションの notes に具体的に反映する
+- 各セクションの notes には、そのセクションで使う具体的なコピーの方向性を書く
 
 以下のJSON形式で出力してください（JSONのみ、説明不要）:
 \`\`\`json
@@ -317,6 +326,9 @@ ${additionalNotes ? `追加要件: ${additionalNotes}` : ''}
       industry = '',
       colorScheme = '',
       tone = '',
+      audience = '',
+      differentiators = '',
+      ctaText = '',
       generatedSections = [],
     } = pageContext;
 
@@ -330,9 +342,13 @@ ${AIPromptEngine.DESIGN_TOKENS_REFERENCE}
 - 業界: ${industry}
 - カラー: ${colorScheme}
 - トーン: ${tone}
+${audience ? `- ターゲット: ${audience}` : ''}
+${differentiators ? `- 強み・差別化ポイント: ${differentiators}` : ''}
+${ctaText ? `- 主要CTAボタンの文言（CTAボタンにはこの文言を使う）: ${ctaText}` : ''}
 - 生成済みセクション数: ${generatedSections.length}
 
 既存のCSSクラスのみを使ってください。
+コピーは業界・ターゲットに即した具体的な日本語で書き、汎用的な定型文は避けてください。
 出力は <section> タグで囲まれた1つのセクションHTMLのみです。`;
 
     const user = `以下のセクションを生成してください。

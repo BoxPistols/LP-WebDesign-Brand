@@ -58,6 +58,16 @@ class LandingPageGenerator {
       accentColor: '#f093fb',
     };
 
+    // ブリーフ（AI一括生成の定性情報）: プロジェクトと一緒に保存される
+    this.brief = {
+      industry: '',
+      purpose: '問い合わせ獲得',
+      audience: '',
+      tone: 'プロフェッショナル',
+      differentiators: '',
+      cta: '',
+    };
+
     // CommonEditor インスタンス（インライン編集の委譲先）
     this.commonEditor = null;
 
@@ -82,6 +92,7 @@ class LandingPageGenerator {
     this.setupSidebarTabs();
     this.setupComponentSearch();
     this.setupHistoryButtons();
+    this.setupBriefWizard();
     this.draggedItem = null;
 
     // EnhancedGenerator から統合
@@ -111,11 +122,12 @@ class LandingPageGenerator {
    * @param {string} html - 挿入するHTML
    * @param {string} [afterSectionId] - この後に挿入（省略時は末尾）
    */
-  insertAIGeneratedSection(html, afterSectionId) {
+  insertAIGeneratedSection(html, afterSectionId, name) {
     const newSection = {
-      id: 'ai-' + Date.now(),
+      id: CommonEditor.generateId('ai-section'),
+      type: 'ai-generated',
       template: {
-        name: 'AI生成セクション',
+        name: name ? `AI: ${name}` : 'AI生成セクション',
         html: html,
       },
       imageChanges: [],
@@ -171,6 +183,156 @@ class LandingPageGenerator {
   // ==========================================
   // SECTION ACCORDION
   // ==========================================
+
+  // ==========================================
+  // BRIEF WIZARD（ブリーフからAI一括生成）
+  // ==========================================
+
+  setupBriefWizard() {
+    document
+      .getElementById('openBriefWizard')
+      ?.addEventListener('click', () => this.openBriefWizard());
+    document
+      .getElementById('briefCancelBtn')
+      ?.addEventListener('click', () => this.closeBriefWizard());
+    document
+      .getElementById('briefGenerateBtn')
+      ?.addEventListener('click', () => this.runBriefGeneration());
+    document.getElementById('briefAbortBtn')?.addEventListener('click', () => {
+      this.aiController?.abort?.();
+    });
+    document.getElementById('briefOpenAISettings')?.addEventListener('click', () => {
+      this.closeBriefWizard();
+      this.aiController?._openSettingsModal?.();
+    });
+
+    const modal = document.getElementById('briefWizardModal');
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal && !this._briefGenerating) this.closeBriefWizard();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (
+        e.key === 'Escape' &&
+        !this._briefGenerating &&
+        document.getElementById('briefWizardModal')?.classList.contains('active')
+      ) {
+        this.closeBriefWizard();
+      }
+    });
+  }
+
+  openBriefWizard() {
+    const modal = document.getElementById('briefWizardModal');
+    if (!modal) return;
+
+    // 保存済みブリーフをフォームへ反映
+    const fields = {
+      briefIndustry: this.brief.industry,
+      briefPurpose: this.brief.purpose,
+      briefAudience: this.brief.audience,
+      briefTone: this.brief.tone,
+      briefDifferentiators: this.brief.differentiators,
+      briefCta: this.brief.cta,
+    };
+    Object.entries(fields).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = value || '';
+    });
+
+    // AI未設定バナーの表示切り替え
+    const configured = !!this.aiController?.service?.isConfigured;
+    const banner = document.getElementById('briefAIUnconfigured');
+    if (banner) banner.hidden = configured;
+    const generateBtn = document.getElementById('briefGenerateBtn');
+    if (generateBtn) generateBtn.disabled = !configured;
+
+    // 既存セクションがある場合のみ置き換えオプションを表示
+    const replaceWrapper = document.getElementById('briefReplaceWrapper');
+    if (replaceWrapper) replaceWrapper.hidden = this.sections.length === 0;
+
+    this._setBriefProgress('');
+    modal.classList.add('active');
+    document.getElementById('briefIndustry')?.focus();
+  }
+
+  closeBriefWizard() {
+    document.getElementById('briefWizardModal')?.classList.remove('active');
+  }
+
+  readBriefForm() {
+    const value = (id) => document.getElementById(id)?.value?.trim() || '';
+    this.brief = {
+      industry: value('briefIndustry'),
+      purpose: value('briefPurpose') || '問い合わせ獲得',
+      audience: value('briefAudience'),
+      tone: value('briefTone') || 'プロフェッショナル',
+      differentiators: value('briefDifferentiators'),
+      cta: value('briefCta'),
+    };
+  }
+
+  _setBriefProgress(message, { generating = false } = {}) {
+    const progressEl = document.getElementById('briefProgress');
+    if (progressEl) {
+      progressEl.textContent = message;
+      progressEl.hidden = !message;
+    }
+    const generateBtn = document.getElementById('briefGenerateBtn');
+    const abortBtn = document.getElementById('briefAbortBtn');
+    const cancelBtn = document.getElementById('briefCancelBtn');
+    if (generateBtn) {
+      generateBtn.disabled = generating || !this.aiController?.service?.isConfigured;
+      generateBtn.textContent = generating ? '生成中...' : 'AIで一括生成';
+    }
+    if (abortBtn) abortBtn.hidden = !generating;
+    if (cancelBtn) cancelBtn.disabled = generating;
+  }
+
+  async runBriefGeneration() {
+    if (this._briefGenerating) return;
+    if (!this.aiController?.service?.isConfigured) {
+      this.showNotification('先にAIプロバイダを設定してください', 'warning');
+      return;
+    }
+
+    this.readBriefForm();
+    if (!this.brief.industry) {
+      this.showNotification('業種・サービス内容を入力してください', 'warning');
+      document.getElementById('briefIndustry')?.focus();
+      return;
+    }
+
+    const replace =
+      this.sections.length > 0 &&
+      !!document.getElementById('briefReplaceExisting')?.checked;
+
+    this._briefGenerating = true;
+    this._setBriefProgress('準備中...', { generating: true });
+
+    try {
+      const result = await this.aiController.generateFromBrief(this.brief, {
+        replace,
+        onProgress: (p) => this._setBriefProgress(p.message, { generating: true }),
+      });
+
+      this.autoSave();
+      this.closeBriefWizard();
+      this.showNotification(
+        `AIが${result.inserted}セクションのLPを生成しました。ダブルクリックで編集できます`
+      );
+    } catch (e) {
+      if (e?.name === 'AbortError') {
+        this._setBriefProgress('生成を中断しました');
+      } else {
+        this._setBriefProgress(`エラー: ${e.message}`);
+      }
+    } finally {
+      this._briefGenerating = false;
+      this._setBriefProgress(
+        document.getElementById('briefProgress')?.textContent || ''
+      );
+    }
+  }
 
   // ==========================================
   // SIDEBAR TABS（構成 / デザイン / 公開）
@@ -3428,6 +3590,7 @@ ${this.generateMUISectionComponents()}
         deviceMode: this.deviceMode,
         designSettings: { ...this.designSettings },
         seoData: { ...this.seoData },
+        brief: { ...this.brief },
       },
     };
 
@@ -3533,6 +3696,9 @@ ${this.generateMUISectionComponents()}
     if (project.data.seoData) {
       this.seoData = { ...this.seoData, ...project.data.seoData };
     }
+    if (project.data.brief) {
+      this.brief = { ...this.brief, ...project.data.brief };
+    }
 
     document.querySelectorAll('.theme-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
@@ -3594,6 +3760,7 @@ ${this.generateMUISectionComponents()}
       deviceMode: this.deviceMode,
       designSettings: { ...this.designSettings },
       seoData: { ...this.seoData },
+      brief: { ...this.brief },
       timestamp: Date.now(),
     };
 
@@ -3624,6 +3791,9 @@ ${this.generateMUISectionComponents()}
       }
       if (autoSaveData.seoData) {
         this.seoData = { ...this.seoData, ...autoSaveData.seoData };
+      }
+      if (autoSaveData.brief) {
+        this.brief = { ...this.brief, ...autoSaveData.brief };
       }
 
       document.querySelectorAll('.theme-btn').forEach((btn) => {
@@ -3710,6 +3880,7 @@ ${this.generateMUISectionComponents()}
         glassmorphism: this.glassmorphism,
         designSettings: { ...this.designSettings },
         seoData: { ...this.seoData },
+        brief: { ...this.brief },
       },
     };
 
@@ -3757,6 +3928,9 @@ ${this.generateMUISectionComponents()}
           }
           if (projectData.data.seoData) {
             this.seoData = { ...this.seoData, ...projectData.data.seoData };
+          }
+          if (projectData.data.brief) {
+            this.brief = { ...this.brief, ...projectData.data.brief };
           }
 
           this.sections = projectData.data.sections.map((section) => {
