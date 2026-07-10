@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="css/generator.css" />
     <link rel="stylesheet" href="css/landing-page.css" />
     <link rel="stylesheet" href="css/advanced-components.css" />
+    <link rel="stylesheet" href="css/lp-archetypes.css" />
     <link rel="stylesheet" href="css/ai-panel.css" />
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -1616,6 +1617,98 @@
                 </div>
               </div>
             </div>
+
+            <!-- 日本型・高密度LP -->
+            <div class="accordion-item" data-accordion="jp-conversion">
+              <button class="accordion-header" aria-expanded="false">
+                <span class="accordion-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3v18h18" />
+                    <path d="m7 12 4-4 4 4 5-5" />
+                  </svg>
+                  日本型LP（高密度）
+                </span>
+                <span class="accordion-count">11</span>
+                <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              <div class="accordion-content">
+                <div class="component-grid">
+                  <button class="component-btn" data-component="jp-hero-offer">
+                    <span class="component-name">JPヒーロー（オファー型）</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-badge-strip">
+                    <span class="component-name">実績・掲載メディア帯</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-problem-checklist">
+                    <span class="component-name">悩みチェックリスト</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-empathy-bridge">
+                    <span class="component-name">共感→解決ブリッジ</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-reasons">
+                    <span class="component-name">選ばれる理由3選</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-voice">
+                    <span class="component-name">お客様の声（高密度）</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-compare-table">
+                    <span class="component-name">他社比較表</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-steps">
+                    <span class="component-name">ご利用の流れ3ステップ</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-offer-box">
+                    <span class="component-name">特別オファー</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-cta-band">
+                    <span class="component-name">CTA帯（繰り返し用）</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-faq-dense">
+                    <span class="component-name">FAQ（高密度）</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- リッチ表現（アワード志向） -->
+            <div class="accordion-item" data-accordion="rich-design">
+              <button class="accordion-header" aria-expanded="false">
+                <span class="accordion-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3l1.9 5.7a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+                  </svg>
+                  リッチ表現
+                </span>
+                <span class="accordion-count">6</span>
+                <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              <div class="accordion-content">
+                <div class="component-grid">
+                  <button class="component-btn" data-component="rich-hero-typo">
+                    <span class="component-name">リッチヒーロー（大型タイポ）</span>
+                  </button>
+                  <button class="component-btn" data-component="rich-marquee">
+                    <span class="component-name">マーキー帯</span>
+                  </button>
+                  <button class="component-btn" data-component="rich-statement">
+                    <span class="component-name">ステートメント</span>
+                  </button>
+                  <button class="component-btn" data-component="rich-features-editorial">
+                    <span class="component-name">エディトリアル特集</span>
+                  </button>
+                  <button class="component-btn" data-component="rich-showcase-scroll">
+                    <span class="component-name">横スクロールショーケース</span>
+                  </button>
+                  <button class="component-btn" data-component="rich-cta-full">
+                    <span class="component-name">フルブリードCTA</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
         </div>
@@ -2219,6 +2312,17 @@
 
         <div class="brief-form">
           <div class="brief-field">
+            <label for="briefDesignStyle">デザイン様式</label>
+            <select id="briefDesignStyle">
+              <option value="global">スタンダード（グローバル・ミニマル）</option>
+              <option value="jp-dense">日本型・高密度（コンバージョン特化の縦長LP）</option>
+              <option value="award-rich">リッチ表現（ブランド・アワード志向）</option>
+            </select>
+            <p class="brief-field-hint" id="briefStyleHint">
+              日本型はPASONA構成の10〜14セクション+CTA反復、リッチ表現は大型タイポと余白が主役の6〜8セクションを生成します
+            </p>
+          </div>
+          <div class="brief-field">
             <label for="briefIndustry">業種・サービス内容 <span class="brief-required">必須</span></label>
             <input type="text" id="briefIndustry" placeholder="例: 中小企業向けの勤怠管理SaaS" autocomplete="off" />
           </div>
@@ -2239,7 +2343,9 @@
               <label for="briefTone">トーン</label>
               <select id="briefTone">
                 <option value="プロフェッショナル">プロフェッショナル</option>
+                <option value="信頼・堅実（BtoB）">信頼・堅実（BtoB）</option>
                 <option value="親しみやすい">親しみやすい</option>
+                <option value="緊急性・オファー訴求（通販型）">緊急性・オファー訴求（通販型）</option>
                 <option value="高級感">高級感</option>
                 <option value="エネルギッシュ">エネルギッシュ</option>
                 <option value="ミニマル">ミニマル</option>
@@ -2614,6 +2720,7 @@
     <script src="js/common-editor.js"></script>
     <script src="js/templates.js"></script>
     <script src="js/advanced-templates.js"></script>
+    <script src="js/archetype-templates.js"></script>
     <script src="js/image-manager.js"></script>
     <script src="js/generator.js"></script>
     <script src="js/ai/ai-service.js"></script>

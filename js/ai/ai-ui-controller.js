@@ -827,6 +827,10 @@ class AIUIController {
     this.isGenerating = true;
     try {
       // --- 第1段階: 構成プラン（quality ティア） ---
+      const designStyle = brief.designStyle || 'global';
+      const sectionCount =
+        { 'jp-dense': 12, 'award-rich': 7 }[designStyle] || 6;
+
       onProgress({ step: 'plan', message: '構成プランを作成中...' });
       const planBuilt = AIPromptEngine.buildPagePlanPrompt({
         industry: brief.industry || 'ビジネス',
@@ -835,7 +839,8 @@ class AIUIController {
         tone: brief.tone || 'プロフェッショナル',
         differentiators: brief.differentiators || '',
         ctaText: brief.cta || '',
-        sectionCount: 6,
+        designStyle,
+        sectionCount,
       });
 
       let planResult = '';
@@ -871,6 +876,7 @@ class AIUIController {
         audience: brief.audience || '',
         differentiators: brief.differentiators || '',
         ctaText: brief.cta || '',
+        designStyle,
         generatedSections: [],
       };
 

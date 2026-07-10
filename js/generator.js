@@ -66,6 +66,7 @@ class LandingPageGenerator {
       tone: 'プロフェッショナル',
       differentiators: '',
       cta: '',
+      designStyle: 'global', // global | jp-dense | award-rich
     };
 
     // CommonEditor インスタンス（インライン編集の委譲先）
@@ -233,6 +234,7 @@ class LandingPageGenerator {
       briefTone: this.brief.tone,
       briefDifferentiators: this.brief.differentiators,
       briefCta: this.brief.cta,
+      briefDesignStyle: this.brief.designStyle,
     };
     Object.entries(fields).forEach(([id, value]) => {
       const el = document.getElementById(id);
@@ -268,6 +270,7 @@ class LandingPageGenerator {
       tone: value('briefTone') || 'プロフェッショナル',
       differentiators: value('briefDifferentiators'),
       cta: value('briefCta'),
+      designStyle: value('briefDesignStyle') || 'global',
     };
   }
 
@@ -1190,6 +1193,7 @@ class LandingPageGenerator {
             </style>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
             <link rel="stylesheet" href="css/landing-page.css">
+            <link rel="stylesheet" href="css/lp-archetypes.css">
             <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
                 ${sectionsHTML}
             </div>
@@ -3520,11 +3524,12 @@ ${this.generateMUISectionComponents()}
 
   async getInlineCSS() {
     try {
-      const [landingPageCSS, advancedComponentsCSS] = await Promise.all([
+      const [landingPageCSS, advancedComponentsCSS, archetypesCSS] = await Promise.all([
         fetch('css/landing-page.css').then((r) => r.text()),
         fetch('css/advanced-components.css').then((r) => r.text()),
+        fetch('css/lp-archetypes.css').then((r) => (r.ok ? r.text() : '')),
       ]);
-      return `/* Landing Page Styles */\n${landingPageCSS}\n\n/* Advanced Components */\n${advancedComponentsCSS}`;
+      return `/* Landing Page Styles */\n${landingPageCSS}\n\n/* Advanced Components */\n${advancedComponentsCSS}\n\n/* Archetype Styles (日本型LP / リッチ表現) */\n${archetypesCSS}`;
     } catch (error) {
       console.error('CSSの読み込みに失敗しました:', error);
       this.showNotification('CSSファイルの読み込みに失敗しました', 'error');

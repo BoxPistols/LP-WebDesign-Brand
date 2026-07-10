@@ -3817,3 +3817,10 @@ body.dark-mode .brief-banner-btn {
 .brief-progress[hidden] {
   display: none;
 }
+
+.brief-field-hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--gen-text-muted);
+}
