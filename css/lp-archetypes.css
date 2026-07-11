@@ -1600,7 +1600,6 @@
 .lp-jp-faq-item {
   padding: 20px 22px;
   border: 1px solid var(--jp-line);
-  border-top: 3px solid color-mix(in srgb, var(--jp-primary) 55%, #fff);
   border-radius: var(--jp-radius);
   background: linear-gradient(180deg, #fbfcfe, #f7f9fc);
   box-shadow: var(--jp-shadow-sm);
@@ -2613,7 +2612,6 @@
   flex: 1 1 130px;
   padding: 14px 14px 12px;
   border: 1px solid var(--jp-line);
-  border-top: 3px solid var(--jp-red);
   border-radius: 12px;
   background: #fff;
   box-shadow: var(--jp-shadow-sm);
@@ -2644,7 +2642,6 @@
   margin-top: 20px;
   padding: 16px 18px 12px;
   border: 1px solid var(--jp-line);
-  border-left: 4px solid var(--jp-red);
   border-radius: 12px;
   background: #fff;
   box-shadow: var(--jp-shadow-sm);

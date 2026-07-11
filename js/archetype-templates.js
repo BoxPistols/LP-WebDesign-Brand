@@ -245,7 +245,7 @@ const archetypeTemplates = {
                     <div class="lp-jp-bridge-main">
                         <h2 id="jp-bridge-title" class="lp-jp-bridge-answer" data-motion="up">
                             <span class="lp-nb">だからこそ、</span><span class="lp-nb"><strong>集計ゼロ・転記ゼロ</strong>の</span><br>
-                            <span class="lp-nb"><span class="lp-jp-marker">自動化された勤怠管理</span>が</span><span class="lp-nb">必要です。</span>
+                            <span class="lp-nb"><span class="lp-jp-marker">自動化された</span></span><span class="lp-nb"><span class="lp-jp-marker">勤怠管理</span>が</span><span class="lp-nb">必要です。</span>
                         </h2>
                         <p class="lp-jp-bridge-lead" data-motion="up" data-motion-delay="100">
                             <span class="lp-nb">タイムライトクラウドは</span><span class="lp-nb">打刻データをリアルタイムに自動集計。</span>
