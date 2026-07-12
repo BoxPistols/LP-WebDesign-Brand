@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;600;900&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/design-system.css" />
@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="css/generator.css" />
     <link rel="stylesheet" href="css/landing-page.css" />
     <link rel="stylesheet" href="css/advanced-components.css" />
+    <link rel="stylesheet" href="css/lp-archetypes.css" />
     <link rel="stylesheet" href="css/ai-panel.css" />
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -94,6 +95,32 @@
           </button>
         </div>
 
+        <!-- Sidebar Tabs -->
+        <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ">
+          <button class="sidebar-tab active" data-tab="build" role="tab" aria-selected="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="7" rx="1" />
+              <rect x="3" y="14" width="18" height="7" rx="1" />
+            </svg>
+            構成
+          </button>
+          <button class="sidebar-tab" data-tab="design" role="tab" aria-selected="false">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="13.5" cy="6.5" r=".5" /><circle cx="17.5" cy="10.5" r=".5" /><circle cx="8.5" cy="7.5" r=".5" /><circle cx="6.5" cy="12.5" r=".5" />
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+            </svg>
+            デザイン
+          </button>
+          <button class="sidebar-tab" data-tab="publish" role="tab" aria-selected="false">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+              <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+            </svg>
+            公開
+          </button>
+        </div>
+
+        <div class="sidebar-tab-panel" data-tab="design">
         <!-- Theme Selection -->
         <section class="control-section">
           <h3 class="section-title">カラーテーマ</h3>
@@ -200,10 +227,47 @@
             </button>
           </div>
         </section>
+        </div>
+
+        <div class="sidebar-tab-panel active" data-tab="build">
+        <!-- AI Brief Generation -->
+        <section class="control-section">
+          <div class="ai-brief-card">
+            <div class="ai-brief-card-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 3l1.9 5.7a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+              </svg>
+              <span>AIでLPを一括生成</span>
+            </div>
+            <p class="ai-brief-card-description">
+              業種と目的を伝えるだけで、構成・コピーをAIが自動生成します
+            </p>
+            <button class="ai-brief-card-btn" id="openBriefWizard" type="button">
+              ブリーフを入力して生成
+            </button>
+          </div>
+        </section>
 
         <!-- Section Components -->
         <section class="control-section">
           <h3 class="section-title">セクションを追加</h3>
+          <div class="component-search-wrapper">
+            <svg class="component-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="search"
+              id="componentSearch"
+              class="component-search"
+              placeholder="セクションを検索（例: hero, pricing, faq）"
+              aria-label="セクションを検索"
+              autocomplete="off"
+            />
+          </div>
+          <p class="component-search-empty" id="componentSearchEmpty" hidden>
+            該当するセクションが見つかりません
+          </p>
           <div class="section-accordion">
             <!-- Hero セクション -->
             <div class="accordion-item" data-accordion="hero">
@@ -1553,9 +1617,103 @@
                 </div>
               </div>
             </div>
+
+            <!-- 日本型・高密度LP -->
+            <div class="accordion-item" data-accordion="jp-conversion">
+              <button class="accordion-header" aria-expanded="false">
+                <span class="accordion-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3v18h18" />
+                    <path d="m7 12 4-4 4 4 5-5" />
+                  </svg>
+                  日本型LP（高密度）
+                </span>
+                <span class="accordion-count">11</span>
+                <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              <div class="accordion-content">
+                <div class="component-grid">
+                  <button class="component-btn" data-component="jp-hero-offer">
+                    <span class="component-name">JPヒーロー（オファー型）</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-badge-strip">
+                    <span class="component-name">実績・掲載メディア帯</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-problem-checklist">
+                    <span class="component-name">悩みチェックリスト</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-empathy-bridge">
+                    <span class="component-name">共感→解決ブリッジ</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-reasons">
+                    <span class="component-name">選ばれる理由3選</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-voice">
+                    <span class="component-name">お客様の声（高密度）</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-compare-table">
+                    <span class="component-name">他社比較表</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-steps">
+                    <span class="component-name">ご利用の流れ3ステップ</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-offer-box">
+                    <span class="component-name">特別オファー</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-cta-band">
+                    <span class="component-name">CTA帯（繰り返し用）</span>
+                  </button>
+                  <button class="component-btn" data-component="jp-faq-dense">
+                    <span class="component-name">FAQ（高密度）</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- リッチ表現（アワード志向） -->
+            <div class="accordion-item" data-accordion="rich-design">
+              <button class="accordion-header" aria-expanded="false">
+                <span class="accordion-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3l1.9 5.7a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+                  </svg>
+                  リッチ表現
+                </span>
+                <span class="accordion-count">6</span>
+                <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              <div class="accordion-content">
+                <div class="component-grid">
+                  <button class="component-btn" data-component="rich-hero-typo">
+                    <span class="component-name">リッチヒーロー（大型タイポ）</span>
+                  </button>
+                  <button class="component-btn" data-component="rich-marquee">
+                    <span class="component-name">マーキー帯</span>
+                  </button>
+                  <button class="component-btn" data-component="rich-statement">
+                    <span class="component-name">ステートメント</span>
+                  </button>
+                  <button class="component-btn" data-component="rich-features-editorial">
+                    <span class="component-name">エディトリアル特集</span>
+                  </button>
+                  <button class="component-btn" data-component="rich-showcase-scroll">
+                    <span class="component-name">横スクロールショーケース</span>
+                  </button>
+                  <button class="component-btn" data-component="rich-cta-full">
+                    <span class="component-name">フルブリードCTA</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
+        </div>
 
+        <div class="sidebar-tab-panel" data-tab="design">
         <!-- レイアウト設定 -->
         <section class="control-section">
           <h3 class="section-title">レイアウト設定</h3>
@@ -1663,7 +1821,9 @@
             <button class="reset-btn" id="resetColors">色をリセット</button>
           </div>
         </section>
+        </div>
 
+        <div class="sidebar-tab-panel" data-tab="publish">
         <!-- SEO Settings -->
         <section class="control-section">
           <h3 class="section-title">SEO設定</h3>
@@ -1943,11 +2103,26 @@
             </button>
           </div>
         </section>
+        </div>
       </aside>
 
       <!-- Right Side - Preview Area -->
       <main class="preview-area">
         <div class="preview-toolbar">
+          <div class="history-controls" role="group" aria-label="操作履歴">
+            <button class="zoom-btn history-btn" id="undoBtn" aria-label="元に戻す" title="元に戻す (Ctrl+Z)" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 7v6h6" />
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+              </svg>
+            </button>
+            <button class="zoom-btn history-btn" id="redoBtn" aria-label="やり直す" title="やり直す (Ctrl+Shift+Z)" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 7v6h-6" />
+                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+              </svg>
+            </button>
+          </div>
           <div class="device-toggles" role="group" aria-label="デバイスプレビュー切り替え">
             <button
               class="device-btn active"
@@ -2113,6 +2288,96 @@
           </div>
         </div>
       </main>
+    </div>
+
+    <!-- Brief Wizard Modal (AI一括生成) -->
+    <div class="brief-modal" id="briefWizardModal" role="dialog" aria-modal="true" aria-labelledby="briefWizardTitle">
+      <div class="brief-modal-content">
+        <div class="brief-modal-header">
+          <h3 id="briefWizardTitle">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 3l1.9 5.7a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+            </svg>
+            AIでLPを一括生成
+          </h3>
+          <p class="brief-modal-subtitle">
+            目的を教えてください。構成プラン（高品質モデル）→ 各セクションのコピー生成（低コストモデル）の2段階で自動生成します。
+          </p>
+        </div>
+
+        <div class="brief-banner" id="briefAIUnconfigured" hidden>
+          <span>AIプロバイダが未設定です。APIキーを登録すると利用できます。</span>
+          <button type="button" class="brief-banner-btn" id="briefOpenAISettings">AI設定を開く</button>
+        </div>
+
+        <div class="brief-form">
+          <div class="brief-field">
+            <label for="briefDesignStyle">デザイン様式</label>
+            <select id="briefDesignStyle">
+              <option value="global">スタンダード（グローバル・ミニマル）</option>
+              <option value="jp-dense">日本型・高密度（コンバージョン特化の縦長LP）</option>
+              <option value="award-rich">リッチ表現（ブランド・アワード志向）</option>
+            </select>
+            <p class="brief-field-hint" id="briefStyleHint">
+              日本型はPASONA構成の10〜14セクション+CTA反復、リッチ表現は大型タイポと余白が主役の6〜8セクションを生成します
+            </p>
+          </div>
+          <div class="brief-field">
+            <label for="briefIndustry">業種・サービス内容 <span class="brief-required">必須</span></label>
+            <input type="text" id="briefIndustry" placeholder="例: 中小企業向けの勤怠管理SaaS" autocomplete="off" />
+          </div>
+          <div class="brief-field-row">
+            <div class="brief-field">
+              <label for="briefPurpose">LPの目的（CV）</label>
+              <select id="briefPurpose">
+                <option value="問い合わせ獲得">問い合わせ獲得</option>
+                <option value="無料トライアル登録">無料トライアル登録</option>
+                <option value="資料請求">資料請求</option>
+                <option value="商品購入">商品購入</option>
+                <option value="採用応募">採用応募</option>
+                <option value="ブランド認知">ブランド認知</option>
+                <option value="イベント申込">イベント申込</option>
+              </select>
+            </div>
+            <div class="brief-field">
+              <label for="briefTone">トーン</label>
+              <select id="briefTone">
+                <option value="プロフェッショナル">プロフェッショナル</option>
+                <option value="信頼・堅実（BtoB）">信頼・堅実（BtoB）</option>
+                <option value="親しみやすい">親しみやすい</option>
+                <option value="緊急性・オファー訴求（通販型）">緊急性・オファー訴求（通販型）</option>
+                <option value="高級感">高級感</option>
+                <option value="エネルギッシュ">エネルギッシュ</option>
+                <option value="ミニマル">ミニマル</option>
+              </select>
+            </div>
+          </div>
+          <div class="brief-field">
+            <label for="briefAudience">ターゲット</label>
+            <input type="text" id="briefAudience" placeholder="例: 従業員10〜100名の企業の労務担当者" autocomplete="off" />
+          </div>
+          <div class="brief-field">
+            <label for="briefDifferentiators">強み・差別化ポイント</label>
+            <textarea id="briefDifferentiators" rows="2" placeholder="例: 導入5分・初期費用0円・国内サポート"></textarea>
+          </div>
+          <div class="brief-field">
+            <label for="briefCta">CTAボタンの文言</label>
+            <input type="text" id="briefCta" placeholder="例: 無料で試してみる" autocomplete="off" />
+          </div>
+          <label class="brief-replace" id="briefReplaceWrapper" hidden>
+            <input type="checkbox" id="briefReplaceExisting" checked />
+            <span>現在のセクションを置き換える（オフの場合は末尾に追加）</span>
+          </label>
+        </div>
+
+        <p class="brief-progress" id="briefProgress" hidden aria-live="polite"></p>
+
+        <div class="brief-modal-actions">
+          <button type="button" class="gen-dialog-btn cancel" id="briefCancelBtn">閉じる</button>
+          <button type="button" class="gen-dialog-btn cancel" id="briefAbortBtn" hidden>中断</button>
+          <button type="button" class="gen-dialog-btn confirm" id="briefGenerateBtn">AIで一括生成</button>
+        </div>
+      </div>
     </div>
 
     <!-- Export Preview Modal -->
@@ -2455,9 +2720,10 @@
     <script src="js/common-editor.js"></script>
     <script src="js/templates.js"></script>
     <script src="js/advanced-templates.js"></script>
+    <script src="js/archetype-templates.js"></script>
+    <script src="js/lp-motion.js"></script>
     <script src="js/image-manager.js"></script>
     <script src="js/generator.js"></script>
-    <script src="js/enhanced-generator.js"></script>
     <script src="js/ai/ai-service.js"></script>
     <script src="js/ai/ai-prompt-engine.js"></script>
     <script src="js/ai/ai-stream-handler.js"></script>

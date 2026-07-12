@@ -58,6 +58,17 @@ class LandingPageGenerator {
       accentColor: '#f093fb',
     };
 
+    // ブリーフ（AI一括生成の定性情報）: プロジェクトと一緒に保存される
+    this.brief = {
+      industry: '',
+      purpose: '問い合わせ獲得',
+      audience: '',
+      tone: 'プロフェッショナル',
+      differentiators: '',
+      cta: '',
+      designStyle: 'global', // global | jp-dense | award-rich
+    };
+
     // CommonEditor インスタンス（インライン編集の委譲先）
     this.commonEditor = null;
 
@@ -79,6 +90,10 @@ class LandingPageGenerator {
     this.setupWelcomeModal();
     this.setupZoomControls();
     this.setupSectionAccordion();
+    this.setupSidebarTabs();
+    this.setupComponentSearch();
+    this.setupHistoryButtons();
+    this.setupBriefWizard();
     this.draggedItem = null;
 
     // EnhancedGenerator から統合
@@ -108,11 +123,12 @@ class LandingPageGenerator {
    * @param {string} html - 挿入するHTML
    * @param {string} [afterSectionId] - この後に挿入（省略時は末尾）
    */
-  insertAIGeneratedSection(html, afterSectionId) {
+  insertAIGeneratedSection(html, afterSectionId, name) {
     const newSection = {
-      id: 'ai-' + Date.now(),
+      id: CommonEditor.generateId('ai-section'),
+      type: 'ai-generated',
       template: {
-        name: 'AI生成セクション',
+        name: name ? `AI: ${name}` : 'AI生成セクション',
         html: html,
       },
       imageChanges: [],
@@ -168,6 +184,340 @@ class LandingPageGenerator {
   // ==========================================
   // SECTION ACCORDION
   // ==========================================
+
+  // ==========================================
+  // BRIEF WIZARD（ブリーフからAI一括生成）
+  // ==========================================
+
+  setupBriefWizard() {
+    document
+      .getElementById('openBriefWizard')
+      ?.addEventListener('click', () => this.openBriefWizard());
+    document
+      .getElementById('briefCancelBtn')
+      ?.addEventListener('click', () => this.closeBriefWizard());
+    document
+      .getElementById('briefGenerateBtn')
+      ?.addEventListener('click', () => this.runBriefGeneration());
+    document.getElementById('briefAbortBtn')?.addEventListener('click', () => {
+      this.aiController?.abort?.();
+    });
+    document.getElementById('briefOpenAISettings')?.addEventListener('click', () => {
+      this.closeBriefWizard();
+      this.aiController?._openSettingsModal?.();
+    });
+
+    const modal = document.getElementById('briefWizardModal');
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal && !this._briefGenerating) this.closeBriefWizard();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (
+        e.key === 'Escape' &&
+        !this._briefGenerating &&
+        document.getElementById('briefWizardModal')?.classList.contains('active')
+      ) {
+        this.closeBriefWizard();
+      }
+    });
+  }
+
+  openBriefWizard() {
+    const modal = document.getElementById('briefWizardModal');
+    if (!modal) return;
+
+    // 保存済みブリーフをフォームへ反映
+    const fields = {
+      briefIndustry: this.brief.industry,
+      briefPurpose: this.brief.purpose,
+      briefAudience: this.brief.audience,
+      briefTone: this.brief.tone,
+      briefDifferentiators: this.brief.differentiators,
+      briefCta: this.brief.cta,
+      briefDesignStyle: this.brief.designStyle,
+    };
+    Object.entries(fields).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = value || '';
+    });
+
+    // AI未設定バナーの表示切り替え
+    const configured = !!this.aiController?.service?.isConfigured;
+    const banner = document.getElementById('briefAIUnconfigured');
+    if (banner) banner.hidden = configured;
+    const generateBtn = document.getElementById('briefGenerateBtn');
+    if (generateBtn) generateBtn.disabled = !configured;
+
+    // 既存セクションがある場合のみ置き換えオプションを表示
+    const replaceWrapper = document.getElementById('briefReplaceWrapper');
+    if (replaceWrapper) replaceWrapper.hidden = this.sections.length === 0;
+
+    this._setBriefProgress('');
+    modal.classList.add('active');
+    document.getElementById('briefIndustry')?.focus();
+  }
+
+  closeBriefWizard() {
+    document.getElementById('briefWizardModal')?.classList.remove('active');
+  }
+
+  readBriefForm() {
+    const value = (id) => document.getElementById(id)?.value?.trim() || '';
+    this.brief = {
+      industry: value('briefIndustry'),
+      purpose: value('briefPurpose') || '問い合わせ獲得',
+      audience: value('briefAudience'),
+      tone: value('briefTone') || 'プロフェッショナル',
+      differentiators: value('briefDifferentiators'),
+      cta: value('briefCta'),
+      designStyle: value('briefDesignStyle') || 'global',
+    };
+  }
+
+  _setBriefProgress(message, { generating = false } = {}) {
+    const progressEl = document.getElementById('briefProgress');
+    if (progressEl) {
+      progressEl.textContent = message;
+      progressEl.hidden = !message;
+    }
+    const generateBtn = document.getElementById('briefGenerateBtn');
+    const abortBtn = document.getElementById('briefAbortBtn');
+    const cancelBtn = document.getElementById('briefCancelBtn');
+    if (generateBtn) {
+      generateBtn.disabled = generating || !this.aiController?.service?.isConfigured;
+      generateBtn.textContent = generating ? '生成中...' : 'AIで一括生成';
+    }
+    if (abortBtn) abortBtn.hidden = !generating;
+    if (cancelBtn) cancelBtn.disabled = generating;
+  }
+
+  async runBriefGeneration() {
+    if (this._briefGenerating) return;
+    if (!this.aiController?.service?.isConfigured) {
+      this.showNotification('先にAIプロバイダを設定してください', 'warning');
+      return;
+    }
+
+    this.readBriefForm();
+    if (!this.brief.industry) {
+      this.showNotification('業種・サービス内容を入力してください', 'warning');
+      document.getElementById('briefIndustry')?.focus();
+      return;
+    }
+
+    const replace =
+      this.sections.length > 0 &&
+      !!document.getElementById('briefReplaceExisting')?.checked;
+
+    this._briefGenerating = true;
+    this._setBriefProgress('準備中...', { generating: true });
+
+    try {
+      const result = await this.aiController.generateFromBrief(this.brief, {
+        replace,
+        onProgress: (p) => this._setBriefProgress(p.message, { generating: true }),
+      });
+
+      this.autoSave();
+      this.closeBriefWizard();
+      this.showNotification(
+        `AIが${result.inserted}セクションのLPを生成しました。ダブルクリックで編集できます`
+      );
+    } catch (e) {
+      if (e?.name === 'AbortError') {
+        this._setBriefProgress('生成を中断しました');
+      } else {
+        this._setBriefProgress(`エラー: ${e.message}`);
+      }
+    } finally {
+      this._briefGenerating = false;
+      this._setBriefProgress(
+        document.getElementById('briefProgress')?.textContent || ''
+      );
+    }
+  }
+
+  // ==========================================
+  // SIDEBAR TABS（構成 / デザイン / 公開）
+  // ==========================================
+
+  setupSidebarTabs() {
+    const tabs = document.querySelectorAll('.sidebar-tab');
+    const panels = document.querySelectorAll('.sidebar-tab-panel');
+    if (!tabs.length) return;
+
+    const activate = (tabName) => {
+      tabs.forEach((tab) => {
+        const isActive = tab.dataset.tab === tabName;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-selected', String(isActive));
+      });
+      panels.forEach((panel) => {
+        panel.classList.toggle('active', panel.dataset.tab === tabName);
+      });
+      CommonEditor.saveToStorage('lp-generator-active-tab', tabName);
+    };
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => activate(tab.dataset.tab));
+    });
+
+    const saved = CommonEditor.loadFromStorage('lp-generator-active-tab', 'build');
+    activate(['build', 'design', 'publish'].includes(saved) ? saved : 'build');
+  }
+
+  // ==========================================
+  // COMPONENT SEARCH（セクション検索）
+  // ==========================================
+
+  setupComponentSearch() {
+    const input = document.getElementById('componentSearch');
+    if (!input) return;
+    const emptyNote = document.getElementById('componentSearchEmpty');
+
+    input.addEventListener('input', () => {
+      const query = input.value.trim().toLowerCase();
+      const items = document.querySelectorAll('.section-accordion .accordion-item');
+      let totalVisible = 0;
+
+      items.forEach((item) => {
+        const headerText = (
+          item.querySelector('.accordion-title')?.textContent || ''
+        ).toLowerCase();
+        let visibleInItem = 0;
+
+        item.querySelectorAll('.component-btn').forEach((btn) => {
+          const name = (btn.textContent || '').toLowerCase();
+          const key = (btn.dataset.component || '').toLowerCase();
+          const match =
+            !query || name.includes(query) || key.includes(query) || headerText.includes(query);
+          btn.classList.toggle('search-hidden', !match);
+          if (match) visibleInItem++;
+        });
+
+        item.classList.toggle('search-hidden', query !== '' && visibleInItem === 0);
+
+        // 検索中はヒットしたカテゴリを自動展開
+        if (query && visibleInItem > 0) {
+          item.querySelector('.accordion-content')?.classList.add('open');
+          item.querySelector('.accordion-header')?.setAttribute('aria-expanded', 'true');
+        }
+        totalVisible += visibleInItem;
+      });
+
+      if (!query) {
+        // 検索解除時は保存済みの開閉状態に戻す
+        this.restoreAccordionState();
+      }
+
+      if (emptyNote) emptyNote.hidden = !(query && totalVisible === 0);
+    });
+  }
+
+  // ==========================================
+  // HISTORY BUTTONS（undo/redo）
+  // ==========================================
+
+  setupHistoryButtons() {
+    document.getElementById('undoBtn')?.addEventListener('click', () => this.undo());
+    document.getElementById('redoBtn')?.addEventListener('click', () => this.redo());
+    this.updateHistoryButtons();
+  }
+
+  updateHistoryButtons() {
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+    if (undoBtn) {
+      undoBtn.disabled = !(
+        this.historyIndex > 0 ||
+        (this.historyIndex === 0 && this.sections.length > 0)
+      );
+    }
+    if (redoBtn) {
+      redoBtn.disabled = this.historyIndex >= this.history.length - 1;
+    }
+  }
+
+  // ==========================================
+  // DIALOG（confirm / prompt の置き換え）
+  // ==========================================
+
+  confirmDialog(message, options = {}) {
+    return this._openDialog({ mode: 'confirm', message, ...options });
+  }
+
+  promptDialog(message, defaultValue = '', options = {}) {
+    return this._openDialog({ mode: 'prompt', message, defaultValue, ...options });
+  }
+
+  _openDialog({
+    mode,
+    message,
+    defaultValue = '',
+    confirmText = 'OK',
+    cancelText = 'キャンセル',
+    danger = false,
+  }) {
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.className = 'gen-dialog-overlay';
+      overlay.innerHTML = `
+        <div class="gen-dialog" role="dialog" aria-modal="true">
+          <p class="gen-dialog-message"></p>
+          ${mode === 'prompt' ? '<input type="text" class="gen-dialog-input" />' : ''}
+          <div class="gen-dialog-actions">
+            <button type="button" class="gen-dialog-btn cancel"></button>
+            <button type="button" class="gen-dialog-btn confirm${danger ? ' danger' : ''}"></button>
+          </div>
+        </div>
+      `;
+
+      overlay.querySelector('.gen-dialog-message').textContent = message;
+      const confirmBtn = overlay.querySelector('.gen-dialog-btn.confirm');
+      const cancelBtn = overlay.querySelector('.gen-dialog-btn.cancel');
+      confirmBtn.textContent = confirmText;
+      cancelBtn.textContent = cancelText;
+
+      const input = overlay.querySelector('.gen-dialog-input');
+      if (input) input.value = defaultValue;
+
+      const close = (result) => {
+        document.removeEventListener('keydown', onKey, true);
+        overlay.remove();
+        resolve(result);
+      };
+      const confirm = () => {
+        if (mode === 'prompt') {
+          const value = input ? input.value.trim() : '';
+          close(value || null);
+        } else {
+          close(true);
+        }
+      };
+      const cancel = () => close(mode === 'prompt' ? null : false);
+
+      const onKey = (e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          cancel();
+        } else if (e.key === 'Enter' && (mode !== 'prompt' || e.target === input)) {
+          e.stopPropagation();
+          confirm();
+        }
+      };
+
+      confirmBtn.addEventListener('click', confirm);
+      cancelBtn.addEventListener('click', cancel);
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) cancel();
+      });
+      document.addEventListener('keydown', onKey, true);
+
+      document.body.appendChild(overlay);
+      (input || confirmBtn).focus();
+      if (input) input.select();
+    });
+  }
 
   setupSectionAccordion() {
     const accordionHeaders = document.querySelectorAll('.accordion-header');
@@ -645,6 +995,11 @@ class LandingPageGenerator {
 
     // プレビュー再構築後にデザイン設定を再適用
     this.applyDesignSettings();
+
+    // スクロール演出ランタイムを再初期化（data-motion / data-parallax / data-counter）
+    if (typeof LPMotion !== 'undefined') {
+      LPMotion.init(previewFrame, { scrollTarget: previewFrame });
+    }
   }
 
   /**
@@ -665,7 +1020,22 @@ class LandingPageGenerator {
       previewFrame.prepend(styleEl);
     }
 
-    styleEl.textContent = `
+    styleEl.textContent = this.buildDesignTokensCSS();
+
+    // 個別のカスタムCSSも再適用（フォント、サイズ、スペーシング、角丸、カラー）
+    this.applyFontFamily(settings.fontFamily);
+    this.applyFontSizeScale(settings.fontSizeScale);
+    this.applySpacingScale(settings.spacingScale);
+    this.applyBorderRadius(settings.borderRadius);
+    this.injectThemeCSS();
+  }
+
+  /**
+   * デザイン設定のCSS変数＋基本ルール（プレビューとエクスポートで共通）
+   */
+  buildDesignTokensCSS() {
+    const settings = this.designSettings;
+    return `
       :root {
         --lp-primary: ${settings.primaryColor};
         --lp-secondary: ${settings.secondaryColor};
@@ -691,22 +1061,40 @@ class LandingPageGenerator {
       .lp-section { padding: calc(4rem * var(--lp-spacing-scale)) 0; }
       .lp-content-wrapper { padding: 0 calc(1.5rem * var(--lp-spacing-scale)); }
     `;
+  }
 
-    // 個別のカスタムCSSも再適用（フォント、サイズ、スペーシング、角丸、カラー）
-    this.applyFontFamily(settings.fontFamily);
-    this.applyFontSizeScale(settings.fontSizeScale);
-    this.applySpacingScale(settings.spacingScale);
-    this.applyBorderRadius(settings.borderRadius);
-    this.injectThemeCSS();
+  /**
+   * デザイン設定の上書きCSSをスコープ指定で生成する。
+   * プレビューでは '#previewFrame'、エクスポートでは '.lp-container' を渡す。
+   */
+  buildDesignOverrideCSS(scope) {
+    const { fontFamily, fontSizeScale, spacingScale, borderRadius } = this.designSettings;
+    return `
+      ${scope}, ${scope} * { font-family: '${fontFamily}', sans-serif !important; }
+      ${scope} { font-size: ${fontSizeScale * 100}% !important; }
+      ${scope} [class*="lp-section"] { padding-top: calc(80px * ${spacingScale}) !important; padding-bottom: calc(80px * ${spacingScale}) !important; }
+      ${scope} [class*="lp-hero"] { padding-top: calc(120px * ${spacingScale}) !important; padding-bottom: calc(120px * ${spacingScale}) !important; }
+      ${scope} [class*="lp-card"], ${scope} [class*="lp-feature"] { padding: calc(24px * ${spacingScale}) !important; }
+      ${scope} [class*="lp-btn"] { border-radius: ${borderRadius}px !important; }
+      ${scope} [class*="lp-card"], ${scope} [class*="lp-feature-card"],
+      ${scope} [class*="lp-pricing-card"], ${scope} [class*="lp-testimonial"] { border-radius: ${borderRadius}px !important; }
+      ${scope} [class*="lp-mockup"] { border-radius: ${borderRadius}px !important; }
+      ${scope} .lp-hero-visual img { border-radius: ${borderRadius}px !important; }
+      ${this.buildThemeColorsCSS(scope)}
+    `;
+  }
+
+  /**
+   * エクスポートHTMLに埋め込むデザイン設定CSS一式
+   */
+  buildExportDesignCSS() {
+    return `/* === デザインカスタマイズ（ジェネレーター設定） === */\n${this.buildDesignTokensCSS()}\n${this.buildDesignOverrideCSS('.lp-container')}`;
   }
 
   generatePreviewHTML() {
     const sectionsHTML = this.sections
       .map((section) => {
-        let sectionHtml = section.template.html;
-        if (section.imageChanges && section.imageChanges.length > 0) {
-          sectionHtml = this.applyImageChanges(sectionHtml, section.imageChanges);
-        }
+        const sectionHtml = this.getRenderedSectionHTML(section);
 
         return `
                 <div class="lp-section-wrapper" data-section-id="${CommonEditor.sanitizeAttribute(section.id)}" draggable="true">
@@ -808,8 +1196,9 @@ class LandingPageGenerator {
                     stroke: #dc2626;
                 }
             </style>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;600;900&display=swap" rel="stylesheet">
             <link rel="stylesheet" href="css/landing-page.css">
+            <link rel="stylesheet" href="css/lp-archetypes.css">
             <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
                 ${sectionsHTML}
             </div>
@@ -1131,6 +1520,90 @@ class LandingPageGenerator {
   }
 
   // ==========================================
+  // SECTION RENDERING
+  // テンプレート + ユーザー編集（画像・テキスト）の合成
+  // ==========================================
+
+  /**
+   * セクションの最終HTMLを返す。
+   * テンプレートに画像差し替え（imageChanges）とインライン編集（customContent）を
+   * 適用した結果を、プレビュー・全エクスポートで共通利用する。
+   *
+   * customContent のパスは「.lp-section-wrapper 直下に .lp-section-controls がある」
+   * プレビューDOM構造を基準に記録されているため、同じ構造を再現してから解決する。
+   */
+  getRenderedSectionHTML(section) {
+    let sectionHtml = section.template.html;
+
+    if (section.imageChanges && section.imageChanges.length > 0) {
+      sectionHtml = this.applyImageChanges(sectionHtml, section.imageChanges);
+    }
+
+    const customContent = section.customContent;
+    if (customContent && Object.keys(customContent).length > 0) {
+      const host = document.createElement('div');
+      host.innerHTML = `<div class="lp-section-wrapper"><div class="lp-section-controls"></div>${sectionHtml}</div>`;
+      const wrapper = host.firstElementChild;
+
+      Object.entries(customContent).forEach(([path, html]) => {
+        const el = this.resolveElementPath(wrapper, path);
+        if (el) {
+          el.innerHTML = html;
+          this.sanitizeEditedElement(el);
+        }
+      });
+
+      const controls = wrapper.firstElementChild;
+      if (controls && controls.classList.contains('lp-section-controls')) {
+        controls.remove();
+      }
+      sectionHtml = wrapper.innerHTML;
+    }
+
+    return sectionHtml;
+  }
+
+  /**
+   * getElementPath() が記録したパス（例: "section[0] > h1[0] > span[1]"）を
+   * 同じ規則（同タグの兄弟内インデックス）で解決する
+   */
+  resolveElementPath(rootEl, path) {
+    let current = rootEl;
+    for (const part of path.split(' > ')) {
+      if (!current) return null;
+      const match = part.match(/^(.+)\[(\d+)\]$/);
+      if (!match) return null;
+      const tag = match[1].toLowerCase();
+      const index = parseInt(match[2], 10);
+      const candidates = Array.from(current.children).filter(
+        (el) => el.tagName.toLowerCase() === tag
+      );
+      current = candidates[index] || null;
+    }
+    return current;
+  }
+
+  /**
+   * contenteditable 由来の保存HTMLから危険な要素・属性を除去する
+   */
+  sanitizeEditedElement(el) {
+    el.querySelectorAll('script, iframe, object, embed').forEach((n) => n.remove());
+    const nodes = [el, ...el.querySelectorAll('*')];
+    nodes.forEach((node) => {
+      Array.from(node.attributes || []).forEach((attr) => {
+        if (/^on/i.test(attr.name)) {
+          node.removeAttribute(attr.name);
+        } else if (
+          (attr.name === 'href' || attr.name === 'src') &&
+          /^\s*javascript:/i.test(attr.value)
+        ) {
+          node.removeAttribute(attr.name);
+        }
+      });
+    });
+  }
+
+  // ==========================================
   // SECTION OPERATIONS
   // ==========================================
 
@@ -1198,6 +1671,8 @@ class LandingPageGenerator {
       this.history.shift();
       this.historyIndex--;
     }
+
+    this.updateHistoryButtons();
   }
 
   undo() {
@@ -1212,6 +1687,7 @@ class LandingPageGenerator {
       this.updatePreview();
       this.showNotification('元に戻しました (Ctrl+Z)');
     }
+    this.updateHistoryButtons();
   }
 
   redo() {
@@ -1221,6 +1697,7 @@ class LandingPageGenerator {
       this.updatePreview();
       this.showNotification('やり直しました (Ctrl+Shift+Z)');
     }
+    this.updateHistoryButtons();
   }
 
   // ==========================================
@@ -1252,7 +1729,7 @@ class LandingPageGenerator {
 
     switch (format) {
       case 'css-only':
-        code = await this.getInlineCSS();
+        code = `${await this.getInlineCSS()}\n\n${this.buildExportDesignCSS()}`;
         filename = `landing-page-${Date.now()}.css`;
         formatLabel = 'CSS Only';
         break;
@@ -1260,8 +1737,9 @@ class LandingPageGenerator {
         code = await this.generateExternalCSSHTML();
         filename = `landing-page-${Date.now()}.html`;
         formatLabel = 'HTML + 外部CSS';
-        this.exportCSS = await this.getInlineCSS();
-        this.exportCSSFilename = `landing-page-${Date.now()}.css`;
+        this.exportCSS = `${await this.getInlineCSS()}\n\n${this.buildExportDesignCSS()}`;
+        // HTML側の <link href="landing-page.css"> と一致させる
+        this.exportCSSFilename = 'landing-page.css';
         break;
       case 'tailwind':
         code = await this.generateTailwindHTML();
@@ -1457,11 +1935,23 @@ class LandingPageGenerator {
   }
 
   async generateCustomCSSHTML() {
-    const sectionsHTML = this.sections.map((section) => section.template.html).join('\n');
+    const sectionsHTML = this.sections
+      .map((section) => this.getRenderedSectionHTML(section))
+      .join('\n');
 
     const seoMetaTags = this.generateSEOMetaTags();
     const lang = this.seoData.lang || 'ja';
     const cdnBase = LandingPageGenerator.CONFIG.CDN_BASE_URL;
+
+    // CSSをインライン埋め込みして単体で表示できるHTMLを生成する。
+    // 読み込みに失敗した場合のみCDNリンクにフォールバック
+    const inlineCSS = await this.getInlineCSS();
+    const cssLoaded = inlineCSS && !inlineCSS.startsWith('/* CSS loading failed');
+    const designCSS = this.buildExportDesignCSS();
+    const motionScript = await this.getMotionScript();
+    const styleBlock = cssLoaded
+      ? `    <style>\n${inlineCSS}\n\n${designCSS}\n    </style>`
+      : `    <!-- Landing Page Styles via CDN (ローカルCSSの読み込みに失敗) -->\n    <link rel="stylesheet" href="${cdnBase}/landing-page.css">\n    <link rel="stylesheet" href="${cdnBase}/advanced-components.css">\n    <style>\n${designCSS}\n    </style>`;
 
     return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -1471,10 +1961,8 @@ class LandingPageGenerator {
 ${seoMetaTags || '    <title>My Landing Page</title>'}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <!-- Landing Page Styles via CDN -->
-    <link rel="stylesheet" href="${cdnBase}/landing-page.css">
-    <link rel="stylesheet" href="${cdnBase}/advanced-components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;600;900&display=swap" rel="stylesheet">
+${styleBlock}
 </head>
 <body>
     <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
@@ -1511,15 +1999,21 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
                 alert('フォームが送信されました！（デモ）');
             });
         });
+
+        // LP Motion Runtime（スクロール演出）
+        ${motionScript}
     </script>
 </body>
 </html>`;
   }
 
   async generateExternalCSSHTML() {
-    const sectionsHTML = this.sections.map((section) => section.template.html).join('\n');
+    const sectionsHTML = this.sections
+      .map((section) => this.getRenderedSectionHTML(section))
+      .join('\n');
     const seoMetaTags = this.generateSEOMetaTags();
     const lang = this.seoData.lang || 'ja';
+    const motionScript = await this.getMotionScript();
 
     return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -1529,10 +2023,9 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 ${seoMetaTags || '    <title>My Landing Page</title>'}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <!-- External CSS files - download separately -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+1p:wght@300;400;500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;600;900&display=swap" rel="stylesheet">
+    <!-- 同時にダウンロードされる landing-page.css を同じディレクトリに配置してください -->
     <link rel="stylesheet" href="landing-page.css">
-    <link rel="stylesheet" href="advanced-components.css">
 </head>
 <body>
     <div class="lp-container ${this.glassmorphism ? 'glassmorphism' : ''}" data-theme="${this.currentTheme}">
@@ -1567,6 +2060,9 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
                 alert('フォームが送信されました！（デモ）');
             });
         });
+
+        // LP Motion Runtime（スクロール演出）
+        ${motionScript}
     </script>
 </body>
 </html>`;
@@ -1574,7 +2070,7 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 
   async generateTailwindHTML() {
     const sectionsHTML = this.sections
-      .map((section) => this.convertToTailwind(section.template.html))
+      .map((section) => this.convertToTailwind(this.getRenderedSectionHTML(section)))
       .join('\n');
 
     const seoMetaTags = this.generateSEOMetaTags();
@@ -1849,7 +2345,7 @@ ${seoMetaTags || '    <title>My Landing Page</title>'}
 
     // style属性内のCSS変数をインラインで処理
     result = result.replace(/style="([^"]*)"/g, (match, styleContent) => {
-      let cleaned = styleContent
+      const cleaned = styleContent
         .replace(/color:\s*var\(--primary(?:-color)?\)/g, '')
         .replace(/background(?:-color)?:\s*var\(--primary(?:-color)?\)/g, '')
         .replace(/color:\s*var\(--secondary(?:-color)?\)/g, '')
@@ -2021,9 +2517,8 @@ ${this.generateShadcnSectionComponents()}
 
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
-    let h,
-      s,
-      l = (max + min) / 2;
+    let h, s;
+    const l = (max + min) / 2;
 
     if (max === min) {
       h = s = 0;
@@ -3040,13 +3535,28 @@ ${this.generateMUISectionComponents()}
   // CSS LOADING
   // ==========================================
 
+  /**
+   * エクスポートHTMLに同梱するモーションランタイム（js/lp-motion.js）を取得する。
+   * 取得失敗時は data-motion 要素を即時表示するフォールバックを返す。
+   */
+  async getMotionScript() {
+    try {
+      const src = await fetch('js/lp-motion.js').then((r) => (r.ok ? r.text() : ''));
+      if (src) return `${src}\n        LPMotion.init(document);`;
+    } catch (e) {
+      /* フォールバックへ */
+    }
+    return `document.querySelectorAll('[data-motion]').forEach(function (el) { el.classList.add('lpm-in'); });`;
+  }
+
   async getInlineCSS() {
     try {
-      const [landingPageCSS, advancedComponentsCSS] = await Promise.all([
+      const [landingPageCSS, advancedComponentsCSS, archetypesCSS] = await Promise.all([
         fetch('css/landing-page.css').then((r) => r.text()),
         fetch('css/advanced-components.css').then((r) => r.text()),
+        fetch('css/lp-archetypes.css').then((r) => (r.ok ? r.text() : '')),
       ]);
-      return `/* Landing Page Styles */\n${landingPageCSS}\n\n/* Advanced Components */\n${advancedComponentsCSS}`;
+      return `/* Landing Page Styles */\n${landingPageCSS}\n\n/* Advanced Components */\n${advancedComponentsCSS}\n\n/* Archetype Styles (日本型LP / リッチ表現) */\n${archetypesCSS}`;
     } catch (error) {
       console.error('CSSの読み込みに失敗しました:', error);
       this.showNotification('CSSファイルの読み込みに失敗しました', 'error');
@@ -3058,17 +3568,22 @@ ${this.generateMUISectionComponents()}
   // CLEAR ALL
   // ==========================================
 
-  clearAll() {
+  async clearAll() {
     if (this.sections.length === 0) {
       this.showNotification('クリアするセクションがありません', 'info');
       return;
     }
 
-    if (confirm('すべてのセクションを削除してもよろしいですか？')) {
-      this.sections = [];
-      this.updatePreview();
-      this.showNotification('すべてのセクションをクリアしました');
-    }
+    const ok = await this.confirmDialog('すべてのセクションを削除してもよろしいですか？', {
+      confirmText: '削除する',
+      danger: true,
+    });
+    if (!ok) return;
+
+    this.sections = [];
+    this.saveState();
+    this.updatePreview();
+    this.showNotification('すべてのセクションをクリアしました');
   }
 
   generateId() {
@@ -3079,15 +3594,16 @@ ${this.generateMUISectionComponents()}
   // LOCAL STORAGE / PROJECT MANAGEMENT
   // ==========================================
 
-  saveProject() {
+  async saveProject() {
     if (this.sections.length === 0) {
       this.showNotification('保存するセクションがありません', 'error');
       return;
     }
 
-    const projectName = prompt(
-      'プロジェクト名を入力してください:',
-      `LP-${new Date().toLocaleDateString('ja-JP')}`
+    const projectName = await this.promptDialog(
+      'プロジェクト名を入力してください',
+      `LP-${new Date().toLocaleDateString('ja-JP')}`,
+      { confirmText: '保存' }
     );
 
     if (!projectName) return;
@@ -3104,6 +3620,9 @@ ${this.generateMUISectionComponents()}
         animations: this.animations,
         glassmorphism: this.glassmorphism,
         deviceMode: this.deviceMode,
+        designSettings: { ...this.designSettings },
+        seoData: { ...this.seoData },
+        brief: { ...this.brief },
       },
     };
 
@@ -3182,7 +3701,7 @@ ${this.generateMUISectionComponents()}
       .join('');
   }
 
-  loadProjectById(projectId) {
+  async loadProjectById(projectId) {
     const projects = this.getAllProjects();
     const project = projects.find((p) => p.id === projectId);
 
@@ -3192,9 +3711,10 @@ ${this.generateMUISectionComponents()}
     }
 
     if (this.sections.length > 0) {
-      if (!confirm('現在の内容を破棄して読み込みますか？')) {
-        return;
-      }
+      const ok = await this.confirmDialog('現在の内容を破棄して読み込みますか？', {
+        confirmText: '読み込む',
+      });
+      if (!ok) return;
     }
 
     this.currentTheme = project.data.theme;
@@ -3202,6 +3722,15 @@ ${this.generateMUISectionComponents()}
     this.animations = project.data.animations !== undefined ? project.data.animations : true;
     this.glassmorphism = project.data.glassmorphism || false;
     this.deviceMode = project.data.deviceMode || 'desktop';
+    if (project.data.designSettings) {
+      this.designSettings = { ...this.designSettings, ...project.data.designSettings };
+    }
+    if (project.data.seoData) {
+      this.seoData = { ...this.seoData, ...project.data.seoData };
+    }
+    if (project.data.brief) {
+      this.brief = { ...this.brief, ...project.data.brief };
+    }
 
     document.querySelectorAll('.theme-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
@@ -3209,6 +3738,7 @@ ${this.generateMUISectionComponents()}
 
     document.getElementById('animationsToggle').checked = this.animations;
     document.getElementById('glassmorphismToggle').checked = this.glassmorphism;
+    this.syncSettingsUI();
 
     this.updatePreview();
     this.showNotification(`プロジェクト「${project.name}」を読み込みました`);
@@ -3216,10 +3746,12 @@ ${this.generateMUISectionComponents()}
     document.getElementById('savedProjectsList').classList.remove('active');
   }
 
-  deleteProject(projectId) {
-    if (!confirm('このプロジェクトを削除してもよろしいですか？')) {
-      return;
-    }
+  async deleteProject(projectId) {
+    const ok = await this.confirmDialog('このプロジェクトを削除してもよろしいですか？', {
+      confirmText: '削除する',
+      danger: true,
+    });
+    if (!ok) return;
 
     let projects = this.getAllProjects();
     projects = projects.filter((p) => p.id !== projectId);
@@ -3258,13 +3790,16 @@ ${this.generateMUISectionComponents()}
       animations: this.animations,
       glassmorphism: this.glassmorphism,
       deviceMode: this.deviceMode,
+      designSettings: { ...this.designSettings },
+      seoData: { ...this.seoData },
+      brief: { ...this.brief },
       timestamp: Date.now(),
     };
 
     CommonEditor.saveToStorage('lp-generator-autosave', autoSaveData);
   }
 
-  loadAutoSave() {
+  async loadAutoSave() {
     const autoSaveData = CommonEditor.loadFromStorage('lp-generator-autosave');
     if (!autoSaveData) return false;
 
@@ -3272,12 +3807,26 @@ ${this.generateMUISectionComponents()}
       (Date.now() - autoSaveData.timestamp) / (1000 * 60 * 60);
     if (hoursSinceAutoSave > LandingPageGenerator.CONFIG.AUTOSAVE_RETENTION_HOURS) return false;
 
-    if (confirm('前回の作業内容が見つかりました。復元しますか？')) {
+    if (
+      await this.confirmDialog('前回の作業内容が見つかりました。復元しますか？', {
+        confirmText: '復元する',
+        cancelText: '破棄する',
+      })
+    ) {
       this.currentTheme = autoSaveData.theme;
       this.sections = autoSaveData.sections;
       this.animations = autoSaveData.animations;
       this.glassmorphism = autoSaveData.glassmorphism;
       this.deviceMode = autoSaveData.deviceMode;
+      if (autoSaveData.designSettings) {
+        this.designSettings = { ...this.designSettings, ...autoSaveData.designSettings };
+      }
+      if (autoSaveData.seoData) {
+        this.seoData = { ...this.seoData, ...autoSaveData.seoData };
+      }
+      if (autoSaveData.brief) {
+        this.brief = { ...this.brief, ...autoSaveData.brief };
+      }
 
       document.querySelectorAll('.theme-btn').forEach((btn) => {
         btn.classList.toggle('active', btn.dataset.theme === this.currentTheme);
@@ -3285,6 +3834,7 @@ ${this.generateMUISectionComponents()}
 
       document.getElementById('animationsToggle').checked = this.animations;
       document.getElementById('glassmorphismToggle').checked = this.glassmorphism;
+      this.syncSettingsUI();
 
       this.updatePreview();
       this.showNotification('前回の作業内容を復元しました');
@@ -3292,6 +3842,44 @@ ${this.generateMUISectionComponents()}
     }
 
     return false;
+  }
+
+  /**
+   * designSettings / seoData の現在値をサイドバーの入力UIへ反映する
+   * （プロジェクト読込・自動保存復元時に使用）
+   */
+  syncSettingsUI() {
+    const designInputs = {
+      fontFamilySelect: this.designSettings.fontFamily,
+      fontSizeScale: this.designSettings.fontSizeScale,
+      spacingScale: this.designSettings.spacingScale,
+      borderRadiusStyle: this.designSettings.borderRadius,
+      primaryColor: this.designSettings.primaryColor,
+      secondaryColor: this.designSettings.secondaryColor,
+      accentColor: this.designSettings.accentColor,
+    };
+    Object.entries(designInputs).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el && value !== undefined && value !== null) el.value = value;
+    });
+
+    const seoInputs = {
+      seoTitle: this.seoData.title,
+      seoDescription: this.seoData.description,
+      seoKeywords: this.seoData.keywords,
+      ogImage: this.seoData.ogImage,
+      canonicalUrl: this.seoData.canonicalUrl,
+      seoLang: this.seoData.lang,
+    };
+    Object.entries(seoInputs).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el && value !== undefined && value !== null) el.value = value;
+    });
+
+    const twitterCheckbox = document.getElementById('includeTwitterCard');
+    if (twitterCheckbox) twitterCheckbox.checked = !!this.seoData.includeTwitterCard;
+    const schemaCheckbox = document.getElementById('includeSchema');
+    if (schemaCheckbox) schemaCheckbox.checked = !!this.seoData.includeSchema;
   }
 
   // ==========================================
@@ -3305,7 +3893,7 @@ ${this.generateMUISectionComponents()}
     }
 
     const projectData = {
-      version: '1.0',
+      version: '1.1',
       type: 'lp-generator-project',
       exportedAt: new Date().toISOString(),
       data: {
@@ -3314,6 +3902,7 @@ ${this.generateMUISectionComponents()}
           type: section.type,
           id: section.id,
           customContent: section.customContent || null,
+          imageChanges: section.imageChanges || null,
           template: {
             name: section.template.name,
             html: section.template.html,
@@ -3321,6 +3910,9 @@ ${this.generateMUISectionComponents()}
         })),
         animations: this.animations,
         glassmorphism: this.glassmorphism,
+        designSettings: { ...this.designSettings },
+        seoData: { ...this.seoData },
+        brief: { ...this.brief },
       },
     };
 
@@ -3363,6 +3955,15 @@ ${this.generateMUISectionComponents()}
           this.animations =
             projectData.data.animations !== undefined ? projectData.data.animations : true;
           this.glassmorphism = projectData.data.glassmorphism || false;
+          if (projectData.data.designSettings) {
+            this.designSettings = { ...this.designSettings, ...projectData.data.designSettings };
+          }
+          if (projectData.data.seoData) {
+            this.seoData = { ...this.seoData, ...projectData.data.seoData };
+          }
+          if (projectData.data.brief) {
+            this.brief = { ...this.brief, ...projectData.data.brief };
+          }
 
           this.sections = projectData.data.sections.map((section) => {
             if (!section.type) {
@@ -3377,6 +3978,7 @@ ${this.generateMUISectionComponents()}
               type: section.type,
               id: section.id || CommonEditor.generateId('section'),
               customContent: section.customContent,
+              imageChanges: section.imageChanges || [],
               template: originalTemplate || section.template,
             };
           }).filter(Boolean);
@@ -3386,6 +3988,7 @@ ${this.generateMUISectionComponents()}
           });
           document.getElementById('animationsToggle').checked = this.animations;
           document.getElementById('glassmorphismToggle').checked = this.glassmorphism;
+          this.syncSettingsUI();
 
           this.saveState();
           this.updatePreview();
@@ -3420,7 +4023,7 @@ ${this.generateMUISectionComponents()}
         sectionWrapperClass: 'lp-section-wrapper',
         controlsClass: 'lp-section-controls',
         cssPrefix: 'lp',
-        onContentChange: (element, oldContent, newContent) => {
+        onContentChange: (element, oldContent, _newContent) => {
           const wrapper = element.closest('.lp-section-wrapper');
           if (wrapper) {
             const sectionId = wrapper.dataset.sectionId;
@@ -4426,7 +5029,7 @@ const props = withDefaults(defineProps<Props>(), {
   ctaLink: '#',
   secondaryCtaText: '詳しく見る',
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="relative py-24 overflow-hidden bg-gradient-to-br from-primary to-secondary text-white">
@@ -4472,7 +5075,7 @@ const props = withDefaults(defineProps<Props>(), {
     { title: '24時間サポート', description: '専門チームが24時間体制でサポートいたします。', icon: '💬' },
   ],
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-white">
@@ -4524,7 +5127,7 @@ const props = withDefaults(defineProps<Props>(), {
     { name: 'エンタープライズ', price: 'お問合せ', period: '', description: '大規模組織向け', features: ['カスタム機能', '専任サポート', '無制限ストレージ'], featured: false },
   ],
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-gray-50">
@@ -4584,7 +5187,7 @@ const props = withDefaults(defineProps<Props>(), {
     { name: '鈴木 一郎', role: 'エンジニア', company: 'テック株式会社', content: '直感的なUIと強力な機能が魅力です。' },
   ],
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-white">
@@ -4630,7 +5233,7 @@ const props = withDefaults(defineProps<Props>(), {
   ctaText: '無料で始める',
   ctaLink: '#',
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-gradient-to-r from-primary to-secondary text-white">
@@ -4677,7 +5280,7 @@ const openIndex = ref<number | null>(null);
 const toggle = (index: number) => {
   openIndex.value = openIndex.value === index ? null : index;
 };
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-white">
@@ -4720,7 +5323,7 @@ const props = withDefaults(defineProps<Props>(), {
 const handleSubmit = () => {
   alert('お問い合わせを受け付けました（デモ）');
 };
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-gray-50">
@@ -4773,7 +5376,7 @@ const props = withDefaults(defineProps<Props>(), {
 const handleSubmit = () => {
   alert('ニュースレターに登録しました（デモ）');
 };
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-primary/5">
@@ -4813,7 +5416,7 @@ const props = withDefaults(defineProps<Props>(), {
     { value: '50+', label: '連携サービス' },
   ],
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-white">
@@ -4858,7 +5461,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const currentYear = new Date().getFullYear();
-<\/script>
+${'</script>'}
 
 <template>
   <footer class="bg-gray-900 text-white py-16 px-4">
@@ -4901,7 +5504,7 @@ const props = withDefaults(defineProps<Props>(), {
   title: '${name}',
   description: '${type} セクションの内容をここに追加してください。',
 });
-<\/script>
+${'</script>'}
 
 <template>
   <section class="py-16 md:py-24 bg-white">
@@ -5073,7 +5676,7 @@ const props = withDefaults(defineProps<Props>(), {
     if (fontFamilySelect) {
       fontFamilySelect.addEventListener('change', (e) => {
         this.designSettings.fontFamily = e.target.value;
-        this.applyFontFamily(e.target.value);
+        this.applyFontFamily(e.target.value, true);
       });
     }
 
@@ -5081,7 +5684,7 @@ const props = withDefaults(defineProps<Props>(), {
     if (fontSizeScale) {
       fontSizeScale.addEventListener('change', (e) => {
         this.designSettings.fontSizeScale = parseFloat(e.target.value);
-        this.applyFontSizeScale(parseFloat(e.target.value));
+        this.applyFontSizeScale(parseFloat(e.target.value), true);
       });
     }
 
@@ -5089,7 +5692,7 @@ const props = withDefaults(defineProps<Props>(), {
     if (spacingScale) {
       spacingScale.addEventListener('change', (e) => {
         this.designSettings.spacingScale = parseFloat(e.target.value);
-        this.applySpacingScale(parseFloat(e.target.value));
+        this.applySpacingScale(parseFloat(e.target.value), true);
       });
     }
 
@@ -5097,7 +5700,7 @@ const props = withDefaults(defineProps<Props>(), {
     if (borderRadiusStyle) {
       borderRadiusStyle.addEventListener('change', (e) => {
         this.designSettings.borderRadius = parseInt(e.target.value);
-        this.applyBorderRadius(parseInt(e.target.value));
+        this.applyBorderRadius(parseInt(e.target.value), true);
       });
     }
 
@@ -5107,17 +5710,17 @@ const props = withDefaults(defineProps<Props>(), {
 
     primaryColor?.addEventListener('change', (e) => {
       this.designSettings.primaryColor = e.target.value;
-      this.applyCustomColors();
+      this.applyCustomColors(true);
     });
 
     secondaryColor?.addEventListener('change', (e) => {
       this.designSettings.secondaryColor = e.target.value;
-      this.applyCustomColors();
+      this.applyCustomColors(true);
     });
 
     accentColor?.addEventListener('change', (e) => {
       this.designSettings.accentColor = e.target.value;
-      this.applyCustomColors();
+      this.applyCustomColors(true);
     });
 
     const resetColors = document.getElementById('resetColors');
@@ -5126,29 +5729,29 @@ const props = withDefaults(defineProps<Props>(), {
     });
   }
 
-  applyFontFamily(fontFamily) {
+  applyFontFamily(fontFamily, notify = false) {
     const previewFrame = document.getElementById('previewFrame');
     if (previewFrame) {
       previewFrame.style.fontFamily = `'${fontFamily}', sans-serif`;
       this.injectCustomCSS('custom-font-css', `
         #previewFrame, #previewFrame * { font-family: '${fontFamily}', sans-serif !important; }
       `);
-      this.showNotification(`フォントを ${fontFamily} に変更しました`);
+      if (notify) this.showNotification(`フォントを ${fontFamily} に変更しました`);
     }
   }
 
-  applyFontSizeScale(scale) {
+  applyFontSizeScale(scale, notify = false) {
     const previewFrame = document.getElementById('previewFrame');
     if (previewFrame) {
       previewFrame.style.fontSize = `${scale * 100}%`;
       this.injectCustomCSS('custom-fontsize-css', `
         #previewFrame { font-size: ${scale * 100}% !important; }
       `);
-      this.showNotification(`フォントサイズを ${scale * 100}% に変更しました`);
+      if (notify) this.showNotification(`フォントサイズを ${scale * 100}% に変更しました`);
     }
   }
 
-  applySpacingScale(scale) {
+  applySpacingScale(scale, notify = false) {
     const previewFrame = document.getElementById('previewFrame');
     if (previewFrame) {
       previewFrame.style.setProperty('--spacing-scale', scale);
@@ -5157,11 +5760,11 @@ const props = withDefaults(defineProps<Props>(), {
         #previewFrame [class*="lp-hero"] { padding-top: calc(120px * ${scale}) !important; padding-bottom: calc(120px * ${scale}) !important; }
         #previewFrame [class*="lp-card"], #previewFrame [class*="lp-feature"] { padding: calc(24px * ${scale}) !important; }
       `);
-      this.showNotification(`余白を ${scale * 100}% に変更しました`);
+      if (notify) this.showNotification(`余白を ${scale * 100}% に変更しました`);
     }
   }
 
-  applyBorderRadius(radius) {
+  applyBorderRadius(radius, notify = false) {
     this.injectCustomCSS('custom-radius-css', `
       #previewFrame [class*="lp-btn"] { border-radius: ${radius}px !important; }
       #previewFrame [class*="lp-card"], #previewFrame [class*="lp-feature-card"],
@@ -5169,10 +5772,10 @@ const props = withDefaults(defineProps<Props>(), {
       #previewFrame [class*="lp-mockup"] { border-radius: ${radius}px !important; }
       #previewFrame .lp-hero-visual img { border-radius: ${radius}px !important; }
     `);
-    this.showNotification(`角丸を ${radius}px に変更しました`);
+    if (notify) this.showNotification(`角丸を ${radius}px に変更しました`);
   }
 
-  applyCustomColors() {
+  applyCustomColors(notify = false) {
     const previewFrame = document.getElementById('previewFrame');
     if (!previewFrame) return;
 
@@ -5181,54 +5784,61 @@ const props = withDefaults(defineProps<Props>(), {
     previewFrame.style.setProperty('--theme-accent', this.designSettings.accentColor);
 
     this.injectThemeCSS();
-    this.showNotification('カスタムカラーを適用しました');
+    if (notify) this.showNotification('カスタムカラーを適用しました');
   }
 
   injectThemeCSS() {
+    this.injectCustomCSS('custom-theme-css', this.buildThemeColorsCSS('#previewFrame'));
+  }
+
+  /**
+   * カスタムカラーの上書きCSSをスコープ指定で生成する
+   */
+  buildThemeColorsCSS(scope) {
     const { primaryColor, secondaryColor, accentColor } = this.designSettings;
-    this.injectCustomCSS('custom-theme-css', `
-      #previewFrame [class*="lp-hero"]:not([class*="lp-hero-stat"]):not([class*="lp-hero-content"]):not([class*="lp-hero-visual"]):not([class*="lp-hero-title"]):not([class*="lp-hero-subtitle"]):not([class*="lp-hero-buttons"]):not([class*="lp-hero-badge"]) {
+    return `
+      ${scope} [class*="lp-hero"]:not([class*="lp-hero-stat"]):not([class*="lp-hero-content"]):not([class*="lp-hero-visual"]):not([class*="lp-hero-title"]):not([class*="lp-hero-subtitle"]):not([class*="lp-hero-buttons"]):not([class*="lp-hero-badge"]) {
         background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
       }
-      #previewFrame .lp-btn-primary, #previewFrame [class*="lp-btn-primary"],
-      #previewFrame .lp-cta-btn, #previewFrame [class*="lp-cta"] button {
+      ${scope} .lp-btn-primary, ${scope} [class*="lp-btn-primary"],
+      ${scope} .lp-cta-btn, ${scope} [class*="lp-cta"] button {
         background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
         border-color: ${primaryColor} !important;
       }
-      #previewFrame .lp-btn-primary:hover, #previewFrame [class*="lp-btn-primary"]:hover {
+      ${scope} .lp-btn-primary:hover, ${scope} [class*="lp-btn-primary"]:hover {
         box-shadow: 0 10px 30px ${primaryColor}40 !important;
       }
-      #previewFrame .lp-hero-badge, #previewFrame [class*="lp-badge"], #previewFrame .lp-section-badge {
+      ${scope} .lp-hero-badge, ${scope} [class*="lp-badge"], ${scope} .lp-section-badge {
         background: ${primaryColor}15 !important; color: ${primaryColor} !important;
       }
-      #previewFrame .lp-badge-dot { background: ${primaryColor} !important; }
-      #previewFrame .lp-hero-stat-number, #previewFrame .lp-stat-number, #previewFrame [class*="stat-number"] { color: ${primaryColor} !important; }
-      #previewFrame .lp-feature-icon, #previewFrame [class*="lp-feature-icon"] { color: ${primaryColor} !important; }
-      #previewFrame .lp-feature-icon-wrapper, #previewFrame [class*="icon-wrapper"] {
+      ${scope} .lp-badge-dot { background: ${primaryColor} !important; }
+      ${scope} .lp-hero-stat-number, ${scope} .lp-stat-number, ${scope} [class*="stat-number"] { color: ${primaryColor} !important; }
+      ${scope} .lp-feature-icon, ${scope} [class*="lp-feature-icon"] { color: ${primaryColor} !important; }
+      ${scope} .lp-feature-icon-wrapper, ${scope} [class*="icon-wrapper"] {
         background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
       }
-      #previewFrame .lp-pricing-card.featured, #previewFrame .lp-pricing-card.highlighted,
-      #previewFrame [class*="lp-pricing"][class*="featured"] { border-color: ${primaryColor} !important; }
-      #previewFrame .lp-pricing-card .lp-pricing-cta { background: ${primaryColor} !important; }
-      #previewFrame .lp-cta, #previewFrame [class*="lp-cta-section"], #previewFrame .lp-newsletter {
+      ${scope} .lp-pricing-card.featured, ${scope} .lp-pricing-card.highlighted,
+      ${scope} [class*="lp-pricing"][class*="featured"] { border-color: ${primaryColor} !important; }
+      ${scope} .lp-pricing-card .lp-pricing-cta { background: ${primaryColor} !important; }
+      ${scope} .lp-cta, ${scope} [class*="lp-cta-section"], ${scope} .lp-newsletter {
         background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}) !important;
       }
-      #previewFrame .lp-gradient-text {
+      ${scope} .lp-gradient-text {
         background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor}, ${accentColor}) !important;
         -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; background-clip: text !important;
       }
-      #previewFrame a:not([class*="lp-btn"]):hover { color: ${primaryColor} !important; }
-      #previewFrame .lp-team-role, #previewFrame [class*="lp-team-role"] { color: ${primaryColor} !important; }
-      #previewFrame .lp-nav-logo { color: ${primaryColor} !important; }
-      #previewFrame .lp-testimonial-rating, #previewFrame [class*="rating"] svg {
+      ${scope} a:not([class*="lp-btn"]):hover { color: ${primaryColor} !important; }
+      ${scope} .lp-team-role, ${scope} [class*="lp-team-role"] { color: ${primaryColor} !important; }
+      ${scope} .lp-nav-logo { color: ${primaryColor} !important; }
+      ${scope} .lp-testimonial-rating, ${scope} [class*="rating"] svg {
         color: ${accentColor} !important; fill: ${accentColor} !important;
       }
-      #previewFrame [class*="faq"] [class*="icon"] { color: ${primaryColor} !important; }
-      #previewFrame .lp-hero-orb-1 { background: ${primaryColor} !important; }
-      #previewFrame .lp-hero-orb-2 { background: ${secondaryColor} !important; }
-      #previewFrame .lp-hero-orb-3 { background: ${accentColor} !important; }
-      #previewFrame .lp-nav-menu li a::after { background: ${primaryColor} !important; }
-    `);
+      ${scope} [class*="faq"] [class*="icon"] { color: ${primaryColor} !important; }
+      ${scope} .lp-hero-orb-1 { background: ${primaryColor} !important; }
+      ${scope} .lp-hero-orb-2 { background: ${secondaryColor} !important; }
+      ${scope} .lp-hero-orb-3 { background: ${accentColor} !important; }
+      ${scope} .lp-nav-menu li a::after { background: ${primaryColor} !important; }
+    `;
   }
 
   resetColors() {

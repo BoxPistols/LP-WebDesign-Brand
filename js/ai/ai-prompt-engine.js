@@ -109,6 +109,152 @@ CSS変数（デザイントークン）:
 - フォント: --font-sans, --font-mono
 `.trim();
 
+  // --- デザイン様式別の追加CSSクラスリファレンス ---
+  // lp-archetypes.css で定義される専用クラス群
+  static ARCHETYPE_CSS_REFERENCE = {
+    'jp-dense': {
+      heading: ['lp-jp-band-title', 'lp-jp-marker', 'lp-jp-hero-offer', 'lp-nb'],
+      emphasis: ['lp-jp-price', 'lp-jp-price-em', 'lp-jp-note', 'lp-jp-speech'],
+      visual: ['lp-jp-art', 'lp-jp-avatar', 'lp-jp-reason-icon', 'lp-jp-media-logo'],
+      density: [
+        'lp-jp-bg-word', 'lp-jp-side-label', 'lp-jp-seam-top', 'lp-jp-bleed-up',
+        'lp-jp-stat-row', 'lp-jp-stat', 'lp-jp-stat-num', 'lp-jp-stat-label',
+        'lp-jp-cta-micro', 'lp-jp-float-chip',
+      ],
+      trust: ['lp-jp-badge-strip', 'lp-jp-badge', 'lp-jp-voice-card', 'lp-jp-voice-meta'],
+      structure: [
+        'lp-jp-checklist', 'lp-jp-check-item',
+        'lp-jp-reasons', 'lp-jp-reason', 'lp-jp-reason-num',
+        'lp-jp-steps', 'lp-jp-step', 'lp-jp-step-num',
+        'lp-jp-compare-table', 'lp-jp-good', 'lp-jp-soso', 'lp-jp-bad',
+        'lp-jp-faq',
+      ],
+      conversion: [
+        'lp-jp-cta-band', 'lp-jp-cta-arrow',
+        'lp-jp-offer', 'lp-jp-offer-deadline', 'lp-jp-offer-benefits',
+      ],
+    },
+    'award-rich': {
+      typography: [
+        'lp-rich-title-xl', 'lp-rich-outline', 'lp-rich-vertical', 'lp-rich-serif', 'lp-nb',
+      ],
+      visual: [
+        'lp-rich-art', 'lp-rich-index-num', 'lp-rich-editorial-num-label',
+        'lp-rich-bg-word', 'lp-rich-statement-kanji', 'lp-rich-vertical-edge',
+      ],
+      layout: [
+        'lp-rich-hero', 'lp-rich-editorial', 'lp-rich-index-num', 'lp-rich-offset-grid',
+        'lp-rich-statement', 'lp-rich-cta-full',
+      ],
+      motion: ['lp-rich-marquee', 'lp-rich-marquee-track', 'lp-rich-hscroll', 'lp-rich-hscroll-item'],
+    },
+  };
+
+  // --- デザイン様式別のセクションタイプ定義 ---
+  static SECTION_TYPES_JP = {
+    jpHeroOffer: { name: 'JPヒーロー（オファー型）', description: 'キャッチコピー+権威バッジ+価格/期限オファー+CTA' },
+    badgeStrip: { name: '実績・掲載メディア帯', description: '導入実績数値・受賞・掲載メディアのバッジ帯' },
+    problemChecklist: { name: '悩みチェックリスト', description: '「こんなお悩みありませんか？」具体的な悩みのチェックリスト' },
+    empathyBridge: { name: '共感→解決ブリッジ', description: 'その悩みへの共感と「◯◯がすべて解決」への橋渡し' },
+    reasons: { name: '選ばれる理由', description: '丸数字付き「選ばれる理由3選」根拠と実績数値' },
+    voices: { name: 'お客様の声（高密度）', description: '顔写真+氏名+属性+星評価付きレビュー複数件' },
+    comparison: { name: '他社比較表', description: '自社と他社A/Bの○△×比較表' },
+    steps: { name: 'ご利用の流れ', description: '申込みから利用開始までの3ステップ図' },
+    offer: { name: '特別オファー', description: '価格強調・期限・特典リスト付きオファーボックス' },
+    ctaBand: { name: 'CTA帯', description: 'セクション間に挟む行動喚起の帯（繰り返し使用）' },
+    faq: { name: 'FAQ（高密度）', description: '不安を潰す質問と丁寧な回答を多数' },
+    footer: { name: 'フッター', description: 'ページフッター・会社情報・注釈まとめ' },
+  };
+
+  static SECTION_TYPES_RICH = {
+    richHero: { name: 'リッチヒーロー', description: '画面いっぱいの大型タイポグラフィ・縦書きアクセント' },
+    marquee: { name: 'マーキー帯', description: '流れるキーワードテキストの帯' },
+    statement: { name: 'ステートメント', description: '明朝体の大型コピーと大胆な余白によるブランド宣言' },
+    editorialFeatures: { name: 'エディトリアル特集', description: '大型数字インデックス01/02/03とオフセットグリッド' },
+    showcase: { name: '横スクロールショーケース', description: 'scroll-snapの横スクロールギャラリー' },
+    richCta: { name: 'フルブリードCTA', description: '全幅・大型タイポの行動喚起' },
+    contact: { name: 'お問い合わせ', description: 'コンタクトフォーム' },
+    footer: { name: 'フッター', description: 'ページフッター' },
+  };
+
+  // --- デザイン様式別の構成方針 ---
+  static _planStyleGuide(designStyle, purpose) {
+    if (designStyle === 'jp-dense') {
+      return `構成の方針（日本型・高密度コンバージョンLP）:
+- PASONAの法則に沿って構成する: Problem（悩み提起）→ Affinity（共感）→ Solution（解決策）→ Offer（提案・価格）→ Narrowing（限定・緊急性）→ Action（行動喚起）
+- セクション数は10〜14。冒頭は jpHeroOffer、直後に badgeStrip で権威付け
+- ctaBand を2〜3セクションごとに挟み、行動導線を反復する
+- 実績・数値は具体的に（「導入3,000社」「継続率98.5%」等）。「No.1」等の表記を使う場合は notes に注釈の根拠を書く
+- 終盤に offer（期限・特典付き）→ faq → 最後の ctaBand の順で不安解消とクロージング
+- 目的「${purpose}」への導線を全セクションで意識する`;
+    }
+    if (designStyle === 'award-rich') {
+      return `構成の方針（アワード志向・リッチ表現LP）:
+- セクション数は6〜8。タイポグラフィとレイアウトが主役
+- richHero で始め、中盤に statement（ブランド宣言）を置く
+- marquee や showcase を挟んでリズムと緩急を作る
+- コピーは短く、強く、詩的に。説明的な長文は避ける
+- 各セクションの notes には「どんな視覚的インパクトを狙うか」を書く
+- 最後は richCta で締める`;
+    }
+    return `構成の方針:
+- ファーストビュー(hero)で目的「${purpose}」への導線を最優先にする
+- 強み・差別化ポイントは features や socialProof セクションの notes に具体的に反映する
+- 各セクションの notes には、そのセクションで使う具体的なコピーの方向性を書く`;
+  }
+
+  // --- デザイン様式別のセクションタイプ一覧を返す ---
+  static _sectionTypesFor(designStyle) {
+    if (designStyle === 'jp-dense') return AIPromptEngine.SECTION_TYPES_JP;
+    if (designStyle === 'award-rich') return AIPromptEngine.SECTION_TYPES_RICH;
+    return AIPromptEngine.SECTION_TYPES;
+  }
+
+  // --- デザイン様式別の追加クラスリファレンスをテキスト化 ---
+  static _archetypeClassText(designStyle) {
+    const ref = AIPromptEngine.ARCHETYPE_CSS_REFERENCE[designStyle];
+    if (!ref) return '';
+    let text = `\nデザイン様式専用の追加CSSクラス（積極的に使用する）:\n`;
+    for (const [category, classes] of Object.entries(ref)) {
+      text += `  [${category}]: ${classes.join(', ')}\n`;
+    }
+    return text;
+  }
+
+  // --- モーション属性の使用ルール（lp-motion.js ランタイムが解釈する） ---
+  static MOTION_RULES = `
+モーション属性（ランタイムが自動で演出する。scriptタグは書かないこと）:
+- カード・見出し等の出現: data-motion="up|fade|left|right|scale"、グリッド内は data-motion-delay="0/80/160..." でスタッガー
+- 統計・価格の数値: data-counter="数値" data-counter-suffix="社" 等（テキスト内容にも最終値を書くこと）
+- 背景の巨大タイポ層(lp-jp-bg-word / lp-rich-bg-word): data-parallax="0.15" 程度を付与`;
+
+  // --- デザイン様式別のコピー執筆ルール ---
+  static _copyRules(designStyle) {
+    if (designStyle === 'jp-dense') {
+      return `
+コピー執筆ルール（日本型・高密度）:
+- 情報密度を高くする: 見出し + リード文 + 箇条書き3〜5点 + 必要に応じて lp-jp-note の※注釈
+- 重要語句は lp-jp-marker でマーカー強調、価格・数値は lp-jp-price / lp-jp-price-em で強調する
+- 「No.1」「満足度◯%」等の訴求には必ず lp-jp-note で根拠注釈（例: ※2025年 自社調べ）を付ける
+- 見出しの改行は文節単位で制御する: 文節ごとに <span class="lp-nb">…</span> で囲む
+- 具体的な数値・固有の悩み・ベネフィットを書く。抽象的な定型文は禁止
+- 背景に lp-jp-bg-word でセクションキーワードの巨大英字を敷き、lp-jp-side-label で回転ラベルを付ける
+${AIPromptEngine.MOTION_RULES}`;
+    }
+    if (designStyle === 'award-rich') {
+      return `
+コピー執筆ルール（アワード志向・リッチ）:
+- コピーは短く、強く、詩的に。1セクションの文字量は最小限
+- 見出しは lp-rich-title-xl / lp-rich-outline / lp-rich-serif 等の大型タイポクラスを主役にする
+- 要素数を絞り、余白を大胆に使う。装飾的な説明文は書かない
+- 英語の短いキーワード（例: VISION, CRAFT）をアクセントに使ってよい
+- 見出しの改行は文節単位で制御する: 文節ごとに <span class="lp-nb">…</span> で囲む
+- 背景に lp-rich-bg-word で巨大アウトライン英字を敷き、1つの「見せ場」を必ず作る
+${AIPromptEngine.MOTION_RULES}`;
+    }
+    return '';
+  }
+
   // --- セクションタイプ定義 ---
   static SECTION_TYPES = {
     hero: { name: 'ヒーロー', description: 'ファーストビュー。キャッチコピーとCTAボタン' },
@@ -135,7 +281,12 @@ CSS変数（デザイントークン）:
 - アクセシビリティを考慮する（role, aria-label, alt属性）
 - 画像はplaceholder.co等のプレースホルダーURLを使用
 - 日本語のテキストを使用する
-- HTMLのみ出力。説明文は不要`;
+- HTMLのみ出力。説明文は不要
+
+禁止スタイル（AI生成物と分かる典型パターンのため厳禁）:
+- 2px以上の太さで片側だけのアクセントボーダー（例: border-left: 4px solid ...）を角丸要素に付けること
+- 上記に類する「片側太ボーダー+角丸」の組み合わせ全般。
+  強調は、余白・タイポグラフィ・背景ティント・シャドウ・全周1pxボーダーで行うこと`;
   }
 
   // --- CSSクラス一覧をテキスト化 ---
@@ -255,10 +406,13 @@ HTMLを \`\`\`html コードブロックで出力してください。`;
       targetAudience = '',
       tone = 'プロフェッショナル',
       sectionCount = 6,
+      differentiators = '',
+      ctaText = '',
+      designStyle = 'global',
       additionalNotes = '',
     } = options;
 
-    const sectionList = Object.entries(AIPromptEngine.SECTION_TYPES)
+    const sectionList = Object.entries(AIPromptEngine._sectionTypesFor(designStyle))
       .map(([key, val]) => `  - ${key}: ${val.name}（${val.description}）`)
       .join('\n');
 
@@ -274,8 +428,12 @@ ${sectionList}`;
 目的: ${purpose}
 ${targetAudience ? `ターゲット: ${targetAudience}` : ''}
 トーン: ${tone}
+${differentiators ? `強み・差別化ポイント: ${differentiators}` : ''}
+${ctaText ? `主要CTAボタンの文言: ${ctaText}` : ''}
 セクション数: 約${sectionCount}セクション
 ${additionalNotes ? `追加要件: ${additionalNotes}` : ''}
+
+${AIPromptEngine._planStyleGuide(designStyle, purpose)}
 
 以下のJSON形式で出力してください（JSONのみ、説明不要）:
 \`\`\`json
@@ -317,22 +475,31 @@ ${additionalNotes ? `追加要件: ${additionalNotes}` : ''}
       industry = '',
       colorScheme = '',
       tone = '',
+      audience = '',
+      differentiators = '',
+      ctaText = '',
+      designStyle = 'global',
       generatedSections = [],
     } = pageContext;
 
     const system = `${AIPromptEngine._systemBase()}
 
 ${AIPromptEngine._cssReferenceText('lp')}
-
+${AIPromptEngine._archetypeClassText(designStyle)}
 ${AIPromptEngine.DESIGN_TOKENS_REFERENCE}
+${AIPromptEngine._copyRules(designStyle)}
 
 ページ全体のコンテキスト:
 - 業界: ${industry}
 - カラー: ${colorScheme}
 - トーン: ${tone}
+${audience ? `- ターゲット: ${audience}` : ''}
+${differentiators ? `- 強み・差別化ポイント: ${differentiators}` : ''}
+${ctaText ? `- 主要CTAボタンの文言（CTAボタンにはこの文言を使う）: ${ctaText}` : ''}
 - 生成済みセクション数: ${generatedSections.length}
 
 既存のCSSクラスのみを使ってください。
+コピーは業界・ターゲットに即した具体的な日本語で書き、汎用的な定型文は避けてください。
 出力は <section> タグで囲まれた1つのセクションHTMLのみです。`;
 
     const user = `以下のセクションを生成してください。
@@ -566,7 +733,20 @@ HTMLを生成する場合は \`\`\`html コードブロックで出力してく�
   // ============================================================
   // UIコントローラーとの互換ブリッジ
   // buildMessages(taskType, prompt, context) でどのタスクでも呼べる
+  // 戻り値は常に { messages, temperature?, estimatedTokens? } 形式
   // ============================================================
+
+  /** メッセージ配列を { messages, temperature, estimatedTokens } 形式に包む */
+  static _asPromptResult(messages, temperature = 0.3) {
+    return {
+      messages,
+      temperature,
+      estimatedTokens: AIPromptEngine.estimateTokens(
+        messages.map(m => m.content || '').join('')
+      ),
+    };
+  }
+
   static buildMessages(taskType, prompt, context = {}) {
     switch (taskType) {
       case 'customize_section':
@@ -586,24 +766,24 @@ HTMLを生成する場合は \`\`\`html コードブロックで出力してく�
           type: context.type,
         });
       case 'design_system':
-        return AIPromptEngine.buildDesignSystemPrompt
-          ? AIPromptEngine.buildDesignSystemPrompt(prompt, context)
-          : [
-              { role: 'system', content: 'デザイン設定をJSON形式で返してください。キー: fontFamily, primaryColor, secondaryColor, accentColor, borderRadius, fontSizeScale, spacingScale' },
-              { role: 'user', content: prompt },
-            ];
-      case 'review':
-        return AIPromptEngine.buildReviewPrompt
-          ? AIPromptEngine.buildReviewPrompt(prompt, context)
-          : [
-              { role: 'system', content: 'UX/UIの専門家としてWebページ構成をレビューし、改善提案を返してください。' },
-              { role: 'user', content: prompt },
-            ];
+        return AIPromptEngine.buildDesignSystemPrompt({
+          additionalNotes: prompt,
+        });
+      case 'review': {
+        const structureInfo = context.structure || '';
+        const settingsInfo = context.designSettings ? JSON.stringify(context.designSettings) : '';
+        return AIPromptEngine._asPromptResult([
+          { role: 'system', content: 'あなたはUX/UIの専門家です。Webページの構成とデザインをレビューし、改善提案を日本語で返してください。' },
+          { role: 'user', content: `以下のページ構成をレビューしてください。\n\n構成: ${structureInfo}\nデザイン設定: ${settingsInfo}\n${prompt ? `追加の観点: ${prompt}` : ''}` },
+        ], 0.5);
+      }
+      case 'freeform':
+        return AIPromptEngine.buildFreeformPrompt(prompt, context);
       default:
-        return [
+        return AIPromptEngine._asPromptResult([
           { role: 'system', content: 'あなたはWebデザインの専門家です。' },
           { role: 'user', content: prompt },
-        ];
+        ]);
     }
   }
 
